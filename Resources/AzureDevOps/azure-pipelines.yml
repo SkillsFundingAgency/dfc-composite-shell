@@ -1,0 +1,36 @@
+variables:
+    SolutionBaseName: 'DFC.Composite.Shell'
+    BuildPlatform: 'any cpu'
+    BuildConfiguration: 'release'
+
+resources:
+  repositories:
+  - repository: self
+  - repository: dfc-devops
+    type: github
+    name: SkillsFundingAgency/dfc-devops
+    ref: refs/tags/v1.1.1
+    endpoint: 'GitHub (ESFA)'
+
+jobs:
+
+# Build the app with the dfc-dotnetcore-build template.  Runs if the output of TestBranchName is Version2+
+- job: BuildDotNetStandard
+  displayName: Build-DotNetStandard
+  pool:
+    name: Continuous Integration 02 - SSD - 160ACU
+    demands:
+    - msbuild
+    - visualstudio
+
+  steps:
+  - template: AzureDevOpsTemplates/Build/dfc-dotnetcorefunctionapp-build-notests.yml@dfc-devops
+    parameters:
+      SolutionBaseName: $(SolutionBaseName)
+      BuildPlatform: $(BuildPlatform)
+      BuildConfiguration: $(BuildConfiguration)
+
+
+
+
+
