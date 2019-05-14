@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+
+@if (User.Identity.IsAuthenticated)   //(SignInManager.IsSignedIn(User))
+{
+    const string claimTypePicture = "picture";
+    string pictureUrl = string.Empty;
+    string userName = User.Identity.Name;
+
+    if (userName == null)
+    {
+        if (User.HasClaim(c => c.Type == ClaimTypes.Name))
+        {
+            userName = User.Claims.First(c => c.Type == ClaimTypes.Name).Value;
+        }
+        else if (User.HasClaim(c => c.Type == "name"))
+        {
+            userName = User.Claims.First(c => c.Type == "name").Value;
+        }
+    }
+
+    if (User.HasClaim(c => c.Type == claimTypePicture))
+    {
+        pictureUrl = User.Claims.First(c => c.Type == claimTypePicture).Value;
+    }
+
+    <li class="govuk-header__navigation-item">
+        <a class="govuk-header__link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            @if (!string.IsNullOrEmpty(pictureUrl))
+            {
+                <img src="@pictureUrl" height="24" width="24" alt="@userName" />
+            }
+            @userName
+        </a>
+    </li>
+    <li class="govuk-header__navigation-item">
+        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit" class="govuk-header__link my-govuk-header__link">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="govuk-header__navigation-item">
+        <a class="govuk-header__link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="govuk-header__navigation-item">
+        <a class="govuk-header__link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}

@@ -12,12 +12,24 @@ namespace DFC.Composite.Shell.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            var pageViewModel = new Models.PageViewModel()
+            {
+                PageTitle = "Home",
+                Branding = "ESFA"
+            };
+
+            return View(pageViewModel);
         }
 
         public IActionResult Privacy()
         {
-            return View();
+            var pageViewModel = new Models.PageViewModel()
+            {
+                PageTitle = "Privacy Policy",
+                Branding = "ESFA"
+            };
+
+            return View(pageViewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
