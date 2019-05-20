@@ -1,0 +1,21 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "CompositeUiSharedResourceGroup": {
+            "value": "dfc-dev-compui-shared-rg"
+        },
+        "CompositeUiSharedStorageAccountName": {
+            "value": "dfcdevcompuisharedstr"
+        },
+        "Environment": {
+            "value": "FOO"
+        },
+        "SharedAppServicePlanName": {
+            "value": "dfc-dev-compui-shared-asp"
+        },
+        "SharedAppServicePlanResourceGroup": {
+            "value": "dfc-dev-compui-shared-rg"
+        }
+    }
+}
