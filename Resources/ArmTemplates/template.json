@@ -42,7 +42,7 @@
         "AppServicePlanResourceGroup": "[if(greater(length(parameters('SharedAppServicePlanResourceGroup')), 0), parameters('SharedAppServicePlanResourceGroup'), resourceGroup().name)]",
         "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
         "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
-        "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-paths'))]"
+        "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]"
     },
     "resources": [
         {
