@@ -46,13 +46,14 @@ namespace DFC.Composite.Shell
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
             services.AddScoped<IPathService, UrlPathService>();
             services.AddScoped<IPathLocator, UrlPathLocator>();
-            services.AddScoped<IRegionService, LocalRegionService>();
+            services.AddScoped<IRegionService, UrlRegionService>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
 
             services.AddHttpClient<IPathService, UrlPathService>();
+            services.AddHttpClient<IRegionService, UrlRegionService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-    
+
             ConfigureCircuitBreaker(services);
         }
 
