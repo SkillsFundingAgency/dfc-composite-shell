@@ -14,9 +14,9 @@ namespace DFC.Composite.Shell.Controllers
         private const string MainRenderViewName = "Application/RenderView";
 
         private readonly IApplicationService _applicationService;
-        private readonly IMapper<ApplicationModel, PageModel> _mapper;
+        private readonly IMapper<ApplicationModel, PageViewModel> _mapper;
 
-        public ApplicationController(IApplicationService applicationService, IMapper<ApplicationModel, PageModel> mapper)
+        public ApplicationController(IApplicationService applicationService, IMapper<ApplicationModel, PageViewModel> mapper)
         {
             _applicationService = applicationService;
             _mapper = mapper;
@@ -25,7 +25,7 @@ namespace DFC.Composite.Shell.Controllers
         [HttpGet]
         public async Task<IActionResult> Action(ActionGetRequestModel requestViewModel)
         {
-            var vm = new PageModel();
+            var vm = new PageViewModel();
             var application = await _applicationService.GetApplicationAsync(requestViewModel.Path);
 
             if (application == null)

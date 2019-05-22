@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.Services.Mapping
 {
-    public class ApplicationToPageModelMapper : IMapper<ApplicationModel, PageModel>
+    public class ApplicationToPageModelMapper : IMapper<ApplicationModel, PageViewModel>
     {
-        public PageModel Map(ApplicationModel source)
+        public PageViewModel Map(ApplicationModel source)
         {
-            var vm = new PageModel();
+            var vm = new PageViewModel();
             vm.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
             vm.Path = source.Path.Path;
 

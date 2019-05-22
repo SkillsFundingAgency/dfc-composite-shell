@@ -1,19 +1,19 @@
-using Microsoft.AspNetCore.Html;
+﻿using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.Models
 {
     public class PageViewModel
     {
-        public string LayoutName { get; set; } = "_Layout";
+        public string Path { get; set; }
+        public string LayoutName { get; set; } = "_LayoutFullWidth";
         public string Branding { get; set; } = "ESFA";
         public string PageTitle { get; set; } = "Unknown Service";
 
-        public HtmlString HeadMarkup { get; set; }
-        public HtmlString BreadcrumbsMarkup { get; set; }
-        public HtmlString BodyTopMarkup { get; set; }
-        public HtmlString BodyMarkup { get; set; }
-        public HtmlString SidebarRightMarkup { get; set; }
-        public HtmlString SidebarLeftMarkup { get; set; }
-        public HtmlString BodyFooterMarkup { get; set; }
+        public List<PageRegionContentModel> PageRegionContentModels { get; set; }
+
+        public PageViewModel()
+        {
+            PageRegionContentModels = new List<PageRegionContentModel>();
+        }
     }
 }

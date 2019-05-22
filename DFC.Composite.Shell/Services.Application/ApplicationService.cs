@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
+using Microsoft.AspNetCore.Html;
 using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace DFC.Composite.Shell.Services.Application
             _contentProcessor = contentProcessor;
         }
 
-        public async Task GetMarkupAsync(string path, string url, PageModel pageModel)
+        public async Task GetMarkupAsync(string path, string url, PageViewModel pageModel)
         {
             //Get the application
             var application = await GetApplicationAsync(path);
@@ -50,7 +51,7 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
         }
 
-        public async Task PostMarkupAsync(string path, string url, IEnumerable<KeyValuePair<string, string>> formParameters, PageModel pageModel)
+        public async Task PostMarkupAsync(string path, string url, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
         {
             await Task.CompletedTask;
         }
@@ -99,7 +100,7 @@ namespace DFC.Composite.Shell.Services.Application
             return $"{bodyRegionEndpointUri.AbsoluteUri.Replace(bodyRegionEndpointUri.PathAndQuery, string.Empty)}/";
         }
 
-        private async Task LoadRelatedRegions(ApplicationModel application, PageModel pageModel)
+        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel)
         {
             var tasks = new List<Task<string>>();
 
@@ -120,7 +121,7 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.Footer, footerRegionTask);
         }
 
-        private Task<string> GetMarkupAsync(PageModel pageModel, List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions)
+        private Task<string> GetMarkupAsync(PageViewModel pageModel, List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions)
         {
             var pageRegionModel = regions.FirstOrDefault(x => x.PageRegion == regionType);
             if (pageRegionModel == null || string.IsNullOrWhiteSpace(pageRegionModel.RegionEndpoint))
@@ -134,7 +135,7 @@ namespace DFC.Composite.Shell.Services.Application
             return task;
         }
 
-        private void PopulatePageRegionContent(ApplicationModel application, PageModel pageModel, PageRegion regionType, Task<string> task)
+        private void PopulatePageRegionContent(ApplicationModel application, PageViewModel pageModel, PageRegion regionType, Task<string> task)
         {
             if (task != null)
             {
@@ -151,7 +152,7 @@ namespace DFC.Composite.Shell.Services.Application
                     content = application.Path.OfflineHtml;
                 }
 
-                pageRegionContentModel.Content = content;
+                pageRegionContentModel.Content = new HtmlString(content);
             }
         }
 
@@ -165,9 +166,12 @@ namespace DFC.Composite.Shell.Services.Application
 
                 foreach (var path in paths)
                 {
-                    var application = new ApplicationModel();
-                    application.Path = path;
-                    application.Regions = await _regionService.GetRegions(path.Path);
+                    var application = new ApplicationModel
+                    {
+                        Path = path,
+                        Regions = await _regionService.GetRegions(path.Path)
+                    };
+
                     _applications.Add(application);
                 }
             }

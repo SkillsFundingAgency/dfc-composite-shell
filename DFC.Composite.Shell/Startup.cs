@@ -42,7 +42,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IContentProcessor, ContentProcessor>();
             services.AddTransient<IContentRetriever, RealContentRetriever>();
-            services.AddTransient<IMapper<ApplicationModel, PageModel>, ApplicationToPageModelMapper>();
+            services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
             services.AddTransient<IPathService, LocalPathService>();
             services.AddTransient<IPathLocator, UrlPathLocator>();
             services.AddTransient<IRegionService, LocalRegionService>();

@@ -10,8 +10,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             var pageViewModel = new Models.PageViewModel()
             {
-                PageTitle = "Home",
-                Branding = "ESFA"
+                PageTitle = "Home"
             };
 
             return View(pageViewModel);
@@ -21,8 +20,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             var pageViewModel = new Models.PageViewModel()
             {
-                PageTitle = "Privacy Policy",
-                Branding = "ESFA"
+                PageTitle = "Privacy Policy"
             };
 
             return View(pageViewModel);

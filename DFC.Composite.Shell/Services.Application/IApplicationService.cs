@@ -12,7 +12,7 @@ namespace DFC.Composite.Shell.Services.Application
         /// <param name="path">The path or application name</param>
         /// <param name="url">The relative url</param>
         /// <param name="pageModel">A page model object, that has its path set</param>
-        Task GetMarkupAsync(string path, string url, PageModel pageModel);
+        Task GetMarkupAsync(string path, string url, PageViewModel pageModel);
 
         /// <summary>
         /// Posts a request to the specified url with the specified form data and loads other related regions for the specified path
@@ -22,7 +22,7 @@ namespace DFC.Composite.Shell.Services.Application
         /// <param name="formParameters"></param>
         /// <param name="pageModel"></param>
         /// <returns></returns>
-        Task PostMarkupAsync(string path, string url, IEnumerable<KeyValuePair<string, string>> formParameters, PageModel pageModel);
+        Task PostMarkupAsync(string path, string url, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel);
 
         /// <summary>
         /// Gets details of an application that includes regions, given a path

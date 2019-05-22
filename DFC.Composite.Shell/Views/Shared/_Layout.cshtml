@@ -47,7 +47,7 @@
         <div class="govuk-header__container govuk-width-container">
 
             <div class="govuk-header__logo">
-                <a href="" class="govuk-header__link govuk-header__link--homepage">
+                <a href="#" class="govuk-header__link govuk-header__link--homepage">
                     <span class="govuk-header__logotype">
 
                         <svg role="presentation" focusable="false" class="govuk-header__logotype-crown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" height="32" width="36">
@@ -63,7 +63,7 @@
             </div>
             <div class="govuk-header__content">
 
-                <a href="" class="govuk-header__link govuk-header__link--service-name">
+                <a href="#" class="govuk-header__link govuk-header__link--service-name">
                     Composite UI Shell
                 </a>
 
@@ -81,18 +81,15 @@
             </div>
         </div>
     </header>
+
     <div class="govuk-width-container">
 
         <partial name="_ErrorSummary" />
 
-    <div class="container">
-        <h1>_Layout</h1>
+        <main class="govuk-main-wrapper" id="main-content" role="main">
 
-        <partial name="_CookieConsentPartial" />
-        <partial name="_ErrorSummary" />
-
-        <main role="main" class="pb-3">
             @RenderBody()
+
             @{
                 if (IsSectionDefined("Head"))
                 {

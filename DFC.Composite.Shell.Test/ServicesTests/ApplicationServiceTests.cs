@@ -18,7 +18,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
     public class ApplicationServiceTests
     {
         private readonly IApplicationService _applicationService;
-        private readonly IMapper<ApplicationModel, PageModel> _mapper;
+        private readonly IMapper<ApplicationModel, PageViewModel> _mapper;
         private readonly Mock<IPathService> _pathService;
         private readonly Mock<IRegionService> _regionService;
         private readonly Mock<IContentRetriever> _contentRetriever;
