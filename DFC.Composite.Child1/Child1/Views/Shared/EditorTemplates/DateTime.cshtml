@@ -1,0 +1,29 @@
+﻿@model DateTime
+
+<div class="govuk-form-group">
+    @{ var hintId = "";}
+
+    @Html.LabelFor(model => model, new { @class = "govuk-label" })
+
+    @if (!string.IsNullOrEmpty(ViewData.ModelMetadata.Description))
+    {
+        hintId = ViewData.ModelMetadata.Name + "-hint";
+
+        <span id="@hintId" class="govuk-hint">
+            @ViewData.ModelMetadata.Description
+        </span>
+    }
+
+    @Html.ValidationMessageFor(model => model, string.Empty, new { @class = "govuk-error-message", @id = ViewData.ModelMetadata.Name + "-error" })
+
+    <input id="date"
+           type="date"
+           value="@Model.ToString("yyyy-MM-dd")"
+           class="govuk-input"
+           autocomplete="off"
+           data-toggle="tooltip"
+           data-placement="bottom"
+           title="@ViewData.ModelMetadata.Description"
+           placeholder="@ViewData.ModelMetadata.Placeholder"
+           aria-describedby="@hintId">
+</div>

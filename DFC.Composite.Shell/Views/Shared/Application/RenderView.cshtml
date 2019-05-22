@@ -1,0 +1,75 @@
+﻿@using  DFC.Composite.Shell.Common
+@model PageModel
+
+@{
+    Layout = Model.LayoutName;
+    ViewData["Branding"] = Model.Branding;
+
+    ViewData["Title"] = Model.PageTitle;
+
+    PageRegionContentModel GetRegionContent(PageRegion region)
+    {
+        return Model.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == region);
+    }
+
+    var headRegionContent = GetRegionContent(PageRegion.Head);
+    var breadcrumbRegionContent = GetRegionContent(PageRegion.Breadcrumb);
+    var bodyTopRegionContent = GetRegionContent(PageRegion.BodyTop);
+    var bodyRegionContent = GetRegionContent(PageRegion.Body);
+    var sidebarLeftRegionContent = GetRegionContent(PageRegion.SidebarLeft);
+    var sidebarRightRegionContent = GetRegionContent(PageRegion.SidebarRight);
+    var footerRegionContent = GetRegionContent(PageRegion.Footer);
+}
+
+@if (headRegionContent != null)
+{
+    @section Head {
+        @Html.Raw(headRegionContent.Content)
+    }
+}
+
+@if (breadcrumbRegionContent != null)
+{
+    @section Breadcrumb {
+        @Html.Raw(breadcrumbRegionContent.Content)
+    }
+}
+
+@if (bodyTopRegionContent != null)
+{
+    @section BodyTop {
+        @Html.Raw(bodyTopRegionContent.Content)
+    }
+}
+
+@if (bodyRegionContent != null)
+{
+    @section Body {
+        @Html.Raw(bodyRegionContent.Content)
+    }
+}
+
+@if (sidebarLeftRegionContent != null)
+{
+    @section SideBarLeft {
+        @Html.Raw(sidebarLeftRegionContent.Content)
+    }
+}
+
+@if (sidebarRightRegionContent != null)
+{
+    @section SidebarRight{
+        @Html.Raw(sidebarRightRegionContent.Content)
+    }
+}
+
+@if (footerRegionContent != null)
+{
+    @section Footer{
+        @Html.Raw(footerRegionContent.Content)
+    }
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -34,15 +34,52 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
+                        @await Component.InvokeAsync("ListPaths")
+
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
+        <h1>_Layout</h1>
+
         <partial name="_CookieConsentPartial" />
+        <partial name="_ErrorSummary" />
+
         <main role="main" class="pb-3">
             @RenderBody()
+            @{
+                if (IsSectionDefined("Head"))
+                {
+                    IgnoreSection("Head");
+                }
+                if (IsSectionDefined("Breadcrumb"))
+                {
+                    IgnoreSection("Breadcrumb");
+                }
+                if (IsSectionDefined("BodyTop"))
+                {
+                    IgnoreSection("BodyTop");
+                }
+                if (IsSectionDefined("Body"))
+                {
+                    IgnoreSection("Body");
+                }
+                if (IsSectionDefined("SideBarLeft"))
+                {
+                    IgnoreSection("SideBarLeft");
+                }
+                if (IsSectionDefined("SideBarRight"))
+                {
+                    IgnoreSection("SideBarRight");
+                }
+                if (IsSectionDefined("Footer"))
+                {
+                    IgnoreSection("Footer");
+                }
+            }
         </main>
     </div>
 
