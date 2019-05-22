@@ -1,5 +1,3 @@
-using System;
-
 namespace DFC.Composite.Shell.Models
 {
     public class ErrorViewModel

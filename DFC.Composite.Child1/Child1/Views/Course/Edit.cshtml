@@ -1,0 +1,43 @@
+﻿@model Course
+
+@{
+    ViewData["Title"] = "Edit Course";
+}
+
+<form asp-action="Edit">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
+
+            <p class="govuk-body-l">
+                You are editing a course.
+            </p>
+            <p class="govuk-body">
+                Edit and save the new course details.
+            </p>
+
+            <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                    Edit
+                </legend>
+
+                @Html.EditorFor(model => model.Title)
+                @Html.EditorFor(model => model.Description)
+                @Html.EditorFor(model => model.City)
+                @Html.EditorFor(model => model.MaxAttendeeCount)
+                @Html.EditorFor(model => model.Start)
+                @Html.EditorFor(model => model.Category)
+
+            </fieldset>
+
+            <input type="submit" value="Save" class="govuk-button" />
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

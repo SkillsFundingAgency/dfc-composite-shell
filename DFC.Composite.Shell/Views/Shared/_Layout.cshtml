@@ -73,19 +73,56 @@
                         <li class="govuk-header__navigation-item">
                             <a class="govuk-header__link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
+                        @await Component.InvokeAsync("ListPaths")
+
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
-
     <div class="govuk-width-container">
 
         <partial name="_ErrorSummary" />
 
-        <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="container">
+        <h1>_Layout</h1>
 
+        <partial name="_CookieConsentPartial" />
+        <partial name="_ErrorSummary" />
+
+        <main role="main" class="pb-3">
             @RenderBody()
+            @{
+                if (IsSectionDefined("Head"))
+                {
+                    IgnoreSection("Head");
+                }
+                if (IsSectionDefined("Breadcrumb"))
+                {
+                    IgnoreSection("Breadcrumb");
+                }
+                if (IsSectionDefined("BodyTop"))
+                {
+                    IgnoreSection("BodyTop");
+                }
+                if (IsSectionDefined("Body"))
+                {
+                    IgnoreSection("Body");
+                }
+                if (IsSectionDefined("SideBarLeft"))
+                {
+                    IgnoreSection("SideBarLeft");
+                }
+                if (IsSectionDefined("SideBarRight"))
+                {
+                    IgnoreSection("SideBarRight");
+                }
+                if (IsSectionDefined("Footer"))
+                {
+                    IgnoreSection("Footer");
+                }
+            }
 
         </main>
     </div>

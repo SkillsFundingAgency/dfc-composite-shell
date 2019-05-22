@@ -1,0 +1,5 @@
+﻿@model DFC.Composite.Shell.ViewComponents.ListPathsViewModel
+@foreach (var path in Model.Paths.OrderBy(x => x.TopNavigationOrder))
+{
+    <li><a href="~/@path.Path" class="nav-link text-dark">@path.TopNavigationText</a></li>
+}
