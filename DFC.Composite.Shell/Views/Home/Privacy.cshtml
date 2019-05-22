@@ -1,6 +1,17 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+﻿@model PageViewModel
 
-<p>Use this page to detail your site's privacy policy.</p>
+@{
+    Layout = Model.LayoutName;
+    ViewData["Branding"] = Model.Branding;
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
+
+        <p class="govuk-body">
+            Composite UI Shell.
+        </p>
+    </div>
+</div>
