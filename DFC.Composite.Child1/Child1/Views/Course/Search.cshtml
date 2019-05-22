@@ -1,0 +1,28 @@
+﻿@model SearchViewModel
+
+@{
+    ViewData["Title"] = "Search";
+}
+
+<form asp-action="Search">
+    @Html.AntiForgeryToken()
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                    Search
+                </legend>
+
+                @Html.EditorFor(model => model.Clue)
+
+            </fieldset>
+
+            <input type="submit" value="Search" class="govuk-button" />
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

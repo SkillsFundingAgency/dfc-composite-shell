@@ -1,0 +1,28 @@
+﻿@model string
+
+<div class="govuk-form-group">
+    @{ var hintId = "";}
+
+    @Html.LabelFor(model => model, new { @class = "govuk-label" })
+
+    @if (!string.IsNullOrEmpty(ViewData.ModelMetadata.Description))
+    {
+        hintId = ViewData.ModelMetadata.Name + "-hint";
+
+        <span id="@hintId" class="govuk-hint">
+            @ViewData.ModelMetadata.Description
+        </span>
+    }
+
+    @Html.ValidationMessageFor(model => model, string.Empty, new { @class = "govuk-error-message", @id = ViewData.ModelMetadata.Name + "-error" })
+
+    @Html.TextBoxFor(model => model, new {
+        @class = "govuk-input",
+        title = ViewData.ModelMetadata.Description,
+        placeholder = ViewData.ModelMetadata.Placeholder,
+        data_toggle = "tooltip",
+        data_placement = "bottom",
+        aria_describedby = hintId,
+        autocomplete = "off"
+    })
+</div>

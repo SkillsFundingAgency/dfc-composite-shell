@@ -1,14 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.ContentProcessor;
+using DFC.Composite.Shell.Services.ContentRetrieve;
+using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.PathLocator;
+using DFC.Composite.Shell.Services.Paths;
+using DFC.Composite.Shell.Services.Regions;
+using DFC.Composite.Shell.Services.UrlRewriter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
+using System;
 
 namespace DFC.Composite.Shell
 {
@@ -31,12 +38,23 @@ namespace DFC.Composite.Shell
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddHttpContextAccessor();
+            services.AddTransient<IApplicationService, ApplicationService>();
+            services.AddTransient<IContentProcessor, ContentProcessor>();
+            services.AddTransient<IContentRetriever, RealContentRetriever>();
+            services.AddTransient<IMapper<ApplicationModel, PageModel>, ApplicationToPageModelMapper>();
+            services.AddTransient<IPathService, LocalPathService>();
+            services.AddTransient<IPathLocator, UrlPathLocator>();
+            services.AddTransient<IRegionService, LocalRegionService>();
+            services.AddTransient<IUrlRewriter, UrlRewriter>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            ConfigureCircuitBreaker(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathService pathService)
         {
             if (env.IsDevelopment())
             {
@@ -53,8 +71,39 @@ namespace DFC.Composite.Shell
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
+            ConfigureRouting(app, pathService);
+        }
+
+        private void ConfigureCircuitBreaker(IServiceCollection services)
+        {
+            var policyName = "CircuitBreaker";
+            var policyRegistry = services.AddPolicyRegistry();
+            policyRegistry.Add(
+                policyName,
+                HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(2, TimeSpan.FromSeconds(30))
+            );
+
+            services.AddHttpClient<IContentRetriever, RealContentRetriever>()
+                .AddPolicyHandlerFromRegistry(policyName);
+        }
+
+        private void ConfigureRouting(IApplicationBuilder app, IPathService pathService)
+        {
+            var paths = pathService.GetPaths().Result;
+
             app.UseMvc(routes =>
             {
+                // map any incoming routes for each path
+                foreach (var path in paths)
+                {
+                    routes.MapRoute(
+                        name: $"path-{path.Path}-Action",
+                        template: path.Path + "/{**data}",
+                        defaults: new { controller = "Application", action = "Action", Path = path.Path }
+                    );
+                }
+
+                // add the default route
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
