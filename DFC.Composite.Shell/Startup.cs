@@ -21,12 +21,12 @@ namespace DFC.Composite.Shell
 {
     public class Startup
     {
+        private IConfiguration _configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -39,17 +39,20 @@ namespace DFC.Composite.Shell
             });
 
             services.AddHttpContextAccessor();
+
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IContentProcessor, ContentProcessor>();
             services.AddTransient<IContentRetriever, RealContentRetriever>();
             services.AddTransient<IMapper<ApplicationModel, PageModel>, ApplicationToPageModelMapper>();
-            services.AddTransient<IPathService, LocalPathService>();
-            services.AddTransient<IPathLocator, UrlPathLocator>();
-            services.AddTransient<IRegionService, LocalRegionService>();
+            services.AddScoped<IPathService, UrlPathService>();
+            services.AddScoped<IPathLocator, UrlPathLocator>();
+            services.AddScoped<IRegionService, LocalRegionService>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddHttpClient<IPathService, UrlPathService>();
 
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+    
             ConfigureCircuitBreaker(services);
         }
 
