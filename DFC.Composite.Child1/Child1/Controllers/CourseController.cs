@@ -16,6 +16,8 @@ namespace Child1.Controllers
 
         public IActionResult Index()
         {
+            throw new InvalidOperationException("oops at " + DateTime.Now);
+
             var vm = new CourseIndexViewModel();
 
             vm.Courses = _courseService.GetCourses();
