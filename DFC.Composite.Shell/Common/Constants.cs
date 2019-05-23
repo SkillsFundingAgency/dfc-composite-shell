@@ -3,5 +3,6 @@
     public class Constants
     {
         public const string LayoutPrefix = "_Layout";
+        public const string Policies = "Policies";
     }
 }

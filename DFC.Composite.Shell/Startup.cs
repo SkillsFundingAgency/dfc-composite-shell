@@ -1,4 +1,7 @@
-﻿using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Common;
+using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Policies.Options;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
@@ -49,12 +52,14 @@ namespace DFC.Composite.Shell
             services.AddScoped<IRegionService, UrlRegionService>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
 
-            services.AddHttpClient<IPathService, UrlPathService>();
-            services.AddHttpClient<IRegionService, UrlRegionService>();
+            services
+                .AddPolicies(_configuration)
+                .AddHttpClient<IContentRetriever, RealContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationOptions.ApplicationClient))
+                .AddHttpClient<IPathService, UrlPathService, ApplicationClientOptions>(_configuration, nameof(ApplicationOptions.ApplicationClient))
+                .AddHttpClient<IRegionService, UrlRegionService, ApplicationClientOptions>(_configuration, nameof(ApplicationOptions.ApplicationClient));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            ConfigureCircuitBreaker(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,19 +81,6 @@ namespace DFC.Composite.Shell
             app.UseCookiePolicy();
 
             ConfigureRouting(app, pathService);
-        }
-
-        private void ConfigureCircuitBreaker(IServiceCollection services)
-        {
-            var policyName = "CircuitBreaker";
-            var policyRegistry = services.AddPolicyRegistry();
-            policyRegistry.Add(
-                policyName,
-                HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(2, TimeSpan.FromSeconds(30))
-            );
-
-            services.AddHttpClient<IContentRetriever, RealContentRetriever>()
-                .AddPolicyHandlerFromRegistry(policyName);
         }
 
         private void ConfigureRouting(IApplicationBuilder app, IPathService pathService)
