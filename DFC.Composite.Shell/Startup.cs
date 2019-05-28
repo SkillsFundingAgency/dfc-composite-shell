@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Common;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Policies.Options;
@@ -16,9 +16,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Polly;
-using Polly.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 
 namespace DFC.Composite.Shell
 {
@@ -51,6 +51,7 @@ namespace DFC.Composite.Shell
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IRegionService, UrlRegionService>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
+            services.AddTransient<ILoggerHelper, LoggerHelper>();
 
             services
                 .AddPolicies(_configuration)
@@ -63,7 +64,7 @@ namespace DFC.Composite.Shell
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathService pathService)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathService pathService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
         {
             if (env.IsDevelopment())
             {
@@ -80,12 +81,21 @@ namespace DFC.Composite.Shell
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            ConfigureRouting(app, pathService);
+            ConfigureRouting(app, pathService, logger, loggerHelper);
         }
 
-        private void ConfigureRouting(IApplicationBuilder app, IPathService pathService)
+        private void ConfigureRouting(IApplicationBuilder app, IPathService pathService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
         {
-            var paths = pathService.GetPaths().Result;
+            IEnumerable<PathModel> paths = new List<PathModel>();
+
+            try
+            {
+                paths = pathService.GetPaths().Result;
+            }
+            catch (Exception ex)
+            {
+                loggerHelper.LogException(logger, Guid.NewGuid(), ex);
+            }
 
             app.UseMvc(routes =>
             {
