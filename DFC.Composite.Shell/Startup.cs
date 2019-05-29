@@ -99,14 +99,17 @@ namespace DFC.Composite.Shell
 
             app.UseMvc(routes =>
             {
-                // map any incoming routes for each path
-                foreach (var path in paths)
+                if (paths != null)
                 {
-                    routes.MapRoute(
-                        name: $"path-{path.Path}-Action",
-                        template: path.Path + "/{**data}",
-                        defaults: new { controller = "Application", action = "Action", Path = path.Path }
-                    );
+                    // map any incoming routes for each path
+                    foreach (var path in paths)
+                    {
+                        routes.MapRoute(
+                            name: $"path-{path.Path}-Action",
+                            template: path.Path + "/{**data}",
+                            defaults: new { controller = "Application", action = "Action", Path = path.Path }
+                        );
+                    }
                 }
 
                 // add the default route
