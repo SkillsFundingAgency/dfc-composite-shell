@@ -9,7 +9,7 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.1.1
+    ref: refs/heads/NCSD-772-FixDotNetCoreBuild
     endpoint: 'GitHub (ESFA)'
 
 jobs:
