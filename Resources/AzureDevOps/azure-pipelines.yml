@@ -14,9 +14,8 @@ resources:
 
 jobs:
 
-# Build the app with the dfc-dotnetcore-build template.  Runs if the output of TestBranchName is Version2+
-- job: BuildDotNetStandard
-  displayName: Build-DotNetStandard
+- job: BuildDotNetCore
+  displayName: Build-DotNetCore
   pool:
     name: Continuous Integration 02 - SSD - 160ACU
     demands:
@@ -24,7 +23,7 @@ jobs:
     - visualstudio
 
   steps:
-  - template: AzureDevOpsTemplates/Build/dfc-dotnetcorefunctionapp-build-notests.yml@dfc-devops
+  - template: AzureDevOpsTemplates/Build/dfc-dotnetcore-build-notests.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
