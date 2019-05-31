@@ -137,6 +137,38 @@
                             {
                                 "name": "AzureWebJobsStorage",
                                 "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                            },
+                            {
+                                "name": "Logging__LogLevel__Error",
+                                "value": "Error"
+                            },
+                            {
+                                "name": "PathApiUrl",
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net/api/')]"
+                            },
+                            {
+                                "name": "RegionApiUrl",
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net/api/')]"
+                            },
+                            {
+                                "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
+                                "value": "00:01:00"
+                            },
+                            {
+                                "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
+                                "value": 3
+                            },
+                            {
+                                "name": "HttpRetry__BackoffPower",
+                                "value": 3
+                            },
+                            {
+                                "name": "HttpRetry__Count",
+                                "value": 3
+                            },
+                            {
+                                "name": "ApplicationClient__Timeout",
+                                "value": "00:00:30"
                             }
                         ]
                     }
