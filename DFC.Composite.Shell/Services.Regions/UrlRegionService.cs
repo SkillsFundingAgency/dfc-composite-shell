@@ -16,7 +16,7 @@ namespace DFC.Composite.Shell.Services.Regions
         public UrlRegionService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
-            _httpClient = httpClient;
+            _httpClient = new HttpClient();
         }
 
         public async Task<IEnumerable<RegionModel>> GetRegions(string path)

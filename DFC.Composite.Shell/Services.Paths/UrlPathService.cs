@@ -14,7 +14,8 @@ namespace DFC.Composite.Shell.Services.Paths
         public UrlPathService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
-            _httpClient = httpClient;
+            //_httpClient = httpClient;
+            _httpClient = new HttpClient();
         }
 
         public async Task<IEnumerable<PathModel>> GetPaths()
