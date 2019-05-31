@@ -14,14 +14,11 @@ namespace DFC.Composite.Shell.Services.Paths
         public UrlPathService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
-            //_httpClient = httpClient;
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
         }
 
         public async Task<IEnumerable<PathModel>> GetPaths()
         {
-            var result = new List<PathModel>();
-
             var pathUri = $"{_configuration["PathApiUrl"]}paths";
             var msg = new HttpRequestMessage(HttpMethod.Get, pathUri);
 

@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Services.Paths;
 using Microsoft.AspNetCore.Mvc;
+using Polly.CircuitBreaker;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents
@@ -16,8 +17,17 @@ namespace DFC.Composite.Shell.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var vm = new ListPathsViewModel();
-            vm.Paths = await _pathService.GetPaths();
-            await Task.CompletedTask;
+
+            try
+            {
+                vm.Paths = await _pathService.GetPaths();
+            }
+            catch (BrokenCircuitException ex)
+            {
+                var errorString = $" ListPathsViewComponent BrokenCircuit: {ex.Message}";
+                ModelState.AddModelError(string.Empty, errorString);
+            }
+
             return View(vm);
         }
     }
