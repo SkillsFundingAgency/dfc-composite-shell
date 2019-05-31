@@ -127,10 +127,6 @@
                     "appServiceAppSettings": {
                         "value": [
                             {
-                                "name": "FUNCTIONS_EXTENSION_VERSION",
-                                "value": "~2"
-                            },
-                            {
                                 "name": "MSDEPLOY_RENAME_LOCKED_FILES",
                                 "value": "1"
                             },
