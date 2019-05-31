@@ -7,11 +7,11 @@ namespace DFC.Composite.Shell
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
-        }
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseApplicationInsights()
+                .UseStartup<Startup>()
+                .Build()
+                .Run();
+        }
     }
 }
