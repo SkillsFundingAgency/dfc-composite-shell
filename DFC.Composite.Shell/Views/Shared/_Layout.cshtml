@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+<!DOCTYPE html>
 <html lang="en-gb" class="govuk-template ">
 
 @{
@@ -34,6 +35,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
 
     <meta property="og:image" content="~/@(Branding)/assets/images/govuk-opengraph-image.png">
+    @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 
 <body class="govuk-template__body ">
