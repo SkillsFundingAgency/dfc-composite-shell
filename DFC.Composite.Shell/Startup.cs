@@ -52,9 +52,9 @@ namespace DFC.Composite.Shell
 
             services
                 .AddPolicies(_configuration)
-                .AddHttpClient<IContentRetriever, RealContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationOptions.ApplicationClient))
-                .AddHttpClient<IPathService, UrlPathService, ApplicationClientOptions>(_configuration, nameof(ApplicationOptions.ApplicationClient))
-                .AddHttpClient<IRegionService, UrlRegionService, ApplicationClientOptions>(_configuration, nameof(ApplicationOptions.ApplicationClient));
+                .AddHttpClient<IContentRetriever, RealContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationClientOptions))
+                .AddHttpClient<IPathService, UrlPathService, RegionClientOptions>(_configuration, nameof(PathClientOptions))
+                .AddHttpClient<IRegionService, UrlRegionService, PathClientOptions>(_configuration, nameof(RegionClientOptions));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

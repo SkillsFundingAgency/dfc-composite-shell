@@ -22,6 +22,7 @@ namespace DFC.Composite.Shell.Extensions
             var policyOptions = section.Get<PolicyOptions>();
 
             var policyRegistry = services.AddPolicyRegistry();
+
             policyRegistry.Add(
                 PolicyName.HttpRetry,
                 HttpPolicyExtensions
@@ -29,6 +30,7 @@ namespace DFC.Composite.Shell.Extensions
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+
             policyRegistry.Add(
                 PolicyName.HttpCircuitBreaker,
                 HttpPolicyExtensions
@@ -41,26 +43,26 @@ namespace DFC.Composite.Shell.Extensions
         }
 
         public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(
-            this IServiceCollection services,
-            IConfiguration configuration,
-            string configurationSectionName)
-            where TClient : class
-            where TImplementation : class, TClient
-            where TClientOptions : HttpClientOptions, new() =>
-            services
-                .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
-                .AddHttpClient<TClient, TImplementation>()
-                .ConfigureHttpClient((sp, options) =>
-                {
-                    var httpClientOptions = sp
-                        .GetRequiredService<IOptions<TClientOptions>>()
-                        .Value;
-                    options.BaseAddress = httpClientOptions.BaseAddress;
-                    options.Timeout = httpClientOptions.Timeout;
-                })
-                .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
-                .AddPolicyHandlerFromRegistry(PolicyName.HttpRetry)
-                .AddPolicyHandlerFromRegistry(PolicyName.HttpCircuitBreaker)
-                .Services;
+                    this IServiceCollection services,
+                    IConfiguration configuration,
+                    string configurationSectionName)
+                    where TClient : class
+                    where TImplementation : class, TClient
+                    where TClientOptions : HttpClientOptions, new() =>
+                    services
+                        .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
+                        .AddHttpClient<TClient, TImplementation>()
+                        .ConfigureHttpClient((sp, options) =>
+                        {
+                            var httpClientOptions = sp
+                                .GetRequiredService<IOptions<TClientOptions>>()
+                                .Value;
+                            options.BaseAddress = httpClientOptions.BaseAddress;
+                            options.Timeout = httpClientOptions.Timeout;
+                        })
+                        .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
+                        .AddPolicyHandlerFromRegistry(PolicyName.HttpRetry)
+                        .AddPolicyHandlerFromRegistry(PolicyName.HttpCircuitBreaker)
+                        .Services;
     }
 }

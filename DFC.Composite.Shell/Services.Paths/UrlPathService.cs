@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Models;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace DFC.Composite.Shell.Services.Paths
 
         public async Task<IEnumerable<PathModel>> GetPaths()
         {
-            var pathUri = $"{_configuration["PathApiUrl"]}paths";
+            var pathUri = $"/api/paths";
             var msg = new HttpRequestMessage(HttpMethod.Get, pathUri);
 
             var response = await _httpClient.SendAsync(msg);
