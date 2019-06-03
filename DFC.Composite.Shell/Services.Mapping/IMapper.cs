@@ -2,6 +2,6 @@
 {
     public interface IMapper<S,D>
     {
-        D Map(S source);
+        void Map(S source, D destination);
     }
 }

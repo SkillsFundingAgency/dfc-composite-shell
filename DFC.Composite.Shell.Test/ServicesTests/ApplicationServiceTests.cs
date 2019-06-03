@@ -34,9 +34,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             _contentProcessor = new Mock<IContentProcessor>();
 
             _applicationService = new ApplicationService(
-                _pathService.Object, 
-                _regionService.Object, 
-                _contentRetriever.Object, 
+                _pathService.Object,
+                _regionService.Object,
+                _contentRetriever.Object,
                 _contentProcessor.Object);
         }
 
@@ -47,7 +47,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var path1 = "path1";
             var pathModels = new List<PathModel>();
             pathModels.Add(new PathModel() { Path = path1, TopNavigationOrder = 1 });
-            
+
             var bodyRegionEndPoint = "https://localhost/bodyRegionEndpoint/";
             var footerRegionEndPoint = "https://localhost/footerRegionEndpoint/";
             var regions = new List<RegionModel>();
@@ -66,13 +66,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             _contentProcessor.Setup(x => x.Process(It.IsAny<string>())).Returns<string>(x => x);
 
             //Act
-            var pageModel = _mapper.Map(app);
+            var pageModel = new PageViewModel();
+            _mapper.Map(app, pageModel);
             await _applicationService.GetMarkupAsync(path1, string.Empty, pageModel);
 
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Should().Be(bodyRegionContent);
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Footer).Content.Should().Be(footerRegionContent);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Footer).Content.Value.Should().Be(footerRegionContent);
             _contentRetriever.Verify(x => x.GetContent(bodyRegionEndPoint), Times.Once);
             _contentRetriever.Verify(x => x.GetContent(footerRegionEndPoint), Times.Once);
         }
@@ -84,7 +85,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var path1 = "path1";
             var pathModels = new List<PathModel>();
             pathModels.Add(new PathModel() { Path = path1, TopNavigationOrder = 1 });
-            
+
             var bodyRegionEndPoint = "https://localhost/bodyRegionEndpoint/";
             var footerRegionEndPoint = "https://localhost/footerRegionEndpoint/";
             var regions = new List<RegionModel>();
@@ -105,13 +106,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             _contentProcessor.Setup(x => x.Process(It.IsAny<string>())).Returns<string>(x => x);
 
             //Act
-            var pageModel = _mapper.Map(app);
+            var pageModel = new PageViewModel();
+            _mapper.Map(app, pageModel);
             await _applicationService.GetMarkupAsync(path1, bodyRelativeUrl, pageModel);
 
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Should().Be(bodyRegionContent);
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Footer).Content.Should().Be(footerRegionContent);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Footer).Content.Value.Should().Be(footerRegionContent);
             _contentRetriever.Verify(x => x.GetContent(bodyRegionEndPoint), Times.Never);
             _contentRetriever.Verify(x => x.GetContent(footerRegionEndPoint), Times.Once);
             _contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl), Times.Once);
