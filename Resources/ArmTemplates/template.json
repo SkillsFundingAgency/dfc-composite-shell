@@ -159,11 +159,11 @@
                                 "value": 3
                             },
                             {
-                                "name": "HttpRetry__BackoffPower",
+                                "name": "Policies__HttpRetry__BackoffPower",
                                 "value": 3
                             },
                             {
-                                "name": "HttpRetry__Count",
+                                "name": "Policies__HttpRetry__Count",
                                 "value": 3
                             },
                             {
