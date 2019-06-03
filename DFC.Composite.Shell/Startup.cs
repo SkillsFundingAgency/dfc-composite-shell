@@ -1,4 +1,5 @@
 ﻿using DFC.Common.Standard.Logging;
+using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Policies.Options;
@@ -52,12 +53,11 @@ namespace DFC.Composite.Shell
 
             services
                 .AddPolicies(_configuration)
-                .AddHttpClient<IContentRetriever, RealContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationClientOptions))
-                .AddHttpClient<IPathService, UrlPathService, RegionClientOptions>(_configuration, nameof(PathClientOptions))
-                .AddHttpClient<IRegionService, UrlRegionService, PathClientOptions>(_configuration, nameof(RegionClientOptions));
+                .AddHttpClient<IPathService, UrlPathService, PathClientOptions>(_configuration, nameof(PathClientOptions), PolicyName.HttpRetryPath, PolicyName.HttpCircuitBreakerPath)
+                .AddHttpClient<IRegionService, UrlRegionService, RegionClientOptions>(_configuration, nameof(RegionClientOptions), PolicyName.HttpRetryRegion, PolicyName.HttpCircuitBreakerRegion)
+                .AddHttpClient<IContentRetriever, RealContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

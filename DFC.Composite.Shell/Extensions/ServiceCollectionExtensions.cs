@@ -24,15 +24,44 @@ namespace DFC.Composite.Shell.Extensions
             var policyRegistry = services.AddPolicyRegistry();
 
             policyRegistry.Add(
-                PolicyName.HttpRetry,
+                PolicyName.HttpRetryPath,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+            policyRegistry.Add(
+                PolicyName.HttpCircuitBreakerPath,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .CircuitBreakerAsync(
+                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                        durationOfBreak: policyOptions.HttpCircuitBreaker.DurationOfBreak));
 
             policyRegistry.Add(
-                PolicyName.HttpCircuitBreaker,
+                PolicyName.HttpRetryRegion,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .WaitAndRetryAsync(
+                        policyOptions.HttpRetry.Count,
+                        retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+            policyRegistry.Add(
+                PolicyName.HttpCircuitBreakerRegion,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .CircuitBreakerAsync(
+                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                        durationOfBreak: policyOptions.HttpCircuitBreaker.DurationOfBreak));
+
+            policyRegistry.Add(
+                PolicyName.HttpRetryContent,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .WaitAndRetryAsync(
+                        policyOptions.HttpRetry.Count,
+                        retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+            policyRegistry.Add(
+                PolicyName.HttpCircuitBreakerContent,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
@@ -45,7 +74,9 @@ namespace DFC.Composite.Shell.Extensions
         public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(
                     this IServiceCollection services,
                     IConfiguration configuration,
-                    string configurationSectionName)
+                    string configurationSectionName,
+                    string retryPolicyName,
+                    string circuitBreakerPolicyName)
                     where TClient : class
                     where TImplementation : class, TClient
                     where TClientOptions : HttpClientOptions, new() =>
@@ -61,8 +92,9 @@ namespace DFC.Composite.Shell.Extensions
                             options.Timeout = httpClientOptions.Timeout;
                         })
                         .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
-                        .AddPolicyHandlerFromRegistry(PolicyName.HttpRetry)
-                        .AddPolicyHandlerFromRegistry(PolicyName.HttpCircuitBreaker)
+                        .AddPolicyHandlerFromRegistry(retryPolicyName)
+                        .AddPolicyHandlerFromRegistry(circuitBreakerPolicyName)
                         .Services;
+
     }
 }
