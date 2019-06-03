@@ -1,56 +1,76 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
-
-/* Sticky footer styles
+﻿/* site styles
 -------------------------------------------------- */
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+
+/* GOVUK-Frontend overrides
+-----------------------------------
+*/
+
+.govuk-table__header, .govuk-table__cell {
+    vertical-align: top;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.my-govuk-back-link {
+    background: none;
+    border-left-style: none;
+    border-right-style: none;
+    border-top-style: none;
+    cursor: pointer;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+.my-govuk-link {
+    background: none;
+    border-style: none;
+    text-decoration: underline;
+    font-size: 1rem;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
+.my-govuk-header__link {
+    background: none;
+    border-style: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: nta,Arial,sans-serif;
+    font-weight: 700;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+/* placeholder overrides
+-----------------------------------
+*/
+::-webkit-input-placeholder {
+    color: lightgray !important;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px; /* Vertically center the text there */
+
+:-moz-placeholder { /* Firefox 18- */
+    color: lightgray !important;
 }
+
+::-moz-placeholder { /* Firefox 19+ */
+    color: lightgray !important;
+}
+
+:-ms-input-placeholder {
+    color: lightgray !important;
+}
+
+/* Composite UI classes */
+.CompositeUI-Region {
+    border-color: greenyellow;
+}
+
+.CompositeUI-ChildRegion {
+    border-color: deepskyblue;
+}
+
+.CompositeUI-Region, .CompositeUI-ChildRegion {
+    border-style: inset;
+    border-width: 4px;
+    margin: 2px;
+    padding: 2px;
+}
+
+.CompositeUI-RegionScrollX, .CompositeUI-ChildRegionScrollX {
+    overflow-x: auto;
+}
+
+/* end of file */

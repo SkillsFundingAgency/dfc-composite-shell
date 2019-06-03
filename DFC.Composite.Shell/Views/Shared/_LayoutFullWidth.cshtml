@@ -110,7 +110,9 @@
                 <div class="govuk-grid-column-full">
                     @if (IsSectionDefined("Body"))
                     {
-                        @RenderSection("Body", required: false)
+                        <div class="CompositeUI-Region">
+                            @RenderSection("Body", required: false)
+                        </div>
                     }
                 </div>
             </div>
