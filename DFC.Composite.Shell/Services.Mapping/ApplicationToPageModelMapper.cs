@@ -6,14 +6,16 @@ namespace DFC.Composite.Shell.Services.Mapping
 {
     public class ApplicationToPageModelMapper : IMapper<ApplicationModel, PageViewModel>
     {
-        public PageViewModel Map(ApplicationModel source)
+        public void Map(ApplicationModel source, PageViewModel destination)
         {
-            var vm = new PageViewModel
+            if (destination == null)
             {
-                LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}",
-                Path = source.Path.Path
-            };
+                destination = new PageViewModel();
+            }
 
+            destination.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
+            destination.Path = source.Path.Path;
+        
             var pageRegionContentModels = new List<PageRegionContentModel>();
 
             foreach (var region in source.Regions)
@@ -25,9 +27,7 @@ namespace DFC.Composite.Shell.Services.Mapping
 
                 pageRegionContentModels.Add(pageRegionContentModel);
             }
-            vm.PageRegionContentModels = pageRegionContentModels;
-
-            return vm;
+            destination.PageRegionContentModels = pageRegionContentModels;
         }
     }
 }

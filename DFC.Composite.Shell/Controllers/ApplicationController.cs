@@ -45,7 +45,7 @@ namespace DFC.Composite.Shell.Controllers
                 }
                 else
                 {
-                    vm = _mapper.Map(application);
+                    _mapper.Map(application, vm);
                     await _applicationService.GetMarkupAsync(requestViewModel.Path, requestViewModel.Route, vm);
                 }
             }
