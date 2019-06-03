@@ -16,14 +16,12 @@ namespace DFC.Composite.Shell.Services.Regions
         public UrlRegionService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
         }
 
         public async Task<IEnumerable<RegionModel>> GetRegions(string path)
         {
-            var result = new List<RegionModel>();
-
-            var pathUri = $"{_configuration["RegionApiUrl"]}paths/{path}/regions";
+            var pathUri = $"/api/paths/{path}/regions";
             var msg = new HttpRequestMessage(HttpMethod.Get, pathUri);
 
             var response = await _httpClient.SendAsync(msg);
