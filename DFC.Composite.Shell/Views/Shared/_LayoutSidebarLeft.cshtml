@@ -3,6 +3,9 @@
 
 @{
     string Branding = ViewData["Branding"].ToString();
+    string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
+
+    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Branding.ToLower()}_assets";
 }
 
 <head>
@@ -14,18 +17,18 @@
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="~/@(Branding)/assets/images/favicon.ico" type="image/x-icon" />
-    <link rel="mask-icon" href="~/@(Branding)/assets/images/govuk-mask-icon.svg" color="#0b0c0c">
-    <link rel="apple-touch-icon" sizes="180x180" href="~/@(Branding)/assets/images/govuk-apple-touch-icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="~/@(Branding)/assets/images/govuk-apple-touch-icon-167x167.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="~/@(Branding)/assets/images/govuk-apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" href="~/@(Branding)/assets/images/govuk-apple-touch-icon.png">
+    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="@(BrandingAssetsFolder)/assets/images/favicon.ico" type="image/x-icon" />
+    <link rel="mask-icon" href="@(BrandingAssetsFolder)/assets/images/govuk-mask-icon.svg" color="#0b0c0c">
+    <link rel="apple-touch-icon" sizes="180x180" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon.png">
 
     <!--[if !IE 8]><!-->
-    <link href="~/@(Branding)/@(Branding).min.css" rel="stylesheet" />
+    <link href="@(BrandingAssetsFolder)/@(Branding).min.css" rel="stylesheet" />
     <!--<![endif]-->
     <!--[if IE 8]>
-      <link href="~/@(Branding)/@(Branding)-ie8.min.css" rel="stylesheet" />
+      <link href="@(BrandingAssetsFolder)/@(Branding)-ie8.min.css" rel="stylesheet" />
     <![endif]-->
     <!--[if lt IE 9]>
       <script src="~/html5-shiv/html5shiv.js"></script>
@@ -33,7 +36,7 @@
 
     <link rel="stylesheet" href="~/css/site.css" />
 
-    <meta property="og:image" content="~/@(Branding)/assets/images/govuk-opengraph-image.png">
+    <meta property="og:image" content="@(BrandingAssetsFolder)/assets/images/govuk-opengraph-image.png">
 
     @if (IsSectionDefined("Head"))
     {
@@ -172,7 +175,7 @@
         </script>
     </environment>
 
-    <script src="~/@(Branding)/@(Branding).min.js"></script>
+    <script src="@(BrandingAssetsFolder)/@(Branding).min.js"></script>
     <script>window.GOVUKFrontend.initAll()</script>
 
     <script src="~/js/site.js"></script>

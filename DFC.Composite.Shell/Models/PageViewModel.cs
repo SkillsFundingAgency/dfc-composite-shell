@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace DFC.Composite.Shell.Models
 {
@@ -6,6 +7,7 @@ namespace DFC.Composite.Shell.Models
     {
         public string Path { get; set; }
         public string LayoutName { get; set; } = "_LayoutFullWidth";
+        public string BrandingAssetsCdn { get; set; } 
         public string Branding { get; set; } = "ESFA";
         public string PageTitle { get; set; } = "Unknown Service";
 

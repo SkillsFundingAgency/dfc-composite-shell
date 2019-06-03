@@ -1,16 +1,20 @@
 ﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 using DFC.Composite.Shell.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace DFC.Composite.Shell.Controllers
 {
     public class HomeController : BaseController
     {
+        public HomeController(IConfiguration configuration) : base(configuration) { }
+
         public IActionResult Index()
         {
-            var pageViewModel = new Models.PageViewModel()
+            var pageViewModel = new PageViewModel()
             {
-                PageTitle = "Home"
+                PageTitle = "Home",
+                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
             };
 
             return View(pageViewModel);
@@ -18,9 +22,10 @@ namespace DFC.Composite.Shell.Controllers
 
         public IActionResult Privacy()
         {
-            var pageViewModel = new Models.PageViewModel()
+            var pageViewModel = new PageViewModel()
             {
-                PageTitle = "Privacy Policy"
+                PageTitle = "Privacy Policy",
+                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
             };
 
             return View(pageViewModel);

@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.Mapping;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -14,21 +15,25 @@ namespace DFC.Composite.Shell.Controllers
     {
         private const string MainRenderViewName = "Application/RenderView";
 
-        private readonly IApplicationService _applicationService;
         private readonly IMapper<ApplicationModel, PageViewModel> _mapper;
         private readonly ILogger<ApplicationController> _logger;
+        private readonly IApplicationService _applicationService;
 
-        public ApplicationController(IApplicationService applicationService, IMapper<ApplicationModel, PageViewModel> mapper, ILogger<ApplicationController> logger)
+        public ApplicationController(IMapper<ApplicationModel, PageViewModel> mapper, ILogger<ApplicationController> logger, IConfiguration configuration, IApplicationService applicationService)
+        :base(configuration)
         {
-            _applicationService = applicationService;
             _mapper = mapper;
             _logger = logger;
+            _applicationService = applicationService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Action(ActionGetRequestModel requestViewModel)
         {
-            var vm = new PageViewModel();
+            var vm = new PageViewModel
+            {
+                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
+            };
 
             try
             {

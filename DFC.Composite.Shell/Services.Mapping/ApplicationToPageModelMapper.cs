@@ -8,15 +8,21 @@ namespace DFC.Composite.Shell.Services.Mapping
     {
         public PageViewModel Map(ApplicationModel source)
         {
-            var vm = new PageViewModel();
-            vm.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
-            vm.Path = source.Path.Path;
+            var vm = new PageViewModel
+            {
+                LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}",
+                Path = source.Path.Path
+            };
 
             var pageRegionContentModels = new List<PageRegionContentModel>();
+
             foreach (var region in source.Regions)
             {
-                var pageRegionContentModel = new PageRegionContentModel();
-                pageRegionContentModel.PageRegionType = region.PageRegion;
+                var pageRegionContentModel = new PageRegionContentModel
+                {
+                    PageRegionType = region.PageRegion
+                };
+
                 pageRegionContentModels.Add(pageRegionContentModel);
             }
             vm.PageRegionContentModels = pageRegionContentModels;
