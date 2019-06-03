@@ -54,14 +54,6 @@
 }
 
 /* Composite UI classes */
-.CompositeUI-Region {
-    border-color: greenyellow;
-}
-
-.CompositeUI-ChildRegion {
-    border-color: deepskyblue;
-}
-
 .CompositeUI-Region, .CompositeUI-ChildRegion {
     border-style: inset;
     border-width: 4px;
