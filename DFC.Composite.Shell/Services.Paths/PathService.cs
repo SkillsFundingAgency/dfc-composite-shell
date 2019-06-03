@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Paths
 {
-    public class UrlPathService : IPathService
+    public class PathService : IPathService
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        public UrlPathService(IConfiguration configuration, HttpClient httpClient)
+        public PathService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
             _httpClient = httpClient;

@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieve
 {
-    public class RealContentRetriever : IContentRetriever
+    public class ContentRetriever : IContentRetriever
     {
         private readonly HttpClient _httpClient;
 
-        public RealContentRetriever(HttpClient httpClient)
+        public ContentRetriever(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }

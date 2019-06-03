@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Regions
 {
-    public class UrlRegionService : IRegionService
+    public class RegionService : IRegionService
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        public UrlRegionService(IConfiguration configuration, HttpClient httpClient)
+        public RegionService(IConfiguration configuration, HttpClient httpClient)
         {
             _configuration = configuration;
             _httpClient = httpClient;

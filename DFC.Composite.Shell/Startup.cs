@@ -51,13 +51,13 @@ namespace DFC.Composite.Shell
             services.AddTransient<IUrlRewriter, UrlRewriter>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
 
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             services
                 .AddPolicies(_configuration)
-                .AddHttpClient<IPathService, UrlPathService, PathClientOptions>(_configuration, nameof(PathClientOptions), PolicyName.HttpRetryPath, PolicyName.HttpCircuitBreakerPath)
-                .AddHttpClient<IRegionService, UrlRegionService, RegionClientOptions>(_configuration, nameof(RegionClientOptions), PolicyName.HttpRetryRegion, PolicyName.HttpCircuitBreakerRegion)
-                .AddHttpClient<IContentRetriever, RealContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent);
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .AddHttpClient<IPathService, PathService, PathClientOptions>(_configuration, nameof(PathClientOptions), PolicyName.HttpRetryPath, PolicyName.HttpCircuitBreakerPath)
+                .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(_configuration, nameof(RegionClientOptions), PolicyName.HttpRetryRegion, PolicyName.HttpCircuitBreakerRegion)
+                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
