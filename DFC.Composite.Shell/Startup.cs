@@ -56,10 +56,10 @@ namespace DFC.Composite.Shell
 
             services
                 .AddPolicies(Configuration)
-                      .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
-                .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
-                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
-                .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker);
+                    .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
+                    .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
+                    .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
+                    .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker);
             //.AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), PolicyName.HttpRetryPath, PolicyName.HttpCircuitBreakerPath)
             //.AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), PolicyName.HttpRetryRegion, PolicyName.HttpCircuitBreakerRegion)
             //.AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent)
