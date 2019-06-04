@@ -182,7 +182,7 @@
                                 "value": 3
                             },
                              {
-                                "name": "RegionClientOptions__RegionApiUrl",
+                                "name": "RegionClientOptions__BaseAddress",
                                 "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net/api/')]"
                             },
                             {
