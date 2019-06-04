@@ -24,6 +24,21 @@ namespace DFC.Composite.Shell.Extensions
             var policyRegistry = services.AddPolicyRegistry();
 
             policyRegistry.Add(
+                PolicyName.HttpRetry,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .WaitAndRetryAsync(
+                        policyOptions.HttpRetry.Count,
+                        retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+            policyRegistry.Add(
+                PolicyName.HttpCircuitBreaker,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .CircuitBreakerAsync(
+                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                        durationOfBreak: policyOptions.HttpCircuitBreaker.DurationOfBreak));
+
+            policyRegistry.Add(
                 PolicyName.HttpRetryPath,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
@@ -62,6 +77,21 @@ namespace DFC.Composite.Shell.Extensions
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
             policyRegistry.Add(
                 PolicyName.HttpCircuitBreakerContent,
+                HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .CircuitBreakerAsync(
+                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                        durationOfBreak: policyOptions.HttpCircuitBreaker.DurationOfBreak));
+
+            policyRegistry.Add(
+               PolicyName.HttpRetrySitemap,
+               HttpPolicyExtensions
+                   .HandleTransientHttpError()
+                   .WaitAndRetryAsync(
+                       policyOptions.HttpRetry.Count,
+                       retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+            policyRegistry.Add(
+                PolicyName.HttpCircuitBreakerSitemap,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
