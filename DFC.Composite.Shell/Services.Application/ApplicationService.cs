@@ -87,7 +87,7 @@ namespace DFC.Composite.Shell.Services.Application
                     url = url.Substring(1);
                 }
 
-                url = $"{bodyRegionRootUrl}{url}";
+                url = $"{bodyRegionRootUrl}{application.Path.Path}/{url}";
             }
 
             var result = _contentRetriever.GetContent(url);
