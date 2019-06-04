@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.Services.PathLocator;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -10,11 +11,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
     {
         private readonly IPathLocator _urlPathLocator;
         private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
+        private readonly Mock<ILogger<UrlPathLocator>> _logger;
 
         public PathLocatorTests()
         {
+            _logger = new Mock<ILogger<UrlPathLocator>>();
             _httpContextAccessor = new Mock<IHttpContextAccessor>();
-            _urlPathLocator = new UrlPathLocator(_httpContextAccessor.Object);
+            _urlPathLocator = new UrlPathLocator(_httpContextAccessor.Object, _logger.Object);
         }
 
         [Fact]

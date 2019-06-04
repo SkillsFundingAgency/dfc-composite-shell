@@ -119,8 +119,6 @@ namespace DFC.Composite.Shell.Extensions
                             var httpClientOptions = sp
                                 .GetRequiredService<IOptions<TClientOptions>>()
                                 .Value;
-                            var logger = sp.GetService<ILogger<Startup>>();
-                            logger.LogWarning($"{configurationSectionName} {httpClientOptions.BaseAddress} {httpClientOptions.Timeout.TotalSeconds}");
                             options.BaseAddress = httpClientOptions.BaseAddress;
                             options.Timeout = httpClientOptions.Timeout;
                         })
