@@ -18,6 +18,9 @@
             "type": "string",
             "defaultValue": ""
         },
+        "CompositeUiCdnUrl": {
+            "type": "string"
+        },
         "CompositeUiSharedResourceGroup": {
             "type": "string"
         },
@@ -127,10 +130,6 @@
                     "appServiceAppSettings": {
                         "value": [
                             {
-                                "name": "FUNCTIONS_EXTENSION_VERSION",
-                                "value": "~2"
-                            },
-                            {
                                 "name": "MSDEPLOY_RENAME_LOCKED_FILES",
                                 "value": "1"
                             },
@@ -141,6 +140,54 @@
                             {
                                 "name": "AzureWebJobsStorage",
                                 "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                            },
+                            {
+                                "name": "ApplicationClient__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "ApplicationClient__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "BrandingAssetsCdn",
+                                "value": "[parameters('CompositeUiCdnUrl')]"
+                            },
+                            {
+                                "name": "Logging__LogLevel__Default",
+                                "value": "Error"
+                            },
+                            {
+                                "name": "PathClientOptions__BaseAddress",
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net/api/')]"
+                            },
+                            {
+                                "name": "PathClientOptions__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
+                                "value": "00:01:00"
+                            },
+                            {
+                                "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
+                                "value": 3
+                            },
+                            {
+                                "name": "Policies__HttpRetry__BackoffPower",
+                                "value": 3
+                            },
+                            {
+                                "name": "Policies__HttpRetry__Count",
+                                "value": 3
+                            },
+                             {
+                                "name": "RegionClientOptions__RegionApiUrl",
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net/api/')]"
+                            },
+                            {
+                                "name": "RegionClientOptions__Timeout",
+                                "value": "00:00:30"
                             }
                         ]
                     }

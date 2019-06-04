@@ -14,6 +14,9 @@
         "AspTier": {
             "value": "__AspTier__"
         },
+        "CompositeUiCdnUrl": {
+            "value": "__CompositeUiCdnUrl__"
+        },
         "CompositeUiSharedResourceGroup": {
             "value": "__CompositeUiSharedResourceGroup__"
         },
