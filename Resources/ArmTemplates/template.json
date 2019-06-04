@@ -159,7 +159,7 @@
                             },
                             {
                                 "name": "PathClientOptions__BaseAddress",
-                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net/api/')]"
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net')]"
                             },
                             {
                                 "name": "PathClientOptions__Timeout",
@@ -183,10 +183,18 @@
                             },
                              {
                                 "name": "RegionClientOptions__BaseAddress",
-                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net/api/')]"
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net')]"
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "SitemapClientOptions__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "SitemapClientOptions__Timeout",
                                 "value": "00:00:30"
                             }
                         ]
