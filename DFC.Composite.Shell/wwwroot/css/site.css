@@ -55,8 +55,6 @@
 
 /* Composite UI classes */
 .CompositeUI-Region, .CompositeUI-ChildRegion {
-    border-style: inset;
-    border-width: 4px;
     margin: 2px;
     padding: 2px;
 }

@@ -9,12 +9,10 @@ namespace DFC.Composite.Shell.Services.Paths
 {
     public class PathService : IPathService
     {
-        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        public PathService(IConfiguration configuration, HttpClient httpClient)
+        public PathService(HttpClient httpClient)
         {
-            _configuration = configuration;
             _httpClient = httpClient;
         }
 

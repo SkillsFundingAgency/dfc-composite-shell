@@ -1,9 +1,12 @@
-﻿using DFC.Common.Standard.Logging;
+﻿using System;
+using System.Collections.Generic;
+using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Policies.Options;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Mapping;
@@ -18,18 +21,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 
 namespace DFC.Composite.Shell
 {
     public class Startup
     {
-        private IConfiguration _configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
-            _configuration = configuration;
+            Configuration = configuration;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -54,10 +55,11 @@ namespace DFC.Composite.Shell
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services
-                .AddPolicies(_configuration)
-                .AddHttpClient<IPathService, PathService, PathClientOptions>(_configuration, nameof(PathClientOptions), PolicyName.HttpRetryPath, PolicyName.HttpCircuitBreakerPath)
-                .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(_configuration, nameof(RegionClientOptions), PolicyName.HttpRetryRegion, PolicyName.HttpCircuitBreakerRegion)
-                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(_configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent);
+                .AddPolicies(Configuration)
+                .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), PolicyName.HttpRetryPath, PolicyName.HttpCircuitBreakerPath)
+                .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), PolicyName.HttpRetryRegion, PolicyName.HttpCircuitBreakerRegion)
+                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent)
+                .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), PolicyName.HttpRetryContent, PolicyName.HttpCircuitBreakerContent                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,10 +106,17 @@ namespace DFC.Composite.Shell
                         routes.MapRoute(
                             name: $"path-{path.Path}-Action",
                             template: path.Path + "/{**data}",
-                            defaults: new { controller = "Application", action = "Action", Path = path.Path }
+                            defaults: new { controller = "Application", action = "Action", path.Path }
                         );
                     }
                 }
+
+                // add the site map route
+                routes.MapRoute(
+                    name: "Sitemap",
+                    template: "Sitemap",
+                    defaults: new { controller = "Sitemap", action = "Sitemap" }
+                );
 
                 // add the default route
                 routes.MapRoute(

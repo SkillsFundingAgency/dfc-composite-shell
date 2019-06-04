@@ -21,5 +21,9 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
+   
+  <ItemGroup>
+    <Folder Include="Models\Sitemap\" />
+  </ItemGroup>
 
 </Project>
