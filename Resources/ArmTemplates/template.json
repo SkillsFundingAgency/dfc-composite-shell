@@ -139,8 +139,28 @@
                                 "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
                             },
                             {
+                                "name": "ApplicationClient__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "ApplicationClient__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "BrandingAssetsCdn",
+                                "value": "https://dev-compui-cdn.nationalcareersservice.org.uk"
+                            },
+                            {
                                 "name": "Logging__LogLevel__Default",
                                 "value": "Error"
+                            },
+                            {
+                                "name": "PathClientOptions__BaseAddress",
+                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net/api/')]"
+                            },
+                            {
+                                "name": "PathClientOptions__Timeout",
+                                "value": "00:00:30"
                             },
                             {
                                 "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
@@ -158,28 +178,12 @@
                                 "name": "Policies__HttpRetry__Count",
                                 "value": 3
                             },
-                            {
-                                "name": "PathClientOptions__BaseAddress",
-                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net/api/')]"
-                            },
-                            {
-                                "name": "PathClientOptions__Timeout",
-                                "value": "00:00:30"
-                            },
-                            {
+                             {
                                 "name": "RegionClientOptions__RegionApiUrl",
                                 "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net/api/')]"
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
-                                "value": "00:00:30"
-                            },
-                            {
-                                "name": "ApplicationClient__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "ApplicationClient__Timeout",
                                 "value": "00:00:30"
                             }
                         ]
