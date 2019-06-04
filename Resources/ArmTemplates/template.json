@@ -18,6 +18,9 @@
             "type": "string",
             "defaultValue": ""
         },
+        "CompositeUiCdnUrl": {
+            "type": "string"
+        },
         "CompositeUiSharedResourceGroup": {
             "type": "string"
         },
@@ -148,7 +151,7 @@
                             },
                             {
                                 "name": "BrandingAssetsCdn",
-                                "value": "https://dev-compui-cdn.nationalcareersservice.org.uk"
+                                "value": "[parameters('CompositeUiCdnUrl')]"
                             },
                             {
                                 "name": "Logging__LogLevel__Default",
