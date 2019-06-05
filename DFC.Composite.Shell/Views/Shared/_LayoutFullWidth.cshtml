@@ -49,11 +49,6 @@
         document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
     </script>
 
-    @if (IsSectionDefined("BodyTop"))
-    {
-        @RenderSection("BodyTop", required: false)
-    }
-
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
     <header class="govuk-header " role="banner" data-module="header">
@@ -99,6 +94,11 @@
 
         <partial name="_ErrorSummary" />
 
+        @if (IsSectionDefined("BodyTop"))
+        {
+            @RenderSection("BodyTop", required: false)
+        }
+
         <main class="govuk-main-wrapper" id="main-content" role="main">
 
             @if (IsSectionDefined("Breadcrumb"))
@@ -131,13 +131,14 @@
             }
 
         </main>
+
+        @if (IsSectionDefined("BodyFooter"))
+        {
+            @RenderSection("BodyFooter", required: false)
+        }
+
     </div>
 
-    @if (IsSectionDefined("Footer"))
-    {
-        @RenderSection("Footer", required: false)
-    }
-    
     <footer class="govuk-footer " role="contentinfo">
         <div class="govuk-width-container ">
             <div class="govuk-footer__meta">

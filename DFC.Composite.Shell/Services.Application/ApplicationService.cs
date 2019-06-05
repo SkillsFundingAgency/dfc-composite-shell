@@ -109,7 +109,7 @@ namespace DFC.Composite.Shell.Services.Application
             var bodyTopRegionTask = GetMarkupAsync(pageModel, tasks, PageRegion.BodyTop, application.Regions);
             var sidebarLeftRegionTask = GetMarkupAsync(pageModel, tasks, PageRegion.SidebarLeft, application.Regions);
             var sidebarRightRegionTask = GetMarkupAsync(pageModel, tasks, PageRegion.SidebarRight, application.Regions);
-            var footerRegionTask = GetMarkupAsync(pageModel, tasks, PageRegion.Footer, application.Regions);
+            var bodyFooterRegionTask = GetMarkupAsync(pageModel, tasks, PageRegion.BodyFooter, application.Regions);
 
             await Task.WhenAll(tasks);
 
@@ -118,7 +118,7 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyTop, bodyTopRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.SidebarLeft, sidebarLeftRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.SidebarRight, sidebarRightRegionTask);
-            PopulatePageRegionContent(application, pageModel, PageRegion.Footer, footerRegionTask);
+            PopulatePageRegionContent(application, pageModel, PageRegion.BodyFooter, bodyFooterRegionTask);
         }
 
         private Task<string> GetMarkupAsync(PageViewModel pageModel, List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions)

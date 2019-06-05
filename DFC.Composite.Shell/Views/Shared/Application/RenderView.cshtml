@@ -9,7 +9,14 @@
 
     PageRegionContentModel GetRegionContent(PageRegion region)
     {
-        return Model.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == region);
+        var regionContent = Model.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == region);
+
+        if (regionContent?.Content != null && !string.IsNullOrEmpty(regionContent.Content.Value))
+        {
+            return regionContent;
+        }
+
+        return null;
     }
 
     var headRegionContent = GetRegionContent(PageRegion.Head);
@@ -18,7 +25,7 @@
     var bodyRegionContent = GetRegionContent(PageRegion.Body);
     var sidebarLeftRegionContent = GetRegionContent(PageRegion.SidebarLeft);
     var sidebarRightRegionContent = GetRegionContent(PageRegion.SidebarRight);
-    var footerRegionContent = GetRegionContent(PageRegion.Footer);
+    var bodyFooterRegionContent = GetRegionContent(PageRegion.BodyFooter);
 }
 
 @if (headRegionContent != null)
@@ -63,10 +70,10 @@
     }
 }
 
-@if (footerRegionContent != null)
+@if (bodyFooterRegionContent != null)
 {
-    @section Footer{
-        @Html.Raw(footerRegionContent.Content)
+    @section BodyFooter{
+        @Html.Raw(bodyFooterRegionContent.Content)
     }
 }
 

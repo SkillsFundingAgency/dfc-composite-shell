@@ -52,7 +52,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var footerRegionEndPoint = "https://localhost/footerRegionEndpoint/";
             var regions = new List<RegionModel>();
             regions.Add(new RegionModel() { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint });
-            regions.Add(new RegionModel() { PageRegion = PageRegion.Footer, RegionEndpoint = footerRegionEndPoint });
+            regions.Add(new RegionModel() { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint });
 
             var app = new ApplicationModel() { Path = new PathModel() { Path = path1 } };
             app.Regions = regions;
@@ -73,7 +73,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Footer).Content.Value.Should().Be(footerRegionContent);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(footerRegionContent);
             _contentRetriever.Verify(x => x.GetContent(bodyRegionEndPoint), Times.Once);
             _contentRetriever.Verify(x => x.GetContent(footerRegionEndPoint), Times.Once);
         }
@@ -90,7 +90,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var footerRegionEndPoint = "https://localhost/footerRegionEndpoint/";
             var regions = new List<RegionModel>();
             regions.Add(new RegionModel() { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint });
-            regions.Add(new RegionModel() { PageRegion = PageRegion.Footer, RegionEndpoint = footerRegionEndPoint });
+            regions.Add(new RegionModel() { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint });
 
             var app = new ApplicationModel() { Path = new PathModel() { Path = path1 } };
             app.Regions = regions;
@@ -113,7 +113,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Footer).Content.Value.Should().Be(footerRegionContent);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(footerRegionContent);
             _contentRetriever.Verify(x => x.GetContent(bodyRegionEndPoint), Times.Never);
             _contentRetriever.Verify(x => x.GetContent(footerRegionEndPoint), Times.Once);
             _contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl), Times.Once);
