@@ -56,10 +56,10 @@ namespace DFC.Composite.Shell
 
             services
                 .AddPolicies(Configuration)
-                    .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
-                    .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
-                    .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker)
-                    .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), PolicyName.HttpRetry, PolicyName.HttpCircuitBreaker);
+                    .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                    .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                    .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                    .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

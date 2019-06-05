@@ -25,14 +25,14 @@ namespace DFC.Composite.Shell.Extensions
             var policyRegistry = services.AddPolicyRegistry();
 
             policyRegistry.Add(
-                PolicyName.HttpRetry,
+                nameof(PolicyOptions.HttpRetry),
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
             policyRegistry.Add(
-                PolicyName.HttpCircuitBreaker,
+                nameof(PolicyOptions.HttpCircuitBreaker),
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
