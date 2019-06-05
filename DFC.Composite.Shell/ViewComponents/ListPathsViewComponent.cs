@@ -1,7 +1,8 @@
-﻿using DFC.Composite.Shell.Services.Paths;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using DFC.Composite.Shell.Services.Paths;
 using Microsoft.AspNetCore.Mvc;
 using Polly.CircuitBreaker;
-using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents
 {
@@ -20,7 +21,9 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                vm.Paths = await _pathService.GetPaths();
+                var paths = await _pathService.GetPaths();
+
+                vm.Paths = paths.Where(w => w.IsOnline);
             }
             catch (BrokenCircuitException ex)
             {

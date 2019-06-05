@@ -1,11 +1,11 @@
 ﻿@model DFC.Composite.Shell.ViewComponents.ListPathsViewModel
 
-@if (Model != null && Model.Paths != null)
+@if (Model?.Paths?.Count() > 0)
 {
     @foreach (var path in Model.Paths.OrderBy(x => x.TopNavigationOrder))
     {
         <li class="govuk-header__navigation-item">
-            <a href="~/@path.Path" class="nav-link text-dark">@path.TopNavigationText</a>
+            <a href="~/@path.Path" class="govuk-header__link">@path.TopNavigationText</a>
         </li>
     }
 }

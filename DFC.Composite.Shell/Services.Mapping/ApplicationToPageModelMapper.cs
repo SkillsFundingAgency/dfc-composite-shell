@@ -8,14 +8,10 @@ namespace DFC.Composite.Shell.Services.Mapping
     {
         public void Map(ApplicationModel source, PageViewModel destination)
         {
-            if (destination == null)
-            {
-                destination = new PageViewModel();
-            }
-
             destination.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
             destination.Path = source.Path.Path;
-        
+            destination.PageTitle = source.Path.TopNavigationText;
+
             var pageRegionContentModels = new List<PageRegionContentModel>();
 
             foreach (var region in source.Regions)
