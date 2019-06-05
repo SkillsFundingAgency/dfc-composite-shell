@@ -142,11 +142,11 @@
                                 "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
                             },
                             {
-                                "name": "ApplicationClient__BaseAddress",
+                                "name": "ApplicationClientOptions__BaseAddress",
                                 "value": null
                             },
                             {
-                                "name": "ApplicationClient__Timeout",
+                                "name": "ApplicationClientOptions__Timeout",
                                 "value": "00:00:30"
                             },
                             {
