@@ -60,7 +60,6 @@ namespace DFC.Composite.Shell.Controllers
 
             // output the composite UI site maps
             sitemap.Add(new SitemapLocation() { Url = Url.Action(nameof(HomeController.Index), homeControllerName, null, Request.Scheme), Priority = 1 });
-            sitemap.Add(new SitemapLocation() { Url = Url.Action(nameof(HomeController.Privacy), homeControllerName, null, Request.Scheme), Priority = 1 });
 
             return sitemap;
         }

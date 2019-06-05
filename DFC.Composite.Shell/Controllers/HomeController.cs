@@ -20,17 +20,6 @@ namespace DFC.Composite.Shell.Controllers
             return View(pageViewModel);
         }
 
-        public IActionResult Privacy()
-        {
-            var pageViewModel = new PageViewModel()
-            {
-                PageTitle = "Privacy Policy",
-                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
-            };
-
-            return View(pageViewModel);
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
