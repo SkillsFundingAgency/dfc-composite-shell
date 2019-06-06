@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "ApimProxyAddress": {
+            "type": "string"
+        },
         "AseHostingEnvironmentName": {
             "type": "string",
             "defaultValue": ""
@@ -159,7 +162,7 @@
                             },
                             {
                                 "name": "PathClientOptions__BaseAddress",
-                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-paths-fa.azurewebsites.net')]"
+                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths')]"
                             },
                             {
                                 "name": "PathClientOptions__Timeout",
@@ -183,7 +186,7 @@
                             },
                              {
                                 "name": "RegionClientOptions__BaseAddress",
-                                "value": "[concat('https://dfc-', toLower(parameters('Environment')), '-compui-regions-fa.azurewebsites.net')]"
+                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions')]"
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
