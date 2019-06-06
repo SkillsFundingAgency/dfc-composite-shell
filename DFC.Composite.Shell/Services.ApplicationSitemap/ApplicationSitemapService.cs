@@ -65,7 +65,7 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
                 _logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
             }
 
-            return default;
+            return default(T);
         }
     }
 }
