@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Registry;
 using System;
 
 namespace DFC.Composite.Shell.Extensions
@@ -15,24 +16,24 @@ namespace DFC.Composite.Shell.Extensions
     {
         public static IServiceCollection AddPolicies(
             this IServiceCollection services,
+            IPolicyRegistry<string> policyRegistry,
             IConfiguration configuration,
+            string keyPrefix,
             string configurationSectionName = Constants.Policies)
         {
             var section = configuration.GetSection(configurationSectionName);
-            services.Configure<PolicyOptions>(configuration);
             var policyOptions = section.Get<PolicyOptions>();
 
-            var policyRegistry = services.AddPolicyRegistry();
-
             policyRegistry.Add(
-                nameof(PolicyOptions.HttpRetry),
+                keyPrefix + "_" + nameof(PolicyOptions.HttpRetry),
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+
             policyRegistry.Add(
-                nameof(PolicyOptions.HttpCircuitBreaker),
+                keyPrefix + "_" + nameof(PolicyOptions.HttpCircuitBreaker),
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
@@ -63,8 +64,8 @@ namespace DFC.Composite.Shell.Extensions
                             options.Timeout = httpClientOptions.Timeout;
                         })
                         .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
-                        .AddPolicyHandlerFromRegistry(retryPolicyName)
-                        .AddPolicyHandlerFromRegistry(circuitBreakerPolicyName)
+                        .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + retryPolicyName)
+                        .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + circuitBreakerPolicyName)
                         .Services;
 
     }

@@ -109,7 +109,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     var mappings = applicationSiteMap.TheTask.Result;
 
-                    if (mappings.Count() > 0)
+                    if (mappings?.Count() > 0)
                     {
                         foreach (var mapping in mappings)
                         {

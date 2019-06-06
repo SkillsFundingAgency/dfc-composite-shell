@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -6,16 +6,19 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using DFC.Composite.Shell.Models.Sitemap;
+using Microsoft.Extensions.Logging;
 
 namespace DFC.Composite.Shell.Services.ApplicationSitemap
 {
     public class ApplicationSitemapService : IApplicationSitemapService
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<ApplicationSitemapService> _logger;
 
-        public ApplicationSitemapService(HttpClient httpClient)
+        public ApplicationSitemapService(HttpClient httpClient, ILogger<ApplicationSitemapService> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public string BearerToken { get; set; }
@@ -26,34 +29,43 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
         {
             var data = await CallHttpClientXmlAsync<Sitemap>(SitemapUrl);
 
-            return data.Locations;
+            return data?.Locations;
         }
 
         private async Task<T> CallHttpClientXmlAsync<T>(string url)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-
-            if (!string.IsNullOrEmpty(BearerToken))
+            try
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                if (!string.IsNullOrEmpty(BearerToken))
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+                }
+
+                request.Headers.Add("Accept", "application/xml");
+
+                var response = await _httpClient.SendAsync(request);
+
+                response.EnsureSuccessStatusCode();
+
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var serializer = new XmlSerializer(typeof(T));
+
+                using (TextReader reader = new StringReader(responseString))
+                {
+                    var result = (T)serializer.Deserialize(reader);
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
             }
 
-            request.Headers.Add("Accept", "application/xml");
-
-            var response = await _httpClient.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            var serializer = new XmlSerializer(typeof(T));
-
-            using (TextReader reader = new StringReader(responseString))
-            {
-                var result = (T)serializer.Deserialize(reader);
-
-                return result;
-            }
+            return default;
         }
     }
 }

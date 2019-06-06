@@ -10,19 +10,17 @@ namespace DFC.Composite.Shell.Services.Regions
 {
     public class RegionService : IRegionService
     {
-        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        public RegionService(IConfiguration configuration, HttpClient httpClient)
+        public RegionService(HttpClient httpClient)
         {
-            _configuration = configuration;
             _httpClient = httpClient;
         }
 
         public async Task<IEnumerable<RegionModel>> GetRegions(string path)
         {
-            var pathUri = $"/api/paths/{path}/regions";
-            var msg = new HttpRequestMessage(HttpMethod.Get, pathUri);
+            var regionsUrl = $"{_httpClient.BaseAddress}/api/paths/{path}/regions";
+            var msg = new HttpRequestMessage(HttpMethod.Get, regionsUrl);
 
             var response = await _httpClient.SendAsync(msg);
 

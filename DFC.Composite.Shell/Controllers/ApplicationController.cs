@@ -58,7 +58,7 @@ namespace DFC.Composite.Shell.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(Exception)} {ex.Message}");
+                _logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
                 var errorString = $"{requestViewModel.Path}: {ex.Message}";
                 ModelState.AddModelError(string.Empty, errorString);
             }

@@ -9,7 +9,8 @@ namespace DFC.Composite.Shell.Models
         public PageRegion PageRegion { get; set; }
         public bool IsHealthy { get; set; }
         public string RegionEndpoint { get; set; }
-        public string HeathCheckRequired { get; set; }
+        public bool HeathCheckRequired { get; set; }
+        public string OfflineHTML { get; set; }
         public DateTime DateOfRegistration { get; set; }
         public DateTime LastModifiedDate { get; set; }
     }

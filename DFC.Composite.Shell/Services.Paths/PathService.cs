@@ -18,8 +18,8 @@ namespace DFC.Composite.Shell.Services.Paths
 
         public async Task<IEnumerable<PathModel>> GetPaths()
         {
-            var pathUri = $"/api/paths";
-            var msg = new HttpRequestMessage(HttpMethod.Get, pathUri);
+            var pathsUrl = $"{_httpClient.BaseAddress}/api/paths";
+            var msg = new HttpRequestMessage(HttpMethod.Get, pathsUrl);
 
             var response = await _httpClient.SendAsync(msg);
 
