@@ -50,15 +50,10 @@ namespace DFC.Composite.Shell.Controllers
                     await _applicationService.GetMarkupAsync(requestViewModel.Path, requestViewModel.Data, vm);
                 }
             }
-            catch (BrokenCircuitException ex)
-            {
-                _logger.LogError(ex, $"{nameof(BrokenCircuitException)} {ex.Message}");
-                var errorString = $"{requestViewModel.Path}: BrokenCircuit: {ex.Message}";
-                ModelState.AddModelError(string.Empty, errorString);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
+                _logger.LogError(ex, $"{nameof(Action)}: {ex.Message}");
+
                 var errorString = $"{requestViewModel.Path}: {ex.Message}";
                 ModelState.AddModelError(string.Empty, errorString);
             }

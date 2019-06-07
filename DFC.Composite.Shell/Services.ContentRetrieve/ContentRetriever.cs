@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Models;
 using Microsoft.Extensions.Logging;
+using Polly.CircuitBreaker;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieve
 {
@@ -39,9 +40,18 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     }
                 }
             }
+            catch (BrokenCircuitException ex)
+            {
+                _logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {ex.Message}");
+
+                if (!string.IsNullOrEmpty(offlineHtml))
+                {
+                    results = offlineHtml;
+                }
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
+                _logger.LogError(ex, $"{nameof(ContentRetriever)}: {ex.Message}");
 
                 if (!string.IsNullOrEmpty(offlineHtml))
                 {

@@ -2,18 +2,19 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Services.Paths;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 
 namespace DFC.Composite.Shell.ViewComponents
 {
-    public class ListPathsViewComponent : ViewComponent
+    public class ShowHelpLinksViewComponent : ViewComponent
     {
-        private readonly ILogger<ListPathsViewComponent> _logger;
+        private readonly ILogger<ShowHelpLinksViewComponent> _logger;
         private readonly IPathService _pathService;
 
-        public ListPathsViewComponent(ILogger<ListPathsViewComponent> logger, IPathService pathService)
+        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathService pathService)
         {
             _logger = logger;
             _pathService = pathService;
@@ -21,23 +22,32 @@ namespace DFC.Composite.Shell.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var vm = new ListPathsViewModel();
+            var vm = new ShowHelpLinksViewModel()
+            {
+                IsOnline = false
+            };
 
             try
             {
                 var paths = await _pathService.GetPaths();
 
-                vm.Paths = paths.Where(w => w.IsOnline);
+                var helpPath = paths.Where(w => w.Path.ToLower() == "help").FirstOrDefault();
+
+                if (helpPath != null)
+                {
+                    vm.IsOnline = helpPath.IsOnline;
+                    vm.OfflineHtml = new HtmlString(helpPath.OfflineHtml);
+                }
             }
             catch (BrokenCircuitException ex)
             {
-                var errorString = $"{nameof(ListPathsViewComponent)}: BrokenCircuit: {ex.Message}";
+                var errorString = $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}";
 
                 _logger.LogError(ex, errorString);
             }
             catch (Exception ex)
             {
-                var errorString = $"{nameof(ListPathsViewComponent)}: {ex.Message}";
+                var errorString = $"{nameof(ShowHelpLinksViewComponent)}: {ex.Message}";
 
                 _logger.LogError(ex, errorString);
 
