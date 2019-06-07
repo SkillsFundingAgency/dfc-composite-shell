@@ -37,17 +37,29 @@ namespace DFC.Composite.Shell.Services.Application
             //Get the application
             var application = await GetApplicationAsync(path);
 
-            //Get the markup at this url
-            var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, contentUrl);
+            if (application.Path.IsOnline)
+            {
+                //Get the markup at this url
+                var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, contentUrl);
 
-            //Load related regions
-            var otherRegionsTask = LoadRelatedRegions(application, pageModel);
+                //Load related regions
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel);
 
-            //Wait until everything is done
-            await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
+                //Wait until everything is done
+                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
 
-            //Ensure that the application body markup is attached to the model
-            PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
+                //Ensure that the application body markup is attached to the model
+                PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
+            }
+            else
+            {
+                var pageRegionContentModel = pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
+
+                if (pageRegionContentModel != null)
+                {
+                    pageRegionContentModel.Content = new HtmlString(application.Path.OfflineHtml);
+                }
+            }
         }
 
         public async Task PostMarkupAsync(string path, string contentUrl, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)

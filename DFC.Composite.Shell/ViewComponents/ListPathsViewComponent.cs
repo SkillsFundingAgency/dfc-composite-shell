@@ -25,9 +25,7 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                var paths = await _pathService.GetPaths();
-
-                vm.Paths = paths.Where(w => w.IsOnline);
+                vm.Paths = await _pathService.GetPaths();
             }
             catch (BrokenCircuitException ex)
             {

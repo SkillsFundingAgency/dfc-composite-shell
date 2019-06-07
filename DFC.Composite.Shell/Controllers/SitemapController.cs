@@ -68,14 +68,16 @@ namespace DFC.Composite.Shell.Controllers
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
             var paths = await _pathService.GetPaths();
-            var applicationSitemapServices = await CreateApplicationSitemapServiceTasksAsync(paths);
+            var onlinePaths = paths.Where(w => w.IsOnline);
+
+            var applicationSitemapServices = await CreateApplicationSitemapServiceTasksAsync(onlinePaths);
 
             // await all application sitemap service tasks to complete
             var allTasks = (from a in applicationSitemapServices select a.TheTask).ToArray();
 
             await Task.WhenAll(allTasks);
 
-            OutputApplicationsSitemaps(sitemap, paths, applicationSitemapServices);
+            OutputApplicationsSitemaps(sitemap, onlinePaths, applicationSitemapServices);
         }
 
         private async Task<List<IApplicationSitemapService>> CreateApplicationSitemapServiceTasksAsync(IEnumerable<Models.PathModel> paths)
