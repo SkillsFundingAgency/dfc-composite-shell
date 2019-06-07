@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Common;
+﻿using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.AspNetCore.Html;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Application
 {
@@ -18,8 +18,7 @@ namespace DFC.Composite.Shell.Services.Application
         private readonly IRegionService _regionService;
         private readonly IContentRetriever _contentRetriever;
         private readonly IContentProcessor _contentProcessor;
-        private List<ApplicationModel> _applications;
-
+        
         public ApplicationService(
             IPathService pathService,
             IRegionService regionService,
@@ -32,11 +31,8 @@ namespace DFC.Composite.Shell.Services.Application
             _contentProcessor = contentProcessor;
         }
 
-        public async Task GetMarkupAsync(string path, string contentUrl, PageViewModel pageModel)
+        public async Task GetMarkupAsync(ApplicationModel application, string contentUrl, PageViewModel pageModel)
         {
-            //Get the application
-            var application = await GetApplicationAsync(path);
-
             if (application.Path.IsOnline)
             {
                 if (!string.IsNullOrEmpty(contentUrl) && contentUrl.StartsWith("/"))
@@ -67,15 +63,24 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task PostMarkupAsync(string path, string contentUrl, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
+        public async Task PostMarkupAsync(ApplicationModel application, string contentUrl, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
         {
             await Task.CompletedTask;
         }
 
         public async Task<ApplicationModel> GetApplicationAsync(string path)
         {
-            await InitApplicationsAsync();
-            return _applications.FirstOrDefault(x => x.Path.Path == path);
+            var application = new ApplicationModel();
+            
+            var pathModel = await _pathService.GetPath(path);
+
+            if (pathModel != null)
+            {
+                application.Path = pathModel;
+                application.Regions = await _regionService.GetRegions(pathModel.Path);
+            }
+
+            return application;
         }
 
         private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, string contentUrl)
@@ -173,27 +178,6 @@ namespace DFC.Composite.Shell.Services.Application
                 }
 
                 pageRegionContentModel.Content = new HtmlString(content);
-            }
-        }
-
-        private async Task InitApplicationsAsync()
-        {
-            if (_applications == null)
-            {
-                _applications = new List<ApplicationModel>();
-
-                var paths = await _pathService.GetPaths();
-
-                foreach (var path in paths)
-                {
-                    var application = new ApplicationModel
-                    {
-                        Path = path,
-                        Regions = await _regionService.GetRegions(path.Path)
-                    };
-
-                    _applications.Add(application);
-                }
             }
         }
 

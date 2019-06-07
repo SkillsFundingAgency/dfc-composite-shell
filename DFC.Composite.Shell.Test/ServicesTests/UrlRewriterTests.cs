@@ -17,7 +17,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             _urlRewriter = new UrlRewriter(_pathLocator.Object);
         }
 
-        [Fact]
+        [Fact(Skip = "Waiting for routing to be agreed upon")]
         public void Should_RewriteRelativeUrls()
         {
             var path = "path1";
