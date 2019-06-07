@@ -41,73 +41,70 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task CanGetMarkupAsync_WhenMainBodyRegionEndpoint_IsEmpty()
+        public async Task CanGetMarkupAsync_ForOnlineApplication_When_ContentUrl_IsEmpty()
         {
-            //Arrange
-            var path1 = "path1";
-            var pathModels = new List<PathModel>
-            {
-                new PathModel() { Path = path1, TopNavigationOrder = 1 }
-            };
+            //paths
+            var path = "path1";
+            var pathModel = new PathModel() { Path = path, TopNavigationOrder = 1, IsOnline = true };
 
+            //regions
             var bodyRegionEndPoint = "https://localhost/bodyRegionEndpoint/";
             var footerRegionEndPoint = "https://localhost/footerRegionEndpoint/";
-            var regions = new List<RegionModel>
-            {
-                new RegionModel() { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint },
-                new RegionModel() { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint }
-            };
+            var bodyRegion = new RegionModel() { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint, IsHealthy = true };
+            var bodyFooterRegion = new RegionModel() { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint, IsHealthy = true };
+            var regions = new List<RegionModel>();
+            regions.Add(bodyRegion);
+            regions.Add(bodyFooterRegion);
 
-            var app = new ApplicationModel() { Path = new PathModel() { Path = path1 } };
-            app.Regions = regions;
+            //app
+            var app = new ApplicationModel() { Path = pathModel, Regions = regions };
 
+            //mocks
             var bodyRegionContent = "bodyRegionContent";
-            var footerRegionContent = "footerRegionContent";
-            _pathService.Setup(x => x.GetPaths()).ReturnsAsync(pathModels);
+            var bodyFooterRegionContent = "bodyfooterRegionContent";
+            _pathService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
             _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
-            _contentRetriever.Setup(x => x.GetContent(bodyRegionEndPoint, true, null)).ReturnsAsync(bodyRegionContent);
-            _contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, true, null)).ReturnsAsync(footerRegionContent);
+            _contentRetriever.Setup(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion.IsHealthy, bodyRegion.OfflineHTML)).ReturnsAsync(bodyRegionContent);
+            _contentRetriever.Setup(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion.IsHealthy, bodyFooterRegion.OfflineHTML)).ReturnsAsync(bodyFooterRegionContent);
             _contentProcessor.Setup(x => x.Process(It.IsAny<string>())).Returns<string>(x => x);
 
             //Act
             var pageModel = new PageViewModel();
             _mapper.Map(app, pageModel);
-            await _applicationService.GetMarkupAsync(path1, string.Empty, pageModel);
+            await _applicationService.GetMarkupAsync(app, string.Empty, pageModel);
 
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(footerRegionContent);
-            _contentRetriever.Verify(x => x.GetContent(bodyRegionEndPoint, true, null), Times.Once);
-            _contentRetriever.Verify(x => x.GetContent(footerRegionEndPoint, true, null), Times.Once);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(bodyFooterRegionContent);
+            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion.IsHealthy, bodyRegion.OfflineHTML), Times.Once);
+            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion.IsHealthy, bodyFooterRegion.OfflineHTML), Times.Once);
         }
 
         [Fact]
-        public async Task CanGetMarkupAsync_When_MainBodyRegionIsRelativeUrl()
+        public async Task CanGetMarkupAsync_ForOnlineApplication_When_ContentUrl_IsRelativeUrl()
         {
-            //Arrange
-            var path1 = "path1";
-            var pathModels = new List<PathModel>
-            {
-                new PathModel() { Path = path1, TopNavigationOrder = 1 }
-            };
+            //path
+            var path = "path1";
+            var pathModel = new PathModel() { Path = path, TopNavigationOrder = 1, IsOnline = true };
 
-            var bodyRegionEndPoint = "https://localhost/bodyRegionEndpoint/";
-            var footerRegionEndPoint = "https://localhost/footerRegionEndpoint/";
-            var regions = new List<RegionModel>
-            {
-                new RegionModel() { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint },
-                new RegionModel() { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint }
-            };
+            //regions
+            var bodyRegionEndPoint = "https://localhost:2000/bodyRegionEndpoint/";
+            var footerRegionEndPoint = "https://localhost:2001/footerRegionEndpoint/";
+            var bodyRegion = new RegionModel() { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint, IsHealthy = true };
+            var bodyFooterRegion = new RegionModel() { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint, IsHealthy = true };
+            var regions = new List<RegionModel>();
+            regions.Add(bodyRegion);
+            regions.Add(bodyFooterRegion);
 
-            var app = new ApplicationModel() { Path = new PathModel() { Path = path1 } };
-            app.Regions = regions;
+            //app
+            var app = new ApplicationModel() { Path = pathModel, Regions = regions };
 
             var bodyRelativeUrl = "course/edit/1";
-            var bodyAbsoluteUrl = "https://localhost/course/edit/1";
+            var bodyAbsoluteUrl = $"https://localhost:2000/{path}/{bodyRelativeUrl}";
             var bodyRegionContent = "bodyRegionContent";
             var footerRegionContent = "footerRegionContent";
-            _pathService.Setup(x => x.GetPaths()).ReturnsAsync(pathModels);
+            _pathService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
             _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
             _contentRetriever.Setup(x => x.GetContent(bodyAbsoluteUrl, true, null)).ReturnsAsync(bodyRegionContent);
             _contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, true, null)).ReturnsAsync(footerRegionContent);
@@ -116,14 +113,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             //Act
             var pageModel = new PageViewModel();
             _mapper.Map(app, pageModel);
-            await _applicationService.GetMarkupAsync(path1, bodyRelativeUrl, pageModel);
+            await _applicationService.GetMarkupAsync(app, bodyRelativeUrl, pageModel);
 
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(footerRegionContent);
-            _contentRetriever.Verify(x => x.GetContent(bodyRegionEndPoint, true, null), Times.Never);
-            _contentRetriever.Verify(x => x.GetContent(footerRegionEndPoint, true, null), Times.Once);
+            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion.IsHealthy, bodyRegion.OfflineHTML), Times.Never);
+            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion.IsHealthy, bodyFooterRegion.OfflineHTML), Times.Once);
             _contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl, true, null), Times.Once);
         }
     }
