@@ -1,6 +1,4 @@
 ﻿using DFC.Composite.Shell.Models;
-using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -26,6 +24,18 @@ namespace DFC.Composite.Shell.Services.Paths
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsAsync<List<PathModel>>();
+        }
+
+        public async Task<PathModel> GetPath(string path)
+        {
+            var pathUrl = $"{_httpClient.BaseAddress}/api/paths/{path}";
+            var msg = new HttpRequestMessage(HttpMethod.Get, pathUrl);
+
+            var response = await _httpClient.SendAsync(msg);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsAsync<PathModel>();
         }
 
     }

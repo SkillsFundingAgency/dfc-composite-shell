@@ -47,7 +47,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     _mapper.Map(application, vm);
 
-                    await _applicationService.GetMarkupAsync(requestViewModel.Path, requestViewModel.Data, vm);
+                    await _applicationService.GetMarkupAsync(application, requestViewModel.Data, vm);
                 }
             }
             catch (Exception ex)
