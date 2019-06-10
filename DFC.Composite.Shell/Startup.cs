@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
@@ -26,10 +27,12 @@ namespace DFC.Composite.Shell
     public class Startup
     {
         private IConfiguration Configuration { get; }
-
+        private Guid _correlationId;
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            _correlationId = Guid.NewGuid();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -102,10 +105,11 @@ namespace DFC.Composite.Shell
             try
             {
                 paths = pathService.GetPaths().Result;
+                Log(logger, loggerHelper, $"Registering routes for the following paths: {string.Join(",", paths.Select(x => x.Path))}");
             }
             catch (Exception ex)
             {
-                loggerHelper.LogException(logger, Guid.NewGuid(), ex);
+                loggerHelper.LogException(logger, _correlationId, ex);
             }
 
             app.UseMvc(routes =>
@@ -135,6 +139,11 @@ namespace DFC.Composite.Shell
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void Log(ILogger<Startup> logger, ILoggerHelper loggerHelper, string message)
+        {
+            loggerHelper.LogInformationMessage(logger, _correlationId, message);
         }
     }
 }

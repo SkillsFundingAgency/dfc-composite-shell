@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 namespace DFC.Composite.Shell
 {
@@ -9,6 +11,10 @@ namespace DFC.Composite.Shell
         {
             WebHost.CreateDefaultBuilder(args)
                 .UseApplicationInsights()
+                .ConfigureLogging((webHostBuilderContext, loggingBuilder) =>
+                {
+                    loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+                })
                 .UseStartup<Startup>()
                 .Build()
                 .Run();
