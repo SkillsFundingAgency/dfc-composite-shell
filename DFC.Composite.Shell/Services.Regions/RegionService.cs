@@ -19,7 +19,7 @@ namespace DFC.Composite.Shell.Services.Regions
 
         public async Task<IEnumerable<RegionModel>> GetRegions(string path)
         {
-            var regionsUrl = $"{_httpClient.BaseAddress}/api/paths/{path}/regions";
+            var regionsUrl = $"{_httpClient.BaseAddress}api/paths/{path}/regions";
             var msg = new HttpRequestMessage(HttpMethod.Get, regionsUrl);
 
             var response = await _httpClient.SendAsync(msg);
