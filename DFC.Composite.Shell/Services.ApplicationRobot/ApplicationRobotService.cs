@@ -5,17 +5,17 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using DFC.Composite.Shell.Models.Sitemap;
+using DFC.Composite.Shell.Models.Robots;
 using Microsoft.Extensions.Logging;
 
-namespace DFC.Composite.Shell.Services.ApplicationSitemap
+namespace DFC.Composite.Shell.Services.ApplicationRobot
 {
-    public class ApplicationSitemapService : IApplicationSitemapService
+    public class ApplicationRobotService : IApplicationRobotService
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogger<ApplicationSitemapService> _logger;
+        private readonly ILogger<ApplicationRobotService> _logger;
 
-        public ApplicationSitemapService(HttpClient httpClient, ILogger<ApplicationSitemapService> logger)
+        public ApplicationRobotService(HttpClient httpClient, ILogger<ApplicationRobotService> logger)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -23,17 +23,17 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
         public string Path { get; set; }
         public string BearerToken { get; set; }
-        public string SitemapUrl { get; set; }
-        public Task<IEnumerable<SitemapLocation>> TheTask { get; set; }
+        public string RobotsURL { get; set; }
+        public Task<string> TheTask { get; set; }
 
-        public async Task<IEnumerable<SitemapLocation>> GetAsync()
+        public async Task<string> GetAsync()
         {
-            var data = await CallHttpClientXmlAsync<Sitemap>(SitemapUrl);
+            var responseTask = await CallHttpClientTxtAsync(RobotsURL);
 
-            return data?.Locations;
+            return responseTask?.Data;
         }
 
-        private async Task<T> CallHttpClientXmlAsync<T>(string url)
+        private async Task<Robot> CallHttpClientTxtAsync(string url)
         {
             try
             {
@@ -44,19 +44,18 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
                 }
 
-                request.Headers.Add("Accept", "application/xml");
+                request.Headers.Add("Accept", "application/txt");
 
                 var response = await _httpClient.SendAsync(request);
 
                 response.EnsureSuccessStatusCode();
 
                 var responseString = await response.Content.ReadAsStringAsync();
-
-                var serializer = new XmlSerializer(typeof(T));
+                var result = new Robot();
 
                 using (TextReader reader = new StringReader(responseString))
                 {
-                    var result = (T)serializer.Deserialize(reader);
+                    result.Add(reader.ReadToEnd());
 
                     return result;
                 }
@@ -66,7 +65,7 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
                 _logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
             }
 
-            return default(T);
+            return null;
         }
     }
 }
