@@ -26,11 +26,15 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             {
                 if (isHealthy)
                 {
+                    _logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
+
                     var response = await _httpClient.GetAsync(url);
 
                     response.EnsureSuccessStatusCode();
 
                     results = await response.Content.ReadAsStringAsync();
+
+                    _logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
                 }
                 else
                 {
@@ -42,7 +46,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             }
             catch (BrokenCircuitException ex)
             {
-                _logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {ex.Message}");
+                _logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
 
                 if (!string.IsNullOrEmpty(offlineHtml))
                 {
@@ -51,7 +55,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(ContentRetriever)}: {ex.Message}");
+                _logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
                 if (!string.IsNullOrEmpty(offlineHtml))
                 {
