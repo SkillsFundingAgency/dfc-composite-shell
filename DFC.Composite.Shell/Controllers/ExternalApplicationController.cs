@@ -11,10 +11,10 @@ namespace DFC.Composite.Shell.Controllers
     {
         private const string MainRenderViewName = "Application/RenderView";
 
-        private readonly ILogger<ApplicationController> _logger;
+        private readonly ILogger<ExternalApplicationController> _logger;
         private readonly IApplicationService _applicationService;
 
-        public ExternalApplicationController(ILogger<ApplicationController> logger, IConfiguration configuration, IApplicationService applicationService)
+        public ExternalApplicationController(ILogger<ExternalApplicationController> logger, IConfiguration configuration, IApplicationService applicationService)
         : base(configuration)
         {
             _logger = logger;
