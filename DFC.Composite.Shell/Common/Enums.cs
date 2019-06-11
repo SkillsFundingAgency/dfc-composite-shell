@@ -2,6 +2,8 @@
 {
     public enum Layout
     {
+        None = 0,
+
         FullWidth = 1,
 
         SidebarRight = 2,
