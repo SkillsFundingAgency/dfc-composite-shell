@@ -18,7 +18,7 @@ namespace DFC.Composite.Shell.Services.Application
         private readonly IRegionService _regionService;
         private readonly IContentRetriever _contentRetriever;
         private readonly IContentProcessor _contentProcessor;
-        
+
         public ApplicationService(
             IPathService pathService,
             IRegionService regionService,
@@ -70,17 +70,17 @@ namespace DFC.Composite.Shell.Services.Application
 
         public async Task<ApplicationModel> GetApplicationAsync(string path)
         {
-            var application = new ApplicationModel();
+            var applicationModel = new ApplicationModel();
             
             var pathModel = await _pathService.GetPath(path);
 
             if (pathModel != null)
             {
-                application.Path = pathModel;
-                application.Regions = await _regionService.GetRegions(pathModel.Path);
+                applicationModel.Path = pathModel;
+                applicationModel.Regions = await _regionService.GetRegions(pathModel.Path);
             }
 
-            return application;
+            return applicationModel;
         }
 
         private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, string contentUrl)
@@ -174,7 +174,12 @@ namespace DFC.Composite.Shell.Services.Application
                 }
                 else
                 {
-                    content = application.Path.OfflineHtml;
+                    var pageRegionModel = application.Regions.FirstOrDefault(x => x.PageRegion == regionType);
+
+                    if (pageRegionModel != null)
+                    {
+                        content = pageRegionModel.OfflineHTML;
+                    }
                 }
 
                 pageRegionContentModel.Content = new HtmlString(content);

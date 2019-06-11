@@ -9,8 +9,6 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class ExternalApplicationController : BaseController
     {
-        private const string MainRenderViewName = "Application/RenderView";
-
         private readonly ILogger<ExternalApplicationController> _logger;
         private readonly IApplicationService _applicationService;
 
@@ -24,12 +22,18 @@ namespace DFC.Composite.Shell.Controllers
         [HttpGet]
         public async Task<IActionResult> Action(string path)
         {
+            _logger.LogInformation($"{nameof(Action)}: Getting external response for: {path}");
+
             var application = await _applicationService.GetApplicationAsync(path);
 
             if (application != null && !string.IsNullOrWhiteSpace(application.Path.ExternalURL))
             {
+                _logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {path}");
+
                 return Redirect(application.Path.ExternalURL);
             }
+
+            _logger.LogError($"{nameof(Action)}: Error getting external response for: {path}");
 
             return RedirectToAction("action", "application", new { path });
         }
