@@ -39,3 +39,7 @@
     </div>
 </header>
 
+@if (!string.IsNullOrEmpty(ViewBag.PhaseBannerHtml))
+{
+    Html.Raw(ViewBag.PhaseBannerHtml);
+}

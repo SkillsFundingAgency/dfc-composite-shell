@@ -11,6 +11,7 @@ namespace DFC.Composite.Shell.Services.Mapping
             destination.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
             destination.Path = source.Path.Path;
             destination.PageTitle = source.Path.TopNavigationText;
+            destination.PhaseBannerHtml = source.Path.PhaseBannerHtml;
 
             var pageRegionContentModels = new List<PageRegionContentModel>();
 
