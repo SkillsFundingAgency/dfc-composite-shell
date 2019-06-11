@@ -143,8 +143,15 @@ namespace DFC.Composite.Shell
                 // add the site map route
                 routes.MapRoute(
                     name: "Sitemap",
-                    template: "Sitemap",
+                    template: "Sitemap.xml",
                     defaults: new { controller = "Sitemap", action = "Sitemap" }
+                );
+
+                // add the robots.txt route
+                routes.MapRoute(
+                    name: "Robots",
+                    template: "Robots.txt",
+                    defaults: new { controller = "Robot", action = "Robot" }
                 );
 
                 // add the default route

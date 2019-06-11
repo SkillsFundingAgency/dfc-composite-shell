@@ -19,9 +19,13 @@ namespace DFC.Composite.Shell.Models
 
         public string OfflineHtml { get; set; }
 
+        public string PhaseBannerHtml { get; set; }
+
         public string SitemapURL { get; set; }
 
         public string ExternalURL { get; set; }
+
+        public string RobotsURL { get; set; }
 
         public DateTime DateOfRegistration { get; set; }
 
