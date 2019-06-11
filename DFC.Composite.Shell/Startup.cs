@@ -119,11 +119,24 @@ namespace DFC.Composite.Shell
                     // map any incoming routes for each path
                     foreach (var path in paths)
                     {
-                        routes.MapRoute(
-                            name: $"path-{path.Path}-Action",
-                            template: path.Path + "/{**data}",
-                            defaults: new { controller = "Application", action = "Action", path.Path }
-                        );
+                        var isExternalPath = !string.IsNullOrWhiteSpace(path.ExternalURL);
+
+                        if (isExternalPath)
+                        {
+                            routes.MapRoute(
+                                name: $"externalPath-{path.Path}-Action",
+                                template: path.Path + "/{**data}",
+                                defaults: new { controller = "ExternalApplication", action = "Action", path.Path }
+                            );
+                        }
+                        else
+                        {
+                            routes.MapRoute(
+                                name: $"path-{path.Path}-Action",
+                                template: path.Path + "/{**data}",
+                                defaults: new { controller = "Application", action = "Action", path.Path }
+                            );
+                        }
                     }
                 }
 

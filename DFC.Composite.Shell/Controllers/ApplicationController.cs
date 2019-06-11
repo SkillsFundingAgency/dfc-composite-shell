@@ -40,7 +40,7 @@ namespace DFC.Composite.Shell.Controllers
 
                 var application = await _applicationService.GetApplicationAsync(requestViewModel.Path);
 
-                if (application == null)
+                if (application == null || application.Path == null)
                 {
                     string errorString = string.Format(Messages.PathNotRegistered, requestViewModel.Path);
 
