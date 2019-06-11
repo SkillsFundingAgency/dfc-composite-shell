@@ -10,6 +10,7 @@ namespace DFC.Composite.Shell.Models
         public string BrandingAssetsCdn { get; set; } 
         public string Branding { get; set; } = "ESFA";
         public string PageTitle { get; set; } = "Unknown Service";
+        public string PhaseBannerHtml { get; set; } 
 
         public List<PageRegionContentModel> PageRegionContentModels { get; set; }
 

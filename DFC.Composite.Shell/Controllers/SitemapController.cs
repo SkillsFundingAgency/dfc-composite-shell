@@ -28,7 +28,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             try
             {
-                _logger.LogInformation("Generating Sitemap");
+                _logger.LogInformation("Generating Sitemap.xml");
 
                 var sitemap = GenerateThisSiteSitemap();
 
@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Controllers
 
                 string xmlString = sitemap.WriteSitemapToString();
 
-                _logger.LogInformation("Generated Sitemap");
+                _logger.LogInformation("Generated Sitemap.xml");
 
                 return Content(xmlString, "application/xml");
             }
@@ -50,7 +50,8 @@ namespace DFC.Composite.Shell.Controllers
                 _logger.LogError(ex, $"{nameof(Sitemap)}: {ex.Message}");
             }
 
-            return null;
+            // fall through from errors
+            return Content(null, "application/xml");
         }
 
         private Sitemap GenerateThisSiteSitemap()
@@ -88,8 +89,11 @@ namespace DFC.Composite.Shell.Controllers
 
             foreach (var path in paths.Where(w => !string.IsNullOrEmpty(w.SitemapURL)))
             {
+                _logger.LogInformation($"{nameof(Action)}: Getting child Sitemap for: {path.Path}");
+
                 var applicationSitemapService = HttpContext.RequestServices.GetService(typeof(IApplicationSitemapService)) as ApplicationSitemapService;
 
+                applicationSitemapService.Path = path.Path;
                 applicationSitemapService.BearerToken = bearerToken;
                 applicationSitemapService.SitemapUrl = path.SitemapURL;
                 applicationSitemapService.TheTask = applicationSitemapService.GetAsync();
@@ -105,11 +109,13 @@ namespace DFC.Composite.Shell.Controllers
             string baseUrl = BaseUrl();
 
             // get the task results as individual sitemaps and merge into one
-            foreach (var applicationSiteMap in applicationSitemapServices)
+            foreach (var applicationSitemapService in applicationSitemapServices)
             {
-                if (applicationSiteMap.TheTask.IsCompletedSuccessfully)
+                if (applicationSitemapService.TheTask.IsCompletedSuccessfully)
                 {
-                    var mappings = applicationSiteMap.TheTask.Result;
+                    _logger.LogInformation($"{nameof(Action)}: Received child Sitemap for: {applicationSitemapService.Path}");
+
+                    var mappings = applicationSitemapService.TheTask.Result;
 
                     if (mappings?.Count() > 0)
                     {
@@ -130,6 +136,10 @@ namespace DFC.Composite.Shell.Controllers
 
                         sitemap.AddRange(mappings);
                     }
+                }
+                else
+                {
+                    _logger.LogError($"{nameof(Action)}: Error getting child Sitemap for: {applicationSitemapService.Path}");
                 }
             }
         }
