@@ -50,7 +50,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     string shellSitemapUrl = $"{Request.Scheme}://{Request.Host}{sitemapRouteUrl}";
 
-                    robot.Add($"{Environment.NewLine}Sitemap: {shellSitemapUrl}");
+                    robot.Add($"Sitemap: {shellSitemapUrl}");
                 }
 
                 _logger.LogInformation("Generated Robots.txt");
