@@ -193,6 +193,14 @@
                                 "value": "00:00:30"
                             },
                             {
+                                "name": "RobotClientOptions__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "RobotClientOptions__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
                                 "name": "SitemapClientOptions__BaseAddress",
                                 "value": null
                             },
