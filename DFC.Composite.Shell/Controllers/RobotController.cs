@@ -96,7 +96,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             // loop through the registered applications and create some tasks - one per application that has a robot url
             var paths = await _pathService.GetPaths();
-            var onlinePaths = paths.Where(w => w.IsOnline);
+            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.RobotsURL)).ToList();
 
             var applicationRobotServices = await CreateApplicationRobotServiceTasksAsync(onlinePaths);
 
@@ -108,13 +108,14 @@ namespace DFC.Composite.Shell.Controllers
             OutputApplicationsRobots(robot, onlinePaths, applicationRobotServices);
         }
 
-        private async Task<List<IApplicationRobotService>> CreateApplicationRobotServiceTasksAsync(IEnumerable<Models.PathModel> paths)
+        private async Task<List<IApplicationRobotService>> CreateApplicationRobotServiceTasksAsync(IList<Models.PathModel> paths)
         {
             // loop through the registered applications and create some tasks - one per application that has a robot url
             var applicationRobotServices = new List<IApplicationRobotService>();
             string bearerToken = await GetBearerTokenAsync();
 
-            foreach (var path in paths.Where(w => !string.IsNullOrEmpty(w.RobotsURL)))
+
+            foreach (var path in paths)
             {
                 _logger.LogInformation($"{nameof(Action)}: Getting child robots.txt for: {path.Path}");
 
@@ -131,7 +132,7 @@ namespace DFC.Composite.Shell.Controllers
             return applicationRobotServices;
         }
 
-        private void OutputApplicationsRobots(Robot robot, IEnumerable<Models.PathModel> paths, List<IApplicationRobotService> applicationRobotServices)
+        private void OutputApplicationsRobots(Robot robot, IList<Models.PathModel> paths, List<IApplicationRobotService> applicationRobotServices)
         {
             string baseUrl = BaseUrl();
 
@@ -152,6 +153,21 @@ namespace DFC.Composite.Shell.Controllers
                         {
                             if (!string.IsNullOrEmpty(robotsLines[i]))
                             {
+                                // remove any user-agent and sitemap lines
+                                var lineSegments = robotsLines[i].Split(":");
+                                var skipLinesWithSegment = new string[] { "User-agent", "Sitemap" };
+
+                                if (lineSegments.Length > 0)
+                                {
+                                    if (skipLinesWithSegment.Contains(lineSegments[0], StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        robotsLines[i] = null;
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(robotsLines[i]))
+                            {
                                 // rewrite the URL to swap any child application address prefix for the composite UI address prefix
                                 foreach (var path in paths)
                                 {
@@ -166,7 +182,7 @@ namespace DFC.Composite.Shell.Controllers
                             }
                         }
 
-                        robot.Add(string.Join(Environment.NewLine, robotsLines));
+                        robot.Add(string.Join(Environment.NewLine, robotsLines.Where(w => !string.IsNullOrEmpty(w))));
                     }
                 }
                 else

@@ -69,7 +69,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
             var paths = await _pathService.GetPaths();
-            var onlinePaths = paths.Where(w => w.IsOnline);
+            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.SitemapURL)).ToList();
 
             var applicationSitemapServices = await CreateApplicationSitemapServiceTasksAsync(onlinePaths);
 
@@ -81,13 +81,13 @@ namespace DFC.Composite.Shell.Controllers
             OutputApplicationsSitemaps(sitemap, onlinePaths, applicationSitemapServices);
         }
 
-        private async Task<List<IApplicationSitemapService>> CreateApplicationSitemapServiceTasksAsync(IEnumerable<Models.PathModel> paths)
+        private async Task<List<IApplicationSitemapService>> CreateApplicationSitemapServiceTasksAsync(IList<Models.PathModel> paths)
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
             var applicationSitemapServices = new List<IApplicationSitemapService>();
             string bearerToken = await GetBearerTokenAsync();
 
-            foreach (var path in paths.Where(w => !string.IsNullOrEmpty(w.SitemapURL)))
+            foreach (var path in paths)
             {
                 _logger.LogInformation($"{nameof(Action)}: Getting child Sitemap for: {path.Path}");
 
@@ -104,7 +104,7 @@ namespace DFC.Composite.Shell.Controllers
             return applicationSitemapServices;
         }
 
-        private void OutputApplicationsSitemaps(Sitemap sitemap, IEnumerable<Models.PathModel> paths, List<IApplicationSitemapService> applicationSitemapServices)
+        private void OutputApplicationsSitemaps(Sitemap sitemap, IList<Models.PathModel> paths, List<IApplicationSitemapService> applicationSitemapServices)
         {
             string baseUrl = BaseUrl();
 

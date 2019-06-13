@@ -6,6 +6,7 @@ using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Policies.Options;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
@@ -73,6 +74,10 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, Configuration, nameof(SitemapClientOptions))
                 .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, Configuration, nameof(RobotClientOptions))
+                .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

@@ -1,4 +1,4 @@
-﻿@if (!string.IsNullOrEmpty(ViewBag.PhaseBannerHtml))
+﻿@if (ViewBag.PhaseBannerHtml != null)
 {
     @Html.Raw(ViewBag.PhaseBannerHtml);
 }

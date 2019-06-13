@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
+using Microsoft.AspNetCore.Html;
 using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.Services.Mapping
@@ -11,7 +12,7 @@ namespace DFC.Composite.Shell.Services.Mapping
             destination.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
             destination.Path = source.Path.Path;
             destination.PageTitle = source.Path.TopNavigationText;
-            destination.PhaseBannerHtml = source.Path.PhaseBannerHtml;
+            destination.PhaseBannerHtml = new HtmlString(source.Path.PhaseBannerHtml);
 
             var pageRegionContentModels = new List<PageRegionContentModel>();
 

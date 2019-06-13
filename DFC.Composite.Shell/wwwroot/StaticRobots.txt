@@ -1,1 +1,3 @@
-﻿// this is the shell default robots.txt
+﻿User-agent: *
+Disallow: /favicon.ico
+Disallow: /StaticRobots.txt
