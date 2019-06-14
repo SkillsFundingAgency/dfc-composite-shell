@@ -162,7 +162,7 @@
                             },
                             {
                                 "name": "PathClientOptions__BaseAddress",
-                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths')]"
+                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths/')]"
                             },
                             {
                                 "name": "PathClientOptions__Timeout",
@@ -186,7 +186,7 @@
                             },
                              {
                                 "name": "RegionClientOptions__BaseAddress",
-                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions')]"
+                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions/')]"
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
