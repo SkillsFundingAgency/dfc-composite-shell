@@ -3,7 +3,6 @@ using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Policies.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
@@ -54,6 +53,7 @@ namespace DFC.Composite.Shell.Extensions
                     where TClientOptions : HttpClientOptions, new() =>
                     services
                         .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
+                        .AddTransient<CorrelationIdDelegatingHandler>()
                         .AddHttpClient<TClient, TImplementation>()
                         .ConfigureHttpClient((sp, options) =>
                         {
@@ -66,6 +66,7 @@ namespace DFC.Composite.Shell.Extensions
                         .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
                         .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + retryPolicyName)
                         .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + circuitBreakerPolicyName)
+                        .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
                         .Services;
 
     }
