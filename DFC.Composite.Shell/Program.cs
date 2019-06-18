@@ -14,7 +14,8 @@ namespace DFC.Composite.Shell
                    .ConfigureLogging((webHostBuilderContext, loggingBuilder) =>
                    {
                        loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
-                   }).UseStartup<Startup>()
+                   })
+                   .UseStartup<Startup>()
                    .Build()
                    .Run();
         }
