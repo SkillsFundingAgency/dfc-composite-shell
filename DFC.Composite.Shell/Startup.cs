@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CorrelationId;
 using DFC.Common.Standard.Logging;
+using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Policies.Options;
@@ -22,6 +21,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DFC.Composite.Shell
 {
@@ -39,6 +41,8 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCorrelationId();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -85,6 +89,13 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathService pathService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
         {
+            app.UseCorrelationId(new CorrelationIdOptions
+            {
+                Header = Constants.CorrelationIdHeaderName,
+                UseGuidForCorrelationId = true,
+                UpdateTraceIdentifier = false
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
