@@ -1,14 +1,14 @@
-﻿using DFC.Composite.Shell.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.AspNetCore.Html;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Application
 {
@@ -31,20 +31,24 @@ namespace DFC.Composite.Shell.Services.Application
             _contentProcessor = contentProcessor;
         }
 
-        public async Task GetMarkupAsync(ApplicationModel application, string contentUrl, PageViewModel pageModel)
+        public async Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel)
         {
             if (application.Path.IsOnline)
             {
-                if (!string.IsNullOrEmpty(contentUrl) && contentUrl.StartsWith("/"))
+                if (string.IsNullOrWhiteSpace(article))
                 {
-                    contentUrl = contentUrl.Substring(1);
+                    article = "index";
+                }
+                if (article.StartsWith("/"))
+                {
+                    article = article.Substring(1);
                 }
 
                 //Get the markup at this url
-                var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, contentUrl);
+                var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, article);
 
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, contentUrl);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
 
                 //Wait until everything is done
                 await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
@@ -63,7 +67,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task PostMarkupAsync(ApplicationModel application, string contentUrl, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
+        public async Task PostMarkupAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
         {
             await Task.CompletedTask;
         }
@@ -71,7 +75,7 @@ namespace DFC.Composite.Shell.Services.Application
         public async Task<ApplicationModel> GetApplicationAsync(string path)
         {
             var applicationModel = new ApplicationModel();
-            
+
             var pathModel = await _pathService.GetPath(path);
 
             if (pathModel != null)
@@ -83,50 +87,33 @@ namespace DFC.Composite.Shell.Services.Application
             return applicationModel;
         }
 
-        private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, string contentUrl)
+        private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, string article)
         {
             //Get the body region
             var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+
             if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(contentUrl))
-            {
-                //If we didn't specify a url, then assume we want content from the body region endpoint
-                contentUrl = bodyRegion.RegionEndpoint;
-            }
-            else
-            {
-                //If we did specify a url, then assume its relative to the body
-                //Get the body region rootUrl
-                var bodyRegionRootUrl = GetBodyRegionRootUrl(bodyRegion.RegionEndpoint);
+            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article);
 
-                contentUrl = $"{bodyRegionRootUrl}{application.Path.Path}/{contentUrl}";
-            }
-
-            var result = _contentRetriever.GetContent(contentUrl, bodyRegion.IsHealthy, bodyRegion.OfflineHTML);
+            var result = _contentRetriever.GetContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML);
 
             return result;
         }
 
-        private string GetBodyRegionRootUrl(string bodyRegionEndpoint)
-        {
-            var bodyRegionEndpointUri = new Uri(bodyRegionEndpoint);
-            return $"{bodyRegionEndpointUri.AbsoluteUri.Replace(bodyRegionEndpointUri.PathAndQuery, string.Empty)}/";
-        }
-
-        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string contentUrl)
+        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article)
         {
             var tasks = new List<Task<string>>();
 
-            var headRegionTask = GetMarkupAsync(tasks, PageRegion.Head, application.Regions);
-            var breadcrumbRegionTask = GetMarkupAsync(tasks, PageRegion.Breadcrumb, application.Regions, contentUrl);
-            var bodyTopRegionTask = GetMarkupAsync(tasks, PageRegion.BodyTop, application.Regions);
-            var sidebarLeftRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarLeft, application.Regions);
-            var sidebarRightRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarRight, application.Regions);
-            var bodyFooterRegionTask = GetMarkupAsync(tasks, PageRegion.BodyFooter, application.Regions);
+            var headRegionTask = GetMarkupAsync(tasks, PageRegion.Head, application.Regions, article);
+            var breadcrumbRegionTask = GetMarkupAsync(tasks, PageRegion.Breadcrumb, application.Regions, article);
+            var bodyTopRegionTask = GetMarkupAsync(tasks, PageRegion.BodyTop, application.Regions, article);
+            var sidebarLeftRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarLeft, application.Regions, article);
+            var sidebarRightRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarRight, application.Regions, article);
+            var bodyFooterRegionTask = GetMarkupAsync(tasks, PageRegion.BodyFooter, application.Regions, article);
 
             await Task.WhenAll(tasks);
 
@@ -138,26 +125,36 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyFooter, bodyFooterRegionTask);
         }
 
-        private Task<string> GetMarkupAsync(List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions, string contentUrl=null)
+        private Task<string> GetMarkupAsync(List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions, string article)
         {
             var pageRegionModel = regions.FirstOrDefault(x => x.PageRegion == regionType);
+
             if (pageRegionModel == null || string.IsNullOrWhiteSpace(pageRegionModel.RegionEndpoint))
             {
                 return null;
             }
 
-            string url = pageRegionModel.RegionEndpoint;
-
-            if (!string.IsNullOrEmpty(contentUrl))
-            {
-                url += $"/{contentUrl}";
-            }
+            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article);
 
             var task = _contentRetriever.GetContent(url, pageRegionModel.IsHealthy, pageRegionModel.OfflineHTML);
 
             tasks.Add(task);
 
             return task;
+        }
+
+        private string FormatArticleUrl(string regionEndpoint, string article)
+        {
+            string urlFormatString = regionEndpoint;
+
+            if (!urlFormatString.Contains("{0}"))
+            {
+                urlFormatString += "/{0}";
+            }
+
+            string url = string.Format(urlFormatString, article);
+
+            return url;
         }
 
         private void PopulatePageRegionContent(ApplicationModel application, PageViewModel pageModel, PageRegion regionType, Task<string> task)
