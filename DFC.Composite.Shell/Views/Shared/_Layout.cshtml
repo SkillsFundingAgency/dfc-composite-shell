@@ -92,17 +92,7 @@
 
     <partial name="_GovUkFooter" />
 
-    <environment include="Development">
-        <script src="~/lib/jquery/jquery.js"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-                asp-fallback-src="~/lib/jquery/jquery.js"
-                asp-fallback-test="window.jQuery"
-                crossorigin="anonymous"
-                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=">
-        </script>
-    </environment>
+    <partial name="_JQueryInclude" />
 
     <script src="@(BrandingAssetsFolder)/@(Branding).min.js"></script>
     <script>window.GOVUKFrontend.initAll()</script>

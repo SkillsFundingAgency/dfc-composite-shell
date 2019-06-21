@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using DFC.Composite.Shell.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieve
 {
     public interface IContentRetriever
     {
         Task<string> GetContent(string url, bool isHealthy, string offlineHtml);
+        Task<string> PostContent(string url, bool isHealthy, string offlineHtml, IEnumerable<KeyValuePair<string, string>> formParameters);
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
@@ -52,6 +54,49 @@ namespace DFC.Composite.Shell.Controllers
                     _mapper.Map(application, vm);
 
                     await _applicationService.GetMarkupAsync(application, requestViewModel.Data, vm);
+
+                    _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorString = $"{requestViewModel.Path}: {ex.Message}";
+
+                ModelState.AddModelError(string.Empty, errorString);
+                _logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
+            }
+
+            return View(MainRenderViewName, vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Action(ActionPostRequestModel requestViewModel)
+        {
+            var vm = new PageViewModel
+            {
+                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
+            };
+
+            try
+            {
+                _logger.LogInformation($"{nameof(Action)}: Posting child request for: {requestViewModel.Path}");
+
+                var application = await _applicationService.GetApplicationAsync(requestViewModel.Path);
+
+                if (application == null || application.Path == null)
+                {
+                    string errorString = string.Format(Messages.PathNotRegistered, requestViewModel.Path);
+
+                    ModelState.AddModelError(string.Empty, errorString);
+                    _logger.LogWarning($"{nameof(Action)}: {errorString}");
+                }
+                else
+                {
+                    _mapper.Map(application, vm);
+
+                    var formParameters = (from a in requestViewModel.FormCollection select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
+
+                    await _applicationService.PostMarkupAsync(application, requestViewModel.Data, formParameters, vm);
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }

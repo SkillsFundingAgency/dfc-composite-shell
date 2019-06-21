@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Models;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 
@@ -29,6 +29,59 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     _logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
                     var response = await _httpClient.GetAsync(url);
+
+                    response.EnsureSuccessStatusCode();
+
+                    results = await response.Content.ReadAsStringAsync();
+
+                    _logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(offlineHtml))
+                    {
+                        results = offlineHtml;
+                    }
+                }
+            }
+            catch (BrokenCircuitException ex)
+            {
+                _logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
+
+                if (!string.IsNullOrEmpty(offlineHtml))
+                {
+                    results = offlineHtml;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
+
+                if (!string.IsNullOrEmpty(offlineHtml))
+                {
+                    results = offlineHtml;
+                }
+            }
+
+            return results;
+        }
+
+        public async Task<string> PostContent(string url, bool isHealthy, string offlineHtml, IEnumerable<KeyValuePair<string, string>> formParameters)
+        {
+            string results = null;
+
+            try
+            {
+                if (isHealthy)
+                {
+                    _logger.LogInformation($"{nameof(GetContent)}: posting child response from: {url}");
+
+                    var request = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Content = new FormUrlEncodedContent(formParameters)
+                    };
+
+                    var response = await _httpClient.SendAsync(request);
 
                     response.EnsureSuccessStatusCode();
 
