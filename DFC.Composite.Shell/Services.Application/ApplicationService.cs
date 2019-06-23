@@ -63,12 +63,12 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task PostMarkupAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
+        public async Task PostMarkupAsync(ApplicationModel application, string path, string article, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
         {
             if (application.Path.IsOnline)
             {
                 //Get the markup at the post back url
-                var applicationBodyRegionTask = GetPostMarkUpAsync(application, article, formParameters);
+                var applicationBodyRegionTask = GetPostMarkUpAsync(application, path, article, formParameters);
 
                 //Load related regions
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
@@ -122,7 +122,7 @@ namespace DFC.Composite.Shell.Services.Application
             return result;
         }
 
-        private Task<string> GetPostMarkUpAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
+        private Task<string> GetPostMarkUpAsync(ApplicationModel application, string path, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
         {
             //Get the body region
             var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
@@ -133,7 +133,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
 
             var uri = new Uri(bodyRegion.RegionEndpoint);
-            var url = $"{uri.Scheme}://{uri.Host}/{bodyRegion.Path}/{article}";
+            var url = $"{uri.Scheme}://{uri.Host}/{path}/{article}";
 
             var result = _contentRetriever.PostContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, formParameters);
 

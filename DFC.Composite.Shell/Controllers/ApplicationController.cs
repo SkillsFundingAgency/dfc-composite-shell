@@ -96,7 +96,7 @@ namespace DFC.Composite.Shell.Controllers
 
                     var formParameters = (from a in requestViewModel.FormCollection select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
 
-                    await _applicationService.PostMarkupAsync(application, requestViewModel.Data, formParameters, vm);
+                    await _applicationService.PostMarkupAsync(application, requestViewModel.Path, requestViewModel.Data, formParameters, vm);
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }
