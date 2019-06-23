@@ -54,6 +54,7 @@ namespace DFC.Composite.Shell.Extensions
                     services
                         .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
                         .AddTransient<CorrelationIdDelegatingHandler>()
+                        .AddTransient<UserAgentDelegatingHandler>()
                         .AddHttpClient<TClient, TImplementation>()
                         .ConfigureHttpClient((sp, options) =>
                         {
@@ -67,6 +68,7 @@ namespace DFC.Composite.Shell.Extensions
                         .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + retryPolicyName)
                         .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + circuitBreakerPolicyName)
                         .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+                        .AddHttpMessageHandler<UserAgentDelegatingHandler>()
                         .Services;
 
     }
