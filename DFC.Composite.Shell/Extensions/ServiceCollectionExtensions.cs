@@ -4,10 +4,13 @@ using DFC.Composite.Shell.Policies.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
 using System;
+using System.Net.Http;
+using System.Net.Mime;
 
 namespace DFC.Composite.Shell.Extensions
 {
@@ -63,13 +66,20 @@ namespace DFC.Composite.Shell.Extensions
                                 .Value;
                             options.BaseAddress = httpClientOptions.BaseAddress;
                             options.Timeout = httpClientOptions.Timeout;
+                            options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
                         })
                         .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
                         .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + retryPolicyName)
                         .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + circuitBreakerPolicyName)
                         .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
                         .AddHttpMessageHandler<UserAgentDelegatingHandler>()
-                        .Services;
+                        .ConfigurePrimaryHttpMessageHandler(() =>
+                        {
+                            return new HttpClientHandler()
+                            {
+                                AllowAutoRedirect = false
+                            };
+                        }).Services;
 
     }
 }
