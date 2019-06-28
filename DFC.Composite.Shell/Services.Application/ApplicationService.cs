@@ -19,6 +19,8 @@ namespace DFC.Composite.Shell.Services.Application
         private readonly IContentRetriever _contentRetriever;
         private readonly IContentProcessor _contentProcessor;
 
+        public string RequestBaseUrl { get; set; }
+
         public ApplicationService(
             IPathService pathService,
             IRegionService regionService,
@@ -100,6 +102,24 @@ namespace DFC.Composite.Shell.Services.Application
             {
                 applicationModel.Path = pathModel;
                 applicationModel.Regions = await _regionService.GetRegions(pathModel.Path);
+
+                if (applicationModel.Regions != null)
+                {
+                    var bodyRegion = applicationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+
+                    if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+                    {
+                        var uri = new Uri(bodyRegion.RegionEndpoint);
+                        var url = $"{uri.Scheme}://{uri.Host}";
+
+                        if (uri.Port != 0 && uri.Port != 80)
+                        {
+                            url += $":{uri.Port}";
+                        }
+
+                        applicationModel.RootUrl = url;
+                    }
+                }
             }
 
             return applicationModel;
@@ -203,7 +223,7 @@ namespace DFC.Composite.Shell.Services.Application
                 if (task.IsCompletedSuccessfully)
                 {
                     content = task.Result;
-                    content = _contentProcessor.Process(content);
+                    content = _contentProcessor.Process(content, RequestBaseUrl, application.RootUrl);
                 }
                 else
                 {

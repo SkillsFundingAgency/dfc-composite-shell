@@ -7,6 +7,11 @@ namespace DFC.Composite.Shell.Services.Application
     public interface IApplicationService
     {
         /// <summary>
+        /// Contains the base url of the request
+        /// </summary>
+        string RequestBaseUrl { get; set; }
+
+        /// <summary>
         /// Gets the markup at the specified url and loads other related regions for the specified path
         /// </summary>
         /// <param name="application">The application model</param>

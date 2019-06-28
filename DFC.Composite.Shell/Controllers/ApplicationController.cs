@@ -54,6 +54,8 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     _mapper.Map(application, vm);
 
+                    _applicationService.RequestBaseUrl = BaseUrl();
+
                     await _applicationService.GetMarkupAsync(application, requestViewModel.Data, vm);
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
@@ -100,6 +102,8 @@ namespace DFC.Composite.Shell.Controllers
                 else
                 {
                     _mapper.Map(application, vm);
+
+                    _applicationService.RequestBaseUrl = BaseUrl();
 
                     var formParameters = (from a in requestViewModel.FormCollection select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
 

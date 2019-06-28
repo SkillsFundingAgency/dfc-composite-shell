@@ -2,6 +2,6 @@
 {
     public interface IContentProcessor
     {
-        string Process(string content);
+        string Process(string content, string requestBaseUrl, string applicationRootUrl);
     }
 }

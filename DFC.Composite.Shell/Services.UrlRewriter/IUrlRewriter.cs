@@ -2,6 +2,6 @@
 {
     public interface IUrlRewriter
     {
-        string Rewrite(string content);
+        string Rewrite(string content, string requestBaseUrl, string applicationRootUrl);
     }
 }

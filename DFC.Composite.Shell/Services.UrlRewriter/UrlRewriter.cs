@@ -13,25 +13,27 @@ namespace DFC.Composite.Shell.Services.UrlRewriter
             _pathLocator = pathLocator;
         }
 
-        public string Rewrite(string content)
+        public string Rewrite(string content, string requestBaseUrl, string applicationRootUrl)
         {
-            //var htmlDoc = new HtmlDocument();
-            //htmlDoc.LoadHtml(content);
+            var attributeNames = new string[] { "href", "action" };
+            var quoteChars = new char[] { '"', '\'' };
 
-            //var links = htmlDoc.DocumentNode.SelectNodes("//a");
-            //if (links != null)
-            //{
-            //    //foreach (var link in links)
-            //    //{
-            //    //    var href = link.Attributes["href"];
-            //    //    if (href != null && IsRelativeUrl(href.Value))
-            //    //    {
-            //    //        href.Value = $"{_pathLocator.GetPath()}?route={href.Value}";
-            //    //    }
-            //    //}
+            foreach (var attributeName in attributeNames)
+            {
+                foreach (var quoteChar in quoteChars)
+                {
+                    var fromUrlPrefixes = new string[] { $@"{attributeName}={quoteChar}/", $@"{attributeName}={quoteChar}{applicationRootUrl}/" };
+                    string toUrlPrefix = $@"{attributeName}={quoteChar}{requestBaseUrl}/";
 
-            //    content = htmlDoc.DocumentNode.InnerHtml;
-            //}
+                    foreach (var fromUrlPrefix in fromUrlPrefixes)
+                    {
+                        if (content.Contains(fromUrlPrefix, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            content = content.Replace(fromUrlPrefix, toUrlPrefix, StringComparison.InvariantCultureIgnoreCase);
+                        }
+                    }
+                }
+            }
 
             return content;
         }
