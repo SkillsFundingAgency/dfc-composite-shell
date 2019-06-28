@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Common;
+using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.Mapping;
@@ -57,6 +58,12 @@ namespace DFC.Composite.Shell.Controllers
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }
+            }
+            catch(RedirectException ex)
+            {
+                _logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
+
+                Response.Redirect(ex.Location.PathAndQuery, true);
             }
             catch (Exception ex)
             {

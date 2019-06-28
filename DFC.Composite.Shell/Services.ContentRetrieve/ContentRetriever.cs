@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.Exceptions;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 
@@ -30,6 +32,11 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     var response = await _httpClient.GetAsync(url);
 
+                    if (response.StatusCode == HttpStatusCode.MovedPermanently)
+                    {
+                        throw new RedirectException(new Uri(url), response.Headers.Location);
+                    }
+
                     response.EnsureSuccessStatusCode();
 
                     results = await response.Content.ReadAsStringAsync();
@@ -43,6 +50,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                         results = offlineHtml;
                     }
                 }
+            }
+            catch (RedirectException ex)
+            {
+                throw;
             }
             catch (BrokenCircuitException ex)
             {
