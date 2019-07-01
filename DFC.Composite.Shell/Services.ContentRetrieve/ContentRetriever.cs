@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             _logger = logger;
         }
 
-        public async Task<string> GetContent(string url, bool isHealthy, string offlineHtml, bool followRedirects)
+        public async Task<string> GetContent(string url, bool isHealthy, string offlineHtml, bool followRedirects, string requestBaseUrl)
         {
             string results = null;
 
@@ -46,16 +46,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                             }
                             else
                             {
-                                string redirectUrl = response.Headers.Location.ToString();
-
-                                if (!response.Headers.Location.IsAbsoluteUri)
-                                {
-                                    var redirectUri = new Uri(url);
-                                    string postScheme = redirectUri.Scheme;
-                                    string postAuthority = redirectUri.Authority;
-
-                                    redirectUrl = $"{postScheme}://{postAuthority}{redirectUrl}";
-                                }
+                                string redirectUrl = $"{requestBaseUrl}{response.Headers.Location.PathAndQuery}";
 
                                 throw new RedirectException(new Uri(url), new Uri(redirectUrl));
                             }
@@ -80,7 +71,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     }
                 }
             }
-            catch (RedirectException ex)
+            catch (RedirectException)
             {
                 throw;
             }
@@ -106,7 +97,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             return results;
         }
 
-        public async Task<string> PostContent(string url, bool isHealthy, string offlineHtml, IEnumerable<KeyValuePair<string, string>> formParameters)
+        public async Task<string> PostContent(string url, bool isHealthy, string offlineHtml, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
             string results = null;
 
@@ -125,16 +116,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     if (response.StatusCode == HttpStatusCode.Found)
                     {
-                        string redirectUrl = response.Headers.Location.ToString();
-
-                        if (!response.Headers.Location.IsAbsoluteUri)
-                        {
-                            var postUri = new Uri(url);
-                            string postScheme = postUri.Scheme;
-                            string postAuthority = postUri.Authority;
-
-                            redirectUrl = $"{postScheme}://{postAuthority}{redirectUrl}";
-                        }
+                        string redirectUrl = $"{requestBaseUrl}{response.Headers.Location.PathAndQuery}";
 
                         throw new RedirectException(new Uri(url), new Uri(redirectUrl));
                     }
@@ -153,7 +135,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     }
                 }
             }
-            catch (RedirectException ex)
+            catch (RedirectException)
             {
                 throw;
             }

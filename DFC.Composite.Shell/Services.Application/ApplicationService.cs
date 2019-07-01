@@ -132,7 +132,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article);
 
-            var result = _contentRetriever.GetContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, false);
+            var result = _contentRetriever.GetContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, false, RequestBaseUrl);
 
             return result;
         }
@@ -150,7 +150,7 @@ namespace DFC.Composite.Shell.Services.Application
             var uri = new Uri(bodyRegion.RegionEndpoint);
             var url = $"{uri.Scheme}://{uri.Host}/{path}/{article}";
 
-            var result = _contentRetriever.PostContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, formParameters);
+            var result = _contentRetriever.PostContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, formParameters, RequestBaseUrl);
 
             return result;
         }
@@ -187,7 +187,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article);
 
-            var task = _contentRetriever.GetContent(url, pageRegionModel.IsHealthy, pageRegionModel.OfflineHTML, true);
+            var task = _contentRetriever.GetContent(url, pageRegionModel.IsHealthy, pageRegionModel.OfflineHTML, true, RequestBaseUrl);
 
             tasks.Add(task);
 
