@@ -110,12 +110,7 @@ namespace DFC.Composite.Shell.Services.Application
                     if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
                     {
                         var uri = new Uri(bodyRegion.RegionEndpoint);
-                        var url = $"{uri.Scheme}://{uri.Host}";
-
-                        if (uri.Port != 0 && uri.Port != 80)
-                        {
-                            url += $":{uri.Port}";
-                        }
+                        var url = $"{uri.Scheme}://{uri.Authority}";
 
                         applicationModel.RootUrl = url;
                     }
@@ -137,7 +132,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article);
 
-            var result = _contentRetriever.GetContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML);
+            var result = _contentRetriever.GetContent(url, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, false);
 
             return result;
         }
@@ -192,7 +187,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article);
 
-            var task = _contentRetriever.GetContent(url, pageRegionModel.IsHealthy, pageRegionModel.OfflineHTML);
+            var task = _contentRetriever.GetContent(url, pageRegionModel.IsHealthy, pageRegionModel.OfflineHTML, true);
 
             tasks.Add(task);
 

@@ -77,9 +77,10 @@ namespace DFC.Composite.Shell.Extensions
                         {
                             return new HttpClientHandler()
                             {
-                                AllowAutoRedirect = false
+                                AllowAutoRedirect = true
                             };
-                        }).Services;
+                        })
+                        .Services;
 
     }
 }

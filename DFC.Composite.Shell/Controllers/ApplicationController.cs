@@ -112,6 +112,12 @@ namespace DFC.Composite.Shell.Controllers
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }
             }
+            catch (RedirectException ex)
+            {
+                _logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
+
+                Response.Redirect(ex.Location.PathAndQuery, true);
+            }
             catch (Exception ex)
             {
                 var errorString = $"{requestViewModel.Path}: {ex.Message}";

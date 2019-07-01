@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             _logger = logger;
         }
 
-        public async Task<string> GetContent(string url, bool isHealthy, string offlineHtml)
+        public async Task<string> GetContent(string url, bool isHealthy, string offlineHtml, bool followRedirects)
         {
             string results = null;
 
@@ -30,11 +30,40 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                 {
                     _logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
-                    var response = await _httpClient.GetAsync(url);
+                    HttpResponseMessage response = null;
 
-                    if (response.StatusCode == HttpStatusCode.MovedPermanently)
+                    for (int i = 0; i < 10; i++)
                     {
-                        throw new RedirectException(new Uri(url), response.Headers.Location);
+                        response = await _httpClient.GetAsync(url);
+
+                        if (response.StatusCode == HttpStatusCode.MovedPermanently)
+                        {
+                            if (followRedirects)
+                            {
+                                url = response.Headers.Location.ToString();
+
+                                _logger.LogInformation($"{nameof(GetContent)}: Redirecting child response to: {url}");
+                            }
+                            else
+                            {
+                                string redirectUrl = response.Headers.Location.ToString();
+
+                                if (!response.Headers.Location.IsAbsoluteUri)
+                                {
+                                    var redirectUri = new Uri(url);
+                                    string postScheme = redirectUri.Scheme;
+                                    string postAuthority = redirectUri.Authority;
+
+                                    redirectUrl = $"{postScheme}://{postAuthority}{redirectUrl}";
+                                }
+
+                                throw new RedirectException(new Uri(url), new Uri(redirectUrl));
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
 
                     response.EnsureSuccessStatusCode();
@@ -94,6 +123,22 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     var response = await _httpClient.SendAsync(request);
 
+                    if (response.StatusCode == HttpStatusCode.Found)
+                    {
+                        string redirectUrl = response.Headers.Location.ToString();
+
+                        if (!response.Headers.Location.IsAbsoluteUri)
+                        {
+                            var postUri = new Uri(url);
+                            string postScheme = postUri.Scheme;
+                            string postAuthority = postUri.Authority;
+
+                            redirectUrl = $"{postScheme}://{postAuthority}{redirectUrl}";
+                        }
+
+                        throw new RedirectException(new Uri(url), new Uri(redirectUrl));
+                    }
+
                     response.EnsureSuccessStatusCode();
 
                     results = await response.Content.ReadAsStringAsync();
@@ -107,6 +152,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                         results = offlineHtml;
                     }
                 }
+            }
+            catch (RedirectException ex)
+            {
+                throw;
             }
             catch (BrokenCircuitException ex)
             {
