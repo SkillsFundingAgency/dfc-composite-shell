@@ -42,7 +42,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                             {
                                 url = response.Headers.Location.ToString();
 
-                                _logger.LogInformation($"{nameof(GetContent)}: Redirecting child response to: {url}");
+                                _logger.LogInformation($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
                             }
                             else
                             {
@@ -105,7 +105,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             {
                 if (isHealthy)
                 {
-                    _logger.LogInformation($"{nameof(GetContent)}: posting child response from: {url}");
+                    _logger.LogInformation($"{nameof(GetContent)}: Posting child response from: {url}");
 
                     var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
@@ -116,7 +116,15 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     if (response.StatusCode == HttpStatusCode.Found)
                     {
-                        string redirectUrl = $"{requestBaseUrl}{response.Headers.Location.PathAndQuery}";
+                        string redirectUrl = requestBaseUrl;
+
+                        if (response.Headers.Location.IsAbsoluteUri) {
+                            redirectUrl += response.Headers.Location.PathAndQuery;
+                        }
+                        else
+                        {
+                            redirectUrl += response.Headers.Location;
+                        }
 
                         throw new RedirectException(new Uri(url), new Uri(redirectUrl));
                     }
