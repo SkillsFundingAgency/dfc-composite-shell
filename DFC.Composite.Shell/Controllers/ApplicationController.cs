@@ -56,7 +56,7 @@ namespace DFC.Composite.Shell.Controllers
 
                     _applicationService.RequestBaseUrl = BaseUrl();
 
-                    await _applicationService.GetMarkupAsync(application, requestViewModel.Data, vm);
+                    await _applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, vm);
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }
