@@ -14,18 +14,18 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public UrlRewriterTests()
         {
             _pathLocator = new Mock<IPathLocator>();
-            _urlRewriter = new UrlRewriter(_pathLocator.Object);
+            _urlRewriter = new UrlRewriter();
         }
 
         [Fact(Skip = "Waiting for routing to be agreed upon")]
         public void Should_RewriteRelativeUrls()
         {
-            var path = "path1";
+            const string RequestBaseUrl = "path1";
             var content = "<a href='edit/1'></a>";
-            var processedContentExpected = $"<a href='{path}?route=edit/1'></a>";
-            _pathLocator.Setup(x => x.GetPath()).Returns(path);
+            var processedContentExpected = $"<a href='{RequestBaseUrl}?route=edit/1'></a>";
+            _pathLocator.Setup(x => x.GetPath()).Returns(RequestBaseUrl);
 
-            var processedContentActual = _urlRewriter.Rewrite(content);
+            var processedContentActual = _urlRewriter.Rewrite(content, RequestBaseUrl, RequestBaseUrl);
 
             processedContentActual.Should().Be(processedContentExpected);
         }
@@ -33,12 +33,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public void ShouldNot_RewriteAbsoluteUrls()
         {
+            const string RequestBaseUrl = "http://www.google.com";
             var path = "path1";
-            var content = "<a href='http://www.google.com'></a>";
+            var content = $"<a href='{RequestBaseUrl}'></a>";
             var processedContentExpected = content;
             _pathLocator.Setup(x => x.GetPath()).Returns(path);
 
-            var processedContentActual = _urlRewriter.Rewrite(content);
+            var processedContentActual = _urlRewriter.Rewrite(content, RequestBaseUrl, RequestBaseUrl);
 
             processedContentActual.Should().Be(processedContentExpected);
         }

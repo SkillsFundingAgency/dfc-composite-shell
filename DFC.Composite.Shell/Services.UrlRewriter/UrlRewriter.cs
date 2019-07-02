@@ -1,18 +1,9 @@
-﻿using DFC.Composite.Shell.Services.PathLocator;
-using HtmlAgilityPack;
-using System;
+﻿using System;
 
 namespace DFC.Composite.Shell.Services.UrlRewriter
 {
     public class UrlRewriter : IUrlRewriter
     {
-        private readonly IPathLocator _pathLocator;
-
-        public UrlRewriter(IPathLocator pathLocator)
-        {
-            _pathLocator = pathLocator;
-        }
-
         public string Rewrite(string content, string requestBaseUrl, string applicationRootUrl)
         {
             var attributeNames = new string[] { "href", "action" };
@@ -36,12 +27,6 @@ namespace DFC.Composite.Shell.Services.UrlRewriter
             }
 
             return content;
-        }
-
-        private bool IsRelativeUrl(string url)
-        {
-            var uri = new Uri(url, UriKind.RelativeOrAbsolute);
-            return !uri.IsAbsoluteUri;
         }
     }
 }
