@@ -1,9 +1,12 @@
 ﻿using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Regions
@@ -29,14 +32,34 @@ namespace DFC.Composite.Shell.Services.Regions
             return await response.Content.ReadAsAsync<IEnumerable<RegionModel>>();
         }
 
-        public Task MarkAsHealthy(string path, PageRegion region)
+        public async Task MarkAsHealthyAsync(string path, PageRegion pageRegion)
         {
-            throw new NotImplementedException();
+            var regionsUrl = $"{_httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
+            var regionPatchModel = new RegionPatchModel()
+            {
+                IsHealthy = true
+            };
+            var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+            var response = await _httpClient.PatchAsync(regionsUrl, content);
+
+            response.EnsureSuccessStatusCode();
         }
 
-        public Task MarkAsUnhealthy(string path, PageRegion region)
+        public async Task MarkAsUnhealthyAsync(string path, PageRegion pageRegion)
         {
-            throw new NotImplementedException();
+            var regionsUrl = $"{_httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
+            var regionPatchModel = new RegionPatchModel()
+            {
+                IsHealthy = false
+            };
+            var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+            var response = await _httpClient.PatchAsync(regionsUrl, content);
+
+            response.EnsureSuccessStatusCode();
         }
     }
 }

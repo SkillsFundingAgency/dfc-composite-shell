@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Exceptions;
+using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Services.Regions;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 
@@ -13,20 +15,22 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ContentRetriever> _logger;
+        private readonly IRegionService _regionService;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IRegionService regionService)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _regionService = regionService;
         }
 
-        public async Task<string> GetContent(string url, bool isHealthy, string offlineHtml, bool followRedirects, string requestBaseUrl)
+        public async Task<string> GetContent(string url, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
             string results = null;
 
             try
             {
-                if (isHealthy)
+                if (regionModel.IsHealthy)
                 {
                     _logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
@@ -65,9 +69,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(offlineHtml))
+                    if (!string.IsNullOrEmpty(regionModel.OfflineHTML))
                     {
-                        results = offlineHtml;
+                        results = regionModel.OfflineHTML;
                     }
                 }
             }
@@ -79,33 +83,38 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             {
                 _logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
 
-                if (!string.IsNullOrEmpty(offlineHtml))
+                if (regionModel.HeathCheckRequired)
                 {
-                    results = offlineHtml;
+                    await _regionService.MarkAsUnhealthyAsync(regionModel.Path, regionModel.PageRegion);
+                }
+
+                if (!string.IsNullOrEmpty(regionModel.OfflineHTML))
+                {
+                    results = regionModel.OfflineHTML;
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
-                if (!string.IsNullOrEmpty(offlineHtml))
+                if (!string.IsNullOrEmpty(regionModel.OfflineHTML))
                 {
-                    results = offlineHtml;
+                    results = regionModel.OfflineHTML;
                 }
             }
 
             return results;
         }
 
-        public async Task<string> PostContent(string url, bool isHealthy, string offlineHtml, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
+        public async Task<string> PostContent(string url, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
             string results = null;
 
             try
             {
-                if (isHealthy)
+                if (regionModel.IsHealthy)
                 {
-                    _logger.LogInformation($"{nameof(GetContent)}: Posting child response from: {url}");
+                    _logger.LogInformation($"{nameof(PostContent)}: Posting child response from: {url}");
 
                     var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
@@ -133,13 +142,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     results = await response.Content.ReadAsStringAsync();
 
-                    _logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
+                    _logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(offlineHtml))
+                    if (!string.IsNullOrEmpty(regionModel.OfflineHTML))
                     {
-                        results = offlineHtml;
+                        results = regionModel.OfflineHTML;
                     }
                 }
             }
@@ -151,18 +160,23 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             {
                 _logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
 
-                if (!string.IsNullOrEmpty(offlineHtml))
+                if (regionModel.HeathCheckRequired)
                 {
-                    results = offlineHtml;
+                    await _regionService.MarkAsUnhealthyAsync(regionModel.Path, regionModel.PageRegion);
+                }
+
+                if (!string.IsNullOrEmpty(regionModel.OfflineHTML))
+                {
+                    results = regionModel.OfflineHTML;
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
-                if (!string.IsNullOrEmpty(offlineHtml))
+                if (!string.IsNullOrEmpty(regionModel.OfflineHTML))
                 {
-                    results = offlineHtml;
+                    results = regionModel.OfflineHTML;
                 }
             }
 
