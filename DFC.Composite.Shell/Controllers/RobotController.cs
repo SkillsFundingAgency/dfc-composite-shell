@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
@@ -55,7 +56,7 @@ namespace DFC.Composite.Shell.Controllers
 
                 _logger.LogInformation("Generated Robots.txt");
 
-                return Content(robot.Data, "text/plain");
+                return Content(robot.Data, MediaTypeNames.Text.Plain);
             }
             catch (BrokenCircuitException ex)
             {
@@ -67,7 +68,7 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             // fall through from errors
-            return Content(null, "text/plain");
+            return Content(null, MediaTypeNames.Text.Plain);
         }
 
         private Robot GenerateThisSiteRobot()

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using DFC.Composite.Shell.Models.Robots;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace DFC.Composite.Shell.Services.ApplicationRobot
 {
@@ -44,7 +46,7 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
                 }
 
-                request.Headers.Add("Accept", "application/txt");
+                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
 
                 var response = await _httpClient.SendAsync(request);
 

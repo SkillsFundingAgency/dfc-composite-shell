@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using DFC.Composite.Shell.Models.Sitemap;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace DFC.Composite.Shell.Services.ApplicationSitemap
 {
@@ -44,7 +46,7 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
                 }
 
-                request.Headers.Add("Accept", "application/xml");
+                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
 
                 var response = await _httpClient.SendAsync(request);
 

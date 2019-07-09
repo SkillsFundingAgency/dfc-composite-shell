@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Models.Sitemap;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
@@ -39,7 +40,7 @@ namespace DFC.Composite.Shell.Controllers
 
                 _logger.LogInformation("Generated Sitemap.xml");
 
-                return Content(xmlString, "application/xml");
+                return Content(xmlString, MediaTypeNames.Application.Xml);
             }
             catch (BrokenCircuitException ex)
             {
@@ -51,7 +52,7 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             // fall through from errors
-            return Content(null, "application/xml");
+            return Content(null, MediaTypeNames.Application.Xml);
         }
 
         private Sitemap GenerateThisSiteSitemap()
