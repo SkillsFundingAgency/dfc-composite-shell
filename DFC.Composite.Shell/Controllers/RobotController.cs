@@ -5,7 +5,9 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Paths;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -24,8 +26,9 @@ namespace DFC.Composite.Shell.Controllers
             IPathService pathService,
             ILogger<RobotController> logger,
             IConfiguration configuration,
-            IHostingEnvironment hostingEnvironment
-            ) : base(configuration)
+            IHostingEnvironment hostingEnvironment,
+            IVersionedFiles versionedFiles)
+        : base(configuration, versionedFiles)
         {
             _pathService = pathService;
             _logger = logger;

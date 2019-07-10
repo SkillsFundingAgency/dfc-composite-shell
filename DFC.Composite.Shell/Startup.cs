@@ -7,6 +7,7 @@ using DFC.Composite.Shell.Policies.Options;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Mapping;
@@ -14,6 +15,7 @@ using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.UrlRewriter;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -58,6 +60,8 @@ namespace DFC.Composite.Shell
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
+            services.AddTransient<IAsyncHelper, AsyncHelper>();
+            services.AddSingleton<IVersionedFiles, VersionedFiles>();
 
             services.Configure<PolicyOptions>(Configuration);
 
@@ -73,7 +77,8 @@ namespace DFC.Composite.Shell
 
             services
                 .AddPolicies(policyRegistry, Configuration, nameof(ApplicationClientOptions))
-                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                .AddHttpClient<IAssetLocationAndVersion, AssetLocationAndVersion, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, Configuration, nameof(SitemapClientOptions))

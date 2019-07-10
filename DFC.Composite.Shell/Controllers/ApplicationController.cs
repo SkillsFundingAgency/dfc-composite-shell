@@ -6,7 +6,9 @@ using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,8 +23,12 @@ namespace DFC.Composite.Shell.Controllers
         private readonly ILogger<ApplicationController> _logger;
         private readonly IApplicationService _applicationService;
 
-        public ApplicationController(IMapper<ApplicationModel, PageViewModel> mapper, ILogger<ApplicationController> logger, IConfiguration configuration, IApplicationService applicationService)
-        : base(configuration)
+        public ApplicationController(IMapper<ApplicationModel, PageViewModel> mapper,
+            ILogger<ApplicationController> logger, 
+            IConfiguration configuration, 
+            IApplicationService applicationService,
+            IVersionedFiles versionedFiles)
+        : base(configuration, versionedFiles)
         {
             _mapper = mapper;
             _logger = logger;
@@ -32,10 +38,7 @@ namespace DFC.Composite.Shell.Controllers
         [HttpGet]
         public async Task<IActionResult> Action(ActionGetRequestModel requestViewModel)
         {
-            var vm = new PageViewModel
-            {
-                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
-            };
+            var viewModel = BuildDefaultPageViewModel();
 
             try
             {
@@ -52,11 +55,11 @@ namespace DFC.Composite.Shell.Controllers
                 }
                 else
                 {
-                    _mapper.Map(application, vm);
+                    _mapper.Map(application, viewModel);
 
                     _applicationService.RequestBaseUrl = BaseUrl();
 
-                    await _applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, vm);
+                    await _applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, viewModel);
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }
@@ -75,16 +78,13 @@ namespace DFC.Composite.Shell.Controllers
                 _logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
-            return View(MainRenderViewName, vm);
+            return View(MainRenderViewName, viewModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> Action(ActionPostRequestModel requestViewModel)
         {
-            var vm = new PageViewModel
-            {
-                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
-            };
+            var viewModel = BuildDefaultPageViewModel();
 
             try
             {
@@ -101,13 +101,13 @@ namespace DFC.Composite.Shell.Controllers
                 }
                 else
                 {
-                    _mapper.Map(application, vm);
+                    _mapper.Map(application, viewModel);
 
                     _applicationService.RequestBaseUrl = BaseUrl();
 
                     var formParameters = (from a in requestViewModel.FormCollection select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
 
-                    await _applicationService.PostMarkupAsync(application, requestViewModel.Path, requestViewModel.Data, formParameters, vm);
+                    await _applicationService.PostMarkupAsync(application, requestViewModel.Path, requestViewModel.Data, formParameters, viewModel);
 
                     _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
                 }
@@ -126,7 +126,7 @@ namespace DFC.Composite.Shell.Controllers
                 _logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
-            return View(MainRenderViewName, vm);
+            return View(MainRenderViewName, viewModel);
         }
 
     }

@@ -1,9 +1,10 @@
-﻿using DFC.Composite.Shell.Common;
+﻿using System.Threading.Tasks;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
@@ -12,8 +13,11 @@ namespace DFC.Composite.Shell.Controllers
         private readonly ILogger<ExternalApplicationController> _logger;
         private readonly IApplicationService _applicationService;
 
-        public ExternalApplicationController(ILogger<ExternalApplicationController> logger, IConfiguration configuration, IApplicationService applicationService)
-        : base(configuration)
+        public ExternalApplicationController(ILogger<ExternalApplicationController> logger,
+            IConfiguration configuration,
+            IApplicationService applicationService,
+            IVersionedFiles versionedFiles)
+        : base(configuration, versionedFiles)
         {
             _logger = logger;
             _applicationService = applicationService;

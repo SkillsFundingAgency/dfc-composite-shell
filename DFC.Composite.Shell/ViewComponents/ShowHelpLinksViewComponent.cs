@@ -29,9 +29,7 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                var paths = await _pathService.GetPaths();
-
-                var helpPath = paths.Where(w => w.Path.ToLower() == "help").FirstOrDefault();
+                var helpPath = await _pathService.GetPath("help");
 
                 if (helpPath != null)
                 {

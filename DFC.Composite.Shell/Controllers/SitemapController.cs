@@ -5,7 +5,9 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Models.Sitemap;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Paths;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,7 +20,11 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IPathService _pathService;
         private readonly ILogger<SitemapController> _logger;
 
-        public SitemapController(IPathService pathService, ILogger<SitemapController> logger, IConfiguration configuration) : base(configuration)
+        public SitemapController(IPathService pathService, 
+            ILogger<SitemapController> logger, 
+            IConfiguration configuration,
+            IVersionedFiles versionedFiles)
+        : base(configuration, versionedFiles)
         {
             _pathService= pathService;
             _logger = logger;

@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -7,17 +9,17 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(IConfiguration configuration) : base(configuration) { }
+        public HomeController(IConfiguration configuration,
+            IVersionedFiles versionedFiles)
+        : base(configuration, versionedFiles) { }
 
         public IActionResult Index()
         {
-            var pageViewModel = new PageViewModel()
-            {
-                PageTitle = "Home",
-                BrandingAssetsCdn = _configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))
-            };
+            var viewModel = BuildDefaultPageViewModel();
 
-            return View(pageViewModel);
+            viewModel.PageTitle = "Home";
+
+            return View(viewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

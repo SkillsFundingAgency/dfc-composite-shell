@@ -7,6 +7,14 @@
     ViewData["Title"] = Model.PageTitle;
     ViewData["PhaseBannerHtml"] = Model.PhaseBannerHtml;
 
+    ViewData["VersionedPathForMainMinCss"] = Model.VersionedPathForMainMinCss;
+    ViewData["VersionedPathForGovukMinCss"] = Model.VersionedPathForGovukMinCss;
+    ViewData["VersionedPathForAllIe8Css"] = Model.VersionedPathForAllIe8Css;
+    ViewData["VersionedPathForSiteCss"] = Model.VersionedPathForSiteCss;
+    ViewData["VersionedPathForJQueryBundleMinJs"] = Model.VersionedPathForJQueryBundleMinJs;
+    ViewData["VersionedPathForAllMinJs"] = Model.VersionedPathForAllMinJs;
+    ViewData["VersionedPathForSiteJs"] = Model.VersionedPathForSiteJs;
+
     PageRegionContentModel GetRegionContent(PageRegion region)
     {
         var regionContent = Model.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == region);
