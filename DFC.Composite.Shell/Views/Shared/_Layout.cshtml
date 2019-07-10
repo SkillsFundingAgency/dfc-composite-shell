@@ -2,47 +2,14 @@
 <!DOCTYPE html>
 <html lang="en-gb" class="govuk-template ">
 
-@{
-    string Branding = ViewData["Branding"].ToString();
-    string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
-
-    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Branding.ToLower()}_assets";
-}
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0b0c0c" />
+    <partial name="_Head" />
 
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="@(BrandingAssetsFolder)/assets/images/favicon.ico" type="image/x-icon" />
-    <link rel="mask-icon" href="@(BrandingAssetsFolder)/assets/images/govuk-mask-icon.svg" color="#0b0c0c">
-    <link rel="apple-touch-icon" sizes="180x180" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon-180x180.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon-167x167.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" href="@(BrandingAssetsFolder)/assets/images/govuk-apple-touch-icon.png">
-
-    <!--[if !IE 8]><!-->
-    <link href="@(BrandingAssetsFolder)/@(Branding).min.css" rel="stylesheet" />
-    <!--<![endif]-->
-    <!--[if IE 8]>
-      <link href="@(BrandingAssetsFolder)/@(Branding)-ie8.min.css" rel="stylesheet" />
-    <![endif]-->
-    <!--[if lt IE 9]>
-      <script src="~/html5-shiv/html5shiv.js"></script>
-    <![endif]-->
-
-    <link rel="stylesheet" href="~/css/site.css" />
-
-    <meta property="og:image" content="@(BrandingAssetsFolder)/assets/images/govuk-opengraph-image.png">
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 
 <body class="govuk-template__body ">
-    <script>
-        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
-    </script>
+    <partial name="_jsEnabled" />
 
     <partial name="_GovUkHeader" />
 
@@ -94,10 +61,7 @@
 
     <partial name="_JQueryInclude" />
 
-    <script src="@(BrandingAssetsFolder)/@(Branding).min.js"></script>
-    <script>window.GOVUKFrontend.initAll()</script>
-
-    <script src="~/js/site.js"></script>
+    <partial name="_JQueryInitialise" />
 
     @RenderSection("Scripts", required: false)
 </body>

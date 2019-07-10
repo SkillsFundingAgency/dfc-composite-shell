@@ -1,58 +1,6 @@
 ﻿/* site styles
 -------------------------------------------------- */
 
-/* GOVUK-Frontend overrides
------------------------------------
-*/
-
-.govuk-table__header, .govuk-table__cell {
-    vertical-align: top;
-}
-
-.my-govuk-back-link {
-    background: none;
-    border-left-style: none;
-    border-right-style: none;
-    border-top-style: none;
-    cursor: pointer;
-}
-
-.my-govuk-link {
-    background: none;
-    border-style: none;
-    text-decoration: underline;
-    font-size: 1rem;
-}
-
-.my-govuk-header__link {
-    background: none;
-    border-style: none;
-    color: white;
-    cursor: pointer;
-    font-size: 1rem;
-    font-family: nta,Arial,sans-serif;
-    font-weight: 700;
-}
-
-/* placeholder overrides
------------------------------------
-*/
-::-webkit-input-placeholder {
-    color: lightgray !important;
-}
-
-:-moz-placeholder { /* Firefox 18- */
-    color: lightgray !important;
-}
-
-::-moz-placeholder { /* Firefox 19+ */
-    color: lightgray !important;
-}
-
-:-ms-input-placeholder {
-    color: lightgray !important;
-}
-
 /* Composite UI classes */
 .CompositeUI-Region, .CompositeUI-ChildRegion {
     margin: 2px;

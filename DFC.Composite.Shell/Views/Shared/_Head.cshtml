@@ -1,0 +1,32 @@
+﻿@{
+    string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
+
+    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/gds_service_toolkit";
+}
+
+<meta charset="utf-8" /> 
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<meta name="theme-color" content="blue" /> 
+<meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+<meta property="og:image" content="@(BrandingAssetsFolder)/images/govuk-opengraph-image.png"> 
+
+<link rel="shortcut icon" sizes="16x16 32x32 48x48" href="@(BrandingAssetsFolder)/images/favicon.ico" type="image/x-icon" />
+<link rel="mask-icon" href="@(BrandingAssetsFolder)/images/govuk-mask-icon.svg" color="blue"> 
+<link rel="apple-touch-icon" sizes="180x180" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-180x180.png"> 
+<link rel="apple-touch-icon" sizes="167x167" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-167x167.png"> 
+<link rel="apple-touch-icon" sizes="152x152" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-152x152.png"> 
+<link rel="apple-touch-icon" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon.png"> 
+
+<link href="@(BrandingAssetsFolder)/css/main.min.css" rel="stylesheet" type="text/css" /> 
+
+<!--[if !IE 8]><!--> 
+    <link href="@(BrandingAssetsFolder)/css/govuk.min.css" rel="stylesheet" type="text/css" /> 
+<!--<![endif]-->
+<!--[if IE 8]>
+    <link href="@(BrandingAssetsFolder)/css/all-ie8.css" rel="stylesheet" />
+<![endif]-->
+<!--[if lt IE 9]>
+    <script src="/html5-shiv/html5shiv.js"></script>
+<![endif]-->
+
+<link rel="stylesheet" href="~/css/site.css" />
