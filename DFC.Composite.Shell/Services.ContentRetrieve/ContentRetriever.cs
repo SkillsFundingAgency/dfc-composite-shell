@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Exceptions;
+using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.Extensions.Logging;
@@ -40,7 +41,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     {
                         response = await _httpClient.GetAsync(url);
 
-                        if (response.StatusCode == HttpStatusCode.MovedPermanently)
+                        if (response.IsRedirectionStatus())
                         {
                             if (followRedirects)
                             {

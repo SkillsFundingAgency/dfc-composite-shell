@@ -68,8 +68,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var bodyFooterRegionContent = "bodyfooterRegionContent";
             _pathService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
             _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
-            _contentRetriever.Setup(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
-            _contentRetriever.Setup(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion.IsHealthy, bodyFooterRegion.OfflineHTML, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyFooterRegionContent);
+            _contentRetriever.Setup(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
+            _contentRetriever.Setup(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyFooterRegionContent);
             _contentProcessor.Setup(x => x.Process(bodyRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
             _contentProcessor.Setup(x => x.Process(bodyFooterRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
 
@@ -83,8 +83,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(bodyFooterRegionContent);
-            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, true, RequestBaseUrl), Times.Once);
-            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion.IsHealthy, bodyFooterRegion.OfflineHTML, true, RequestBaseUrl), Times.Once);
+            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, true, RequestBaseUrl), Times.Once);
+            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, true, RequestBaseUrl), Times.Once);
         }
 
         [Fact(Skip = "This needs to be broken up into separate tests by class")]
@@ -114,8 +114,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var footerRegionContent = "footerRegionContent";
             _pathService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
             _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
-            _contentRetriever.Setup(x => x.GetContent(bodyAbsoluteUrl, true, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
-            _contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, true, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(footerRegionContent);
+            _contentRetriever.Setup(x => x.GetContent(bodyAbsoluteUrl, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
+            _contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(footerRegionContent);
             _contentProcessor.Setup(x => x.Process(bodyRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
             _contentProcessor.Setup(x => x.Process(footerRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
 
@@ -129,9 +129,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(footerRegionContent);
-            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion.IsHealthy, bodyRegion.OfflineHTML, true, RequestBaseUrl), Times.Never);
-            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion.IsHealthy, bodyFooterRegion.OfflineHTML, true, RequestBaseUrl), Times.Once);
-            _contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl, true, null, true, RequestBaseUrl), Times.Once);
+            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, true, RequestBaseUrl), Times.Never);
+            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, true, RequestBaseUrl), Times.Once);
+            _contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl, null, true, RequestBaseUrl), Times.Once);
         }
     }
 }
