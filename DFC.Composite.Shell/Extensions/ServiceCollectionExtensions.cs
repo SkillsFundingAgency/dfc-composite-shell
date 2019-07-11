@@ -19,15 +19,12 @@ namespace DFC.Composite.Shell.Extensions
         public static IServiceCollection AddPolicies(
             this IServiceCollection services,
             IPolicyRegistry<string> policyRegistry,
-            IConfiguration configuration,
             string keyPrefix,
-            string configurationSectionName = Constants.Policies)
+            PolicyOptions policyOptions)
         {
-            var section = configuration.GetSection(configurationSectionName);
-            var policyOptions = section.Get<PolicyOptions>();
 
             policyRegistry.Add(
-                keyPrefix + "_" + nameof(PolicyOptions.HttpRetry),
+                $"{keyPrefix}_{nameof(PolicyOptions.HttpRetry)}",
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .WaitAndRetryAsync(
@@ -35,7 +32,7 @@ namespace DFC.Composite.Shell.Extensions
                         retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
 
             policyRegistry.Add(
-                keyPrefix + "_" + nameof(PolicyOptions.HttpCircuitBreaker),
+                $"{keyPrefix}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
@@ -56,8 +53,6 @@ namespace DFC.Composite.Shell.Extensions
                     where TClientOptions : HttpClientOptions, new() =>
                     services
                         .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
-                        .AddTransient<CorrelationIdDelegatingHandler>()
-                        .AddTransient<UserAgentDelegatingHandler>()
                         .AddHttpClient<TClient, TImplementation>()
                         .ConfigureHttpClient((sp, options) =>
                         {
@@ -68,11 +63,6 @@ namespace DFC.Composite.Shell.Extensions
                             options.Timeout = httpClientOptions.Timeout;
                             options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
                         })
-                        .ConfigurePrimaryHttpMessageHandler(x => new DefaultHttpClientHandler())
-                        .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + retryPolicyName)
-                        .AddPolicyHandlerFromRegistry(configurationSectionName + "_" + circuitBreakerPolicyName)
-                        .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                        .AddHttpMessageHandler<UserAgentDelegatingHandler>()
                         .ConfigurePrimaryHttpMessageHandler(() =>
                         {
                             return new HttpClientHandler()
@@ -80,6 +70,10 @@ namespace DFC.Composite.Shell.Extensions
                                 AllowAutoRedirect = false
                             };
                         })
+                        .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{retryPolicyName}")
+                        .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{circuitBreakerPolicyName}")
+                        .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
+                        .AddHttpMessageHandler<UserAgentDelegatingHandler>()
                         .Services;
 
     }

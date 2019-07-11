@@ -1,5 +1,9 @@
-﻿using CorrelationId;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using CorrelationId;
 using DFC.Common.Standard.Logging;
+using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
@@ -23,9 +27,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DFC.Composite.Shell
 {
@@ -33,7 +34,7 @@ namespace DFC.Composite.Shell
     {
         private IConfiguration Configuration { get; }
         private Guid _correlationId;
-        
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -55,37 +56,41 @@ namespace DFC.Composite.Shell
             services.AddHttpContextAccessor();
 
             services.AddTransient<IApplicationService, ApplicationService>();
-            services.AddTransient<IContentProcessor, ContentProcessor>();
-            services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
-            services.AddScoped<IPathLocator, UrlPathLocator>();
-            services.AddTransient<IUrlRewriter, UrlRewriter>();
-            services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
+            services.AddTransient<IContentProcessor, ContentProcessor>();
+            services.AddTransient<ILoggerHelper, LoggerHelper>();
+            services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
+            services.AddTransient<IUrlRewriter, UrlRewriter>();
+
+            services.AddTransient<CorrelationIdDelegatingHandler>();
+            services.AddTransient<UserAgentDelegatingHandler>();
+
+            services.AddScoped<IPathLocator, UrlPathLocator>();
+
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
 
-            services.Configure<PolicyOptions>(Configuration);
-
+            var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
             var policyRegistry = services.AddPolicyRegistry();
 
             services
-                .AddPolicies(policyRegistry, Configuration, nameof(PathClientOptions))
+                .AddPolicies(policyRegistry, nameof(PathClientOptions), policyOptions)
                 .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddPolicies(policyRegistry, Configuration, nameof(RegionClientOptions))
+                .AddPolicies(policyRegistry, nameof(RegionClientOptions), policyOptions)
                 .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddPolicies(policyRegistry, Configuration, nameof(ApplicationClientOptions))
+                .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
                 .AddHttpClient<IAssetLocationAndVersion, AssetLocationAndVersion, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddPolicies(policyRegistry, Configuration, nameof(SitemapClientOptions))
+                .AddPolicies(policyRegistry, nameof(SitemapClientOptions), policyOptions)
                 .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddPolicies(policyRegistry, Configuration, nameof(RobotClientOptions))
+                .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
