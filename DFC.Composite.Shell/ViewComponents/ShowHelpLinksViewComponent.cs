@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Services.Paths;
+﻿using DFC.Composite.Shell.Services.Paths;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents
 {
@@ -13,18 +13,21 @@ namespace DFC.Composite.Shell.ViewComponents
     {
         private readonly ILogger<ShowHelpLinksViewComponent> _logger;
         private readonly IPathService _pathService;
+        private readonly List<FooterHelpLinksModel> _helpLinks;
 
-        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathService pathService)
+        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathService pathService, List<FooterHelpLinksModel> helpLinks)
         {
             _logger = logger;
             _pathService = pathService;
+            _helpLinks = helpLinks;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var vm = new ShowHelpLinksViewModel()
+            var vm = new ShowHelpLinksViewModel
             {
-                IsOnline = false
+                IsOnline = false,
+                HelpLinks = _helpLinks
             };
 
             try
@@ -39,9 +42,7 @@ namespace DFC.Composite.Shell.ViewComponents
             }
             catch (BrokenCircuitException ex)
             {
-                var errorString = $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}";
-
-                _logger.LogError(ex, errorString);
+                _logger.LogError(ex, $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}");
             }
             catch (Exception ex)
             {
