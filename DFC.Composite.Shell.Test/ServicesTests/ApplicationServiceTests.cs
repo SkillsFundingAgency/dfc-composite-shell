@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Common;
+﻿using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ContentProcessor;
@@ -11,6 +8,9 @@ using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using FluentAssertions;
 using Moq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -19,7 +19,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
     {
         private readonly IApplicationService _applicationService;
         private readonly IMapper<ApplicationModel, PageViewModel> _mapper;
-        private readonly Mock<IPathService> _pathService;
+        private readonly Mock<IPathDataService> _pathDataService;
         private readonly Mock<IRegionService> _regionService;
         private readonly Mock<IContentRetriever> _contentRetriever;
         private readonly Mock<IContentProcessor> _contentProcessor;
@@ -28,13 +28,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             _mapper = new ApplicationToPageModelMapper();
 
-            _pathService = new Mock<IPathService>();
+            _pathDataService = new Mock<IPathDataService>();
             _regionService = new Mock<IRegionService>();
             _contentRetriever = new Mock<IContentRetriever>();
             _contentProcessor = new Mock<IContentProcessor>();
 
             _applicationService = new ApplicationService(
-                _pathService.Object,
+                _pathDataService.Object,
                 _regionService.Object,
                 _contentRetriever.Object,
                 _contentProcessor.Object);
@@ -66,7 +66,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             //mocks
             var bodyRegionContent = "bodyRegionContent";
             var bodyFooterRegionContent = "bodyfooterRegionContent";
-            _pathService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
+            _pathDataService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
             _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
             _contentRetriever.Setup(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
             _contentRetriever.Setup(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyFooterRegionContent);
@@ -112,7 +112,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var bodyAbsoluteUrl = $"{RequestBaseUrl}/{path}/{bodyRelativeUrl}";
             var bodyRegionContent = "bodyRegionContent";
             var footerRegionContent = "footerRegionContent";
-            _pathService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
+            _pathDataService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
             _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
             _contentRetriever.Setup(x => x.GetContent(bodyAbsoluteUrl, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
             _contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(footerRegionContent);
