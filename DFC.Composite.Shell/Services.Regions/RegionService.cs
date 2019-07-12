@@ -1,13 +1,11 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Models;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.Common;
+using DFC.Composite.Shell.Models;
+using Newtonsoft.Json;
 
 namespace DFC.Composite.Shell.Services.Regions
 {
@@ -34,25 +32,20 @@ namespace DFC.Composite.Shell.Services.Regions
 
         public async Task MarkAsHealthyAsync(string path, PageRegion pageRegion)
         {
-            var regionsUrl = $"{_httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
-            var regionPatchModel = new RegionPatchModel()
-            {
-                IsHealthy = true
-            };
-            var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
-            var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
-
-            var response = await _httpClient.PatchAsync(regionsUrl, content);
-
-            response.EnsureSuccessStatusCode();
+            await MarkUnhealthStateAsync(path, pageRegion, true);
         }
 
         public async Task MarkAsUnhealthyAsync(string path, PageRegion pageRegion)
         {
+            await MarkUnhealthStateAsync(path, pageRegion, false);
+        }
+
+        private async Task MarkUnhealthStateAsync(string path, PageRegion pageRegion, bool isHealthy)
+        {
             var regionsUrl = $"{_httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
             var regionPatchModel = new RegionPatchModel()
             {
-                IsHealthy = false
+                IsHealthy = isHealthy
             };
             var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
             var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);

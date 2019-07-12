@@ -18,6 +18,7 @@ using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
+using DFC.Composite.Shell.Services.SimpeCachedObject;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Builder;
@@ -66,6 +67,8 @@ namespace DFC.Composite.Shell
             services.AddTransient<UserAgentDelegatingHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
+
+            services.AddScoped<ISimpeCachedObjectService<List<PathModel>>, SimpeCachedObjectService<List<PathModel>>>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
 
