@@ -98,7 +98,7 @@ namespace DFC.Composite.Shell
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddSingleton(Configuration.GetSection("FooterLinks").Get<List<FooterHelpLinksModel>>().OrderBy(l => l.Order).ToList());
+                .AddSingleton(Configuration.GetSection("FooterLinks").Get<List<FooterHelpLinksModel>>()?.OrderBy(l => l.Order).ToList() ?? new List<FooterHelpLinksModel>());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
