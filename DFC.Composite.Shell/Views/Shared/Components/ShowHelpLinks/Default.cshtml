@@ -4,19 +4,14 @@
     if (Model.IsOnline)
     {
         <ul class="govuk-footer__inline-list" aria-label="Footer Links">
-            <li class="govuk-footer__inline-list-item">
-                <a class="govuk-footer__link" href="/help/help">Help</a>
-            </li>
-            <li class="govuk-footer__inline-list-item">
-                <a class="govuk-footer__link" href="/help/privacy-and-cookies">Privacy and cookies</a>
-            </li>
-            <li class="govuk-footer__inline-list-item">
-                <a class="govuk-footer__link" href="/help/terms-and-conditions">Terms and conditions</a>
-            </li>
-            <li class="govuk-footer__inline-list-item">
-                <a class="govuk-footer__link" href="/help/information-sources">Information sources</a>
-            </li>
+            @foreach (var helplink in Model.HelpLinks)
+            {
+                <li class="govuk-footer__inline-list-item">
+                    <a class="govuk-footer__link" href="@helplink.Link">@helplink.Text</a>
+                </li>
+            }
         </ul>
+
     }
     else
     {

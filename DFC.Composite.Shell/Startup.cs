@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CorrelationId;
+﻿using CorrelationId;
 using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Common;
@@ -21,6 +18,7 @@ using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.SimpeCachedObject;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Utilities;
+using DFC.Composite.Shell.ViewComponents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +26,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DFC.Composite.Shell
 {
@@ -95,6 +96,9 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddSingleton(Configuration.GetSection("FooterLinks").Get<List<FooterHelpLinksModel>>().OrderBy(l => l.Order).ToList());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
