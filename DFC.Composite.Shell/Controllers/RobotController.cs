@@ -18,19 +18,19 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class RobotController : BaseController
     {
-        private readonly IPathService _pathService;
+        private readonly IPathDataService _pathDataService;
         private readonly ILogger<RobotController> _logger;
         private readonly IHostingEnvironment _hostingEnvironment;
 
         public RobotController(
-            IPathService pathService,
+            IPathDataService pathDataService,
             ILogger<RobotController> logger,
             IConfiguration configuration,
             IHostingEnvironment hostingEnvironment,
             IVersionedFiles versionedFiles)
         : base(configuration, versionedFiles)
         {
-            _pathService = pathService;
+            _pathDataService = pathDataService;
             _logger = logger;
             _hostingEnvironment = hostingEnvironment;
         }
@@ -99,7 +99,7 @@ namespace DFC.Composite.Shell.Controllers
         private async Task GetApplicationRobotsAsync(Robot robot)
         {
             // loop through the registered applications and create some tasks - one per application that has a robot url
-            var paths = await _pathService.GetPaths();
+            var paths = await _pathDataService.GetPaths();
             var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.RobotsURL)).ToList();
 
             var applicationRobotServices = await CreateApplicationRobotServiceTasksAsync(onlinePaths);

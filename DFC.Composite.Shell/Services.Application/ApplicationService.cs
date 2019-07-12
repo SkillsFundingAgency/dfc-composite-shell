@@ -14,7 +14,7 @@ namespace DFC.Composite.Shell.Services.Application
 {
     public class ApplicationService : IApplicationService
     {
-        private readonly IPathService _pathService;
+        private readonly IPathDataService _pathDataService;
         private readonly IRegionService _regionService;
         private readonly IContentRetriever _contentRetriever;
         private readonly IContentProcessor _contentProcessor;
@@ -22,12 +22,12 @@ namespace DFC.Composite.Shell.Services.Application
         public string RequestBaseUrl { get; set; }
 
         public ApplicationService(
-            IPathService pathService,
+            IPathDataService pathDataService,
             IRegionService regionService,
             IContentRetriever contentRetriever,
             IContentProcessor contentProcessor)
         {
-            _pathService = pathService;
+            _pathDataService = pathDataService;
             _regionService = regionService;
             _contentRetriever = contentRetriever;
             _contentProcessor = contentProcessor;
@@ -96,7 +96,7 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var applicationModel = new ApplicationModel();
 
-            var pathModel = await _pathService.GetPath(path);
+            var pathModel = await _pathDataService.GetPath(path);
 
             if (pathModel != null)
             {

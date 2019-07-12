@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Services.Paths;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +10,12 @@ namespace DFC.Composite.Shell.ViewComponents
     public class ListPathsViewComponent : ViewComponent
     {
         private readonly ILogger<ListPathsViewComponent> _logger;
-        private readonly IPathService _pathService;
+        private readonly IPathDataService _pathDataService;
 
-        public ListPathsViewComponent(ILogger<ListPathsViewComponent> logger, IPathService pathService)
+        public ListPathsViewComponent(ILogger<ListPathsViewComponent> logger, IPathDataService pathDataService)
         {
             _logger = logger;
-            _pathService = pathService;
+            _pathDataService = pathDataService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -25,7 +24,7 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                vm.Paths = await _pathService.GetPaths();
+                vm.Paths = await _pathDataService.GetPaths();
             }
             catch (BrokenCircuitException ex)
             {

@@ -5,7 +5,6 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using DFC.Composite.Shell.Models.Sitemap;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -17,16 +16,16 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class SitemapController : BaseController
     {
-        private readonly IPathService _pathService;
+        private readonly IPathDataService _pathDataService;
         private readonly ILogger<SitemapController> _logger;
 
-        public SitemapController(IPathService pathService, 
-            ILogger<SitemapController> logger, 
+        public SitemapController(IPathDataService pathDataService,
+            ILogger<SitemapController> logger,
             IConfiguration configuration,
             IVersionedFiles versionedFiles)
         : base(configuration, versionedFiles)
         {
-            _pathService= pathService;
+            _pathDataService = pathDataService;
             _logger = logger;
         }
 
@@ -75,7 +74,7 @@ namespace DFC.Composite.Shell.Controllers
         private async Task GetApplicationSitemapsAsync(Sitemap sitemap)
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
-            var paths = await _pathService.GetPaths();
+            var paths = await _pathDataService.GetPaths();
             var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.SitemapURL)).ToList();
 
             var applicationSitemapServices = await CreateApplicationSitemapServiceTasksAsync(onlinePaths);
@@ -132,7 +131,7 @@ namespace DFC.Composite.Shell.Controllers
                             foreach (var path in paths)
                             {
                                 var pathRootUri = new Uri(path.SitemapURL);
-                                string appBaseUrl =$"{pathRootUri.Scheme}://{pathRootUri.Authority}";
+                                string appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
 
                                 if (mapping.Url.StartsWith(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
                                 {

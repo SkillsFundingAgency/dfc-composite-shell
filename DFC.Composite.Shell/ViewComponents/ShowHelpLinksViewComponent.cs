@@ -12,13 +12,13 @@ namespace DFC.Composite.Shell.ViewComponents
     public class ShowHelpLinksViewComponent : ViewComponent
     {
         private readonly ILogger<ShowHelpLinksViewComponent> _logger;
-        private readonly IPathService _pathService;
+        private readonly IPathDataService _pathDataService;
         private readonly List<FooterHelpLinksModel> _helpLinks;
 
-        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathService pathService, List<FooterHelpLinksModel> helpLinks)
+        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathDataService pathDataService, List<FooterHelpLinksModel> helpLinks)
         {
             _logger = logger;
-            _pathService = pathService;
+            _pathDataService = pathDataService;
             _helpLinks = helpLinks;
         }
 
@@ -32,7 +32,7 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                var helpPath = await _pathService.GetPath("help");
+                var helpPath = await _pathDataService.GetPath("help");
 
                 if (helpPath != null)
                 {

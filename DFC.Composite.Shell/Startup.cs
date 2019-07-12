@@ -15,7 +15,6 @@ using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
-using DFC.Composite.Shell.Services.SimpeCachedObject;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Utilities;
 using DFC.Composite.Shell.ViewComponents;
@@ -68,8 +67,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<UserAgentDelegatingHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
-
-            services.AddScoped<ISimpeCachedObjectService<List<PathModel>>, SimpeCachedObjectService<List<PathModel>>>();
+            services.AddScoped<IPathDataService, PathDataService>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
 
@@ -104,7 +102,7 @@ namespace DFC.Composite.Shell
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathService pathService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathDataService pathDataService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
         {
             app.UseCorrelationId(new CorrelationIdOptions
             {
@@ -128,16 +126,16 @@ namespace DFC.Composite.Shell
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            ConfigureRouting(app, pathService, logger, loggerHelper);
+            ConfigureRouting(app, pathDataService, logger, loggerHelper);
         }
 
-        private void ConfigureRouting(IApplicationBuilder app, IPathService pathService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
+        private void ConfigureRouting(IApplicationBuilder app, IPathDataService pathDataService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
         {
             IEnumerable<PathModel> paths = new List<PathModel>();
 
             try
             {
-                paths = pathService.GetPaths().Result;
+                paths = pathDataService.GetPaths().Result;
                 Log(logger, loggerHelper, $"Registering routes for the following paths: {string.Join(",", paths.Select(x => x.Path))}");
             }
             catch (Exception ex)
