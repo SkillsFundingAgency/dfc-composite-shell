@@ -17,7 +17,6 @@ using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Utilities;
-using DFC.Composite.Shell.ViewComponents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -94,9 +93,6 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddSingleton(Configuration.GetSection("FooterLinks").Get<List<FooterHelpLinksModel>>()?.OrderBy(l => l.Order).ToList() ?? new List<FooterHelpLinksModel>());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
