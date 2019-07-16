@@ -68,7 +68,7 @@ namespace DFC.Composite.Shell.Controllers
             {
                 _logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
 
-                Response.Redirect(ex.Location.PathAndQuery, true);
+                Response.Redirect(ex.Location.PathAndQuery, ex.IsPermenant);
             }
             catch (Exception ex)
             {
