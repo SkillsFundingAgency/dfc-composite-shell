@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents
@@ -13,21 +12,18 @@ namespace DFC.Composite.Shell.ViewComponents
     {
         private readonly ILogger<ShowHelpLinksViewComponent> _logger;
         private readonly IPathDataService _pathDataService;
-        private readonly List<FooterHelpLinksModel> _helpLinks;
 
-        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathDataService pathDataService, List<FooterHelpLinksModel> helpLinks)
+        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathDataService pathDataService)
         {
             _logger = logger;
             _pathDataService = pathDataService;
-            _helpLinks = helpLinks;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var vm = new ShowHelpLinksViewModel
             {
-                IsOnline = false,
-                HelpLinks = _helpLinks
+                IsOnline = false
             };
 
             try
