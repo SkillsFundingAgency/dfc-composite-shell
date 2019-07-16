@@ -43,8 +43,11 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     for (int i = 0; i < 10; i++)
                     {
-                        _httpClient.DefaultRequestHeaders.Add(Constants.CompositePathHeader, regionModel.Path);
-                        response = await _httpClient.GetAsync(url);
+                        
+                        var request = new HttpRequestMessage(HttpMethod.Get, url);
+                        request.Headers.Add(Constants.CompositePathHeader, regionModel.Path);
+                        
+                        response = await _httpClient.SendAsync(request);
 
                         if (response.IsRedirectionStatus())
                         {
@@ -137,6 +140,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     {
                         Content = new FormUrlEncodedContent(formParameters),
                     };
+                    
                     
                     request.Headers.Add(Constants.CompositePathHeader, regionModel.Path);
 
