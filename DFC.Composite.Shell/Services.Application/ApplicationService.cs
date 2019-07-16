@@ -37,11 +37,6 @@ namespace DFC.Composite.Shell.Services.Application
         {
             if (application.Path.IsOnline)
             {
-                if (string.IsNullOrWhiteSpace(article))
-                {
-                    article = "index";
-                }
-
                 //Get the markup at this url
                 var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, article);
 
@@ -196,14 +191,24 @@ namespace DFC.Composite.Shell.Services.Application
 
         private string FormatArticleUrl(string regionEndpoint, string article)
         {
+            const string Placeholder = "{0}";
+            const string SlashedPlaceholder = "/" + Placeholder;
+            string url;
             string urlFormatString = regionEndpoint;
 
-            if (!urlFormatString.Contains("{0}"))
+            if (!urlFormatString.Contains(Placeholder))
             {
-                urlFormatString += "/{0}";
+                urlFormatString += SlashedPlaceholder;
             }
 
-            string url = string.Format(urlFormatString, article);
+            if (!string.IsNullOrWhiteSpace(article))
+            {
+                url = string.Format(urlFormatString, article);
+            }
+            else
+            {
+                url = urlFormatString.Replace(SlashedPlaceholder, string.Empty);
+            }
 
             return url;
         }
