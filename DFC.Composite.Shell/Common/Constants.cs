@@ -6,5 +6,6 @@
         public const string Policies = "Policies";
         public const string BearerTokenName = "id_token";
         public const string CorrelationIdHeaderName = "DssCorrelationId";
+        public const string CompositePathHeader = "x-composite-base-route";
     }
 }

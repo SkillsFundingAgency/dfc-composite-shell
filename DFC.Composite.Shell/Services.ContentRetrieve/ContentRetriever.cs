@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Regions;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieve
 {
+
     public class ContentRetriever : IContentRetriever
     {
         private readonly HttpClient _httpClient;
@@ -23,6 +26,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
             _httpClient = httpClient;
             _logger = logger;
             _regionService = regionService;
+            
         }
 
         public async Task<string> GetContent(string url, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
@@ -39,21 +43,36 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     for (int i = 0; i < 10; i++)
                     {
-                        response = await _httpClient.GetAsync(url);
+                        
+                        var request = new HttpRequestMessage(HttpMethod.Get, url);
+                        request.Headers.Add(Constants.CompositePathHeader, regionModel.Path);
+                        
+                        response = await _httpClient.SendAsync(request);
 
                         if (response.IsRedirectionStatus())
                         {
                             if (followRedirects)
                             {
-                                url = response.Headers.Location.ToString();
+                                if (response.Headers.Location.IsAbsoluteUri)
+                                {
+                                    url = response.Headers.Location.ToString();
+                                }
+                                else
+                                {
+                                    url = $"{requestBaseUrl}/{response.Headers.Location.ToString().TrimStart('/')}";
+                                }
 
                                 _logger.LogInformation($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
                             }
                             else
                             {
-                                string redirectUrl = $"{requestBaseUrl}{response.Headers.Location.PathAndQuery}";
+                                var relativeUrl = response.Headers.Location.IsAbsoluteUri
+                                    ? response.Headers.Location.PathAndQuery
+                                    : response.Headers.Location.ToString();
+                                string redirectUrl = $"{requestBaseUrl}{relativeUrl}";
 
-                                throw new RedirectException(new Uri(url), new Uri(redirectUrl));
+                                throw new RedirectException(new Uri(url), new Uri(redirectUrl), 
+                                    response.StatusCode == HttpStatusCode.PermanentRedirect);
                             }
                         }
                         else
@@ -119,8 +138,11 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
 
                     var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
-                        Content = new FormUrlEncodedContent(formParameters)
+                        Content = new FormUrlEncodedContent(formParameters),
                     };
+                    
+                    
+                    request.Headers.Add(Constants.CompositePathHeader, regionModel.Path);
 
                     var response = await _httpClient.SendAsync(request);
 
@@ -136,7 +158,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                             redirectUrl += response.Headers.Location;
                         }
 
-                        throw new RedirectException(new Uri(url), new Uri(redirectUrl));
+                        throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                     }
 
                     response.EnsureSuccessStatusCode();
