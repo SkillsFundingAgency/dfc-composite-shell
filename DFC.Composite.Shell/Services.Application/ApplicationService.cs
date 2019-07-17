@@ -223,7 +223,11 @@ namespace DFC.Composite.Shell.Services.Application
                 if (task.IsCompletedSuccessfully)
                 {
                     content = task.Result;
-                    content = _contentProcessor.Process(content, RequestBaseUrl, application.RootUrl);
+
+                    if (regionType != PageRegion.Head)
+                    {
+                        content = _contentProcessor.Process(content, RequestBaseUrl, application.RootUrl);
+                    }
                 }
                 else
                 {
