@@ -3,6 +3,7 @@ using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Policies.Options;
 using DFC.Composite.Shell.Services.Application;
@@ -14,6 +15,7 @@ using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
+using DFC.Composite.Shell.Services.PrefixCreator;
 using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Utilities;
@@ -49,7 +51,7 @@ namespace DFC.Composite.Shell
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = context => false;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -58,10 +60,13 @@ namespace DFC.Composite.Shell
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
             services.AddTransient<IContentProcessor, ContentProcessor>();
+            services.AddTransient<IHttpResponseMessageHandler, CookieHttpResponseMessageHandler>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
+            services.AddTransient<IPrefixCreator, UrlPrefixCreator>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
 
+            services.AddTransient<CookieHttpRequestHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
 
@@ -84,6 +89,8 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                .AddHttpMessageHandler<CookieHttpRequestHandler>()
+                .Services
                 .AddHttpClient<IAssetLocationAndVersion, AssetLocationAndVersion, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
