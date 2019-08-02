@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,20 +28,28 @@ namespace DFC.Composite.Shell.ClientHandlers
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var prefix = _prefixCreator.Resolve(request.RequestUri);
-            var headers = _httpContextAccessor.HttpContext.Request.Headers;
-            foreach (var header in headers)
+
+            CopyHeaders(prefix, _httpContextAccessor.HttpContext.Request.Headers, request.Headers);
+            CopyHeaders(prefix, _httpContextAccessor.HttpContext.Items, request.Headers);
+
+            return base.SendAsync(request, cancellationToken);
+        }
+
+        private void CopyHeaders(string prefix, IHeaderDictionary sourceHeaders, HttpRequestHeaders destinationHeaders)
+        {
+            foreach (var sourceHeader in sourceHeaders)
             {
-                if (ShouldAddHeader(header.Key) && !request.Headers.Contains(header.Key))
+                if (ShouldAddHeader(sourceHeader.Key) && !destinationHeaders.Contains(sourceHeader.Key))
                 {
-                    var headerValues = header.Value.First().Split(';');
+                    var sourceHeaderValues = sourceHeader.Value.First().Split(';');
                     var cookieValues = new List<string>();
-                    foreach (var headerValue in headerValues)
+                    foreach (var sourceHeaderValue in sourceHeaderValues)
                     {
-                        var headerValueTrimmed = headerValue.Trim();
-                        if (ShouldAddCookie(prefix, headerValueTrimmed))
+                        var sourceHeaderValueTrimmed = sourceHeaderValue.Trim();
+                        if (ShouldAddCookie(prefix, sourceHeaderValueTrimmed))
                         {
-                            var cookieKey = GetCookieKey(prefix, headerValueTrimmed);
-                            var cookieValue = GetCookieValue(headerValueTrimmed);
+                            var cookieKey = GetCookieKey(prefix, sourceHeaderValueTrimmed);
+                            var cookieValue = GetCookieValue(sourceHeaderValueTrimmed);
 
                             cookieValue = Uri.UnescapeDataString(cookieValue);
 
@@ -51,13 +60,32 @@ namespace DFC.Composite.Shell.ClientHandlers
 
                     if (cookieValues.Any())
                     {
-                        request.Headers.Add(HeaderNames.Cookie, cookieValues);
+                        destinationHeaders.Add(HeaderNames.Cookie, cookieValues);
                     }
+                }
+            }
+        }
 
+        private void CopyHeaders(string prefix, IDictionary<object, object> sourceHeaders, HttpRequestHeaders destinationHeaders)
+        {
+            var cookieValues = new List<string>();
+
+            foreach (var sourceHeader in sourceHeaders)
+            {
+                var key = sourceHeader.Key.ToString();
+                var value = sourceHeader.Value.ToString();
+                if (ShouldAddHeader(prefix, key) && !destinationHeaders.Contains(key))
+                {
+                    var cookieKey = key.Replace(prefix, string.Empty);
+                    var cookieValue = $"{cookieKey}={value}";
+                    cookieValues.Add(cookieValue);
                 }
             }
 
-            return base.SendAsync(request, cancellationToken);
+            if (cookieValues.Any())
+            {
+                destinationHeaders.Add(HeaderNames.Cookie, cookieValues);
+            }
         }
 
         private string GetCookieKey(string prefix, string value)
@@ -82,8 +110,13 @@ namespace DFC.Composite.Shell.ClientHandlers
         }
 
         private bool ShouldAddHeader(string key)
+        {            
+            return key == HeaderNames.Cookie;
+        }
+
+        private bool ShouldAddHeader(string prefix, string key)
         {
-            return key == "Cookie";
+            return key.StartsWith(prefix);
         }
 
         private bool ShouldAddCookie(string prefix, string value)

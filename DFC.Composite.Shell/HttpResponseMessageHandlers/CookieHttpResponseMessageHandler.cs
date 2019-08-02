@@ -34,6 +34,10 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
                         var cookieKey = GetKey(prefix, headerValue);
                         var cookieValue = GetValue(headerValue);
                         _httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKey, cookieValue);
+                        if (!_httpContextAccessor.HttpContext.Items.ContainsKey(cookieKey))
+                        {
+                            _httpContextAccessor.HttpContext.Items[cookieKey] = cookieValue;
+                        }
                     }
                 }
             }

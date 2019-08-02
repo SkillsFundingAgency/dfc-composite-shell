@@ -37,6 +37,10 @@ namespace DFC.Composite.Shell.Services.Application
         {
             if (application.Path.IsOnline)
             {
+                //Get the markup at the head url first. This will create the session if it doesnt already exist
+                var applicationHeadRegionOutput = await GetApplicationMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article);
+                pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+
                 //Get the markup at this url
                 var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, article);
 
@@ -132,6 +136,15 @@ namespace DFC.Composite.Shell.Services.Application
             return result;
         }
 
+        private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article)
+        {
+            var url = FormatArticleUrl(regionModel.RegionEndpoint, article);
+
+            var result = _contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl);
+
+            return result;
+        }
+
         private Task<string> GetPostMarkUpAsync(ApplicationModel application, string path, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
         {
             //Get the body region
@@ -154,7 +167,6 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var tasks = new List<Task<string>>();
 
-            var headRegionTask = GetMarkupAsync(tasks, PageRegion.Head, application.Regions, article);
             var breadcrumbRegionTask = GetMarkupAsync(tasks, PageRegion.Breadcrumb, application.Regions, article);
             var bodyTopRegionTask = GetMarkupAsync(tasks, PageRegion.BodyTop, application.Regions, article);
             var sidebarLeftRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarLeft, application.Regions, article);
@@ -163,7 +175,6 @@ namespace DFC.Composite.Shell.Services.Application
 
             await Task.WhenAll(tasks);
 
-            PopulatePageRegionContent(application, pageModel, PageRegion.Head, headRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.Breadcrumb, breadcrumbRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyTop, bodyTopRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.SidebarLeft, sidebarLeftRegionTask);
