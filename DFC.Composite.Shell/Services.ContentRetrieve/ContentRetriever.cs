@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.AspNetCore.Http.Features;
@@ -20,13 +21,14 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
         private readonly HttpClient _httpClient;
         private readonly ILogger<ContentRetriever> _logger;
         private readonly IRegionService _regionService;
+        private readonly IHttpResponseMessageHandler _responseHandler;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IRegionService regionService)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IRegionService regionService, IHttpResponseMessageHandler responseHandler)
         {
             _httpClient = httpClient;
             _logger = logger;
             _regionService = regionService;
-            
+            _responseHandler = responseHandler;
         }
 
         public async Task<string> GetContent(string url, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
@@ -82,6 +84,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     }
 
                     response.EnsureSuccessStatusCode();
+
+                    _responseHandler.Process(response);
 
                     results = await response.Content.ReadAsStringAsync();
 

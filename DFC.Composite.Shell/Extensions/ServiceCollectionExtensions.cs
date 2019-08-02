@@ -1,5 +1,4 @@
 ﻿using DFC.Composite.Shell.ClientHandlers;
-using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Policies.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,7 +41,7 @@ namespace DFC.Composite.Shell.Extensions
             return services;
         }
 
-        public static IServiceCollection AddHttpClient<TClient, TImplementation, TClientOptions>(
+        public static IHttpClientBuilder AddHttpClient<TClient, TImplementation, TClientOptions>(
                     this IServiceCollection services,
                     IConfiguration configuration,
                     string configurationSectionName,
@@ -67,14 +66,17 @@ namespace DFC.Composite.Shell.Extensions
                         {
                             return new HttpClientHandler()
                             {
+                                /*
+                                 * This prevents asp.net core from addding its own cookie values to the outgoing request
+                                 */
+                                UseCookies = false,
+
                                 AllowAutoRedirect = false
                             };
                         })
                         .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{retryPolicyName}")
                         .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{circuitBreakerPolicyName}")
                         .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
-                        .AddHttpMessageHandler<UserAgentDelegatingHandler>()
-                        .Services;
-
+                        .AddHttpMessageHandler<UserAgentDelegatingHandler>();
     }
 }
