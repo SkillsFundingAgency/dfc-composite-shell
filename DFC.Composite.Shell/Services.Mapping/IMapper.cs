@@ -1,7 +1,7 @@
 ﻿namespace DFC.Composite.Shell.Services.Mapping
 {
-    public interface IMapper<S,D>
+    public interface IMapper<in TS, in TD>
     {
-        void Map(S source, D destination);
+        void Map(TS source, TD destination);
     }
 }

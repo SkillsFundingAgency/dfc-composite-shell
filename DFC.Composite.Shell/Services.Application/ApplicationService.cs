@@ -1,44 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Common;
+﻿using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.AspNetCore.Html;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Application
 {
     public class ApplicationService : IApplicationService
     {
-        private readonly IPathDataService _pathDataService;
-        private readonly IRegionService _regionService;
-        private readonly IContentRetriever _contentRetriever;
-        private readonly IContentProcessor _contentProcessor;
-
-        public string RequestBaseUrl { get; set; }
+        private readonly IPathDataService pathDataService;
+        private readonly IRegionService regionService;
+        private readonly IContentRetriever contentRetriever;
+        private readonly IContentProcessorService contentProcessorService;
 
         public ApplicationService(
             IPathDataService pathDataService,
             IRegionService regionService,
             IContentRetriever contentRetriever,
-            IContentProcessor contentProcessor)
+            IContentProcessorService contentProcessorService)
         {
-            _pathDataService = pathDataService;
-            _regionService = regionService;
-            _contentRetriever = contentRetriever;
-            _contentProcessor = contentProcessor;
+            this.pathDataService = pathDataService;
+            this.regionService = regionService;
+            this.contentRetriever = contentRetriever;
+            this.contentProcessorService = contentProcessorService;
         }
+
+        public string RequestBaseUrl { get; set; }
 
         public async Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel)
         {
+            if (application == null)
+            {
+                throw new ArgumentNullException(nameof(application));
+            }
+
+            if (pageModel == null)
+            {
+                throw new ArgumentNullException(nameof(pageModel));
+            }
+
             if (application.Path.IsOnline)
             {
                 //Get the markup at the head url first. This will create the session if it doesnt already exist
-                var applicationHeadRegionOutput = await GetApplicationMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article);
+                var applicationHeadRegionOutput = await GetApplicationMarkUpAsync(application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
                 pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
                 //Get the markup at this url
@@ -48,7 +59,7 @@ namespace DFC.Composite.Shell.Services.Application
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
 
                 //Wait until everything is done
-                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
+                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
@@ -66,27 +77,27 @@ namespace DFC.Composite.Shell.Services.Application
 
         public async Task PostMarkupAsync(ApplicationModel application, string path, string article, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
         {
-            if (application.Path.IsOnline)
+            if (application != null && application.Path.IsOnline)
             {
                 //Get the markup at the post back url
-                var applicationBodyRegionTask = GetPostMarkUpAsync(application, path, article, formParameters);
+                var applicationBodyRegionTask = GetPostMarkUpAsync(application, article, formParameters);
 
                 //Load related regions
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
 
                 //Wait until everything is done
-                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
+                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
             }
             else
             {
-                var pageRegionContentModel = pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
+                var pageRegionContentModel = pageModel?.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
 
                 if (pageRegionContentModel != null)
                 {
-                    pageRegionContentModel.Content = new HtmlString(application.Path.OfflineHtml);
+                    pageRegionContentModel.Content = new HtmlString(application?.Path.OfflineHtml);
                 }
             }
         }
@@ -95,28 +106,44 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var applicationModel = new ApplicationModel();
 
-            var pathModel = await _pathDataService.GetPath(path);
+            var pathModel = await pathDataService.GetPath(path).ConfigureAwait(false);
 
-            if (pathModel != null)
+            if (pathModel == null)
             {
-                applicationModel.Path = pathModel;
-                applicationModel.Regions = await _regionService.GetRegions(pathModel.Path);
+                return applicationModel;
+            }
 
-                if (applicationModel.Regions != null)
-                {
-                    var bodyRegion = applicationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            applicationModel.Path = pathModel;
+            applicationModel.Regions = await regionService.GetRegions(pathModel.Path).ConfigureAwait(false);
 
-                    if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
-                    {
-                        var uri = new Uri(bodyRegion.RegionEndpoint);
-                        var url = $"{uri.Scheme}://{uri.Authority}";
+            var bodyRegion = applicationModel.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
-                        applicationModel.RootUrl = url;
-                    }
-                }
+            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            {
+                var uri = new Uri(bodyRegion.RegionEndpoint);
+                var url = $"{uri.Scheme}://{uri.Authority}";
+
+                applicationModel.RootUrl = url;
             }
 
             return applicationModel;
+        }
+
+        private static string FormatArticleUrl(string regionEndpoint, string article)
+        {
+            const string Placeholder = "{0}";
+            const string SlashedPlaceholder = "/" + Placeholder;
+
+            var urlFormatString = regionEndpoint;
+
+            if (!urlFormatString.Contains(Placeholder, StringComparison.OrdinalIgnoreCase))
+            {
+                urlFormatString += SlashedPlaceholder;
+            }
+
+            return !string.IsNullOrWhiteSpace(article)
+                ? string.Format(CultureInfo.InvariantCulture, urlFormatString, article)
+                : urlFormatString.Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, string article)
@@ -131,21 +158,21 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article);
 
-            var result = _contentRetriever.GetContent(url, bodyRegion, false, RequestBaseUrl);
+            var result = contentRetriever.GetContent(url, bodyRegion, false, RequestBaseUrl);
 
             return result;
         }
 
-        private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article)
+        private Task<string> GetApplicationMarkUpAsync(RegionModel regionModel, string article)
         {
             var url = FormatArticleUrl(regionModel.RegionEndpoint, article);
 
-            var result = _contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl);
+            var result = this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl);
 
             return result;
         }
 
-        private Task<string> GetPostMarkUpAsync(ApplicationModel application, string path, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
+        private Task<string> GetPostMarkUpAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
         {
             //Get the body region
             var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
@@ -158,7 +185,7 @@ namespace DFC.Composite.Shell.Services.Application
             var uri = new Uri(bodyRegion.RegionEndpoint);
             var url = $"{uri.Scheme}://{uri.Authority}/{article}";
 
-            var result = _contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
+            var result = contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
 
             return result;
         }
@@ -173,7 +200,7 @@ namespace DFC.Composite.Shell.Services.Application
             var sidebarRightRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarRight, application.Regions, article);
             var bodyFooterRegionTask = GetMarkupAsync(tasks, PageRegion.BodyFooter, application.Regions, article);
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
 
             PopulatePageRegionContent(application, pageModel, PageRegion.Breadcrumb, breadcrumbRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyTop, bodyTopRegionTask);
@@ -193,48 +220,24 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article);
 
-            var task = _contentRetriever.GetContent(url, pageRegionModel, true, RequestBaseUrl);
+            var task = contentRetriever.GetContent(url, pageRegionModel, true, RequestBaseUrl);
 
             tasks.Add(task);
 
             return task;
         }
 
-        private string FormatArticleUrl(string regionEndpoint, string article)
-        {
-            const string Placeholder = "{0}";
-            const string SlashedPlaceholder = "/" + Placeholder;
-            string url;
-            string urlFormatString = regionEndpoint;
-
-            if (!urlFormatString.Contains(Placeholder))
-            {
-                urlFormatString += SlashedPlaceholder;
-            }
-
-            if (!string.IsNullOrWhiteSpace(article))
-            {
-                url = string.Format(urlFormatString, article);
-            }
-            else
-            {
-                url = urlFormatString.Replace(SlashedPlaceholder, string.Empty);
-            }
-
-            return url;
-        }
-
         private void PopulatePageRegionContent(ApplicationModel application, PageViewModel pageModel, PageRegion regionType, Task<string> task)
         {
             if (task != null)
             {
-                var pageRegionContentModel = pageModel.PageRegionContentModels.First(x => x.PageRegionType == regionType);
+                var pageRegionContentModel = pageModel?.PageRegionContentModels.First(x => x.PageRegionType == regionType);
                 var content = string.Empty;
 
                 if (task.IsCompletedSuccessfully)
                 {
                     content = task.Result;
-                    content = _contentProcessor.Process(content, RequestBaseUrl, application.RootUrl);
+                    content = contentProcessorService.Process(content, RequestBaseUrl, application.RootUrl);
                 }
                 else
                 {
@@ -249,6 +252,5 @@ namespace DFC.Composite.Shell.Services.Application
                 pageRegionContentModel.Content = new HtmlString(content);
             }
         }
-
     }
 }

@@ -17,31 +17,31 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class ApplicationServiceTests
     {
-        private readonly IApplicationService _applicationService;
-        private readonly IMapper<ApplicationModel, PageViewModel> _mapper;
-        private readonly Mock<IPathDataService> _pathDataService;
-        private readonly Mock<IRegionService> _regionService;
-        private readonly Mock<IContentRetriever> _contentRetriever;
-        private readonly Mock<IContentProcessor> _contentProcessor;
+        private readonly IApplicationService applicationService;
+        private readonly IMapper<ApplicationModel, PageViewModel> mapper;
+        private readonly Mock<IPathDataService> pathDataService;
+        private readonly Mock<IRegionService> regionService;
+        private readonly Mock<IContentRetriever> contentRetriever;
+        private readonly Mock<IContentProcessorService> contentProcessor;
 
         public ApplicationServiceTests()
         {
-            _mapper = new ApplicationToPageModelMapper();
+            mapper = new ApplicationToPageModelMapper();
 
-            _pathDataService = new Mock<IPathDataService>();
-            _regionService = new Mock<IRegionService>();
-            _contentRetriever = new Mock<IContentRetriever>();
-            _contentProcessor = new Mock<IContentProcessor>();
+            pathDataService = new Mock<IPathDataService>();
+            regionService = new Mock<IRegionService>();
+            contentRetriever = new Mock<IContentRetriever>();
+            contentProcessor = new Mock<IContentProcessorService>();
 
-            _applicationService = new ApplicationService(
-                _pathDataService.Object,
-                _regionService.Object,
-                _contentRetriever.Object,
-                _contentProcessor.Object);
+            applicationService = new ApplicationService(
+                pathDataService.Object,
+                regionService.Object,
+                contentRetriever.Object,
+                contentProcessor.Object);
         }
 
         [Fact(Skip = "This needs to be broken up into separate tests by class")]
-        public async Task CanGetMarkupAsync_ForOnlineApplication_When_ContentUrl_IsEmpty()
+        public async Task CanGetMarkupAsyncForOnlineApplicationWhenContentUrlIsEmpty()
         {
             const string RequestBaseUrl = "https://localhost";
 
@@ -57,7 +57,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var regions = new List<RegionModel>
             {
                 bodyRegion,
-                bodyFooterRegion
+                bodyFooterRegion,
             };
 
             //app
@@ -66,29 +66,29 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             //mocks
             var bodyRegionContent = "bodyRegionContent";
             var bodyFooterRegionContent = "bodyfooterRegionContent";
-            _pathDataService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
-            _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
-            _contentRetriever.Setup(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
-            _contentRetriever.Setup(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyFooterRegionContent);
-            _contentProcessor.Setup(x => x.Process(bodyRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
-            _contentProcessor.Setup(x => x.Process(bodyFooterRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
+            pathDataService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
+            regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
+            contentRetriever.Setup(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
+            contentRetriever.Setup(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyFooterRegionContent);
+            contentProcessor.Setup(x => x.Process(bodyRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
+            contentProcessor.Setup(x => x.Process(bodyFooterRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
 
             //Act
             var pageModel = new PageViewModel();
-            _mapper.Map(app, pageModel);
-            _applicationService.RequestBaseUrl = RequestBaseUrl;
-            await _applicationService.GetMarkupAsync(app, "index", pageModel);
+            mapper.Map(app, pageModel);
+            applicationService.RequestBaseUrl = RequestBaseUrl;
+            await applicationService.GetMarkupAsync(app, "index", pageModel).ConfigureAwait(false);
 
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(bodyFooterRegionContent);
-            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, true, RequestBaseUrl), Times.Once);
-            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, true, RequestBaseUrl), Times.Once);
+            contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, true, RequestBaseUrl), Times.Once);
+            contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, true, RequestBaseUrl), Times.Once);
         }
 
         [Fact(Skip = "This needs to be broken up into separate tests by class")]
-        public async Task CanGetMarkupAsync_ForOnlineApplication_When_ContentUrl_IsRelativeUrl()
+        public async Task CanGetMarkupAsyncForOnlineApplicationWhenContentUrlIsRelativeUrl()
         {
             //path
             var path = "path1";
@@ -102,7 +102,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var regions = new List<RegionModel>
             {
                 bodyRegion,
-                bodyFooterRegion
+                bodyFooterRegion,
             };
 
             //app
@@ -112,26 +112,26 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var bodyAbsoluteUrl = $"{RequestBaseUrl}/{path}/{bodyRelativeUrl}";
             var bodyRegionContent = "bodyRegionContent";
             var footerRegionContent = "footerRegionContent";
-            _pathDataService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
-            _regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
-            _contentRetriever.Setup(x => x.GetContent(bodyAbsoluteUrl, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
-            _contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(footerRegionContent);
-            _contentProcessor.Setup(x => x.Process(bodyRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
-            _contentProcessor.Setup(x => x.Process(footerRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
+            pathDataService.Setup(x => x.GetPath(path)).ReturnsAsync(pathModel);
+            regionService.Setup(x => x.GetRegions(It.IsAny<string>())).ReturnsAsync(regions);
+            contentRetriever.Setup(x => x.GetContent(bodyAbsoluteUrl, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(bodyRegionContent);
+            contentRetriever.Setup(x => x.GetContent(footerRegionEndPoint, null, It.IsAny<bool>(), RequestBaseUrl)).ReturnsAsync(footerRegionContent);
+            contentProcessor.Setup(x => x.Process(bodyRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
+            contentProcessor.Setup(x => x.Process(footerRegionContent, It.IsAny<string>(), It.IsAny<string>())).Returns<string, string, string>((x, y, z) => x);
 
             //Act
             var pageModel = new PageViewModel();
-            _mapper.Map(app, pageModel);
-            _applicationService.RequestBaseUrl = RequestBaseUrl;
-            await _applicationService.GetMarkupAsync(app, bodyRelativeUrl, pageModel);
+            mapper.Map(app, pageModel);
+            applicationService.RequestBaseUrl = RequestBaseUrl;
+            await applicationService.GetMarkupAsync(app, bodyRelativeUrl, pageModel).ConfigureAwait(false);
 
             //Assert
             pageModel.PageRegionContentModels.Should().HaveCount(regions.Count());
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value.Should().Be(bodyRegionContent);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value.Should().Be(footerRegionContent);
-            _contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, true, RequestBaseUrl), Times.Never);
-            _contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, true, RequestBaseUrl), Times.Once);
-            _contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl, null, true, RequestBaseUrl), Times.Once);
+            contentRetriever.Verify(x => x.GetContent(bodyRegion.RegionEndpoint, bodyRegion, true, RequestBaseUrl), Times.Never);
+            contentRetriever.Verify(x => x.GetContent(bodyFooterRegion.RegionEndpoint, bodyFooterRegion, true, RequestBaseUrl), Times.Once);
+            contentRetriever.Verify(x => x.GetContent(bodyAbsoluteUrl, null, true, RequestBaseUrl), Times.Once);
         }
     }
 }

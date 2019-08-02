@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Exceptions;
+﻿using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
@@ -19,20 +17,21 @@ namespace DFC.Composite.Shell.Controllers
     {
         private const string MainRenderViewName = "Application/RenderView";
 
-        private readonly IMapper<ApplicationModel, PageViewModel> _mapper;
-        private readonly ILogger<ApplicationController> _logger;
-        private readonly IApplicationService _applicationService;
+        private readonly IMapper<ApplicationModel, PageViewModel> mapper;
+        private readonly ILogger<ApplicationController> logger;
+        private readonly IApplicationService applicationService;
 
-        public ApplicationController(IMapper<ApplicationModel, PageViewModel> mapper,
-            ILogger<ApplicationController> logger, 
-            IConfiguration configuration, 
+        public ApplicationController(
+            IMapper<ApplicationModel, PageViewModel> mapper,
+            ILogger<ApplicationController> logger,
+            IConfiguration configuration,
             IApplicationService applicationService,
             IVersionedFiles versionedFiles)
         : base(configuration, versionedFiles)
         {
-            _mapper = mapper;
-            _logger = logger;
-            _applicationService = applicationService;
+            this.mapper = mapper;
+            this.logger = logger;
+            this.applicationService = applicationService;
         }
 
         [HttpGet]
@@ -42,40 +41,45 @@ namespace DFC.Composite.Shell.Controllers
 
             try
             {
-                _logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestViewModel.Path}");
-
-                var application = await _applicationService.GetApplicationAsync(requestViewModel.Path);
-
-                if (application == null || application.Path == null)
+                if (requestViewModel != null)
                 {
-                    string errorString = string.Format(Messages.PathNotRegistered, requestViewModel.Path);
+                    logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestViewModel.Path}");
 
-                    ModelState.AddModelError(string.Empty, errorString);
-                    _logger.LogWarning($"{nameof(Action)}: {errorString}");
-                }
-                else
-                {
-                    _mapper.Map(application, viewModel);
+                    var application = await applicationService.GetApplicationAsync(requestViewModel.Path)
+                        .ConfigureAwait(false);
 
-                    _applicationService.RequestBaseUrl = BaseUrl();
+                    if (application == null || application.Path == null)
+                    {
+                        var errorString = $"The path {requestViewModel.Path} is not registered";
 
-                    await _applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, viewModel);
+                        ModelState.AddModelError(string.Empty, errorString);
+                        logger.LogWarning($"{nameof(Action)}: {errorString}");
+                    }
+                    else
+                    {
+                        mapper.Map(application, viewModel);
 
-                    _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                        applicationService.RequestBaseUrl = BaseUrl();
+
+                        await applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, viewModel).ConfigureAwait(false);
+
+                        logger.LogInformation(
+                            $"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                    }
                 }
             }
-            catch(RedirectException ex)
+            catch (RedirectException ex)
             {
-                _logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
 
                 Response.Redirect(ex.Location.PathAndQuery, ex.IsPermenant);
             }
             catch (Exception ex)
             {
-                var errorString = $"{requestViewModel.Path}: {ex.Message}";
+                var errorString = $"{requestViewModel?.Path}: {ex.Message}";
 
                 ModelState.AddModelError(string.Empty, errorString);
-                _logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
+                logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
             return View(MainRenderViewName, viewModel);
@@ -88,46 +92,49 @@ namespace DFC.Composite.Shell.Controllers
 
             try
             {
-                _logger.LogInformation($"{nameof(Action)}: Posting child request for: {requestViewModel.Path}");
-
-                var application = await _applicationService.GetApplicationAsync(requestViewModel.Path);
-
-                if (application == null || application.Path == null)
+                if (requestViewModel != null)
                 {
-                    string errorString = string.Format(Messages.PathNotRegistered, requestViewModel.Path);
+                    logger.LogInformation($"{nameof(Action)}: Posting child request for: {requestViewModel.Path}");
 
-                    ModelState.AddModelError(string.Empty, errorString);
-                    _logger.LogWarning($"{nameof(Action)}: {errorString}");
-                }
-                else
-                {
-                    _mapper.Map(application, viewModel);
+                    var application = await applicationService.GetApplicationAsync(requestViewModel.Path).ConfigureAwait(false);
 
-                    _applicationService.RequestBaseUrl = BaseUrl();
+                    if (application?.Path == null)
+                    {
+                        var errorString = $"The path {requestViewModel.Path} is not registered";
 
-                    var formParameters = (from a in requestViewModel.FormCollection select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
+                        ModelState.AddModelError(string.Empty, errorString);
+                        logger.LogWarning($"{nameof(Action)}: {errorString}");
+                    }
+                    else
+                    {
+                        mapper.Map(application, viewModel);
 
-                    await _applicationService.PostMarkupAsync(application, requestViewModel.Path, requestViewModel.Data, formParameters, viewModel);
+                        applicationService.RequestBaseUrl = BaseUrl();
 
-                    _logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                        var formParameters = (from a in requestViewModel.FormCollection
+                                              select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
+
+                        await applicationService.PostMarkupAsync(application, requestViewModel.Path, requestViewModel.Data, formParameters, viewModel).ConfigureAwait(false);
+
+                        logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                    }
                 }
             }
             catch (RedirectException ex)
             {
-                _logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
 
                 Response.Redirect(ex.Location.PathAndQuery, true);
             }
             catch (Exception ex)
             {
-                var errorString = $"{requestViewModel.Path}: {ex.Message}";
+                var errorString = $"{requestViewModel?.Path}: {ex.Message}";
 
                 ModelState.AddModelError(string.Empty, errorString);
-                _logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
+                logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
             return View(MainRenderViewName, viewModel);
         }
-
     }
 }
