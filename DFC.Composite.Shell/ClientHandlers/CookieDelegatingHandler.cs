@@ -14,12 +14,12 @@ namespace DFC.Composite.Shell.ClientHandlers
     /// <summary>
     /// Copies cookies from the shell to a child app
     /// </summary>
-    public class CookieHttpRequestHandler : DelegatingHandler
+    public class CookieDelegatingHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPrefixCreator _prefixCreator;
 
-        public CookieHttpRequestHandler(IHttpContextAccessor httpContextAccessor, IPrefixCreator prefixCreator)
+        public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPrefixCreator prefixCreator)
         {
             _httpContextAccessor = httpContextAccessor;
             _prefixCreator = prefixCreator;

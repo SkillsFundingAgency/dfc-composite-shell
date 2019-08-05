@@ -44,10 +44,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     HttpResponseMessage response = null;
 
                     for (int i = 0; i < 10; i++)
-                    {
-                        
+                    {                        
                         var request = new HttpRequestMessage(HttpMethod.Get, url);
-                        request.Headers.Add(Constants.CompositePathHeader, regionModel.Path);
                         
                         response = await _httpClient.SendAsync(request);
 
@@ -144,10 +142,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieve
                     {
                         Content = new FormUrlEncodedContent(formParameters),
                     };
-                    
-                    
-                    request.Headers.Add(Constants.CompositePathHeader, regionModel.Path);
-
+                                        
                     var response = await _httpClient.SendAsync(request);
 
                     if (response.StatusCode == HttpStatusCode.Found)
