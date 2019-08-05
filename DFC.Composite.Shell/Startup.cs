@@ -33,14 +33,15 @@ namespace DFC.Composite.Shell
 {
     public class Startup
     {
-        private IConfiguration Configuration { get; }
-        private Guid _correlationId;
+        private readonly Guid correlationId;
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _correlationId = Guid.NewGuid();
+            correlationId = Guid.NewGuid();
         }
+
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -58,7 +59,7 @@ namespace DFC.Composite.Shell
 
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
-            services.AddTransient<IContentProcessor, ContentProcessor>();
+            services.AddTransient<IContentProcessorService, ContentProcessorServiceService>();
             services.AddTransient<IHttpResponseMessageHandler, CookieHttpResponseMessageHandler>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
@@ -89,7 +90,7 @@ namespace DFC.Composite.Shell
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
                 .AddHttpMessageHandler<CookieDelegatingHandler>()
                 .Services
-                .AddHttpClient<IAssetLocationAndVersion, AssetLocationAndVersion, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+                .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(SitemapClientOptions), policyOptions)
@@ -109,7 +110,7 @@ namespace DFC.Composite.Shell
             {
                 Header = Constants.CorrelationIdHeaderName,
                 UseGuidForCorrelationId = true,
-                UpdateTraceIdentifier = false
+                UpdateTraceIdentifier = false,
             });
 
             if (env.IsDevelopment())
@@ -119,6 +120,7 @@ namespace DFC.Composite.Shell
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -136,12 +138,12 @@ namespace DFC.Composite.Shell
 
             try
             {
-                paths = pathDataService.GetPaths().Result;
+                paths = pathDataService?.GetPaths().Result;
                 Log(logger, loggerHelper, $"Registering routes for the following paths: {string.Join(",", paths.Select(x => x.Path))}");
             }
             catch (Exception ex)
             {
-                loggerHelper.LogException(logger, _correlationId, ex);
+                loggerHelper?.LogException(logger, correlationId, ex);
             }
 
             app.UseMvc(routes =>
@@ -158,16 +160,14 @@ namespace DFC.Composite.Shell
                             routes.MapRoute(
                                 name: $"externalPath-{path.Path}-Action",
                                 template: path.Path + "/{**data}",
-                                defaults: new { controller = "ExternalApplication", action = "Action", path.Path }
-                            );
+                                defaults: new { controller = "ExternalApplication", action = "Action", path.Path });
                         }
                         else
                         {
                             routes.MapRoute(
                                 name: $"path-{path.Path}-Action",
                                 template: path.Path + "/{**data}",
-                                defaults: new { controller = "Application", action = "Action", path.Path }
-                            );
+                                defaults: new { controller = "Application", action = "Action", path.Path });
                         }
                     }
                 }
@@ -176,15 +176,13 @@ namespace DFC.Composite.Shell
                 routes.MapRoute(
                     name: "Sitemap",
                     template: "Sitemap.xml",
-                    defaults: new { controller = "Sitemap", action = "Sitemap" }
-                );
+                    defaults: new { controller = "Sitemap", action = "Sitemap" });
 
                 // add the robots.txt route
                 routes.MapRoute(
                     name: "Robots",
                     template: "Robots.txt",
-                    defaults: new { controller = "Robot", action = "Robot" }
-                );
+                    defaults: new { controller = "Robot", action = "Robot" });
 
                 // add the default route
                 routes.MapRoute(
@@ -195,7 +193,7 @@ namespace DFC.Composite.Shell
 
         private void Log(ILogger<Startup> logger, ILoggerHelper loggerHelper, string message)
         {
-            loggerHelper.LogInformationMessage(logger, _correlationId, message);
+            loggerHelper.LogInformationMessage(logger, correlationId, message);
         }
     }
 }

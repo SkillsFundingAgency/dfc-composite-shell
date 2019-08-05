@@ -1,7 +1,7 @@
 ﻿using DFC.Composite.Shell.Common;
 using DFC.Composite.Shell.Models;
 using Microsoft.AspNetCore.Html;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace DFC.Composite.Shell.Services.Mapping
 {
@@ -9,22 +9,19 @@ namespace DFC.Composite.Shell.Services.Mapping
     {
         public void Map(ApplicationModel source, PageViewModel destination)
         {
-            destination.LayoutName = $"{Constants.LayoutPrefix}{source.Path.Layout.ToString()}";
-            destination.Path = source.Path.Path;
-            destination.PageTitle = source.Path.TopNavigationText;
-            destination.PhaseBannerHtml = new HtmlString(source.Path.PhaseBannerHtml);
-
-            var pageRegionContentModels = new List<PageRegionContentModel>();
-
-            foreach (var region in source.Regions)
+            if (destination == null)
             {
-                var pageRegionContentModel = new PageRegionContentModel
-                {
-                    PageRegionType = region.PageRegion
-                };
-
-                pageRegionContentModels.Add(pageRegionContentModel);
+                return;
             }
+
+            destination.LayoutName = $"{Constants.LayoutPrefix}{source?.Path.Layout.ToString()}";
+            destination.Path = source?.Path.Path;
+            destination.PageTitle = source?.Path.TopNavigationText;
+            destination.PhaseBannerHtml = new HtmlString(source?.Path.PhaseBannerHtml);
+
+            var pageRegionContentModels = source?.Regions
+                .Select(region => new PageRegionContentModel { PageRegionType = region.PageRegion }).ToList();
+
             destination.PageRegionContentModels = pageRegionContentModels;
         }
     }

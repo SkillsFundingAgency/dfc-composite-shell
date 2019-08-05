@@ -13,7 +13,7 @@ namespace DFC.Composite.Shell.Models
 
         public int TopNavigationOrder { get; set; }
 
-        public Layout Layout { get; set; }
+        public PageLayout Layout { get; set; }
 
         public bool IsOnline { get; set; }
 

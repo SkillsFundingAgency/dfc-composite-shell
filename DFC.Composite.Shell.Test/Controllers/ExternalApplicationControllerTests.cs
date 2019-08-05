@@ -14,29 +14,29 @@ namespace DFC.Composite.Shell.Test.Controllers
 {
     public class ExternalApplicationControllerTests
     {
-        private readonly ExternalApplicationController _controller;
-        private readonly Mock<IApplicationService> _applicationService;
         private const string Path = "path1";
+        private readonly ExternalApplicationController controller;
+        private readonly Mock<IApplicationService> applicationService;
 
         public ExternalApplicationControllerTests()
         {
-            _applicationService = new Mock<IApplicationService>();
+            applicationService = new Mock<IApplicationService>();
             var logger = new Mock<ILogger<ExternalApplicationController>>();
             var configuration = new Mock<IConfiguration>();
             var versionedFiles = new Mock<IVersionedFiles>();
 
-            _controller = new ExternalApplicationController(logger.Object, configuration.Object, _applicationService.Object, versionedFiles.Object);
+            controller = new ExternalApplicationController(logger.Object, configuration.Object, applicationService.Object, versionedFiles.Object);
         }
 
         [Fact]
-        public async Task Should_RedirectToExternalUrl_WhenPathIsExternal()
+        public async Task ShouldRedirectToExternalUrlWhenPathIsExternal()
         {
             const string externalUrl = "http://www.google.com";
             var app = new ApplicationModel { Path = new PathModel { ExternalURL = externalUrl, Path = Path } };
 
-            _applicationService.Setup(x => x.GetApplicationAsync(Path)).ReturnsAsync(app);
+            applicationService.Setup(x => x.GetApplicationAsync(Path)).ReturnsAsync(app);
 
-            var response = await _controller.Action(Path);
+            var response = await controller.Action(Path).ConfigureAwait(false);
             response.Should().BeOfType<RedirectResult>();
 
             var typedResponse = response as RedirectResult;
@@ -44,13 +44,13 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
-        public async Task Should_RedirectToAppicationController_WhenPathIsNotExternal()
+        public async Task ShouldRedirectToAppicationControllerWhenPathIsNotExternal()
         {
             var app = new ApplicationModel { Path = new PathModel { Path = Path } };
 
-            _applicationService.Setup(x => x.GetApplicationAsync(Path)).ReturnsAsync(app);
+            applicationService.Setup(x => x.GetApplicationAsync(Path)).ReturnsAsync(app);
 
-            var response = await _controller.Action(Path);
+            var response = await controller.Action(Path).ConfigureAwait(false);
             response.Should().BeOfType<RedirectToActionResult>();
 
             var typedResponse = response as RedirectToActionResult;

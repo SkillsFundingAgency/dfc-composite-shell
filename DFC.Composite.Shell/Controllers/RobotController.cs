@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Models.Robots;
+﻿using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Hosting;
@@ -13,14 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
     public class RobotController : BaseController
     {
-        private readonly IPathDataService _pathDataService;
-        private readonly ILogger<RobotController> _logger;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IPathDataService pathDataService;
+        private readonly ILogger<RobotController> logger;
+        private readonly IHostingEnvironment hostingEnvironment;
 
         public RobotController(
             IPathDataService pathDataService,
@@ -30,9 +29,9 @@ namespace DFC.Composite.Shell.Controllers
             IVersionedFiles versionedFiles)
         : base(configuration, versionedFiles)
         {
-            _pathDataService = pathDataService;
-            _logger = logger;
-            _hostingEnvironment = hostingEnvironment;
+            this.pathDataService = pathDataService;
+            this.logger = logger;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         [HttpGet]
@@ -40,12 +39,12 @@ namespace DFC.Composite.Shell.Controllers
         {
             try
             {
-                _logger.LogInformation("Generating Robots.txt");
+                logger.LogInformation("Generating Robots.txt");
 
                 var robot = GenerateThisSiteRobot();
 
                 // get all the registered application robots.txt
-                await GetApplicationRobotsAsync(robot);
+                await GetApplicationRobotsAsync(robot).ConfigureAwait(false);
 
                 // add the Shell sitemap route
                 string sitemapRouteUrl = Url.RouteUrl("Sitemap", null);
@@ -57,17 +56,17 @@ namespace DFC.Composite.Shell.Controllers
                     robot.Add($"Sitemap: {shellSitemapUrl}");
                 }
 
-                _logger.LogInformation("Generated Robots.txt");
+                logger.LogInformation("Generated Robots.txt");
 
                 return Content(robot.Data, MediaTypeNames.Text.Plain);
             }
             catch (BrokenCircuitException ex)
             {
-                _logger.LogError(ex, $"{nameof(Robot)}: BrokenCircuit: {ex.Message}");
+                logger.LogError(ex, $"{nameof(Robot)}: BrokenCircuit: {ex.Message}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(Robot)}: {ex.Message}");
+                logger.LogError(ex, $"{nameof(Robot)}: {ex.Message}");
             }
 
             // fall through from errors
@@ -77,7 +76,7 @@ namespace DFC.Composite.Shell.Controllers
         private Robot GenerateThisSiteRobot()
         {
             var robot = new Robot();
-            string robotsFilePath = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "StaticRobots.txt");
+            string robotsFilePath = System.IO.Path.Combine(hostingEnvironment.WebRootPath, "StaticRobots.txt");
 
             if (System.IO.File.Exists(robotsFilePath))
             {
@@ -92,22 +91,21 @@ namespace DFC.Composite.Shell.Controllers
 
             // add any dynamic robots data form the Shell app
             //robot.Add("<<add any dynamic text or other here>>");
-
             return robot;
         }
 
         private async Task GetApplicationRobotsAsync(Robot robot)
         {
             // loop through the registered applications and create some tasks - one per application that has a robot url
-            var paths = await _pathDataService.GetPaths();
+            var paths = await pathDataService.GetPaths().ConfigureAwait(false);
             var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.RobotsURL)).ToList();
 
-            var applicationRobotServices = await CreateApplicationRobotServiceTasksAsync(onlinePaths);
+            var applicationRobotServices = await CreateApplicationRobotServiceTasksAsync(onlinePaths).ConfigureAwait(false);
 
             // await all application robot service tasks to complete
             var allTasks = (from a in applicationRobotServices select a.TheTask).ToArray();
 
-            await Task.WhenAll(allTasks);
+            await Task.WhenAll(allTasks).ConfigureAwait(false);
 
             OutputApplicationsRobots(robot, onlinePaths, applicationRobotServices);
         }
@@ -116,12 +114,11 @@ namespace DFC.Composite.Shell.Controllers
         {
             // loop through the registered applications and create some tasks - one per application that has a robot url
             var applicationRobotServices = new List<IApplicationRobotService>();
-            string bearerToken = await GetBearerTokenAsync();
-
+            string bearerToken = await GetBearerTokenAsync().ConfigureAwait(false);
 
             foreach (var path in paths)
             {
-                _logger.LogInformation($"{nameof(Action)}: Getting child robots.txt for: {path.Path}");
+                logger.LogInformation($"{nameof(Action)}: Getting child robots.txt for: {path.Path}");
 
                 var applicationRobotService = HttpContext.RequestServices.GetService(typeof(IApplicationRobotService)) as ApplicationRobotService;
 
@@ -145,7 +142,7 @@ namespace DFC.Composite.Shell.Controllers
             {
                 if (applicationRobotService.TheTask.IsCompletedSuccessfully)
                 {
-                    _logger.LogInformation($"{nameof(Action)}: Received child robots.txt for: {applicationRobotService.Path}");
+                    logger.LogInformation($"{nameof(Action)}: Received child robots.txt for: {applicationRobotService.Path}");
 
                     var applicationRobotsText = applicationRobotService.TheTask.Result;
 
@@ -191,7 +188,7 @@ namespace DFC.Composite.Shell.Controllers
                 }
                 else
                 {
-                    _logger.LogError($"{nameof(Action)}: Error getting child robots.txt for: {applicationRobotService.Path}");
+                    logger.LogError($"{nameof(Action)}: Error getting child robots.txt for: {applicationRobotService.Path}");
                 }
             }
         }

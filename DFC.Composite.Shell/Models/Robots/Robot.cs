@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace DFC.Composite.Shell.Models.Robots
 {
@@ -15,11 +11,7 @@ namespace DFC.Composite.Shell.Models.Robots
             robotData = new StringBuilder();
         }
 
-        public string Data { get
-            {
-                return robotData.ToString();
-            }
-        }
+        public string Data => robotData.ToString();
 
         public void Add(string text)
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace DFC.Composite.Shell.Models.Sitemap
+namespace DFC.Composite.Shell.Models.SitemapModels
 {
     [XmlRoot("urlset", Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
     public class Sitemap
@@ -33,6 +33,7 @@ namespace DFC.Composite.Shell.Models.Sitemap
                 map.CopyTo(items);
                 return items;
             }
+
             set
             {
                 if (value == null)
@@ -40,16 +41,16 @@ namespace DFC.Composite.Shell.Models.Sitemap
                     return;
                 }
 
-                SitemapLocation[] items = value;
+                var items = value;
                 map.Clear();
-                foreach (SitemapLocation item in items)
+                foreach (var sitemapLocation in items)
                 {
-                    map.Add(item);
+                    map.Add(sitemapLocation);
                 }
             }
         }
 
-        public string GetSitemapXml()
+        public static string GetSitemapXml()
         {
             return string.Empty;
         }
@@ -61,6 +62,11 @@ namespace DFC.Composite.Shell.Models.Sitemap
 
         public void AddRange(IEnumerable<SitemapLocation> locs)
         {
+            if (locs == null)
+            {
+                return;
+            }
+
             foreach (var i in locs)
             {
                 map.Add(i);
@@ -69,14 +75,12 @@ namespace DFC.Composite.Shell.Models.Sitemap
 
         public void WriteSitemapToFile(string path)
         {
-
             using (FileStream fs = new FileStream(path, FileMode.Create))
             {
-
-                XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+                var ns = new XmlSerializerNamespaces();
                 ns.Add("image", "http://www.google.com/schemas/sitemap-image/1.1");
 
-                XmlSerializer xs = new XmlSerializer(typeof(Sitemap));
+                var xs = new XmlSerializer(typeof(Sitemap));
                 xs.Serialize(fs, this, ns);
             }
         }

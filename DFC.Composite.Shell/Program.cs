@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 
 namespace DFC.Composite.Shell
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -13,7 +13,7 @@ namespace DFC.Composite.Shell
                    .UseApplicationInsights()
                    .ConfigureLogging((webHostBuilderContext, loggingBuilder) =>
                    {
-                       loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace);
+                       loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Trace);
                    })
                    .UseStartup<Startup>()
                    .Build()

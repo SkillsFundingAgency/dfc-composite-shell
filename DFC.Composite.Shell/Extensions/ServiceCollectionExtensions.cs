@@ -21,6 +21,10 @@ namespace DFC.Composite.Shell.Extensions
             string keyPrefix,
             PolicyOptions policyOptions)
         {
+            if (policyRegistry == null || policyOptions == null)
+            {
+                return services;
+            }
 
             policyRegistry.Add(
                 $"{keyPrefix}_{nameof(PolicyOptions.HttpRetry)}",
@@ -28,14 +32,16 @@ namespace DFC.Composite.Shell.Extensions
                     .HandleTransientHttpError()
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
-                        retryAttempt => TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+                        retryAttempt =>
+                            TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
 
             policyRegistry.Add(
                 $"{keyPrefix}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
-                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker
+                            .ExceptionsAllowedBeforeBreaking,
                         durationOfBreak: policyOptions.HttpCircuitBreaker.DurationOfBreak));
 
             return services;
@@ -51,7 +57,7 @@ namespace DFC.Composite.Shell.Extensions
                     where TImplementation : class, TClient
                     where TClientOptions : HttpClientOptions, new() =>
                     services
-                        .Configure<TClientOptions>(configuration.GetSection(configurationSectionName))
+                        .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
                         .AddHttpClient<TClient, TImplementation>()
                         .ConfigureHttpClient((sp, options) =>
                         {
@@ -62,17 +68,11 @@ namespace DFC.Composite.Shell.Extensions
                             options.Timeout = httpClientOptions.Timeout;
                             options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
                         })
-                        .ConfigurePrimaryHttpMessageHandler(() =>
+                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
                         {
-                            return new HttpClientHandler()
-                            {
-                                /*
-                                 * This prevents asp.net core from addding its own cookie values to the outgoing request
-                                 */
-                                UseCookies = false,
-
-                                AllowAutoRedirect = false
-                            };
+                            // This prevents asp.net core from adding its own cookie values to the outgoing request
+                            UseCookies = false,
+                            AllowAutoRedirect = false,
                         })
                         .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{retryPolicyName}")
                         .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{circuitBreakerPolicyName}")

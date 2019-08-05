@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace DFC.Composite.Shell.ClientHandlers
 {
     /// <summary>
-    /// Copies cookies from the shell to a child app
+    /// Copies cookies from the shell to a child app.
     /// </summary>
     public class CookieDelegatingHandler : DelegatingHandler
     {
@@ -29,10 +29,50 @@ namespace DFC.Composite.Shell.ClientHandlers
         {
             var prefix = _pathLocator.GetPath();
 
-            CopyHeaders(prefix, _httpContextAccessor.HttpContext.Request.Headers, request.Headers);
-            CopyHeaders(prefix, _httpContextAccessor.HttpContext.Items, request.Headers);
+            CopyHeaders(prefix, httpContextAccessor.HttpContext.Request.Headers, request?.Headers);
+            CopyHeaders(prefix, httpContextAccessor.HttpContext.Items, request?.Headers);
 
             return base.SendAsync(request, cancellationToken);
+        }
+
+        private static string GetCookieKey(string prefix, string value)
+        {
+            var result = value.Split('=').First();
+            if (result.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                result = result.Substring(prefix.Length);
+            }
+
+            return result;
+        }
+
+        private static string GetCookieValue(string value)
+        {
+            var result = string.Empty;
+            var startPosition = value.IndexOf("=", StringComparison.OrdinalIgnoreCase);
+            if (startPosition != -1)
+            {
+                result = value.Substring(startPosition + 1);
+            }
+
+            return result;
+        }
+
+        private static bool ShouldAddHeader(string key)
+        {
+            return key == HeaderNames.Cookie;
+        }
+
+        private static bool ShouldAddHeader(string prefix, string key)
+        {
+            return key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool ShouldAddCookie(string prefix, string value)
+        {
+            var segment = value.Split('=').First();
+            var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+            return result;
         }
 
         private void CopyHeaders(string prefix, IHeaderDictionary sourceHeaders, HttpRequestHeaders destinationHeaders)
@@ -76,7 +116,7 @@ namespace DFC.Composite.Shell.ClientHandlers
                 var value = sourceHeader.Value.ToString();
                 if (ShouldAddHeader(prefix, key) && !destinationHeaders.Contains(key))
                 {
-                    var cookieKey = key.Replace(prefix, string.Empty);
+                    var cookieKey = key.Replace(prefix, string.Empty, StringComparison.OrdinalIgnoreCase);
                     var cookieValue = $"{cookieKey}={value}";
                     cookieValues.Add(cookieValue);
                 }
