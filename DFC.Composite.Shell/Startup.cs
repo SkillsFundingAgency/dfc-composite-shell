@@ -66,7 +66,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IPrefixCreator, UrlPrefixCreator>();
             services.AddTransient<IUrlRewriter, UrlRewriter>();
 
-            services.AddTransient<CookieHttpRequestHandler>();
+            services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
 
@@ -89,7 +89,7 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
-                .AddHttpMessageHandler<CookieHttpRequestHandler>()
+                .AddHttpMessageHandler<CookieDelegatingHandler>()
                 .Services
                 .AddHttpClient<IAssetLocationAndVersion, AssetLocationAndVersion, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
