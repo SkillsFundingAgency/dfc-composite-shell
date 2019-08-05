@@ -30,7 +30,7 @@ namespace DFC.Composite.Shell.Services.PathLocator
             {
                 result = result.ToLower();
             }
-            _logger.LogDebug($"PathLocator. Request.Path is {_httpContextAccessor.HttpContext.Request.Path.Value} and path is {result}");
+            _logger.LogDebug($"PathLocator. Request.Path is {_httpContextAccessor.HttpContext.Request.Path.Value} and located path is {result}");
             return result;
         }
     }
