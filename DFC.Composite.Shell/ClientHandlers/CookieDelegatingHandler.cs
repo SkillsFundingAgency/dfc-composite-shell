@@ -16,18 +16,18 @@ namespace DFC.Composite.Shell.ClientHandlers
     /// </summary>
     public class CookieDelegatingHandler : DelegatingHandler
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IPathLocator _pathLocator;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IPathLocator pathLocator;
 
         public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _pathLocator = pathLocator;
+            this.httpContextAccessor = httpContextAccessor;
+            this.pathLocator = pathLocator;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var prefix = _pathLocator.GetPath();
+            var prefix = pathLocator.GetPath();
 
             CopyHeaders(prefix, httpContextAccessor.HttpContext.Request.Headers, request?.Headers);
             CopyHeaders(prefix, httpContextAccessor.HttpContext.Items, request?.Headers);
@@ -126,44 +126,6 @@ namespace DFC.Composite.Shell.ClientHandlers
             {
                 destinationHeaders.Add(HeaderNames.Cookie, cookieValues);
             }
-        }
-
-        private string GetCookieKey(string prefix, string value)
-        {
-            var result = value.Split('=').First();
-            if (result.StartsWith(prefix))
-            {
-                result = result.Substring(prefix.Length);
-            }
-            return result;
-        }
-
-        private string GetCookieValue(string value)
-        {
-            var result = string.Empty;
-            var startPosition = value.IndexOf("=");
-            if (startPosition != -1)
-            {
-                result = value.Substring(startPosition + 1);
-            }
-            return result;
-        }
-
-        private bool ShouldAddHeader(string key)
-        {
-            return key == HeaderNames.Cookie;
-        }
-
-        private bool ShouldAddHeader(string prefix, string key)
-        {
-            return key.StartsWith(prefix);
-        }
-
-        private bool ShouldAddCookie(string prefix, string value)
-        {
-            var segment = value.Split('=').First();
-            var result = segment.StartsWith(prefix);
-            return result;
         }
     }
 }

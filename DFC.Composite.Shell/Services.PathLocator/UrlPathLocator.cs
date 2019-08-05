@@ -17,12 +17,12 @@ namespace DFC.Composite.Shell.Services.PathLocator
 
         public string GetPath()
         {
-            var result = _httpContextAccessor.HttpContext.Request.Path.Value.Trim();
-            if (result.StartsWith("/"))
+            var result = httpContextAccessor.HttpContext.Request.Path.Value.Trim();
+            if (result.StartsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 result = result.Substring(1);
             }
-            var forwardSlashPosition = result.IndexOf("/");
+            var forwardSlashPosition = result.IndexOf("/", StringComparison.OrdinalIgnoreCase);
             if (forwardSlashPosition != -1)
             {
                 result = result.Substring(0, forwardSlashPosition);
@@ -31,7 +31,7 @@ namespace DFC.Composite.Shell.Services.PathLocator
             {
                 result = result.ToLower();
             }
-            _logger.LogDebug($"PathLocator. Request.Path is {_httpContextAccessor.HttpContext.Request.Path.Value} and located path is {result}");
+            logger.LogDebug($"PathLocator. Request.Path is {httpContextAccessor.HttpContext.Request.Path.Value} and located path is {result}");
             return result;
         }
     }

@@ -12,18 +12,18 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
     /// </summary>
     public class CookieHttpResponseMessageHandler : IHttpResponseMessageHandler
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IPathLocator _pathLocator;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IPathLocator pathLocator;
 
         public CookieHttpResponseMessageHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _pathLocator = pathLocator;
+            this.httpContextAccessor = httpContextAccessor;
+            this.pathLocator = pathLocator;
         }
 
         public void Process(HttpResponseMessage httpResponseMessage)
         {
-            var prefix = _pathLocator.GetPath();
+            var prefix = pathLocator.GetPath();
             foreach (var header in httpResponseMessage.Headers)
             {
                 var headers = httpContextAccessor.HttpContext.Response.Headers;

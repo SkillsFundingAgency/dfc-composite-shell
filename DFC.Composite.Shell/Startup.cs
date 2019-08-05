@@ -63,7 +63,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IHttpResponseMessageHandler, CookieHttpResponseMessageHandler>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
-            services.AddTransient<IUrlRewriter, UrlRewriter>();
+            services.AddTransient<IUrlRewriterService, UrlRewriterService>();
 
             services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
