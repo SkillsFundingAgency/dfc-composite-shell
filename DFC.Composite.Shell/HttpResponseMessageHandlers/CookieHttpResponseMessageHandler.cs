@@ -24,7 +24,7 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
         public void Process(HttpResponseMessage httpResponseMessage)
         {
             var prefix = pathLocator.GetPath();
-            foreach (var header in httpResponseMessage.Headers)
+            foreach (var header in httpResponseMessage?.Headers)
             {
                 var headers = httpContextAccessor.HttpContext.Response.Headers;
                 if (IncludeHeader(header.Key))

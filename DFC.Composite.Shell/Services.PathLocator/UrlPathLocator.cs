@@ -22,15 +22,18 @@ namespace DFC.Composite.Shell.Services.PathLocator
             {
                 result = result.Substring(1);
             }
+
             var forwardSlashPosition = result.IndexOf("/", StringComparison.OrdinalIgnoreCase);
             if (forwardSlashPosition != -1)
             {
                 result = result.Substring(0, forwardSlashPosition);
             }
+
             if (!string.IsNullOrWhiteSpace(result))
             {
                 result = result.ToLower();
             }
+
             logger.LogDebug($"PathLocator. Request.Path is {httpContextAccessor.HttpContext.Request.Path.Value} and located path is {result}");
             return result;
         }
