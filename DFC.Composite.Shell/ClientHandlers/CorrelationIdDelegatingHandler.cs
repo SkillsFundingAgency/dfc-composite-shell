@@ -8,24 +8,25 @@ namespace DFC.Composite.Shell.ClientHandlers
 {
     public class CorrelationIdDelegatingHandler : DelegatingHandler
     {
-        private readonly ICorrelationContextAccessor _correlationContextAccessor;
-        private readonly ILogger<CorrelationIdDelegatingHandler> _logger;
+        private readonly ICorrelationContextAccessor correlationContextAccessor;
+        private readonly ILogger<CorrelationIdDelegatingHandler> logger;
 
         public CorrelationIdDelegatingHandler(
             ICorrelationContextAccessor correlationContextAccessor,
             ILogger<CorrelationIdDelegatingHandler> logger)
         {
-            _correlationContextAccessor = correlationContextAccessor;
-            _logger = logger;
+            this.correlationContextAccessor = correlationContextAccessor;
+            this.logger = logger;
         }
+
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (_correlationContextAccessor.CorrelationContext != null)
+            if (this.correlationContextAccessor.CorrelationContext != null)
             {
-                if (!request.Headers.Contains(_correlationContextAccessor.CorrelationContext.Header))
+                if (request != null && !request.Headers.Contains(correlationContextAccessor.CorrelationContext.Header))
                 {
-                    request.Headers.Add(_correlationContextAccessor.CorrelationContext.Header, _correlationContextAccessor.CorrelationContext.CorrelationId);
-                    _logger.Log(LogLevel.Information, $"Added CorrelationID header with name {_correlationContextAccessor.CorrelationContext.Header} and value {_correlationContextAccessor.CorrelationContext.CorrelationId}");
+                    request.Headers.Add(correlationContextAccessor.CorrelationContext.Header, correlationContextAccessor.CorrelationContext.CorrelationId);
+                    logger.Log(LogLevel.Information, $"Added CorrelationID header with name {correlationContextAccessor.CorrelationContext.Header} and value {correlationContextAccessor.CorrelationContext.CorrelationId}");
                 }
             }
 

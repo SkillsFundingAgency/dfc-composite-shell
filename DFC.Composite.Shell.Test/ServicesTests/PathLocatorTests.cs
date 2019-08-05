@@ -9,15 +9,15 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class PathLocatorTests
     {
-        private readonly IPathLocator _urlPathLocator;
-        private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
-        private readonly Mock<ILogger<UrlPathLocator>> _logger;
+        private readonly IPathLocator urlPathLocator;
+        private readonly Mock<IHttpContextAccessor> httpContextAccessor;
+        private readonly Mock<ILogger<UrlPathLocator>> logger;
 
         public PathLocatorTests()
         {
-            _logger = new Mock<ILogger<UrlPathLocator>>();
-            _httpContextAccessor = new Mock<IHttpContextAccessor>();
-            _urlPathLocator = new UrlPathLocator(_httpContextAccessor.Object, _logger.Object);
+            logger = new Mock<ILogger<UrlPathLocator>>();
+            httpContextAccessor = new Mock<IHttpContextAccessor>();
+            urlPathLocator = new UrlPathLocator(httpContextAccessor.Object, logger.Object);
         }
 
         [Fact]
@@ -27,9 +27,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var context = new DefaultHttpContext();
             context.Request.Path = path;
 
-            _httpContextAccessor.Setup(x => x.HttpContext).Returns(context);
-            
-            var actualPath = _urlPathLocator.GetPath();
+            httpContextAccessor.Setup(x => x.HttpContext).Returns(context);
+            var actualPath = urlPathLocator.GetPath();
 
             actualPath.Should().Be("courses");
         }

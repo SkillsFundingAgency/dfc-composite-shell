@@ -2,7 +2,7 @@
 
 namespace DFC.Composite.Shell.Services.UrlRewriter
 {
-    public class UrlRewriter : IUrlRewriter
+    public class UrlRewriterService : IUrlRewriterService
     {
         public string Rewrite(string content, string requestBaseUrl, string applicationRootUrl)
         {

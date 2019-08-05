@@ -9,24 +9,24 @@ namespace DFC.Composite.Shell.ClientHandlers
 {
     public class UserAgentDelegatingHandler : DelegatingHandler
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CorrelationIdDelegatingHandler> _logger;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly ILogger<CorrelationIdDelegatingHandler> logger;
 
         public UserAgentDelegatingHandler(
             IHttpContextAccessor httpContextAccessor,
             ILogger<CorrelationIdDelegatingHandler> logger)
         {
-            _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
+            this.logger = logger;
+            this.httpContextAccessor = httpContextAccessor;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (!request.Headers.Contains(HeaderNames.UserAgent) && _httpContextAccessor.HttpContext != null)
+            if (request != null && (!request.Headers.Contains(HeaderNames.UserAgent) && httpContextAccessor.HttpContext != null))
             {
-                foreach (var item in _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent])
+                foreach (var item in httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent])
                 {
-                    _logger.LogInformation($"Setting UserAgent to {item}");
+                    logger.LogInformation($"Setting UserAgent to {item}");
                     request.Headers.Add(HeaderNames.UserAgent, item);
                 }
             }

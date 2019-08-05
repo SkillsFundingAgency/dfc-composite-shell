@@ -10,25 +10,22 @@ namespace DFC.Composite.Shell.ViewComponents
 {
     public class ShowHelpLinksViewComponent : ViewComponent
     {
-        private readonly ILogger<ShowHelpLinksViewComponent> _logger;
-        private readonly IPathDataService _pathDataService;
+        private readonly ILogger<ShowHelpLinksViewComponent> logger;
+        private readonly IPathDataService pathDataService;
 
         public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathDataService pathDataService)
         {
-            _logger = logger;
-            _pathDataService = pathDataService;
+            this.logger = logger;
+            this.pathDataService = pathDataService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var vm = new ShowHelpLinksViewModel
-            {
-                IsOnline = false
-            };
+            var vm = new ShowHelpLinksViewModel { IsOnline = false };
 
             try
             {
-                var helpPath = await _pathDataService.GetPath("help");
+                var helpPath = await pathDataService.GetPath("help").ConfigureAwait(false);
 
                 if (helpPath != null)
                 {
@@ -38,13 +35,13 @@ namespace DFC.Composite.Shell.ViewComponents
             }
             catch (BrokenCircuitException ex)
             {
-                _logger.LogError(ex, $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}");
+                logger.LogError(ex, $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}");
             }
             catch (Exception ex)
             {
                 var errorString = $"{nameof(ShowHelpLinksViewComponent)}: {ex.Message}";
 
-                _logger.LogError(ex, errorString);
+                logger.LogError(ex, errorString);
 
                 ModelState.AddModelError(string.Empty, errorString);
             }

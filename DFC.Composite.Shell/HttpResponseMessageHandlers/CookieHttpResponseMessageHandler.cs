@@ -8,35 +8,40 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
 {
     /// <summary>
     /// Copies headers from a HttpResponseMessage and adds the to the responses cookies collection
-    /// (ie from a child app to the Shell)
+    /// (ie from a child app to the Shell).
     /// </summary>
     public class CookieHttpResponseMessageHandler : IHttpResponseMessageHandler
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IPrefixCreator _prefixCreator;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IPrefixCreator prefixCreator;
 
         public CookieHttpResponseMessageHandler(IHttpContextAccessor httpContextAccessor, IPrefixCreator prefixCreator)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _prefixCreator = prefixCreator;
+            this.httpContextAccessor = httpContextAccessor;
+            this.prefixCreator = prefixCreator;
         }
 
         public void Process(HttpResponseMessage httpResponseMessage)
         {
-            var prefix = _prefixCreator.Resolve(httpResponseMessage.RequestMessage.RequestUri);
+            if (httpResponseMessage == null)
+            {
+                return;
+            }
+
+            var prefix = prefixCreator.Resolve(httpResponseMessage.RequestMessage.RequestUri);
             foreach (var header in httpResponseMessage.Headers)
             {
-                var headers = _httpContextAccessor.HttpContext.Response.Headers;
+                var headers = httpContextAccessor.HttpContext.Response.Headers;
                 if (IncludeHeader(header.Key))
                 {
                     foreach (var headerValue in header.Value)
                     {
                         var cookieKey = GetKey(prefix, headerValue);
                         var cookieValue = GetValue(headerValue);
-                        _httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKey, cookieValue);
-                        if (!_httpContextAccessor.HttpContext.Items.ContainsKey(cookieKey))
+                        httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKey, cookieValue);
+                        if (!httpContextAccessor.HttpContext.Items.ContainsKey(cookieKey))
                         {
-                            _httpContextAccessor.HttpContext.Items[cookieKey] = cookieValue;
+                            httpContextAccessor.HttpContext.Items[cookieKey] = cookieValue;
                         }
                     }
                 }

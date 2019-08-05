@@ -8,38 +8,38 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class UrlRewriterTests
     {
-        private readonly IUrlRewriter _urlRewriter;
-        private readonly Mock<IPathLocator> _pathLocator;
+        private readonly IUrlRewriterService urlRewriterService;
+        private readonly Mock<IPathLocator> pathLocator;
 
         public UrlRewriterTests()
         {
-            _pathLocator = new Mock<IPathLocator>();
-            _urlRewriter = new UrlRewriter();
+            pathLocator = new Mock<IPathLocator>();
+            urlRewriterService = new UrlRewriterService();
         }
 
         [Fact(Skip = "Waiting for routing to be agreed upon")]
-        public void Should_RewriteRelativeUrls()
+        public void ShouldRewriteRelativeUrls()
         {
             const string RequestBaseUrl = "path1";
             var content = "<a href='edit/1'></a>";
             var processedContentExpected = $"<a href='{RequestBaseUrl}?route=edit/1'></a>";
-            _pathLocator.Setup(x => x.GetPath()).Returns(RequestBaseUrl);
+            pathLocator.Setup(x => x.GetPath()).Returns(RequestBaseUrl);
 
-            var processedContentActual = _urlRewriter.Rewrite(content, RequestBaseUrl, RequestBaseUrl);
+            var processedContentActual = urlRewriterService.Rewrite(content, RequestBaseUrl, RequestBaseUrl);
 
             processedContentActual.Should().Be(processedContentExpected);
         }
 
         [Fact]
-        public void ShouldNot_RewriteAbsoluteUrls()
+        public void ShouldNotRewriteAbsoluteUrls()
         {
             const string RequestBaseUrl = "http://www.google.com";
             var path = "path1";
             var content = $"<a href='{RequestBaseUrl}'></a>";
             var processedContentExpected = content;
-            _pathLocator.Setup(x => x.GetPath()).Returns(path);
+            pathLocator.Setup(x => x.GetPath()).Returns(path);
 
-            var processedContentActual = _urlRewriter.Rewrite(content, RequestBaseUrl, RequestBaseUrl);
+            var processedContentActual = urlRewriterService.Rewrite(content, RequestBaseUrl, RequestBaseUrl);
 
             processedContentActual.Should().Be(processedContentExpected);
         }

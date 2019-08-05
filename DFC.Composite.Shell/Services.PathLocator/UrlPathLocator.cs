@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace DFC.Composite.Shell.Services.PathLocator
 {
     public class UrlPathLocator : IPathLocator
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<UrlPathLocator> _logger;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly ILogger<UrlPathLocator> logger;
 
         public UrlPathLocator(IHttpContextAccessor httpContextAccessor, ILogger<UrlPathLocator> logger)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _logger = logger;
+            this.httpContextAccessor = httpContextAccessor;
+            this.logger = logger;
         }
 
         public string GetPath()
         {
-            var result = _httpContextAccessor.HttpContext.Request.Path.Value.Replace(@"/", string.Empty);
-            _logger.LogDebug($"PathLocator. Request.Path is {_httpContextAccessor.HttpContext.Request.Path.Value} and path is {result}");
+            var result = httpContextAccessor.HttpContext.Request.Path.Value.Replace(@"/", string.Empty, StringComparison.OrdinalIgnoreCase);
+            logger.LogDebug($"PathLocator. Request.Path is {httpContextAccessor.HttpContext.Request.Path.Value} and path is {result}");
             return result;
         }
     }

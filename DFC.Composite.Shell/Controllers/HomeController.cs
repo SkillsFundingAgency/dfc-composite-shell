@@ -1,17 +1,16 @@
-﻿using System.Diagnostics;
-using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
+﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace DFC.Composite.Shell.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(IConfiguration configuration,
-            IVersionedFiles versionedFiles)
-        : base(configuration, versionedFiles) { }
+        public HomeController(IConfiguration configuration, IVersionedFiles versionedFiles) : base(configuration, versionedFiles)
+        {
+        }
 
         public IActionResult Index()
         {

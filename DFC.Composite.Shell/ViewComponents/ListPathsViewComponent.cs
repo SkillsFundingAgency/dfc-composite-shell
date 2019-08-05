@@ -1,21 +1,21 @@
-﻿using System;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Services.Paths;
+﻿using DFC.Composite.Shell.Services.Paths;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
+using System;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents
 {
     public class ListPathsViewComponent : ViewComponent
     {
-        private readonly ILogger<ListPathsViewComponent> _logger;
-        private readonly IPathDataService _pathDataService;
+        private readonly ILogger<ListPathsViewComponent> logger;
+        private readonly IPathDataService pathDataService;
 
         public ListPathsViewComponent(ILogger<ListPathsViewComponent> logger, IPathDataService pathDataService)
         {
-            _logger = logger;
-            _pathDataService = pathDataService;
+            this.logger = logger;
+            this.pathDataService = pathDataService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -24,19 +24,19 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                vm.Paths = await _pathDataService.GetPaths();
+                vm.Paths = await pathDataService.GetPaths().ConfigureAwait(false);
             }
             catch (BrokenCircuitException ex)
             {
                 var errorString = $"{nameof(ListPathsViewComponent)}: BrokenCircuit: {ex.Message}";
 
-                _logger.LogError(ex, errorString);
+                logger.LogError(ex, errorString);
             }
             catch (Exception ex)
             {
                 var errorString = $"{nameof(ListPathsViewComponent)}: {ex.Message}";
 
-                _logger.LogError(ex, errorString);
+                logger.LogError(ex, errorString);
 
                 ModelState.AddModelError(string.Empty, errorString);
             }

@@ -1,37 +1,30 @@
-﻿using System;
+﻿using DFC.Composite.Shell.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Models;
 
 namespace DFC.Composite.Shell.Services.Paths
 {
     public class PathDataService : IPathDataService
     {
-        private readonly IPathService _pathService;
-
-        private IEnumerable<PathModel> _pathModels;
+        private readonly IPathService pathService;
+        private IEnumerable<PathModel> pathModels;
 
         public PathDataService(IPathService pathService)
         {
-            _pathService = pathService;
+            this.pathService = pathService;
         }
 
         public async Task<IEnumerable<PathModel>> GetPaths()
         {
-            if (_pathModels == null)
-            {
-                _pathModels = await _pathService.GetPaths();
-            }
-
-            return _pathModels;
+            return pathModels ?? (pathModels = await pathService.GetPaths().ConfigureAwait(false));
         }
 
         public async Task<PathModel> GetPath(string path)
         {
-            var pathModels = await GetPaths();
+            var paths = await GetPaths().ConfigureAwait(false);
 
-            return pathModels.FirstOrDefault(f => f.Path == path);
+            return paths.FirstOrDefault(f => f.Path == path);
         }
     }
 }
