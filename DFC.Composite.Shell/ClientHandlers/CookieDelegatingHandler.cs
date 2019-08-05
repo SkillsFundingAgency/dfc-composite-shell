@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Services.PrefixCreator;
+﻿using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -17,17 +17,17 @@ namespace DFC.Composite.Shell.ClientHandlers
     public class CookieDelegatingHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IPrefixCreator _prefixCreator;
+        private readonly IPathLocator _pathLocator;
 
-        public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPrefixCreator prefixCreator)
+        public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator)
         {
             _httpContextAccessor = httpContextAccessor;
-            _prefixCreator = prefixCreator;
+            _pathLocator = pathLocator;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var prefix = _prefixCreator.Resolve(request.RequestUri);
+            var prefix = _pathLocator.GetPath();
 
             CopyHeaders(prefix, _httpContextAccessor.HttpContext.Request.Headers, request.Headers);
             CopyHeaders(prefix, _httpContextAccessor.HttpContext.Items, request.Headers);
@@ -110,7 +110,7 @@ namespace DFC.Composite.Shell.ClientHandlers
         }
 
         private bool ShouldAddHeader(string key)
-        {            
+        {
             return key == HeaderNames.Cookie;
         }
 

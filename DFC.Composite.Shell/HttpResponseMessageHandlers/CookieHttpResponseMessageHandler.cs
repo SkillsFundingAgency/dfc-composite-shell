@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Services.PrefixCreator;
+﻿using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
@@ -13,17 +13,17 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
     public class CookieHttpResponseMessageHandler : IHttpResponseMessageHandler
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IPrefixCreator _prefixCreator;
+        private readonly IPathLocator _pathLocator;
 
-        public CookieHttpResponseMessageHandler(IHttpContextAccessor httpContextAccessor, IPrefixCreator prefixCreator)
+        public CookieHttpResponseMessageHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator)
         {
             _httpContextAccessor = httpContextAccessor;
-            _prefixCreator = prefixCreator;
+            _pathLocator = pathLocator;
         }
 
         public void Process(HttpResponseMessage httpResponseMessage)
         {
-            var prefix = _prefixCreator.Resolve(httpResponseMessage.RequestMessage.RequestUri);
+            var prefix = _pathLocator.GetPath();
             foreach (var header in httpResponseMessage.Headers)
             {
                 var headers = _httpContextAccessor.HttpContext.Response.Headers;
