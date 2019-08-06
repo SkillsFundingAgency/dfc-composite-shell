@@ -21,29 +21,26 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
             this.logger = logger;
         }
 
-        public string Path { get; set; }
-
-        public string BearerToken { get; set; }
-
-        public string RobotsURL { get; set; }
-
-        public Task<string> TheTask { get; set; }
-
-        public async Task<string> GetAsync()
+        public async Task<string> GetAsync(ApplicationRobotModel model)
         {
-            var responseTask = await CallHttpClientTxtAsync(RobotsURL).ConfigureAwait(false);
+            if (model == null)
+            {
+                return null;
+            }
+
+            var responseTask = await CallHttpClientTxtAsync(model).ConfigureAwait(false);
             return responseTask?.Data;
         }
 
-        private async Task<Robot> CallHttpClientTxtAsync(string url)
+        private async Task<Robot> CallHttpClientTxtAsync(ApplicationRobotModel model)
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL);
 
-                if (!string.IsNullOrEmpty(BearerToken))
+                if (!string.IsNullOrEmpty(model.BearerToken))
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
                 }
 
                 request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
@@ -57,7 +54,7 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 
                 using (var reader = new StringReader(responseString))
                 {
-                    result.Add(reader.ReadToEnd());
+                    result.Append(reader.ReadToEnd());
                     return result;
                 }
             }

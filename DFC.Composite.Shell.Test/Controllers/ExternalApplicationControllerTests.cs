@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Utilities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +25,9 @@ namespace DFC.Composite.Shell.Test.Controllers
             var logger = new Mock<ILogger<ExternalApplicationController>>();
             var configuration = new Mock<IConfiguration>();
             var versionedFiles = new Mock<IVersionedFiles>();
+            var tokenRetriever = new Mock<IBearerTokenRetriever>();
 
-            controller = new ExternalApplicationController(logger.Object, configuration.Object, applicationService.Object, versionedFiles.Object);
+            controller = new ExternalApplicationController(logger.Object, applicationService.Object);
         }
 
         [Fact]

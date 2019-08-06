@@ -1,6 +1,8 @@
 ﻿using DFC.Composite.Shell.Exceptions;
+using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.BaseUrlService;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,31 +15,37 @@ using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
-    public class ApplicationController : BaseController
+    public class ApplicationController : Controller
     {
         private const string MainRenderViewName = "Application/RenderView";
 
         private readonly IMapper<ApplicationModel, PageViewModel> mapper;
         private readonly ILogger<ApplicationController> logger;
         private readonly IApplicationService applicationService;
+        private readonly IVersionedFiles versionedFiles;
+        private readonly IConfiguration configuration;
+        private readonly IBaseUrlService baseUrlService;
 
         public ApplicationController(
             IMapper<ApplicationModel, PageViewModel> mapper,
             ILogger<ApplicationController> logger,
-            IConfiguration configuration,
             IApplicationService applicationService,
-            IVersionedFiles versionedFiles)
-        : base(configuration, versionedFiles)
+            IVersionedFiles versionedFiles,
+            IConfiguration configuration,
+            IBaseUrlService baseUrlService)
         {
             this.mapper = mapper;
             this.logger = logger;
             this.applicationService = applicationService;
+            this.versionedFiles = versionedFiles;
+            this.configuration = configuration;
+            this.baseUrlService = baseUrlService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Action(ActionGetRequestModel requestViewModel)
         {
-            var viewModel = BuildDefaultPageViewModel();
+            var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
 
             try
             {
@@ -59,7 +67,7 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         mapper.Map(application, viewModel);
 
-                        applicationService.RequestBaseUrl = BaseUrl();
+                        applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
                         await applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, viewModel).ConfigureAwait(false);
 
@@ -88,7 +96,7 @@ namespace DFC.Composite.Shell.Controllers
         [HttpPost]
         public async Task<IActionResult> Action(ActionPostRequestModel requestViewModel)
         {
-            var viewModel = BuildDefaultPageViewModel();
+            var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
 
             try
             {
@@ -109,7 +117,7 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         mapper.Map(application, viewModel);
 
-                        applicationService.RequestBaseUrl = BaseUrl();
+                        applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
                         var formParameters = (from a in requestViewModel.FormCollection
                                               select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();

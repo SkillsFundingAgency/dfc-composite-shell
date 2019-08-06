@@ -1,23 +1,16 @@
 ﻿using DFC.Composite.Shell.Services.Application;
-using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
-    public class ExternalApplicationController : BaseController
+    public class ExternalApplicationController : Controller
     {
         private readonly ILogger<ExternalApplicationController> logger;
         private readonly IApplicationService applicationService;
 
-        public ExternalApplicationController(
-            ILogger<ExternalApplicationController> logger,
-            IConfiguration configuration,
-            IApplicationService applicationService,
-            IVersionedFiles versionedFiles)
-        : base(configuration, versionedFiles)
+        public ExternalApplicationController(ILogger<ExternalApplicationController> logger, IApplicationService applicationService)
         {
             this.logger = logger;
             this.applicationService = applicationService;

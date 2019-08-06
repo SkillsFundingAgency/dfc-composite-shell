@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Models.SitemapModels;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.BaseUrlService;
 using DFC.Composite.Shell.Services.Paths;
-using DFC.Composite.Shell.Utilities;
+using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -14,20 +14,23 @@ using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
-    public class SitemapController : BaseController
+    public class SitemapController : Controller
     {
         private readonly IPathDataService pathDataService;
         private readonly ILogger<SitemapController> logger;
+        private readonly IBearerTokenRetriever bearerTokenRetriever;
+        private readonly IBaseUrlService baseUrlService;
 
         public SitemapController(
             IPathDataService pathDataService,
             ILogger<SitemapController> logger,
-            IConfiguration configuration,
-            IVersionedFiles versionedFiles)
-        : base(configuration, versionedFiles)
+            IBearerTokenRetriever bearerTokenRetriever,
+            IBaseUrlService baseUrlService)
         {
             this.pathDataService = pathDataService;
             this.logger = logger;
+            this.bearerTokenRetriever = bearerTokenRetriever;
+            this.baseUrlService = baseUrlService;
         }
 
         [HttpGet]
@@ -92,7 +95,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
             var applicationSitemapServices = new List<IApplicationSitemapService>();
-            var bearerToken = await GetBearerTokenAsync().ConfigureAwait(false);
+            var bearerToken = User.Identity.IsAuthenticated ? await this.bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
 
             foreach (var path in paths)
             {
@@ -116,7 +119,7 @@ namespace DFC.Composite.Shell.Controllers
 
         private void OutputApplicationsSitemaps(Sitemap sitemap, IList<Models.PathModel> paths, List<IApplicationSitemapService> applicationSitemapServices)
         {
-            string baseUrl = BaseUrl();
+            string baseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
             // get the task results as individual sitemaps and merge into one
             foreach (var applicationSitemapService in applicationSitemapServices)
