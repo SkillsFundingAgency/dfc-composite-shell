@@ -110,7 +110,6 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task<List<ApplicationRobotModel>> CreateApplicationRobotModelTasksAsync(IEnumerable<PathModel> paths)
         {
-            //var bearerToken = await GetBearerTokenAsync().ConfigureAwait(false);
             var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
 
             var applicationRobotModels = new List<ApplicationRobotModel>();
