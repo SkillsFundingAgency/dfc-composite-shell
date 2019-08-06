@@ -26,7 +26,6 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
             var prefix = pathLocator.GetPath();
             foreach (var header in httpResponseMessage?.Headers)
             {
-                var headers = httpContextAccessor.HttpContext.Response.Headers;
                 if (IncludeHeader(header.Key))
                 {
                     foreach (var headerValue in header.Value)
