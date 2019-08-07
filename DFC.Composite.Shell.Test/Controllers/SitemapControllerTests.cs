@@ -2,7 +2,7 @@
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.SitemapModels;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
-using DFC.Composite.Shell.Services.BaseUrlService;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using FakeItEasy;
@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
+using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Net.Mime;
@@ -27,19 +28,20 @@ namespace DFC.Composite.Shell.Test.Controllers
         private const string DummyHost = "dummyHost";
         private const string DummyHomeIndex = "/DummyHomeIndex";
 
-        private readonly SitemapController controller;
-        private readonly ILogger<SitemapController> logger;
-        private readonly HttpContext fakeHttpContext;
-        private readonly IUrlHelper fakeUrlHelper;
-        private readonly IBearerTokenRetriever fakeTokenRetriever;
-        private readonly IApplicationSitemapService fakeSitemapService;
-        private readonly IBaseUrlService baseUrlService;
+        private readonly SitemapController defaultController;
+        private readonly ILogger<SitemapController> defaultLogger;
+        private readonly HttpContext defaultHttpContext;
+        private readonly IUrlHelper defaultUrlHelper;
+        private readonly IBearerTokenRetriever defaultTokenRetriever;
+        private readonly IApplicationSitemapService defaultSitemapService;
+        private readonly IBaseUrlService defaultBaseUrlService;
+        private readonly IPathDataService defaultPathDataService;
 
         public SitemapControllerTests()
         {
-            var pathDataService = A.Fake<IPathDataService>();
-            logger = A.Fake<ILogger<SitemapController>>();
-            baseUrlService = A.Fake<IBaseUrlService>();
+            defaultPathDataService = A.Fake<IPathDataService>();
+            defaultLogger = A.Fake<ILogger<SitemapController>>();
+            defaultBaseUrlService = A.Fake<IBaseUrlService>();
 
             var pathModels = new List<PathModel>
             {
@@ -50,31 +52,31 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            A.CallTo(() => pathDataService.GetPaths()).Returns(pathModels);
+            A.CallTo(() => defaultPathDataService.GetPaths()).Returns(pathModels);
 
             var user = A.Fake<ClaimsPrincipal>();
             A.CallTo(() => user.Identity.IsAuthenticated).Returns(true);
 
-            fakeHttpContext = A.Fake<HttpContext>();
-            fakeHttpContext.Request.Scheme = DummyScheme;
-            fakeHttpContext.Request.Host = new HostString(DummyHost);
+            defaultHttpContext = A.Fake<HttpContext>();
+            defaultHttpContext.Request.Scheme = DummyScheme;
+            defaultHttpContext.Request.Host = new HostString(DummyHost);
 
             var fakeIdentity = new GenericIdentity("User");
             var principal = new GenericPrincipal(fakeIdentity, null);
 
-            A.CallTo(() => fakeHttpContext.User).Returns(principal);
+            A.CallTo(() => defaultHttpContext.User).Returns(principal);
 
-            fakeUrlHelper = A.Fake<IUrlHelper>();
-            A.CallTo(() => fakeUrlHelper.Action(A<UrlActionContext>.Ignored)).Returns(DummyHomeIndex);
+            defaultUrlHelper = A.Fake<IUrlHelper>();
+            A.CallTo(() => defaultUrlHelper.Action(A<UrlActionContext>.Ignored)).Returns(DummyHomeIndex);
 
-            fakeTokenRetriever = A.Fake<IBearerTokenRetriever>();
-            A.CallTo(() => fakeTokenRetriever.GetToken(A<HttpContext>.Ignored)).Returns("SomeToken");
+            defaultTokenRetriever = A.Fake<IBearerTokenRetriever>();
+            A.CallTo(() => defaultTokenRetriever.GetToken(A<HttpContext>.Ignored)).Returns("SomeToken");
 
-            A.CallTo(() => baseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
+            A.CallTo(() => defaultBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
                 .Returns("http://SomeBaseUrl");
 
-            fakeSitemapService = A.Fake<IApplicationSitemapService>();
-            A.CallTo(() => fakeSitemapService.GetAsync(A<ApplicationSitemapModel>.Ignored))
+            defaultSitemapService = A.Fake<IApplicationSitemapService>();
+            A.CallTo(() => defaultSitemapService.GetAsync(A<ApplicationSitemapModel>.Ignored))
                 .Returns(Task.FromResult<IEnumerable<SitemapLocation>>(new List<SitemapLocation>()
                 {
                     new SitemapLocation
@@ -84,20 +86,20 @@ namespace DFC.Composite.Shell.Test.Controllers
                     },
                 }));
 
-            controller = new SitemapController(pathDataService, logger, fakeTokenRetriever, baseUrlService, fakeSitemapService)
+            defaultController = new SitemapController(defaultPathDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, defaultSitemapService)
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = fakeHttpContext,
+                    HttpContext = defaultHttpContext,
                 },
-                Url = fakeUrlHelper,
+                Url = defaultUrlHelper,
             };
         }
 
         [Fact]
         public async Task SitemapControllerReturnsSuccess()
         {
-            var result = await controller.Sitemap().ConfigureAwait(false);
+            var result = await defaultController.Sitemap().ConfigureAwait(false);
 
             Assert.True(!string.IsNullOrEmpty(result.Content) && result.ContentType == MediaTypeNames.Application.Xml);
         }
@@ -105,7 +107,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task SitemapControllerWritesShellSitemapPathsText()
         {
-            var result = await controller.Sitemap().ConfigureAwait(false);
+            var result = await defaultController.Sitemap().ConfigureAwait(false);
 
             Assert.Contains(DummyHomeIndex, result.Content, StringComparison.OrdinalIgnoreCase);
         }
@@ -126,18 +128,18 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             A.CallTo(() => erroroneousPathDataService.GetPaths()).Returns(pathModels);
 
-            var sitemapController = new SitemapController(erroroneousPathDataService, logger, fakeTokenRetriever, baseUrlService, fakeSitemapService)
+            var sitemapController = new SitemapController(erroroneousPathDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, defaultSitemapService)
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = fakeHttpContext,
+                    HttpContext = defaultHttpContext,
                 },
-                Url = fakeUrlHelper,
+                Url = defaultUrlHelper,
             };
 
             await sitemapController.Sitemap().ConfigureAwait(false);
 
-            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
             sitemapController.Dispose();
         }
 
@@ -174,19 +176,41 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
                 .Returns("http://SomeBaseUrl");
 
-            var sitemapController = new SitemapController(shellPathDataService, logger, fakeTokenRetriever, fakeBaseUrlService, applicationSitemapService)
+            var sitemapController = new SitemapController(shellPathDataService, defaultLogger, defaultTokenRetriever, fakeBaseUrlService, applicationSitemapService)
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = fakeHttpContext,
+                    HttpContext = defaultHttpContext,
                 },
-                Url = fakeUrlHelper,
+                Url = defaultUrlHelper,
             };
 
             var result = await sitemapController.Sitemap().ConfigureAwait(false);
             Assert.DoesNotContain(appBaseUrl, result.Content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("http://SomeBaseUrl", result.Content, StringComparison.OrdinalIgnoreCase);
 
+            sitemapController.Dispose();
+        }
+
+        [Fact]
+        public async Task RobotsControllerWhenBrokenCircuitExceptionThrownItIsLogged()
+        {
+            var fakeApplicationService = A.Fake<IApplicationSitemapService>();
+            A.CallTo(() => fakeApplicationService.GetAsync(A<ApplicationSitemapModel>.Ignored))
+                .Throws<BrokenCircuitException>();
+
+            var sitemapController = new SitemapController(defaultPathDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, fakeApplicationService)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultHttpContext,
+                },
+                Url = defaultUrlHelper,
+            };
+
+            await sitemapController.Sitemap().ConfigureAwait(false);
+
+            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
             sitemapController.Dispose();
         }
     }

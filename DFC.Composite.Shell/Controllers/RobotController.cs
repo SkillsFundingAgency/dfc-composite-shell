@@ -1,7 +1,7 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
-using DFC.Composite.Shell.Services.BaseUrlService;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;

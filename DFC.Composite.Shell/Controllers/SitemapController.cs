@@ -1,6 +1,6 @@
 ﻿using DFC.Composite.Shell.Models.SitemapModels;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
-using DFC.Composite.Shell.Services.BaseUrlService;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Mvc;

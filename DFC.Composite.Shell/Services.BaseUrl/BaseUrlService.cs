@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DFC.Composite.Shell.Services.BaseUrlService
+namespace DFC.Composite.Shell.Services.BaseUrl
 {
     public class BaseUrlService : IBaseUrlService
     {

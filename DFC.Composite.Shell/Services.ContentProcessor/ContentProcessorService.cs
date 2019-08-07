@@ -2,11 +2,11 @@
 
 namespace DFC.Composite.Shell.Services.ContentProcessor
 {
-    public class ContentProcessorServiceService : IContentProcessorService
+    public class ContentProcessorService : IContentProcessorService
     {
         private readonly IUrlRewriterService urlRewriterService;
 
-        public ContentProcessorServiceService(IUrlRewriterService urlRewriterService)
+        public ContentProcessorService(IUrlRewriterService urlRewriterService)
         {
             this.urlRewriterService = urlRewriterService;
         }

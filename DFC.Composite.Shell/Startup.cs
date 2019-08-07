@@ -10,7 +10,7 @@ using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AssetLocationAndVersion;
-using DFC.Composite.Shell.Services.BaseUrlService;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Mapping;
@@ -63,7 +63,7 @@ namespace DFC.Composite.Shell
 
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
-            services.AddTransient<IContentProcessorService, ContentProcessorServiceService>();
+            services.AddTransient<IContentProcessorService, ContentProcessorService>();
             services.AddTransient<IHttpResponseMessageHandler, CookieHttpResponseMessageHandler>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();

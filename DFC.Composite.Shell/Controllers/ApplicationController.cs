@@ -2,7 +2,7 @@
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
-using DFC.Composite.Shell.Services.BaseUrlService;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +56,7 @@ namespace DFC.Composite.Shell.Controllers
                     var application = await applicationService.GetApplicationAsync(requestViewModel.Path)
                         .ConfigureAwait(false);
 
-                    if (application == null || application.Path == null)
+                    if (application?.Path == null)
                     {
                         var errorString = $"The path {requestViewModel.Path} is not registered";
 
@@ -78,9 +78,9 @@ namespace DFC.Composite.Shell.Controllers
             }
             catch (RedirectException ex)
             {
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.PathAndQuery} to: {ex.Location?.PathAndQuery}");
 
-                Response.Redirect(ex.Location.PathAndQuery, ex.IsPermenant);
+                Response.Redirect(ex.Location?.PathAndQuery, ex.IsPermenant);
             }
             catch (Exception ex)
             {
@@ -130,9 +130,9 @@ namespace DFC.Composite.Shell.Controllers
             }
             catch (RedirectException ex)
             {
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation.PathAndQuery} to: {ex.Location.PathAndQuery}");
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.PathAndQuery} to: {ex.Location?.PathAndQuery}");
 
-                Response.Redirect(ex.Location.PathAndQuery, true);
+                Response.Redirect(ex.Location?.PathAndQuery, true);
             }
             catch (Exception ex)
             {
