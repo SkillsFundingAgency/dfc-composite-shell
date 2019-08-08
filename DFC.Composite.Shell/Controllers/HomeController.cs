@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -6,15 +7,20 @@ using System.Diagnostics;
 
 namespace DFC.Composite.Shell.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
-        public HomeController(IConfiguration configuration, IVersionedFiles versionedFiles) : base(configuration, versionedFiles)
+        private readonly IVersionedFiles versionedFiles;
+        private readonly IConfiguration configuration;
+
+        public HomeController(IVersionedFiles versionedFiles, IConfiguration configuration)
         {
+            this.versionedFiles = versionedFiles;
+            this.configuration = configuration;
         }
 
         public IActionResult Index()
         {
-            var viewModel = BuildDefaultPageViewModel();
+            var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
 
             viewModel.PageTitle = "Home";
 

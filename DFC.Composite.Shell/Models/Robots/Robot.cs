@@ -13,7 +13,7 @@ namespace DFC.Composite.Shell.Models.Robots
 
         public string Data => robotData.ToString();
 
-        public void Add(string text)
+        public void Append(string text)
         {
             robotData.AppendLine(text);
         }

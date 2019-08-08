@@ -1,12 +1,11 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
-using DFC.Composite.Shell.Utilities;
-using FluentAssertions;
+using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,49 +14,44 @@ namespace DFC.Composite.Shell.Test.Controllers
     public class ExternalApplicationControllerTests
     {
         private const string Path = "path1";
-        private readonly ExternalApplicationController controller;
-        private readonly Mock<IApplicationService> applicationService;
+        private readonly ExternalApplicationController defaultController;
+        private readonly IApplicationService defaultApplicationService;
 
         public ExternalApplicationControllerTests()
         {
-            applicationService = new Mock<IApplicationService>();
-            var logger = new Mock<ILogger<ExternalApplicationController>>();
-            var configuration = new Mock<IConfiguration>();
-            var versionedFiles = new Mock<IVersionedFiles>();
+            var logger = A.Fake<ILogger<ExternalApplicationController>>();
+            defaultApplicationService = A.Fake<IApplicationService>();
 
-            controller = new ExternalApplicationController(logger.Object, configuration.Object, applicationService.Object, versionedFiles.Object);
+            defaultController = new ExternalApplicationController(logger, defaultApplicationService);
         }
 
         [Fact]
         public async Task ShouldRedirectToExternalUrlWhenPathIsExternal()
         {
             const string externalUrl = "http://www.google.com";
-            var app = new ApplicationModel { Path = new PathModel { ExternalURL = externalUrl, Path = Path } };
+            var applicationModel = new ApplicationModel { Path = new PathModel { ExternalURL = externalUrl, Path = Path } };
+            A.CallTo(() => defaultApplicationService.GetApplicationAsync(A<string>.Ignored)).Returns(applicationModel);
 
-            applicationService.Setup(x => x.GetApplicationAsync(Path)).ReturnsAsync(app);
+            var response = await defaultController.Action(Path).ConfigureAwait(false);
 
-            var response = await controller.Action(Path).ConfigureAwait(false);
-            response.Should().BeOfType<RedirectResult>();
-
-            var typedResponse = response as RedirectResult;
-            typedResponse?.Url.Should().Be(externalUrl);
+            var result = Assert.IsAssignableFrom<RedirectResult>(response);
+            Assert.Equal(result?.Url, externalUrl);
         }
 
         [Fact]
         public async Task ShouldRedirectToAppicationControllerWhenPathIsNotExternal()
         {
-            var app = new ApplicationModel { Path = new PathModel { Path = Path } };
+            var applicationModel = new ApplicationModel { Path = new PathModel { Path = Path } };
+            A.CallTo(() => defaultApplicationService.GetApplicationAsync(A<string>.Ignored)).Returns(applicationModel);
 
-            applicationService.Setup(x => x.GetApplicationAsync(Path)).ReturnsAsync(app);
+            var response = await defaultController.Action(Path).ConfigureAwait(false);
 
-            var response = await controller.Action(Path).ConfigureAwait(false);
-            response.Should().BeOfType<RedirectToActionResult>();
-
-            var typedResponse = response as RedirectToActionResult;
-            typedResponse?.ControllerName.Should().Be("application");
-            typedResponse?.ActionName.Should().Be("action");
-            typedResponse?.RouteValues.Keys.Should().HaveElementAt(0, "path");
-            typedResponse?.RouteValues.Values.Should().HaveElementAt(0, Path);
+            Assert.IsType<RedirectToActionResult>(response);
+            var result = Assert.IsAssignableFrom<RedirectToActionResult>(response);
+            Assert.True(result.ControllerName.Equals("application", StringComparison.OrdinalIgnoreCase)
+                && result.ActionName.Equals("action", StringComparison.OrdinalIgnoreCase)
+                && result.RouteValues.Keys.First().Equals("path", StringComparison.OrdinalIgnoreCase)
+                && result.RouteValues.Values.First().ToString().Equals(Path, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

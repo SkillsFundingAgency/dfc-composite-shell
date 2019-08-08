@@ -10,12 +10,15 @@ using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AssetLocationAndVersion;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
+using DFC.Composite.Shell.Services.ShellRobotFile;
+using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Builder;
@@ -59,7 +62,7 @@ namespace DFC.Composite.Shell
 
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
-            services.AddTransient<IContentProcessorService, ContentProcessorServiceService>();
+            services.AddTransient<IContentProcessorService, ContentProcessorService>();
             services.AddTransient<IHttpResponseMessageHandler, CookieHttpResponseMessageHandler>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
@@ -73,6 +76,9 @@ namespace DFC.Composite.Shell
             services.AddScoped<IPathDataService, PathDataService>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
+            services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
+            services.AddSingleton<IShellRobotFileService, ShellRobotFileService>();
+            services.AddSingleton<IBaseUrlService, BaseUrlService>();
 
             var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
             var policyRegistry = services.AddPolicyRegistry();

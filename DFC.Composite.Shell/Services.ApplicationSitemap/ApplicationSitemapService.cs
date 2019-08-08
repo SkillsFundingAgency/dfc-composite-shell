@@ -24,30 +24,26 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
             this.logger = logger;
         }
 
-        public string Path { get; set; }
-
-        public string BearerToken { get; set; }
-
-        public string SitemapUrl { get; set; }
-
-        public Task<IEnumerable<SitemapLocation>> TheTask { get; set; }
-
-        public async Task<IEnumerable<SitemapLocation>> GetAsync()
+        public async Task<IEnumerable<SitemapLocation>> GetAsync(ApplicationSitemapModel model)
         {
-            var data = await CallHttpClientXmlAsync<Sitemap>(SitemapUrl).ConfigureAwait(false);
+            if (model == null)
+            {
+                return null;
+            }
 
-            return data?.Locations;
+            var responseTask = await CallHttpClientXmlAsync<Sitemap>(model).ConfigureAwait(false);
+            return responseTask?.Locations;
         }
 
-        private async Task<T> CallHttpClientXmlAsync<T>(string url)
+        private async Task<T> CallHttpClientXmlAsync<T>(ApplicationSitemapModel model)
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl);
 
-                if (!string.IsNullOrEmpty(BearerToken))
+                if (!string.IsNullOrEmpty(model.BearerToken))
                 {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", BearerToken);
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
                 }
 
                 request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
