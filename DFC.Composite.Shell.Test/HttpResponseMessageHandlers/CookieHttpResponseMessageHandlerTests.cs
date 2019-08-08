@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
+using DFC.Composite.Shell.Services.CookieParsers;
 using DFC.Composite.Shell.Services.PathLocator;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -14,15 +15,17 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
     {
         private IPathLocator pathLocator;
         private IHttpContextAccessor httpContextAccessor;
+        private ISetCookieParser setCookieParser;
         private CookieHttpResponseMessageHandler cookieHttpResponseMessageHandler;
 
         public CookieHttpResponseMessageHandlerTests()
         {
             pathLocator = A.Fake<IPathLocator>();
             httpContextAccessor = A.Fake<IHttpContextAccessor>();
+            setCookieParser = new SetCookieParser();
             httpContextAccessor.HttpContext = new DefaultHttpContext();
 
-            cookieHttpResponseMessageHandler = new CookieHttpResponseMessageHandler(httpContextAccessor, pathLocator);
+            cookieHttpResponseMessageHandler = new CookieHttpResponseMessageHandler(httpContextAccessor, pathLocator, setCookieParser);
         }
 
         [Fact]

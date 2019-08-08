@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Services.PathLocator;
+﻿using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
@@ -14,50 +15,32 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
     {
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IPathLocator pathLocator;
+        private readonly ISetCookieParser setCookieParser;
 
-        public CookieHttpResponseMessageHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator)
+        public CookieHttpResponseMessageHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator, ISetCookieParser setCookieParser)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.pathLocator = pathLocator;
+            this.setCookieParser = setCookieParser;
         }
 
         public void Process(HttpResponseMessage httpResponseMessage)
         {
             var prefix = pathLocator.GetPath();
-            foreach (var header in httpResponseMessage?.Headers)
+            foreach (var header in httpResponseMessage?.Headers.Where(x => x.Key == HeaderNames.SetCookie))
             {
-                if (IncludeHeader(header.Key))
+                foreach (var headerValue in header.Value)
                 {
-                    foreach (var headerValue in header.Value)
+                    var cookieSettings = setCookieParser.Parse(headerValue);
+                    var cookieKeyWithPrefix = string.Concat(prefix, cookieSettings.Key);
+                    httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKeyWithPrefix, cookieSettings.Value, cookieSettings.CookieOptions);
+                    if (!httpContextAccessor.HttpContext.Items.ContainsKey(cookieKeyWithPrefix))
                     {
-                        var cookieKey = GetKey(prefix, headerValue);
-                        var cookieValue = GetValue(headerValue);
-                        httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKey, cookieValue);
-                        if (!httpContextAccessor.HttpContext.Items.ContainsKey(cookieKey))
-                        {
-                            httpContextAccessor.HttpContext.Items[cookieKey] = cookieValue;
-                        }
+                        httpContextAccessor.HttpContext.Items[cookieKeyWithPrefix] = cookieSettings.Value;
                     }
                 }
             }
         }
 
-        private string GetKey(string prefix, string headerValue)
-        {
-            var cookieKey = headerValue.Split('=').FirstOrDefault();
-            var result = $"{prefix}{cookieKey}";
-            return result;
-        }
-
-        private string GetValue(string headerValue)
-        {
-            var result = headerValue.Split(';').First().Split('=').LastOrDefault();
-            return result;
-        }
-
-        private bool IncludeHeader(string key)
-        {
-            return key == HeaderNames.SetCookie;
-        }
     }
 }
