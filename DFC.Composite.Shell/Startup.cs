@@ -13,6 +13,7 @@ using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieve;
+using DFC.Composite.Shell.Services.CookieParsers;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
@@ -66,6 +67,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IHttpResponseMessageHandler, CookieHttpResponseMessageHandler>();
             services.AddTransient<ILoggerHelper, LoggerHelper>();
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
+            services.AddTransient<ISetCookieParser, SetCookieParser>();
             services.AddTransient<IUrlRewriterService, UrlRewriterService>();
 
             services.AddTransient<CookieDelegatingHandler>();
