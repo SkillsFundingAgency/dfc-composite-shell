@@ -48,7 +48,10 @@
         "AppServicePlanResourceGroup": "[if(greater(length(parameters('SharedAppServicePlanResourceGroup')), 0), parameters('SharedAppServicePlanResourceGroup'), resourceGroup().name)]",
         "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
         "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
-        "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]"
+        "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]",
+        "IsDraftEnvironment": "[endsWith(toLower(parameters('Environment')), '-draft')]",
+        "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
+        "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]"
     },
     "resources": [
         {
@@ -162,7 +165,7 @@
                             },
                             {
                                 "name": "PathClientOptions__BaseAddress",
-                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths/')]"
+                                "value": "[variables('CompositePathUrl')]"
                             },
                             {
                                 "name": "PathClientOptions__Timeout",
@@ -186,7 +189,7 @@
                             },
                              {
                                 "name": "RegionClientOptions__BaseAddress",
-                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions/')]"
+                                "value": "[variables('CompositeRegionUrl')]"
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
