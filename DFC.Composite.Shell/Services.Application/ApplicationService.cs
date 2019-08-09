@@ -183,7 +183,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
 
             var uri = new Uri(bodyRegion.RegionEndpoint);
-            var url = $"{uri.Scheme}://{uri.Authority}/{article}";
+            var url = $"{uri.Scheme}://{uri.Authority}/{application.Path.Path}/{article}";
 
             var result = contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
 
