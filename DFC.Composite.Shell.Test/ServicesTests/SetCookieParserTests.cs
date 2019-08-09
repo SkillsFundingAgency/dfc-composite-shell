@@ -16,7 +16,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public void CanParseAll()
         {
-            var setCookieValue = "AspNetCore.Session=CfDJ8FZO5gtnlm1PljkZVn4PRhHdTy%2BGI4kAZdel9FFlyqlGlmUqangpRTzJpWMJ6Sz6QL9ESgnO%2FunS%2B0pT7DGdMcijgo8xIcYGk4ZmKCYD%2Fp1RzXEO6yzslVp8yYu43d2%2FXqKA1U93jjpXFSLgV5eYUlSKK4PyZ0MAvo5xEboZdRsT; max-age=86400; path=/; samesite=lax; httponly";
+            var setCookieValue = "AspNetCore.Session=CfDJ8FZO5gtnlm1PljkZVn4PRhHdTy%2BGI4kAZdel9FFlyqlGlmUqangpRTzJpWMJ6Sz6QL9ESgnO%2FunS%2B0pT7DGdMcijgo8xIcYGk4ZmKCYD%2Fp1RzXEO6yzslVp8yYu43d2%2FXqKA1U93jjpXFSLgV5eYUlSKK4PyZ0MAvo5xEboZdRsT; max-age=86400; path=/; samesite=lax; secure; httponly";
 
             var cookieSettings = setCookieParser.Parse(setCookieValue);
 
@@ -26,6 +26,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             Assert.Equal(SameSiteMode.Lax, cookieSettings.CookieOptions.SameSite);
             Assert.True(cookieSettings.CookieOptions.HttpOnly);
             Assert.Equal(86400, cookieSettings.CookieOptions.MaxAge.Value.TotalSeconds);
+            Assert.True(cookieSettings.CookieOptions.Secure);
         }
 
         [Fact]

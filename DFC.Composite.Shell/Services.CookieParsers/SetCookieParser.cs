@@ -8,6 +8,7 @@ namespace DFC.Composite.Shell.Services.CookieParsers
     {
         private const string Path = "path";
         private const string HttpOnly = "httponly";
+        private const string Secure = "secure";
         private const string SameSite = "samesite";
         private const string Strict = "strict";
         private const string Lax = "lax";
@@ -33,6 +34,7 @@ namespace DFC.Composite.Shell.Services.CookieParsers
                         ParsePath(result.CookieOptions, dataSegments);
                         ParseSameSiteMode(result.CookieOptions, dataSegments);
                         ParseHttpOnly(result.CookieOptions, dataSegments);
+                        ParseSecure(result.CookieOptions, dataSegments);
                         ParseMaxAge(result.CookieOptions, dataSegments);
                     }
                 }
@@ -92,7 +94,12 @@ namespace DFC.Composite.Shell.Services.CookieParsers
 
         private void ParseHttpOnly(CookieOptions cookieOptions, string[] dataSegments)
         {
-            cookieOptions.HttpOnly = dataSegments.Any(x => x.StartsWith(HttpOnly, StringComparison.OrdinalIgnoreCase));
+            cookieOptions.HttpOnly = dataSegments.Any(x => x == HttpOnly);
+        }
+
+        private void ParseSecure(CookieOptions cookieOptions, string[] dataSegments)
+        {
+            cookieOptions.Secure = dataSegments.Any(x => x == Secure);
         }
 
         private void ParseMaxAge(CookieOptions cookieOptions, string[] dataSegments)
