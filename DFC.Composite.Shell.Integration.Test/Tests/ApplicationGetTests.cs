@@ -6,7 +6,6 @@ using DFC.Composite.Shell.Services.Regions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;

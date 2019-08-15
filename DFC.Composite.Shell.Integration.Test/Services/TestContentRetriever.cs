@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.ContentRetrieve;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Integration.Test.Services
@@ -24,7 +25,9 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 "POST", seperator,
                 url, seperator,
                 regionModel.Path, seperator,
-                regionModel.PageRegion.ToString()));
+                regionModel.PageRegion.ToString(), seperator,
+                string.Join(", ", formParameters.Select(x => string.Concat(x.Key, "=", x.Value)))
+            ));
         }
     }
 }
