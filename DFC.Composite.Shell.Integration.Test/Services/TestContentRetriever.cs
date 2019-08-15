@@ -8,26 +8,30 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 {
     public class TestContentRetriever : IContentRetriever
     {
+        private const string Seperator = ", ";
+
         public Task<string> GetContent(string url, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
-            var seperator = ", ";
-            return Task.FromResult(string.Concat(
-                "GET", seperator,
-                url, seperator,
-                regionModel.Path, seperator,
+            return Task.FromResult(Concat(
+                "GET",
+                url,
+                regionModel.Path,
                 regionModel.PageRegion.ToString()));
         }
 
         public Task<string> PostContent(string url, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
-            var seperator = ", ";
-            return Task.FromResult(string.Concat(
-                "POST", seperator,
-                url, seperator,
-                regionModel.Path, seperator,
-                regionModel.PageRegion.ToString(), seperator,
+            return Task.FromResult(Concat("POST",
+                url,
+                regionModel.Path,
+                regionModel.PageRegion.ToString(),
                 string.Join(", ", formParameters.Select(x => string.Concat(x.Key, "=", x.Value)))
             ));
+        }
+
+        private string Concat(params string[] values)
+        {
+            return string.Join(Seperator, values);
         }
     }
 }
