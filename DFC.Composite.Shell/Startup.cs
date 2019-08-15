@@ -161,8 +161,8 @@ namespace DFC.Composite.Shell
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute("CatchAll.Get", "{*url}", new { controller = "CatchAll", action = "Get" });
-                routes.MapRoute("CatchAll.Post", "{*url}", new { controller = "CatchAll", action = "Post" });
+                routes.MapRoute("Application.Get", "{path}/{**data}", new { controller = "Application", action = "Action" });
+                routes.MapRoute("Application.Post", "{path}/{**data}", new { controller = "Application", action = "Action" });
             });
         }
     }

@@ -14,7 +14,7 @@ namespace DFC.Composite.Shell.Integration.Test.Tests
         }
 
         [Fact]
-        public async Task Robots_ReturnsContent()
+        public async Task Should_ReturnValidContent()
         {
             var client = _factory.CreateClient();
 
