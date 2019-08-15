@@ -8,6 +8,8 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseApplicationInsights();
+
             builder.ConfigureServices(services =>
             {
                 var serviceProvider = new ServiceCollection()
