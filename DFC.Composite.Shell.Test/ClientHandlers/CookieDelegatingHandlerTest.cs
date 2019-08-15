@@ -47,7 +47,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
-            var result = await invoker.SendAsync(httpRequestChildMessage, new CancellationToken());
+            var result = await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -56,6 +56,8 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             var headerValue = httpRequestChildMessage.Headers.First().Value;
             Assert.Equal("v1=value1", headerValue.First());
             Assert.Equal("v2=value2", headerValue.Last());
+            httpRequestChildMessage.Dispose();
+            invoker.Dispose();
         }
     }
 }

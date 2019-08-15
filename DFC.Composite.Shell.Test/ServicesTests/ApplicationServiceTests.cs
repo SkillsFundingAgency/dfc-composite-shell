@@ -1,8 +1,7 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ContentProcessor;
-using DFC.Composite.Shell.Services.ContentRetrieve;
+using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;

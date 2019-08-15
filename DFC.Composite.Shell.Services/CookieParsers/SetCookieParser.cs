@@ -43,6 +43,19 @@ namespace DFC.Composite.Shell.Services.CookieParsers
             return result;
         }
 
+        private static string ParseValue(string[] segments, string segmentName)
+        {
+            var result = string.Empty;
+            var matchingSegment = segments.FirstOrDefault(x => x.StartsWith(segmentName, StringComparison.OrdinalIgnoreCase));
+            if (matchingSegment != null)
+            {
+                var keyValuePair = matchingSegment.Split('=');
+                result = keyValuePair.Last();
+            }
+
+            return result;
+        }
+
         private void TrimSegments(string[] dataSegments)
         {
             for (var i = 0; i < dataSegments.Length; i++)
@@ -81,9 +94,11 @@ namespace DFC.Composite.Shell.Services.CookieParsers
                 case Lax:
                     result = SameSiteMode.Lax;
                     break;
+
                 case None:
                     result = SameSiteMode.None;
                     break;
+
                 case Strict:
                     result = SameSiteMode.Strict;
                     break;
@@ -109,19 +124,6 @@ namespace DFC.Composite.Shell.Services.CookieParsers
             {
                 cookieOptions.MaxAge = TimeSpan.FromSeconds(maxAge);
             }
-        }
-
-        private string ParseValue(string[] segments, string segmentName)
-        {
-            var result = string.Empty;
-            var matchingSegment = segments.FirstOrDefault(x => x.StartsWith(segmentName, StringComparison.OrdinalIgnoreCase));
-            if (matchingSegment != null)
-            {
-                var keyValuePair = matchingSegment.Split('=');
-                result = keyValuePair.Last();
-            }
-
-            return result;
         }
     }
 }

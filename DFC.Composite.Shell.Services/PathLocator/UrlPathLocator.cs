@@ -31,7 +31,7 @@ namespace DFC.Composite.Shell.Services.PathLocator
 
             if (!string.IsNullOrWhiteSpace(result))
             {
-                result = result.ToLower();
+                result = result.ToLowerInvariant();
             }
 
             logger.LogDebug($"PathLocator. Request.Path is {httpContextAccessor.HttpContext.Request.Path.Value} and located path is {result}");

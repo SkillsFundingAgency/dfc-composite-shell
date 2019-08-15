@@ -2,6 +2,7 @@
 using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;

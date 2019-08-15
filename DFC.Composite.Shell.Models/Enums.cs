@@ -1,4 +1,4 @@
-﻿namespace DFC.Composite.Shell.Common
+﻿namespace DFC.Composite.Shell.Models
 {
     public enum PageLayout
     {

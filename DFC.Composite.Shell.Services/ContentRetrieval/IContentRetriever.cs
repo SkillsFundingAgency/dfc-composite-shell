@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DFC.Composite.Shell.Services.ContentRetrieve
+namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
     public interface IContentRetriever
     {

@@ -1,5 +1,4 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;

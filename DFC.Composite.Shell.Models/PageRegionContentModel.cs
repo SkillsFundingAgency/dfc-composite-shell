@@ -1,5 +1,4 @@
-﻿using DFC.Composite.Shell.Common;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 
 namespace DFC.Composite.Shell.Models
 {

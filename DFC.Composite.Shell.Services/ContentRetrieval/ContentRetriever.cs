@@ -1,8 +1,7 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Exceptions;
-using DFC.Composite.Shell.Extensions;
-using DFC.Composite.Shell.HttpResponseMessageHandlers;
+﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.Exceptions;
+using DFC.Composite.Shell.Services.Extensions;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
@@ -12,7 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace DFC.Composite.Shell.Services.ContentRetrieve
+namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
     public class ContentRetriever : IContentRetriever
     {

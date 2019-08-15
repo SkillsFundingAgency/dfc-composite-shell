@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 
-namespace DFC.Composite.Shell.Extensions
+namespace DFC.Composite.Shell.Services.Extensions
 {
     public static class HttpResponseMessageExtensions
     {

@@ -1,5 +1,4 @@
-﻿using DFC.Composite.Shell.Common;
-using System;
+﻿using System;
 
 namespace DFC.Composite.Shell.Models
 {

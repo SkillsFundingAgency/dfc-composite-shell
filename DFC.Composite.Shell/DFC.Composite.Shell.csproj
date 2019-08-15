@@ -9,6 +9,89 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Exceptions\**" />
+    <Compile Remove="HttpResponseMessageHandlers\**" />
+    <Compile Remove="Models\**" />
+    <Compile Remove="Services.ApplicationRobot\**" />
+    <Compile Remove="Services.ApplicationSitemap\**" />
+    <Compile Remove="Services.Application\**" />
+    <Compile Remove="Services.AssetLocationAndVersion\**" />
+    <Compile Remove="Services.BaseUrl\**" />
+    <Compile Remove="Services.ContentProcessor\**" />
+    <Compile Remove="Services.ContentRetrieve\**" />
+    <Compile Remove="Services.CookieParsers\**" />
+    <Compile Remove="Services.Mapping\**" />
+    <Compile Remove="Services.PathLocator\**" />
+    <Compile Remove="Services.Paths\**" />
+    <Compile Remove="Services.Regions\**" />
+    <Compile Remove="Services.ShellRobotFile\**" />
+    <Compile Remove="Services.TokenRetriever\**" />
+    <Compile Remove="Services.UrlRewriter\**" />
+    <Compile Remove="Utilities\**" />
+    <Content Remove="Exceptions\**" />
+    <Content Remove="HttpResponseMessageHandlers\**" />
+    <Content Remove="Models\**" />
+    <Content Remove="Services.ApplicationRobot\**" />
+    <Content Remove="Services.ApplicationSitemap\**" />
+    <Content Remove="Services.Application\**" />
+    <Content Remove="Services.AssetLocationAndVersion\**" />
+    <Content Remove="Services.BaseUrl\**" />
+    <Content Remove="Services.ContentProcessor\**" />
+    <Content Remove="Services.ContentRetrieve\**" />
+    <Content Remove="Services.CookieParsers\**" />
+    <Content Remove="Services.Mapping\**" />
+    <Content Remove="Services.PathLocator\**" />
+    <Content Remove="Services.Paths\**" />
+    <Content Remove="Services.Regions\**" />
+    <Content Remove="Services.ShellRobotFile\**" />
+    <Content Remove="Services.TokenRetriever\**" />
+    <Content Remove="Services.UrlRewriter\**" />
+    <Content Remove="Utilities\**" />
+    <EmbeddedResource Remove="Exceptions\**" />
+    <EmbeddedResource Remove="HttpResponseMessageHandlers\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="Services.ApplicationRobot\**" />
+    <EmbeddedResource Remove="Services.ApplicationSitemap\**" />
+    <EmbeddedResource Remove="Services.Application\**" />
+    <EmbeddedResource Remove="Services.AssetLocationAndVersion\**" />
+    <EmbeddedResource Remove="Services.BaseUrl\**" />
+    <EmbeddedResource Remove="Services.ContentProcessor\**" />
+    <EmbeddedResource Remove="Services.ContentRetrieve\**" />
+    <EmbeddedResource Remove="Services.CookieParsers\**" />
+    <EmbeddedResource Remove="Services.Mapping\**" />
+    <EmbeddedResource Remove="Services.PathLocator\**" />
+    <EmbeddedResource Remove="Services.Paths\**" />
+    <EmbeddedResource Remove="Services.Regions\**" />
+    <EmbeddedResource Remove="Services.ShellRobotFile\**" />
+    <EmbeddedResource Remove="Services.TokenRetriever\**" />
+    <EmbeddedResource Remove="Services.UrlRewriter\**" />
+    <EmbeddedResource Remove="Utilities\**" />
+    <None Remove="Exceptions\**" />
+    <None Remove="HttpResponseMessageHandlers\**" />
+    <None Remove="Models\**" />
+    <None Remove="Services.ApplicationRobot\**" />
+    <None Remove="Services.ApplicationSitemap\**" />
+    <None Remove="Services.Application\**" />
+    <None Remove="Services.AssetLocationAndVersion\**" />
+    <None Remove="Services.BaseUrl\**" />
+    <None Remove="Services.ContentProcessor\**" />
+    <None Remove="Services.ContentRetrieve\**" />
+    <None Remove="Services.CookieParsers\**" />
+    <None Remove="Services.Mapping\**" />
+    <None Remove="Services.PathLocator\**" />
+    <None Remove="Services.Paths\**" />
+    <None Remove="Services.Regions\**" />
+    <None Remove="Services.ShellRobotFile\**" />
+    <None Remove="Services.TokenRetriever\**" />
+    <None Remove="Services.UrlRewriter\**" />
+    <None Remove="Utilities\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Extensions\HttpResponseMessageExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CorrelationId" Version="2.1.0" />
     <PackageReference Include="DFC.Common.Standard" Version="0.1.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.4" />
@@ -33,5 +116,8 @@
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="..\stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DFC.Composite.Shell.Services\DFC.Composite.Shell.Services.csproj" />
   </ItemGroup>
 </Project>

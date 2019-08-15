@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.Common;
 using Microsoft.AspNetCore.Html;
 using System.Linq;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DFC.Composite.Shell.Exceptions
+namespace DFC.Composite.Shell.Models.Exceptions
 {
     public class RedirectException : Exception
     {

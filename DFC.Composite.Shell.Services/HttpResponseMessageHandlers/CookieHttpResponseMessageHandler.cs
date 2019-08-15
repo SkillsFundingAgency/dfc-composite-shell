@@ -41,6 +41,5 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
                 }
             }
         }
-
     }
 }
