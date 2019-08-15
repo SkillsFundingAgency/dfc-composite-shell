@@ -32,6 +32,16 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 TopNavigationText = "Path2"
             });
 
+            paths.Add(new PathModel()
+            {
+                Path = "externalpath1",
+                ExternalURL = "http://www.externalpath1.com",
+                DocumentId = Guid.NewGuid(),
+                IsOnline = true,
+                Layout = Common.PageLayout.None,
+                TopNavigationOrder = 3
+            });
+
             return await Task.FromResult(paths);
         }
     }

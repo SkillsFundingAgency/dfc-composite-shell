@@ -23,7 +23,11 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
 
         public HttpClient CreateClientWithWebHostBuilder()
         {
-            return WithWebHostBuilder(x => x.RegisterServices()).CreateClient();
+            return WithWebHostBuilder(x =>
+            {
+                x.RegisterServices();
+
+            }).CreateClient();
         }
     }
 }
