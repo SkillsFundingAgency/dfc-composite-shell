@@ -28,10 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DFC.Composite.Shell
 {
@@ -162,7 +159,6 @@ namespace DFC.Composite.Shell
                     template: "{controller=Home}/{action=Index}/{id?}");
 
                 routes.MapRoute("Application.Get", "{path}/{**data}", new { controller = "Application", action = "Action" });
-                routes.MapRoute("Application.Post", "{path}/{**data}", new { controller = "Application", action = "Action" });
             });
         }
     }
