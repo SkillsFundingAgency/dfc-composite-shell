@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Framework;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -22,6 +23,7 @@ namespace DFC.Composite.Shell.Integration.Test
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync();
+            Assert.Equal(MediaTypeNames.Application.Xml, response.Content.Headers.ContentType.MediaType);
             Assert.True(responseHtml.Contains("<urlset") && responseHtml.Contains("<url>"));
         }
     }

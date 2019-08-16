@@ -16,7 +16,7 @@ namespace DFC.Composite.Shell.Integration.Test
         }
 
         [Fact]
-        public async Task When_ShellSendsPostData_ItsSendToRegisteredApplication()
+        public async Task When_ShellSendsPostData_ItsSendItToRegisteredApplication()
         {
             var path = "path1";
             var shellUrl = string.Concat(path, "/edit?id=1");
