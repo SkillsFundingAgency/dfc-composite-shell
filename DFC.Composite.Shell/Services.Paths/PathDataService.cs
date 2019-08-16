@@ -25,7 +25,7 @@ namespace DFC.Composite.Shell.Services.Paths
         {
             var paths = await GetPaths().ConfigureAwait(false);
 
-            return paths.FirstOrDefault(f => f.Path.ToLower(CultureInfo.CurrentCulture) == path.ToLower(CultureInfo.CurrentCulture));
+            return paths.FirstOrDefault(f => f.Path.ToUpperInvariant() == path.ToUpperInvariant());
         }
     }
 }
