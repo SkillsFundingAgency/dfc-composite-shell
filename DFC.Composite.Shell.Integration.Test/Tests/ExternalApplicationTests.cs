@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DFC.Composite.Shell.Integration.Test.Tests
+namespace DFC.Composite.Shell.Integration.Test
 {
     public class ExternalApplicationTests : IClassFixture<ShellTestWebApplicationFactory<Startup>>
     {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DFC.Composite.Shell.Integration.Test.Tests
+namespace DFC.Composite.Shell.Integration.Test
 {
     public class RobotsTests : IClassFixture<ShellTestWebApplicationFactory<Startup>>
     {

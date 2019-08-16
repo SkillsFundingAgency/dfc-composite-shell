@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Models;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,7 +25,7 @@ namespace DFC.Composite.Shell.Services.Paths
         {
             var paths = await GetPaths().ConfigureAwait(false);
 
-            return paths.FirstOrDefault(f => f.Path == path);
+            return paths.FirstOrDefault(f => f.Path.ToLower(CultureInfo.CurrentCulture) == path.ToLower(CultureInfo.CurrentCulture));
         }
     }
 }
