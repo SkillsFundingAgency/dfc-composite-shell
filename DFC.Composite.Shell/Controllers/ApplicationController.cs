@@ -63,6 +63,12 @@ namespace DFC.Composite.Shell.Controllers
                         ModelState.AddModelError(string.Empty, errorString);
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
                     }
+                    else if (!string.IsNullOrEmpty(application.Path.ExternalURL))
+                    {
+                        logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestViewModel.Path}");
+
+                        return Redirect(application.Path.ExternalURL);
+                    }
                     else
                     {
                         mapper.Map(application, viewModel);

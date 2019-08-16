@@ -9,15 +9,18 @@ namespace DFC.Composite.Shell
     {
         public static void Main(string[] args)
         {
-            WebHost.CreateDefaultBuilder(args)
+            CreateWebHostBuilder(args)
                    .UseApplicationInsights()
                    .ConfigureLogging((webHostBuilderContext, loggingBuilder) =>
                    {
                        loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Trace);
                    })
-                   .UseStartup<Startup>()
                    .Build()
                    .Run();
         }
+
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
     }
 }

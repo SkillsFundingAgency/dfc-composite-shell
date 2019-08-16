@@ -28,10 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DFC.Composite.Shell
 {
@@ -112,7 +109,7 @@ namespace DFC.Composite.Shell
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IPathDataService pathDataService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseCorrelationId(new CorrelationIdOptions
             {
@@ -137,49 +134,13 @@ namespace DFC.Composite.Shell
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            ConfigureRouting(app, pathDataService, logger, loggerHelper);
+            ConfigureRouting(app);
         }
 
-        private void ConfigureRouting(IApplicationBuilder app, IPathDataService pathDataService, ILogger<Startup> logger, ILoggerHelper loggerHelper)
+        private void ConfigureRouting(IApplicationBuilder app)
         {
-            IEnumerable<PathModel> paths = new List<PathModel>();
-
-            try
-            {
-                paths = pathDataService?.GetPaths().Result;
-                Log(logger, loggerHelper, $"Registering routes for the following paths: {string.Join(",", paths.Select(x => x.Path))}");
-            }
-            catch (Exception ex)
-            {
-                loggerHelper?.LogException(logger, correlationId, ex);
-            }
-
             app.UseMvc(routes =>
             {
-                if (paths != null)
-                {
-                    // map any incoming routes for each path
-                    foreach (var path in paths)
-                    {
-                        var isExternalPath = !string.IsNullOrWhiteSpace(path.ExternalURL);
-
-                        if (isExternalPath)
-                        {
-                            routes.MapRoute(
-                                name: $"externalPath-{path.Path}-Action",
-                                template: path.Path + "/{**data}",
-                                defaults: new { controller = "ExternalApplication", action = "Action", path.Path });
-                        }
-                        else
-                        {
-                            routes.MapRoute(
-                                name: $"path-{path.Path}-Action",
-                                template: path.Path + "/{**data}",
-                                defaults: new { controller = "Application", action = "Action", path.Path });
-                        }
-                    }
-                }
-
                 // add the site map route
                 routes.MapRoute(
                     name: "Sitemap",
@@ -196,12 +157,9 @@ namespace DFC.Composite.Shell
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
-            });
-        }
 
-        private void Log(ILogger<Startup> logger, ILoggerHelper loggerHelper, string message)
-        {
-            loggerHelper.LogInformationMessage(logger, correlationId, message);
+                routes.MapRoute("Application.Get", "{path}/{**data}", new { controller = "Application", action = "Action" });
+            });
         }
     }
 }
