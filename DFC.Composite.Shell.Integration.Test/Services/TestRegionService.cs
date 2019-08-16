@@ -1,6 +1,4 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Services.Paths;
+﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Regions;
 using System;
 using System.Collections.Generic;
@@ -21,7 +19,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 OfflineHTML = $"{path} region body is offline",
                 PageRegion = PageRegion.Body,
                 Path = path,
-                RegionEndpoint = $"http://www.{path}.com/{path}/body"
+                RegionEndpoint = $"http://www.{path}.com/{path}/body",
             });
             regions.Add(new RegionModel()
             {
@@ -30,10 +28,10 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 OfflineHTML = $"{path} head body is offline",
                 PageRegion = PageRegion.Head,
                 Path = path,
-                RegionEndpoint = $"http://www.{path}.com/{path}/head"
+                RegionEndpoint = $"http://www.{path}.com/{path}/head",
             });
 
-            return await Task.FromResult(regions);
+            return await Task.FromResult(regions).ConfigureAwait(false);
         }
 
         public Task MarkAsHealthyAsync(string path, PageRegion pageRegion)

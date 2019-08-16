@@ -137,7 +137,7 @@ namespace DFC.Composite.Shell
             ConfigureRouting(app);
         }
 
-        private void ConfigureRouting(IApplicationBuilder app)
+        private static void ConfigureRouting(IApplicationBuilder app)
         {
             app.UseMvc(routes =>
             {

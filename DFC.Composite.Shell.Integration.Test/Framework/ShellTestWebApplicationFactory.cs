@@ -6,28 +6,28 @@ using System.Net.Http;
 
 namespace DFC.Composite.Shell.Integration.Test.Framework
 {
-    public class ShellTestWebApplicationFactory<TStartUp> : WebApplicationFactory<TStartUp> where TStartUp : class
+    public class ShellTestWebApplicationFactory<TStartUp> : WebApplicationFactory<TStartUp>
+        where TStartUp : class
     {
+        public HttpClient CreateClientWithWebHostBuilder()
+        {
+            return WithWebHostBuilder(x =>
+            {
+                x.RegisterServices();
+            }).CreateClient();
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseApplicationInsights();
 
-            builder.ConfigureServices(services =>
+            builder?.ConfigureServices(services =>
             {
                 var serviceProvider = new ServiceCollection()
                     .BuildServiceProvider();
 
                 var sp = services.BuildServiceProvider();
             });
-        }
-
-        public HttpClient CreateClientWithWebHostBuilder()
-        {
-            return WithWebHostBuilder(x =>
-            {
-                x.RegisterServices();
-
-            }).CreateClient();
         }
     }
 }

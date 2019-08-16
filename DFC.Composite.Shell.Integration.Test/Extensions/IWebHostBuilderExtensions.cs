@@ -1,5 +1,5 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Services;
-using DFC.Composite.Shell.Services.ContentRetrieve;
+using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +19,5 @@ namespace DFC.Composite.Shell.Integration.Test.Extensions
                 services.AddTransient<IContentRetriever, TestContentRetriever>();
             });
         }
-
     }
 }

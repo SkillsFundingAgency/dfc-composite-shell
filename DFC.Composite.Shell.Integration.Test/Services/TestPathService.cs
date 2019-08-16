@@ -12,37 +12,37 @@ namespace DFC.Composite.Shell.Integration.Test.Services
         {
             var paths = new List<PathModel>();
 
-            paths.Add(new PathModel()
+            paths.Add(new PathModel
             {
                 Path = "path1",
                 DocumentId = Guid.NewGuid(),
                 IsOnline = true,
-                Layout = Common.PageLayout.FullWidth,
+                Layout = PageLayout.FullWidth,
                 TopNavigationOrder = 1,
-                TopNavigationText = "Path1"
+                TopNavigationText = "Path1",
             });
 
-            paths.Add(new PathModel()
+            paths.Add(new PathModel
             {
                 Path = "path2",
                 DocumentId = Guid.NewGuid(),
                 IsOnline = true,
-                Layout = Common.PageLayout.SidebarLeft,
+                Layout = PageLayout.SidebarLeft,
                 TopNavigationOrder = 2,
-                TopNavigationText = "Path2"
+                TopNavigationText = "Path2",
             });
 
-            paths.Add(new PathModel()
+            paths.Add(new PathModel
             {
                 Path = "externalpath1",
                 ExternalURL = "http://www.externalpath1.com",
                 DocumentId = Guid.NewGuid(),
                 IsOnline = true,
-                Layout = Common.PageLayout.None,
-                TopNavigationOrder = 3
+                Layout = PageLayout.None,
+                TopNavigationOrder = 3,
             });
 
-            return await Task.FromResult(paths);
+            return await Task.FromResult(paths).ConfigureAwait(false);
         }
     }
 }
