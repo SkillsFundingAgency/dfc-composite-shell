@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Utilities;
+﻿using DFC.Composite.Shell.Services.Utilities;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,17 +19,20 @@ namespace DFC.Composite.Shell.Services.AssetLocationAndVersion
         private readonly IAsyncHelper asyncHelper;
         private readonly IHostingEnvironment hostingEnvironment;
         private readonly ILogger<AssetLocationAndVersionService> logger;
+        private readonly IFileInfoHelper fileInfoHelper;
 
         public AssetLocationAndVersionService(
             HttpClient httpClientService,
             IAsyncHelper asyncHelper,
             IHostingEnvironment hostingEnvironment,
-            ILogger<AssetLocationAndVersionService> logger)
+            ILogger<AssetLocationAndVersionService> logger,
+            IFileInfoHelper fileInfoHelper)
         {
             httpClient = httpClientService;
             this.asyncHelper = asyncHelper;
             this.hostingEnvironment = hostingEnvironment;
             this.logger = logger;
+            this.fileInfoHelper = fileInfoHelper;
         }
 
         public string GetCdnAssetFileAndVersion(string assetLocation)
@@ -46,13 +50,13 @@ namespace DFC.Composite.Shell.Services.AssetLocationAndVersion
             return $"/{assetLocation}?{version}";
         }
 
-        private static string GetFileHash(string file)
+        private string GetFileHash(string file)
         {
-            if (File.Exists(file))
+            if (fileInfoHelper.FileExists(file))
             {
                 using (var md5 = MD5.Create())
                 {
-                    using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read))
+                    using (var stream = fileInfoHelper.GetStream(file))
                     {
                         return BitConverter.ToString(md5.ComputeHash(stream))
                             .Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase);

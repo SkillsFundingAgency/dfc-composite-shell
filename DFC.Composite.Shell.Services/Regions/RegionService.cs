@@ -28,17 +28,7 @@ namespace DFC.Composite.Shell.Services.Regions
             }
         }
 
-        public async Task MarkAsHealthyAsync(string path, PageRegion pageRegion)
-        {
-            await MarkUnhealthStateAsync(path, pageRegion, true).ConfigureAwait(false);
-        }
-
-        public async Task MarkAsUnhealthyAsync(string path, PageRegion pageRegion)
-        {
-            await MarkUnhealthStateAsync(path, pageRegion, false).ConfigureAwait(false);
-        }
-
-        private async Task MarkUnhealthStateAsync(string path, PageRegion pageRegion, bool isHealthy)
+        public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
         {
             var regionsUrl = $"{httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
             var regionPatchModel = new RegionPatchModel { IsHealthy = isHealthy };
@@ -49,6 +39,8 @@ namespace DFC.Composite.Shell.Services.Regions
                 var response = await httpClient.PatchAsync(regionsUrl, content).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
+
+                return response.IsSuccessStatusCode;
             }
         }
     }

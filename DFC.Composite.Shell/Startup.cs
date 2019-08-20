@@ -14,6 +14,7 @@ using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
@@ -21,6 +22,7 @@ using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Services.UrlRewriter;
+using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -70,6 +72,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
+            services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IPathDataService, PathDataService>();
@@ -78,6 +81,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
             services.AddSingleton<IShellRobotFileService, ShellRobotFileService>();
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
+            services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
 
             var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
             var policyRegistry = services.AddPolicyRegistry();

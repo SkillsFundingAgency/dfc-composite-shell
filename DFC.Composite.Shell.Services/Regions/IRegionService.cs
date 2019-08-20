@@ -8,8 +8,6 @@ namespace DFC.Composite.Shell.Services.Regions
     {
         Task<IEnumerable<RegionModel>> GetRegions(string path);
 
-        Task MarkAsHealthyAsync(string path, PageRegion pageRegion);
-
-        Task MarkAsUnhealthyAsync(string path, PageRegion pageRegion);
+        Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy);
     }
 }

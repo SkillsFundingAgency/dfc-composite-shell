@@ -81,7 +81,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     responseHandler.Process(response);
 
-                    results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    if (response != null)
+                    {
+                        results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    }
 
                     logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
                 }
@@ -103,7 +106,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (regionModel != null && regionModel.HeathCheckRequired)
                 {
-                    await regionService.MarkAsUnhealthyAsync(regionModel.Path, regionModel.PageRegion).ConfigureAwait(false);
+                    await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
                 if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
@@ -181,7 +184,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (regionModel != null && regionModel.HeathCheckRequired)
                 {
-                    await regionService.MarkAsUnhealthyAsync(regionModel.Path, regionModel.PageRegion).ConfigureAwait(false);
+                    await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
                 if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))

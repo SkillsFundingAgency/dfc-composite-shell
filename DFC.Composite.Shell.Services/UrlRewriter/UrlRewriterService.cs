@@ -14,7 +14,7 @@ namespace DFC.Composite.Shell.Services.UrlRewriter
                 foreach (var quoteChar in quoteChars)
                 {
                     var fromUrlPrefixes = new string[] { $@"{attributeName}={quoteChar}/", $@"{attributeName}={quoteChar}{applicationRootUrl}/" };
-                    string toUrlPrefix = $@"{attributeName}={quoteChar}{requestBaseUrl}/";
+                    var toUrlPrefix = $@"{attributeName}={quoteChar}{requestBaseUrl}/";
 
                     foreach (var fromUrlPrefix in fromUrlPrefixes)
                     {

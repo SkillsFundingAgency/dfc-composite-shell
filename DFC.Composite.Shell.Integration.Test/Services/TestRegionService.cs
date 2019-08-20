@@ -34,12 +34,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
             return await Task.FromResult(regions).ConfigureAwait(false);
         }
 
-        public Task MarkAsHealthyAsync(string path, PageRegion pageRegion)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task MarkAsUnhealthyAsync(string path, PageRegion pageRegion)
+        public Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
         {
             throw new NotImplementedException();
         }

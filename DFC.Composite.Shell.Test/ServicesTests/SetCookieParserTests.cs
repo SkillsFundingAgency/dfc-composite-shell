@@ -6,7 +6,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class SetCookieParserTests
     {
-        private SetCookieParser setCookieParser;
+        private readonly SetCookieParser setCookieParser;
 
         public SetCookieParserTests()
         {
@@ -47,6 +47,16 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var cookieSettings = setCookieParser.Parse(setCookieValue);
 
             Assert.False(cookieSettings.CookieOptions.HttpOnly);
+        }
+
+        [Fact]
+        public void WhenSameSiteIsNoneShouldReturnNone()
+        {
+            var setCookieValue = "AspNetCore.Session=CfDJ8FZO5gtnlm1PljkZVn4PRhHdTy%2BGI4kAZdel9FFlyqlGlmUqangpRTzJpWMJ6Sz6QL9ESgnO%2FunS%2B0pT7DGdMcijgo8xIcYGk4ZmKCYD%2Fp1RzXEO6yzslVp8yYu43d2%2FXqKA1U93jjpXFSLgV5eYUlSKK4PyZ0MAvo5xEboZdRsT; path=/; samesite=none";
+
+            var cookieSettings = setCookieParser.Parse(setCookieValue);
+
+            Assert.Equal(SameSiteMode.None, cookieSettings.CookieOptions.SameSite);
         }
 
         [Fact]
