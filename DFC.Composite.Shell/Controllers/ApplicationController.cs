@@ -1,10 +1,12 @@
-﻿using DFC.Composite.Shell.Exceptions;
+﻿using DFC.Composite.Shell.Common;
+using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Utilities;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -96,7 +98,7 @@ namespace DFC.Composite.Shell.Controllers
                 logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
-            return View(MainRenderViewName, viewModel);
+            return View(MainRenderViewName, Map(viewModel));
         }
 
         [HttpPost]
@@ -149,6 +151,47 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return View(MainRenderViewName, viewModel);
+        }
+
+        private PageViewModelResponse Map(PageViewModel source)
+        {
+            var result = new PageViewModelResponse();
+
+            result.BrandingAssetsCdn = source.BrandingAssetsCdn;
+            result.LayoutName = source.LayoutName;
+            result.PageTitle = source.PageTitle;
+            result.Path = source.Path;
+            result.PhaseBannerHtml = source.PhaseBannerHtml;
+
+            result.VersionedPathForMainMinCss = source.VersionedPathForMainMinCss;
+            result.VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss;
+            result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
+            result.VersionedPathForSiteCss = source.VersionedPathForSiteCss;
+            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
+            result.VersionedPathForAllMinJs = source.VersionedPathForAllMinJs;
+            result.VersionedPathForSiteJs = source.VersionedPathForSiteJs;
+
+            result.ContentBody = GetContent(source, PageRegion.Body);
+            result.ContentBodyFooter = GetContent(source, PageRegion.BodyFooter);
+            result.ContentBodyTop = GetContent(source, PageRegion.BodyTop);
+            result.ContentBreadcrumb = GetContent(source, PageRegion.Breadcrumb);
+            result.ContentHead = GetContent(source, PageRegion.Head);
+            result.ContentSidebarLeft = GetContent(source, PageRegion.SidebarLeft);
+            result.ContentSidebarRight = GetContent(source, PageRegion.SidebarRight);
+
+            return result;
+        }
+
+        private HtmlString GetContent(PageViewModel pageViewModel, PageRegion pageRegionType)
+        {
+            var result = string.Empty;
+            var pageRegionContentModel = pageViewModel.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == pageRegionType);
+            if (pageRegionContentModel != null)
+            {
+                result = pageRegionContentModel.Content.Value;
+            }
+
+            return new HtmlString(result);
         }
     }
 }

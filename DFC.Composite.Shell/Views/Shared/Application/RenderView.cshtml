@@ -1,90 +1,84 @@
-﻿@using  DFC.Composite.Shell.Common
-@model PageViewModel
+﻿@{
+    Layout = Model.LayoutName;
+    ViewBag.BrandingAssetsCdn = Model.BrandingAssetsCdn;
+    ViewBag.Title = Model.PageTitle;
+    ViewBag.PhaseBannerHtml = Model.PhaseBannerHtml;
+
+    ViewBag.VersionedPathForMainMinCss = Model.VersionedPathForMainMinCss;
+    ViewBag.VersionedPathForGovukMinCss = Model.VersionedPathForGovukMinCss;
+    ViewBag.VersionedPathForAllIe8Css = Model.VersionedPathForAllIe8Css;
+    ViewBag.VersionedPathForSiteCss = Model.VersionedPathForSiteCss;
+    ViewBag.VersionedPathForJQueryBundleMinJs = Model.VersionedPathForJQueryBundleMinJs;
+    ViewBag.VersionedPathForAllMinJs = Model.VersionedPathForAllMinJs;
+    ViewBag.VersionedPathForSiteJs = Model.VersionedPathForSiteJs;
+}
 
 @{
-    Layout = Model.LayoutName;
-    ViewData["BrandingAssetsCdn"] = Model.BrandingAssetsCdn;
-    ViewData["Title"] = Model.PageTitle;
-    ViewData["PhaseBannerHtml"] = Model.PhaseBannerHtml;
-
-    ViewData["VersionedPathForMainMinCss"] = Model.VersionedPathForMainMinCss;
-    ViewData["VersionedPathForGovukMinCss"] = Model.VersionedPathForGovukMinCss;
-    ViewData["VersionedPathForAllIe8Css"] = Model.VersionedPathForAllIe8Css;
-    ViewData["VersionedPathForSiteCss"] = Model.VersionedPathForSiteCss;
-    ViewData["VersionedPathForJQueryBundleMinJs"] = Model.VersionedPathForJQueryBundleMinJs;
-    ViewData["VersionedPathForAllMinJs"] = Model.VersionedPathForAllMinJs;
-    ViewData["VersionedPathForSiteJs"] = Model.VersionedPathForSiteJs;
-
-    PageRegionContentModel GetRegionContent(PageRegion region)
+    DefineSection("Head", async (a) =>
     {
-        var regionContent = Model.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == region);
-
-        if (regionContent?.Content != null && !string.IsNullOrEmpty(regionContent.Content.Value))
+        if (Model.ContentHead != null)
         {
-            return regionContent;
+            this.WriteLiteral(Model.ContentHead.Value);
         }
-
-        return null;
-    }
-
-    var headRegionContent = GetRegionContent(PageRegion.Head);
-    var breadcrumbRegionContent = GetRegionContent(PageRegion.Breadcrumb);
-    var bodyTopRegionContent = GetRegionContent(PageRegion.BodyTop);
-    var bodyRegionContent = GetRegionContent(PageRegion.Body);
-    var sidebarLeftRegionContent = GetRegionContent(PageRegion.SidebarLeft);
-    var sidebarRightRegionContent = GetRegionContent(PageRegion.SidebarRight);
-    var bodyFooterRegionContent = GetRegionContent(PageRegion.BodyFooter);
+    });
 }
 
-@if (headRegionContent != null)
-{
-    @section Head {
-        @Html.Raw(headRegionContent.Content)
-    }
+@{
+    DefineSection("Body", async (a) =>
+    {
+        if (Model.ContentBody != null)
+        {
+            this.WriteLiteral(Model.ContentBody.Value);
+        }
+    });
 }
 
-@if (breadcrumbRegionContent != null)
-{
-    @section Breadcrumb {
-        @Html.Raw(breadcrumbRegionContent.Content)
-    }
+@{
+    DefineSection("BodyTop", async (a) =>
+    {
+        if (Model.ContentBodyTop != null)
+        {
+            this.WriteLiteral(Model.ContentBodyTop.Value);
+        }
+    });
 }
 
-@if (bodyTopRegionContent != null)
-{
-    @section BodyTop {
-        @Html.Raw(bodyTopRegionContent.Content)
-    }
+@{
+    DefineSection("Breadcrumb", async (a) =>
+    {
+        if (Model.ContentBreadcrumb != null)
+        {
+            this.WriteLiteral(Model.ContentBreadcrumb.Value);
+        }
+    });
 }
 
-@if (bodyRegionContent != null)
-{
-    @section Body {
-        @Html.Raw(bodyRegionContent.Content)
-    }
+@{
+    DefineSection("SideBarLeft", async (a) =>
+    {
+        if (Model.ContentSidebarLeft != null)
+        {
+            this.WriteLiteral(Model.ContentSidebarLeft.Value);
+        }
+    });
 }
 
-@if (sidebarLeftRegionContent != null)
-{
-    @section SideBarLeft {
-        @Html.Raw(sidebarLeftRegionContent.Content)
-    }
+@{
+    DefineSection("SideBarRight", async (a) =>
+    {
+        if (Model.ContentSidebarRight != null)
+        {
+            this.WriteLiteral(Model.ContentSidebarRight.Value);
+        }
+    });
 }
 
-@if (sidebarRightRegionContent != null)
-{
-    @section SidebarRight{
-        @Html.Raw(sidebarRightRegionContent.Content)
-    }
-}
-
-@if (bodyFooterRegionContent != null)
-{
-    @section BodyFooter{
-        @Html.Raw(bodyFooterRegionContent.Content)
-    }
-}
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+@{
+    DefineSection("BodyFooter", async (a) =>
+    {
+        if (Model.ContentBodyFooter != null)
+        {
+            this.WriteLiteral(Model.ContentBodyFooter.Value);
+        }
+    });
 }

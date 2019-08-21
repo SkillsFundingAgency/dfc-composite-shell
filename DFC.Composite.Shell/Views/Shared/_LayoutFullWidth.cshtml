@@ -1,5 +1,4 @@
-﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-gb" class="govuk-template ">
 
 <head>
@@ -10,7 +9,7 @@
         @RenderSection("Head", required: false)
     }
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
+    <partial name="ApplicationInsightsJavascript" />
 </head>
 
 <body class="govuk-template__body ">
