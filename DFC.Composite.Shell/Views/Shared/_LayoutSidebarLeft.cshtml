@@ -1,16 +1,16 @@
-﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-gb" class="govuk-template ">
 
 <head>
     <partial name="_Head" />
-
+    
     @if (IsSectionDefined("Head"))
     {
+
         @RenderSection("Head", required: false)
     }
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
+    <partial name="ApplicationInsightsJavascript" />
 </head>
 
 <body class="govuk-template__body ">

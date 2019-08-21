@@ -6,23 +6,21 @@ using Xunit;
 
 namespace DFC.Composite.Shell.Views.Test.Tests
 {
-    public class LayoutFullWidthTests : TestBase
+    public class LayoutSideBarLeftTests : TestBase
     {
-        private string _layout = "_LayoutFullWidth";
+        private string _layout = "_LayoutSideBarLeft";
 
         [Fact]
-        public void SideBarLeftAndSideBarRightDoNotAppear()
+        public void SideBarRightDoesNotAppear()
         {
             var model = new PageViewModelResponse();
             model.LayoutName = _layout;
-            model.ContentSidebarLeft = new HtmlString("ContentSideBarLeft");
-            model.ContentSidebarRight = new HtmlString("ContentSideBarRight");            
-            var viewBag = new Dictionary<string, object>();            
+            model.ContentSidebarRight = new HtmlString("ContentSideBarRight");
+            var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 
             var viewRenderResponse = viewRenderer.Render(@"RenderView", model, viewBag);
 
-            Assert.DoesNotContain(model.ContentSidebarLeft.Value, viewRenderResponse);
             Assert.DoesNotContain(model.ContentSidebarRight.Value, viewRenderResponse);
         }
 
@@ -36,6 +34,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
             model.ContentBreadcrumb = new HtmlString("ContentBreadcrumb");
             model.ContentBody = new HtmlString("ContentBody");
             model.ContentBodyFooter = new HtmlString("ContentBodyFooter");
+            model.ContentSidebarLeft = new HtmlString("ContentSideBarLeft");
             var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 
@@ -46,6 +45,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
             Assert.Contains(model.ContentBreadcrumb.Value, viewRenderResponse);
             Assert.Contains(model.ContentBody.Value, viewRenderResponse);
             Assert.Contains(model.ContentBodyFooter.Value, viewRenderResponse);
+            Assert.Contains(model.ContentSidebarLeft.Value, viewRenderResponse);
         }
     }
 }
