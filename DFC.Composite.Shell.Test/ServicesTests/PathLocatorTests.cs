@@ -1,23 +1,19 @@
 ﻿using DFC.Composite.Shell.Services.PathLocator;
+using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class PathLocatorTests
     {
-        private readonly IPathLocator urlPathLocator;
-        private readonly Mock<IHttpContextAccessor> httpContextAccessor;
-        private readonly Mock<ILogger<UrlPathLocator>> logger;
+        private readonly ILogger<UrlPathLocator> logger;
 
         public PathLocatorTests()
         {
-            logger = new Mock<ILogger<UrlPathLocator>>();
-            httpContextAccessor = new Mock<IHttpContextAccessor>();
-            urlPathLocator = new UrlPathLocator(httpContextAccessor.Object, logger.Object);
+            logger = A.Fake<ILogger<UrlPathLocator>>();
         }
 
         [Fact]
@@ -27,7 +23,26 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var context = new DefaultHttpContext();
             context.Request.Path = path;
 
-            httpContextAccessor.Setup(x => x.HttpContext).Returns(context);
+            var httpContextAccessor = A.Fake<IHttpContextAccessor>();
+            A.CallTo(() => httpContextAccessor.HttpContext).Returns(context);
+
+            var urlPathLocator = new UrlPathLocator(httpContextAccessor, logger);
+            var actualPath = urlPathLocator.GetPath();
+
+            actualPath.Should().Be("courses");
+        }
+
+        [Fact]
+        public void ShouldGetPathFromUrlWhenPathContainsTrailingSlash()
+        {
+            var path = "/courses/";
+            var context = new DefaultHttpContext();
+            context.Request.Path = path;
+
+            var httpContextAccessor = A.Fake<IHttpContextAccessor>();
+            A.CallTo(() => httpContextAccessor.HttpContext).Returns(context);
+
+            var urlPathLocator = new UrlPathLocator(httpContextAccessor, logger);
             var actualPath = urlPathLocator.GetPath();
 
             actualPath.Should().Be("courses");

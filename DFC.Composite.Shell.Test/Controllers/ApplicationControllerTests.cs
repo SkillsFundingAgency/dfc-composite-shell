@@ -1,7 +1,6 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Exceptions;
+﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
