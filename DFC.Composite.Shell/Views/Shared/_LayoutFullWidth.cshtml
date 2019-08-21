@@ -10,7 +10,7 @@
         @RenderSection("Head", required: false)
     }
 
-    @Html.Raw(JavaScriptSnippet.FullScript)
+    <partial name="ApplicationInsightsJavascript" />
 </head>
 
 <body class="govuk-template__body ">
