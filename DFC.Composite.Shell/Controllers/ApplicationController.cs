@@ -1,10 +1,12 @@
-﻿using DFC.Composite.Shell.Exceptions;
+﻿using DFC.Composite.Shell.Common;
+using DFC.Composite.Shell.Exceptions;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Utilities;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -159,15 +161,35 @@ namespace DFC.Composite.Shell.Controllers
             result.LayoutName = source.LayoutName;
             result.PageTitle = source.PageTitle;
             result.Path = source.Path;
-            result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
-            result.VersionedPathForAllMinJs = source.VersionedPathForAllMinJs;
+            result.VersionedPathForMainMinCss = source.VersionedPathForMainMinCss;
             result.VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss;
-            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
-            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
+            result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
             result.VersionedPathForSiteCss = source.VersionedPathForSiteCss;
+            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
+            result.VersionedPathForAllMinJs = source.VersionedPathForAllMinJs;
             result.VersionedPathForSiteJs = source.VersionedPathForSiteJs;
 
+            result.ContentBody = GetContent(source, PageRegion.Body);
+            result.ContentBodyFooter = GetContent(source, PageRegion.BodyFooter);
+            result.ContentBodyTop = GetContent(source, PageRegion.BodyTop);
+            result.ContentBreadcrumb = GetContent(source, PageRegion.Breadcrumb);
+            result.ContentHead = GetContent(source, PageRegion.Head);
+            result.ContentSidebarLeft = GetContent(source, PageRegion.SidebarLeft);
+            result.ContentSidebarRight = GetContent(source, PageRegion.SidebarRight);
+
             return result;
+        }
+
+        private HtmlString GetContent(PageViewModel pageViewModel, PageRegion pageRegionType)
+        {
+            var result = string.Empty;
+            var pageRegionContentModel = pageViewModel.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == pageRegionType);
+            if (pageRegionContentModel != null)
+            {
+                result = pageRegionContentModel.Content.Value;
+            }
+
+            return new HtmlString(result);
         }
     }
 }
