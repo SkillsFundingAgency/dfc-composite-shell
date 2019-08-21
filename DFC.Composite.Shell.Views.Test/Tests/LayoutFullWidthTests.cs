@@ -12,7 +12,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         public void SideBarLeftAndSideBarRightDoNotAppear()
         {
             var model = new PageViewModelResponse();
-            model.LayoutName = "_LayoutFullWidth2";
+            model.LayoutName = "_LayoutFullWidth";
             model.ContentSidebarLeft = new HtmlString("ContentSidebarLeft");
             model.ContentSidebarRight = new HtmlString("ContentSidebarRight");            
             var viewBag = new Dictionary<string, object>();            
@@ -28,7 +28,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         public void ContainsContentFromOtherSections()
         {
             var model = new PageViewModelResponse();
-            model.LayoutName = "_LayoutFullWidth2";
+            model.LayoutName = "_LayoutFullWidth";
             model.ContentHead = new HtmlString("ContentHead");
             model.ContentBodyTop = new HtmlString("ContentBodyTop");
             model.ContentBreadcrumb = new HtmlString("ContentBreadcrumb");
