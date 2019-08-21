@@ -161,6 +161,8 @@ namespace DFC.Composite.Shell.Controllers
             result.LayoutName = source.LayoutName;
             result.PageTitle = source.PageTitle;
             result.Path = source.Path;
+            result.PhaseBannerHtml = source.PhaseBannerHtml;
+
             result.VersionedPathForMainMinCss = source.VersionedPathForMainMinCss;
             result.VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss;
             result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
