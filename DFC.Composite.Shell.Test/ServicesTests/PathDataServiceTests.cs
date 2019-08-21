@@ -56,7 +56,5 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             Assert.Equal(pathModels[1], result);
         }
-
-
     }
 }

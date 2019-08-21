@@ -136,6 +136,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             Assert.Equal($"/{TestLocalLocation}?{expectedHashCode}", result);
             fakeStream.Dispose();
+            fakeMD5.Dispose();
         }
     }
 }

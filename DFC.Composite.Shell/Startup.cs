@@ -82,6 +82,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IShellRobotFileService, ShellRobotFileService>();
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
+            services.AddSingleton<ITaskHelper, TaskHelper>();
 
             var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
             var policyRegistry = services.AddPolicyRegistry();

@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
+using DFC.Composite.Shell.Services.Utilities;
 using Microsoft.AspNetCore.Html;
 using System;
 using System.Collections.Generic;
@@ -18,17 +19,20 @@ namespace DFC.Composite.Shell.Services.Application
         private readonly IRegionService regionService;
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessorService;
+        private readonly ITaskHelper taskHelper;
 
         public ApplicationService(
             IPathDataService pathDataService,
             IRegionService regionService,
             IContentRetriever contentRetriever,
-            IContentProcessorService contentProcessorService)
+            IContentProcessorService contentProcessorService,
+            ITaskHelper taskHelper)
         {
             this.pathDataService = pathDataService;
             this.regionService = regionService;
             this.contentRetriever = contentRetriever;
             this.contentProcessorService = contentProcessorService;
+            this.taskHelper = taskHelper;
         }
 
         public string RequestBaseUrl { get; set; }
@@ -48,11 +52,11 @@ namespace DFC.Composite.Shell.Services.Application
             if (application.Path.IsOnline)
             {
                 //Get the markup at the head url first. This will create the session if it doesnt already exist
-                var applicationHeadRegionOutput = await GetApplicationMarkUpAsync(application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
+                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
                 pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
                 //Get the markup at this url
-                var applicationBodyRegionTask = GetApplicationMarkUpAsync(application, article);
+                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, article);
 
                 //Load related regions
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
@@ -145,30 +149,26 @@ namespace DFC.Composite.Shell.Services.Application
                 : urlFormatString.Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        private Task<string> GetApplicationMarkUpAsync(ApplicationModel application, string article)
+        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string article)
         {
             //Get the body region
             var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
             if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
-                return null;
+                return Task.FromResult(string.Empty);
             }
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article);
 
-            var result = contentRetriever.GetContent(url, bodyRegion, false, RequestBaseUrl);
-
-            return result;
+            return contentRetriever.GetContent(url, bodyRegion, false, RequestBaseUrl);
         }
 
-        private Task<string> GetApplicationMarkUpAsync(RegionModel regionModel, string article)
+        private async Task<string> GetApplicationHeadRegionMarkUpAsync(RegionModel regionModel, string article)
         {
             var url = FormatArticleUrl(regionModel.RegionEndpoint, article);
 
-            var result = this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl);
-
-            return result;
+            return await this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
         }
 
         private Task<string> GetPostMarkUpAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
@@ -178,15 +178,13 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
-                return null;
+                return Task.FromResult(string.Empty);
             }
 
             var uri = new Uri(bodyRegion.RegionEndpoint);
             var url = $"{uri.Scheme}://{uri.Authority}/{application.Path.Path}/{article}";
 
-            var result = contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
-
-            return result;
+            return contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
         }
 
         private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article)
@@ -228,27 +226,26 @@ namespace DFC.Composite.Shell.Services.Application
 
         private void PopulatePageRegionContent(ApplicationModel application, PageViewModel pageModel, PageRegion regionType, Task<string> task)
         {
-            if (task != null)
+            if (task == null)
             {
-                var pageRegionContentModel = pageModel?.PageRegionContentModels.First(x => x.PageRegionType == regionType);
-                var content = string.Empty;
+                return;
+            }
 
-                if (task.IsCompletedSuccessfully)
+            var pageRegionContentModel = pageModel?.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == regionType);
+
+            if (taskHelper.TaskCompletedSuccessfully(task))
+            {
+                var taskResult = task.Result;
+                var result = contentProcessorService.Process(taskResult, RequestBaseUrl, application.RootUrl);
+                pageRegionContentModel.Content = new HtmlString(result);
+            }
+            else
+            {
+                var pageRegionModel = application.Regions.FirstOrDefault(x => x.PageRegion == regionType);
+                if (pageRegionModel != null)
                 {
-                    content = task.Result;
-                    content = contentProcessorService.Process(content, RequestBaseUrl, application.RootUrl);
+                    pageRegionContentModel.Content = new HtmlString(pageRegionModel.OfflineHTML);
                 }
-                else
-                {
-                    var pageRegionModel = application.Regions.FirstOrDefault(x => x.PageRegion == regionType);
-
-                    if (pageRegionModel != null)
-                    {
-                        content = pageRegionModel.OfflineHTML;
-                    }
-                }
-
-                pageRegionContentModel.Content = new HtmlString(content);
             }
         }
     }

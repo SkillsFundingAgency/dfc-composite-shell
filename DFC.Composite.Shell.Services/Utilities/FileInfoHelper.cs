@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Utilities
 {
+    [ExcludeFromCodeCoverage]
     public class FileInfoHelper : IFileInfoHelper
     {
         public bool FileExists(string fileName)

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -50,16 +51,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         {
                             if (followRedirects)
                             {
-                                if (response.Headers.Location.IsAbsoluteUri)
-                                {
-                                    url = response.Headers.Location.ToString();
-                                }
-                                else
-                                {
-                                    url = $"{requestBaseUrl}/{response.Headers.Location.ToString().TrimStart('/')}";
-                                }
+                                url = response.Headers.Location.IsAbsoluteUri ? response.Headers.Location.ToString() : $"{requestBaseUrl}/{response.Headers.Location.ToString().TrimStart('/')}";
 
-                                logger.LogInformation($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
+                                logger.LogWarning($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
                             }
                             else
                             {
@@ -146,16 +140,11 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     if (response.StatusCode == HttpStatusCode.Found)
                     {
-                        string redirectUrl = requestBaseUrl;
+                        var redirectUrl = requestBaseUrl;
 
-                        if (response.Headers.Location.IsAbsoluteUri)
-                        {
-                            redirectUrl += response.Headers.Location.PathAndQuery;
-                        }
-                        else
-                        {
-                            redirectUrl += response.Headers.Location;
-                        }
+                        redirectUrl += response.Headers.Location.IsAbsoluteUri
+                            ? response.Headers.Location.PathAndQuery.ToString(CultureInfo.InvariantCulture)
+                            : response.Headers.Location.ToString();
 
                         throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                     }

@@ -35,8 +35,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             validContentProcessorService.Process(someContent, fakeBaseUrl, fakeApplicationUrl);
 
             A.CallTo(() => fakeUrlRewriterService.Rewrite(someContent, fakeBaseUrl, fakeApplicationUrl)).MustHaveHappenedOnceExactly();
-
         }
-
     }
 }

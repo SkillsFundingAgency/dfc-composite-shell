@@ -1,6 +1,4 @@
-﻿using DFC.Composite.Shell.Common;
-using DFC.Composite.Shell.Exceptions;
-using DFC.Composite.Shell.Extensions;
+﻿using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
