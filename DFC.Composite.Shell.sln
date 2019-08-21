@@ -16,7 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		UnitTests.CodeAnalysis.ruleset = UnitTests.CodeAnalysis.ruleset
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DFC.Composite.Shell.Integration.Test", "DFC.Composite.Shell.Integration.Test\DFC.Composite.Shell.Integration.Test.csproj", "{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFC.Composite.Shell.Integration.Test", "DFC.Composite.Shell.Integration.Test\DFC.Composite.Shell.Integration.Test.csproj", "{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DFC.Composite.Shell.Views.Test", "DFC.Composite.Shell.Views.Test\DFC.Composite.Shell.Views.Test.csproj", "{B1951870-4D2F-4EAD-BDCE-DC1033237212}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1951870-4D2F-4EAD-BDCE-DC1033237212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1951870-4D2F-4EAD-BDCE-DC1033237212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1951870-4D2F-4EAD-BDCE-DC1033237212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1951870-4D2F-4EAD-BDCE-DC1033237212}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

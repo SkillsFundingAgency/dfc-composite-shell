@@ -96,7 +96,7 @@ namespace DFC.Composite.Shell.Controllers
                 logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
-            return View(MainRenderViewName, viewModel);
+            return View(MainRenderViewName, Map(viewModel));
         }
 
         [HttpPost]
@@ -149,6 +149,25 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return View(MainRenderViewName, viewModel);
+        }
+
+        private PageViewModelResponse Map(PageViewModel source)
+        {
+            var result = new PageViewModelResponse();
+
+            result.BrandingAssetsCdn = source.BrandingAssetsCdn;
+            result.LayoutName = source.LayoutName;
+            result.PageTitle = source.PageTitle;
+            result.Path = source.Path;
+            result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
+            result.VersionedPathForAllMinJs = source.VersionedPathForAllMinJs;
+            result.VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss;
+            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
+            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
+            result.VersionedPathForSiteCss = source.VersionedPathForSiteCss;
+            result.VersionedPathForSiteJs = source.VersionedPathForSiteJs;
+
+            return result;
         }
     }
 }
