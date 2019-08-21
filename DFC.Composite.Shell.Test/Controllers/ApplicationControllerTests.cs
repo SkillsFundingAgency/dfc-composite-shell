@@ -100,7 +100,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var response = await defaultGetController.Action(requestModel).ConfigureAwait(false);
 
             var viewResult = Assert.IsAssignableFrom<ViewResult>(response);
-            var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
+            var model = Assert.IsAssignableFrom<PageViewModelResponse>(viewResult.ViewData.Model);
             Assert.Equal(model.Path, ChildAppPath);
         }
 
@@ -162,7 +162,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var response = await defaultPostController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
             var viewResult = Assert.IsAssignableFrom<ViewResult>(response);
-            var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
+            var model = Assert.IsAssignableFrom<PageViewModelResponse>(viewResult.ViewData.Model);
             Assert.Equal(model.Path, ChildAppPath);
         }
 
