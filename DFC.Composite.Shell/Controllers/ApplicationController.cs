@@ -150,7 +150,7 @@ namespace DFC.Composite.Shell.Controllers
                 logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
-            return View(MainRenderViewName, viewModel);
+            return View(MainRenderViewName, Map(viewModel));
         }
 
         private PageViewModelResponse Map(PageViewModel source)
@@ -186,7 +186,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             var result = string.Empty;
             var pageRegionContentModel = pageViewModel.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == pageRegionType);
-            if (pageRegionContentModel != null)
+            if (pageRegionContentModel != null && pageRegionContentModel.Content != null)
             {
                 result = pageRegionContentModel.Content.Value;
             }
