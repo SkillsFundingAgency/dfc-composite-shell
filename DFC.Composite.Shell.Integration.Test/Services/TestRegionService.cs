@@ -25,10 +25,19 @@ namespace DFC.Composite.Shell.Integration.Test.Services
             {
                 HeathCheckRequired = false,
                 IsHealthy = true,
-                OfflineHTML = $"{path} head body is offline",
+                OfflineHTML = $"{path} region head is offline",
                 PageRegion = PageRegion.Head,
                 Path = path,
                 RegionEndpoint = $"http://www.{path}.com/{path}/head",
+            });
+            regions.Add(new RegionModel()
+            {
+                HeathCheckRequired = false,
+                IsHealthy = true,
+                OfflineHTML = $"{path} region breadcrumb is offline",
+                PageRegion = PageRegion.Breadcrumb,
+                Path = path,
+                RegionEndpoint = $"http://www.{path}.com/{path}breadcrumb",
             });
 
             return await Task.FromResult(regions).ConfigureAwait(false);

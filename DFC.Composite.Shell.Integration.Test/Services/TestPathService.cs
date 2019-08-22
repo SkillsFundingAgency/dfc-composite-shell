@@ -34,6 +34,17 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 
             paths.Add(new PathModel
             {
+                Path = "path3",
+                DocumentId = Guid.NewGuid(),
+                IsOnline = false,
+                Layout = PageLayout.SidebarRight,
+                OfflineHtml = "Path3 is offline",
+                TopNavigationOrder = 3,
+                TopNavigationText = "Path3",
+            });
+
+            paths.Add(new PathModel
+            {
                 Path = "externalpath1",
                 ExternalURL = "http://www.externalpath1.com",
                 DocumentId = Guid.NewGuid(),
