@@ -37,7 +37,16 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 OfflineHTML = $"{path} region breadcrumb is offline",
                 PageRegion = PageRegion.Breadcrumb,
                 Path = path,
-                RegionEndpoint = $"http://www.{path}.com/{path}breadcrumb",
+                RegionEndpoint = $"http://www.{path}.com/{path}/breadcrumb",
+            });
+            regions.Add(new RegionModel()
+            {
+                HeathCheckRequired = false,
+                IsHealthy = false,
+                OfflineHTML = $"{path} region bodyfooter is offline",
+                PageRegion = PageRegion.BodyFooter,
+                Path = path,
+                RegionEndpoint = $"http://www.{path}.com/{path}/bodyfooter",
             });
 
             return await Task.FromResult(regions).ConfigureAwait(false);

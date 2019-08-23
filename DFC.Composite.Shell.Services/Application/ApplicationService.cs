@@ -215,6 +215,11 @@ namespace DFC.Composite.Shell.Services.Application
                 return null;
             }
 
+            if (!pageRegionModel.IsHealthy)
+            {
+                return Task.FromResult(pageRegionModel.OfflineHTML);
+            }
+
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article);
 
             var task = contentRetriever.GetContent(url, pageRegionModel, true, RequestBaseUrl);
