@@ -27,6 +27,7 @@ namespace DFC.Composite.Shell.Integration.Test
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             Assert.Contains("GET, http://www.path1.com/path1/head, path1, Head", responseHtml, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("GET, http://www.path1.com/path1/body, path1, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("GET, http://www.path1.com/path1/breadcrumb, path1, Breadcrumb", responseHtml, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
