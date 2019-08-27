@@ -23,6 +23,10 @@
 
         <partial name="_ErrorSummary" />
 
+    </div>
+
+    <div>
+
         @if (IsSectionDefined("BodyTop"))
         {
             @RenderSection("BodyTop", required: false)
@@ -39,9 +43,7 @@
                 <div class="govuk-grid-column-full">
                     @if (IsSectionDefined("Body"))
                     {
-                        <div class="CompositeUI-Region">
-                            @RenderSection("Body", required: false)
-                        </div>
+                        @RenderSection("Body", required: false)
                     }
                 </div>
             </div>
