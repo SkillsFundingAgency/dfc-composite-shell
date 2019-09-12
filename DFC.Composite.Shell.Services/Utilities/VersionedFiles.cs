@@ -10,7 +10,7 @@ namespace DFC.Composite.Shell.Utilities
             var brandingAssetsCdn = configuration.GetValue<string>("BrandingAssetsCdn");
             var brandingAssetsFolder = $"{brandingAssetsCdn}/gds_service_toolkit";
 
-            VersionedPathForMainMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/main.min.css");
+            VersionedPathForMainMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/all.min.css");
             VersionedPathForGovukMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/govuk.min.css");
             VersionedPathForAllIe8Css = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/all-ie8.css");
             VersionedPathForSiteCss = assetLocationAndVersionService?.GetLocalAssetFileAndVersion("css/site.css");
