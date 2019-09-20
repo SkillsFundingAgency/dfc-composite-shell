@@ -51,8 +51,8 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (application.Path.IsOnline)
             {
-                //Get the markup at the head url first. This will create the session if it doesnt already exist
-                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
+                //Get the markup at the head url first. This will create the session if it doesn't already exist
+                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
                 pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
                 //Get the markup at this url
@@ -164,11 +164,13 @@ namespace DFC.Composite.Shell.Services.Application
             return contentRetriever.GetContent(url, bodyRegion, false, RequestBaseUrl);
         }
 
-        private async Task<string> GetApplicationHeadRegionMarkUpAsync(RegionModel regionModel, string article)
+        private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article)
         {
             var url = FormatArticleUrl(regionModel.RegionEndpoint, article);
 
-            return await this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
+            var result = await this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
+
+            return contentProcessorService.Process(result, RequestBaseUrl, application.RootUrl);
         }
 
         private Task<string> GetPostMarkUpAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
