@@ -7,6 +7,7 @@ using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Policies.Options;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AssetLocationAndVersion;
@@ -101,6 +102,10 @@ namespace DFC.Composite.Shell
                 .AddHttpMessageHandler<CookieDelegatingHandler>()
                 .Services
                 .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(HealthClientOptions), policyOptions)
+                .AddHttpClient<IApplicationHealthService, ApplicationHealthService, HealthClientOptions>(Configuration, nameof(HealthClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(SitemapClientOptions), policyOptions)
