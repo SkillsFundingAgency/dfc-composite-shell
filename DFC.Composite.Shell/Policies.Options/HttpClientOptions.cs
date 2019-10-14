@@ -6,7 +6,7 @@ namespace DFC.Composite.Shell.Policies.Options
     {
         public Uri BaseAddress { get; set; }
 
-        public TimeSpan Timeout { get; set; } = new TimeSpan(0, 0, 30);         // default to 30 seconds
+        public TimeSpan Timeout { get; set; } = new TimeSpan(0, 0, 10);         // default to 10 seconds
 
         public string ApiKey { get; set; }
     }
