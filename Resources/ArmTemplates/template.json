@@ -169,7 +169,11 @@
                             },
                             {
                                 "name": "PathClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "PathClientOptions__ApiKey",
+                                "value": "[variables('PathsAndRegionsRegistrationApimKey')]"
                             },
                             {
                                 "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
@@ -193,7 +197,11 @@
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "RegionClientOptions__ApiKey",
+                                "value": "[variables('PathsAndRegionsRegistrationApimKey')]"
                             },
                             {
                                 "name": "RobotClientOptions__BaseAddress",
