@@ -6,7 +6,7 @@
             "value": "__ApimProxyAddress__"
         },
         "ApimKey": {
-            "value": "__ApimKey__"
+            "value": "__ApimCompositeKey__"
         },
         "AseHostingEnvironmentName": {
             "value": "__AseHostingEnvironmentName__"
