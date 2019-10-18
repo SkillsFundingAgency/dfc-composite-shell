@@ -5,7 +5,7 @@
         "ApimProxyAddress": {
             "type": "string"
         },
-        "ApimKey {
+        "ApimKey": {
             "type": "string"
         },
         "AseHostingEnvironmentName": {
@@ -156,7 +156,7 @@
                             },
                             {
                                 "name": "ApplicationClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
                             },
                             {
                                 "name": "BrandingAssetsCdn",
@@ -212,7 +212,7 @@
                             },
                             {
                                 "name": "RobotClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
                             },
                             {
                                 "name": "SitemapClientOptions__BaseAddress",
@@ -220,7 +220,7 @@
                             },
                             {
                                 "name": "SitemapClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
                             }
                         ]
                     }
@@ -231,5 +231,5 @@
             ]
         }
     ],
-        "outputs": {}
-    }
+    "outputs": {}
+}
