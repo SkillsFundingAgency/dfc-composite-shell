@@ -1,4 +1,5 @@
 variables:
+    ArmTemplateRoot: '$(Build.SourcesDirectory)\Resources\ArmTemplates'     
     SolutionBaseName: 'DFC.Composite.Shell'
     BuildPlatform: 'any cpu'
     BuildConfiguration: 'release'
