@@ -67,6 +67,11 @@ namespace DFC.Composite.Shell.Extensions
                             options.BaseAddress = httpClientOptions.BaseAddress;
                             options.Timeout = httpClientOptions.Timeout;
                             options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
+
+                            if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
+                            {
+                                options.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", httpClientOptions.ApiKey);
+                            }
                         })
                         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
                         {

@@ -5,6 +5,9 @@
         "ApimProxyAddress": {
             "value": "https://foo.api.nationalcareersservice.org.uk"
         },
+        "ApimKey": {
+            "value": "0123456789"
+        },
         "CompositeUiCdnUrl": {
             "value": "https://foo-compui-cdn.nationalcareersservice.org.uk"
         },

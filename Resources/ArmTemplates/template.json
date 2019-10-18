@@ -5,6 +5,9 @@
         "ApimProxyAddress": {
             "type": "string"
         },
+        "ApimKey {
+            "type": "string"
+        },
         "AseHostingEnvironmentName": {
             "type": "string",
             "defaultValue": ""
@@ -169,7 +172,11 @@
                             },
                             {
                                 "name": "PathClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "PathClientOptions__ApiKey",
+                                "value": "[parameters('ApimKey')]"
                             },
                             {
                                 "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
@@ -193,7 +200,11 @@
                             },
                             {
                                 "name": "RegionClientOptions__Timeout",
-                                "value": "00:00:30"
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "RegionClientOptions__ApiKey",
+                                "value": "[parameters('ApimKey')]"
                             },
                             {
                                 "name": "RobotClientOptions__BaseAddress",
