@@ -15,7 +15,7 @@ resources:
 
 jobs:
 
-#Build and test resources
+#Build and test resources 
 - template: AzureDevOpsTemplates/Build/dfc-arm-build.yml@dfc-devops
   parameters:
     ArmTemplateRoot: $(ArmTemplateRoot)
