@@ -5,6 +5,7 @@
 
     string VersionedPathForJQueryBundleMinJs = ViewData["VersionedPathForJQueryBundleMinJs"].ToString();
     string VersionedPathForAllMinJs = ViewData["VersionedPathForAllMinJs"].ToString();
+    string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString(); 
     string VersionedPathForSiteJs = ViewData["VersionedPathForSiteJs"].ToString();
 }
 
@@ -13,4 +14,5 @@
 
 <script>window.GOVUKFrontend.initAll()</script>
 
+<script src="@(VersionedPathForDfcDigitalMinJs)"></script>
 <script src="@(VersionedPathForSiteJs)"></script>

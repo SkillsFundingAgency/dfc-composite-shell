@@ -22,6 +22,8 @@ namespace DFC.Composite.Shell.Models
 
         public string VersionedPathForAllMinJs { get; set; }
 
+        public string VersionedPathForDfcDigitalMinJs { get; set; }
+
         public string VersionedPathForSiteJs { get; set; }
 
         public string Path { get; set; }
