@@ -90,13 +90,15 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             // Arrange
             var healthService = new ApplicationHealthService(defaultHttpClient, logger);
-            var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken" };
+            var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken", Path = "aPath" };
 
             // Act
             var result = await healthService.GetAsync(model).ConfigureAwait(false);
 
             // Assert
-            Assert.Null(result);
+            Assert.Single(result);
+            Assert.Equal(result.First().Service, model.Path);
+            Assert.Equal("InvalidOperationException: An invalid request URI was provided. The request URI must either be an absolute URI or BaseAddress must be set.", result.First().Message);
             A.CallTo(() => logger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
         }
     }

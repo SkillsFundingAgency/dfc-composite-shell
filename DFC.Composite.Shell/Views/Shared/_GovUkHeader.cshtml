@@ -1,20 +1,25 @@
-﻿<a href="#main-content" class="govuk-skip-link">Skip to main content</a>
+﻿<partial name="_jsEnabled" />
+
+<partial name="_SkipLink" />
+
+<partial name="_CookieBanner" />
 
 <header class="govuk-header " role="banner" data-module="header">
     <div class="govuk-header__container govuk-width-container">
-    <a href="/" class="govuk-header__link govuk-header__link--service-name">National Careers Service
-            </a>
-        
-            <button type="button" role="button" class="govuk-header__menu-button js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
-            <nav>
-                <ul id="navigation" class="govuk-header__navigation " aria-label="Top Level Navigation">
-                    <li class="govuk-header__navigation-item">
-                        <a class="govuk-header__link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
+        <a href="/" class="govuk-header__link govuk-header__link--service-name">
+            National Careers Service
+        </a>
 
-                    @await Component.InvokeAsync("ListPaths")
+        <button type="button" role="button" class="govuk-header__menu-button js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
+        <nav>
+            <ul id="navigation" class="govuk-header__navigation " aria-label="Top Level Navigation">
+                <li class="govuk-header__navigation-item">
+                    <a class="govuk-header__link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
 
-                </ul>
-            </nav>
+                @await Component.InvokeAsync("ListPaths")
+
+            </ul>
+        </nav>
     </div>
 </header>
