@@ -14,6 +14,8 @@
 
         string VersionedPathForSiteCss { get; }
 
+        string VersionedPathForDfcDigitalMinJs { get; }
+
         string VersionedPathForSiteJs { get; }
     }
 }
