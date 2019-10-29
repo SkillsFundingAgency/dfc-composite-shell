@@ -15,7 +15,7 @@ resources:
 
 jobs:
 
-#Build and test application
+#Build and test application 
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
   pool:
