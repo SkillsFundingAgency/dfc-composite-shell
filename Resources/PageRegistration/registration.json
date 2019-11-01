@@ -1,0 +1,18 @@
+[
+	{
+		"Path": "externalpath1",
+		"TopNavigationText": "External App",
+		"TopNavigationOrder": 700,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "http://www.google.com"
+    },
+    {
+		"Path": "externalpath2",
+		"TopNavigationText": "External App 2",
+		"TopNavigationOrder": 705,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "http://www.bing.com"
+    }
+]
