@@ -1,6 +1,6 @@
 [
 	{
-		"Path": "exploreCareers",
+		"Path": "externalExploreCareers",
 		"TopNavigationText": "Explore careers",
 		"TopNavigationOrder": 700,
 		"Layout": 0,
@@ -8,7 +8,7 @@
 		"ExternalUrl":  "__ExternalLiveSite__/explore-careers"
     },
     {
-		"Path": "skillsAssessment",
+		"Path": "externalSkillsAssessment",
 		"TopNavigationText": "Skills assessment",
 		"TopNavigationOrder": 701,
 		"Layout": 0,
@@ -16,7 +16,7 @@
 		"ExternalUrl":  "__ExternalLiveSite__/skills-assessment"
 	},
     {
-		"Path": "findACourse",
+		"Path": "externalFindACourse",
 		"TopNavigationText": "Find a course",
 		"TopNavigationOrder": 702,
 		"Layout": 0,
@@ -24,7 +24,7 @@
 		"ExternalUrl":  "__ExternalLiveSite__/find-a-course"
 	},
     {
-		"Path": "contactUs",
+		"Path": "externalContactUs",
 		"TopNavigationText": "Contact us",
 		"TopNavigationOrder": 703,
 		"Layout": 0,
@@ -32,7 +32,7 @@
 		"ExternalUrl":  "__ExternalLiveSite__/contact-us"
 	},
     {
-		"Path": "aboutUs",
+		"Path": "externalAboutUs",
 		"TopNavigationText": "About us",
 		"TopNavigationOrder": 704,
 		"Layout": 0,
@@ -40,7 +40,7 @@
 		"ExternalUrl":  "__ExternalLiveSite__/about-us"
 	},
     {
-		"Path": "getAJob",
+		"Path": "externalGetAJob",
 		"TopNavigationText": "How to get a job",
 		"TopNavigationOrder": 705,
 		"Layout": 0,
