@@ -30,14 +30,15 @@ jobs:
     - visualstudio
 
   steps:
+  - task: CopyFiles@2
+    displayName: 'Copy Page Registration to Staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
+      TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
+
   - template: AzureDevOpsTemplates/Build/dfc-dotnetcore-build-notests.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
       BuildConfiguration: $(BuildConfiguration)
       PublishWebApp: true
-
-
-
-
-

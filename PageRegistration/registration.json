@@ -1,0 +1,50 @@
+[
+	{
+		"Path": "externalExploreCareers",
+		"TopNavigationText": "Explore careers",
+		"TopNavigationOrder": 700,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "__ExternalLiveSite__/explore-careers"
+    },
+    {
+		"Path": "externalSkillsAssessment",
+		"TopNavigationText": "Skills assessment",
+		"TopNavigationOrder": 701,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "__ExternalLiveSite__/skills-assessment"
+	},
+    {
+		"Path": "externalFindACourse",
+		"TopNavigationText": "Find a course",
+		"TopNavigationOrder": 702,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "__ExternalLiveSite__/find-a-course"
+	},
+    {
+		"Path": "externalContactUs",
+		"TopNavigationText": "Contact us",
+		"TopNavigationOrder": 703,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "__ExternalLiveSite__/contact-us"
+	},
+    {
+		"Path": "externalAboutUs",
+		"TopNavigationText": "About us",
+		"TopNavigationOrder": 704,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "__ExternalLiveSite__/about-us"
+	},
+    {
+		"Path": "externalGetAJob",
+		"TopNavigationText": "How to get a job",
+		"TopNavigationOrder": 705,
+		"Layout": 0,
+		"OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+		"ExternalUrl":  "__ExternalLiveSite__/get-a-job"
+    }
+]
