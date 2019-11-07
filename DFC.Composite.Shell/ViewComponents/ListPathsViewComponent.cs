@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents
@@ -24,7 +25,9 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                vm.Paths = await pathDataService.GetPaths().ConfigureAwait(false);
+                var paths = await pathDataService.GetPaths().ConfigureAwait(false);
+
+                vm.Paths = paths.Where(w => !string.IsNullOrWhiteSpace(w.TopNavigationText));
             }
             catch (BrokenCircuitException ex)
             {
