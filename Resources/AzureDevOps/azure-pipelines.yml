@@ -19,7 +19,7 @@ jobs:
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
   pool:
-    name: DAS - Continuous Deployment
+    name: NCS - CI and CD
     demands:
     - msbuild
     - visualstudio
