@@ -1,0 +1,33 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
+
+        <p class="govuk-body-l">
+            An error occurred while processing your request.
+        </p>
+        @if (Model.ShowRequestId)
+        {
+            <p class="govuk-body">
+                <strong>Request ID:</strong> <code>@Model.RequestId</code>
+            </p>
+        }
+
+        <p class="govuk-body-l">
+            Development Mode
+        </p>
+        <p class="govuk-body">
+            Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
+        </p>
+        <p class="govuk-body">
+            <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
+            It can result in displaying sensitive information from exceptions to end users.
+            For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
+            and restarting the app.
+        </p>
+    </div>
+</div>

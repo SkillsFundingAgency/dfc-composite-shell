@@ -1,0 +1,45 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ApimProxyAddress": {
+            "value": "__ApimProxyAddress__"
+        },
+        "ApimKey": {
+            "value": "__ApimCompositeKey__"
+        },
+        "AseHostingEnvironmentName": {
+            "value": "__AseHostingEnvironmentName__"
+        },
+        "AseResourceGroup": {
+            "value": "__AseResourceGroup__"
+        },
+        "AspSize": {
+            "value": "__AspSize__"
+        },
+        "AspTier": {
+            "value": "__AspTier__"
+        },
+        "CompositeUiCdnUrl": {
+            "value": "__CompositeUiCdnUrl__"
+        },
+        "CompositeUiSharedResourceGroup": {
+            "value": "__CompositeUiSharedResourceGroup__"
+        },
+        "CompositeUiSharedStorageAccountName": {
+            "value": "__CompositeUiSharedStorageAccountName__"
+        },
+        "Environment": {
+            "value": "__ReleaseEnvironmentName__",
+            "metadata": {
+                "comment": "Bug in tokenisation task prevents referencing Release.EnvironmentName directly.  https://github.com/TotalALM/VSTS-Tasks/issues/29"
+            }
+        },
+        "SharedAppServicePlanName": {
+            "value": "__SharedAppServicePlanName__"
+        },
+        "SharedAppServicePlanResourceGroup": {
+            "value": "__CompositeUiSharedResourceGroup__"
+        }
+    }
+}

@@ -15,6 +15,11 @@ resources:
 
 jobs:
 
+#Build and test resources
+- template: AzureDevOpsTemplates/Build/dfc-arm-build.yml@dfc-devops
+  parameters:
+    ArmTemplateRoot: $(ArmTemplateRoot)
+
 #Build and test application
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
@@ -25,14 +30,16 @@ jobs:
     - visualstudio
 
   steps:
+  - task: CopyFiles@2
+    displayName: 'Copy Page Registration to Staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
+      TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
+
+
   - template: AzureDevOpsTemplates/Build/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
       BuildConfiguration: $(BuildConfiguration)
       PublishWebApp: true
-
-
-
-
-

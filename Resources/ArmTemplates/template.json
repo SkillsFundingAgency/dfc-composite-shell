@@ -1,0 +1,235 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "ApimProxyAddress": {
+            "type": "string"
+        },
+        "ApimKey": {
+            "type": "string"
+        },
+        "AseHostingEnvironmentName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "AseResourceGroup": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "AspSize": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "AspTier": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "CompositeUiCdnUrl": {
+            "type": "string"
+        },
+        "CompositeUiSharedResourceGroup": {
+            "type": "string"
+        },
+        "CompositeUiSharedStorageAccountName": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string"
+        },
+        "SharedAppServicePlanName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "SharedAppServicePlanResourceGroup": {
+            "type": "string",
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        "AppServiceAppInsightsName": "[concat(variables('ResourcePrefix'), '-ai')]",
+        "AppServicePlanName": "[if(greater(length(parameters('SharedAppServicePlanName')), 0), parameters('SharedAppServicePlanName'), concat(variables('ResourcePrefix'), '-asp'))]",
+        "AppServicePlanResourceGroup": "[if(greater(length(parameters('SharedAppServicePlanResourceGroup')), 0), parameters('SharedAppServicePlanResourceGroup'), resourceGroup().name)]",
+        "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
+        "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
+        "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]",
+        "IsDraftEnvironment": "[endsWith(toLower(parameters('Environment')), '-draft')]",
+        "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
+        "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('AppServiceAppInsightsName')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[variables('AppServiceAppInsightsName')]"
+                    },
+                    "attachedService": {
+                        "value": ""
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('AppServicePlanName')]",
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServicePlanName": {
+                        "value": "[variables('AppServicePlanName')]"
+                    },
+                    "aseHostingEnvironmentName": {
+                        "value": "[parameters('AseHostingEnvironmentName')]"
+                    },
+                    "aseResourceGroup": {
+                        "value": "[parameters('AseResourceGroup')]"
+                    },
+                    "aspSize": {
+                        "value": "[parameters('AspSize')]"
+                    },
+                    "aspInstances": {
+                        "value": 1
+                    },
+                    "nonASETier": {
+                        "value": "[parameters('AspTier')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('WebAppName')]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[variables('WebAppName')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[variables('AppServicePlanName')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[variables('AppServicePlanResourceGroup')]"
+                    },
+                    "appServiceType": {
+                        "value": "app"
+                    },
+                    "deployStagingSlot": {
+                        "value": false
+                    },
+                    "appServiceAppSettings": {
+                        "value": [
+                            {
+                                "name": "MSDEPLOY_RENAME_LOCKED_FILES",
+                                "value": "1"
+                            },
+                            {
+                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
+                            },
+                            {
+                                "name": "AzureWebJobsStorage",
+                                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                            },
+                            {
+                                "name": "ApplicationClientOptions__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "ApplicationClientOptions__Timeout",
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "BrandingAssetsCdn",
+                                "value": "[parameters('CompositeUiCdnUrl')]"
+                            },
+                            {
+                                "name": "Logging__LogLevel__Default",
+                                "value": "Error"
+                            },
+                            {
+                                "name": "PathClientOptions__BaseAddress",
+                                "value": "[variables('CompositePathUrl')]"
+                            },
+                            {
+                                "name": "PathClientOptions__Timeout",
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "PathClientOptions__ApiKey",
+                                "value": "[parameters('ApimKey')]"
+                            },
+                            {
+                                "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
+                                "value": "00:01:00"
+                            },
+                            {
+                                "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
+                                "value": 3
+                            },
+                            {
+                                "name": "Policies__HttpRetry__BackoffPower",
+                                "value": 3
+                            },
+                            {
+                                "name": "Policies__HttpRetry__Count",
+                                "value": 3
+                            },
+                             {
+                                "name": "RegionClientOptions__BaseAddress",
+                                "value": "[variables('CompositeRegionUrl')]"
+                            },
+                            {
+                                "name": "RegionClientOptions__Timeout",
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "RegionClientOptions__ApiKey",
+                                "value": "[parameters('ApimKey')]"
+                            },
+                            {
+                                "name": "RobotClientOptions__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "RobotClientOptions__Timeout",
+                                "value": "00:00:10"
+                            },
+                            {
+                                "name": "SitemapClientOptions__BaseAddress",
+                                "value": null
+                            },
+                            {
+                                "name": "SitemapClientOptions__Timeout",
+                                "value": "00:00:10"
+                            }
+                        ]
+                    }
+                }
+            },
+            "dependsOn": [
+                "[variables('AppServiceAppInsightsName')]"
+            ]
+        }
+    ],
+    "outputs": {}
+}

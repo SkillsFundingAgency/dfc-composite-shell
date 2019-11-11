@@ -1,0 +1,14 @@
+﻿/* site styles
+-------------------------------------------------- */
+
+/* Composite UI classes */
+.CompositeUI-Region, .CompositeUI-ChildRegion {
+    margin: 2px;
+    padding: 2px;
+}
+
+.CompositeUI-RegionScrollX, .CompositeUI-ChildRegionScrollX {
+    overflow-x: auto;
+}
+
+/* end of file */

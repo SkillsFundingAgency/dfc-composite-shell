@@ -1,0 +1,85 @@
+﻿@{
+    Layout = Model.LayoutName;
+    ViewBag.BrandingAssetsCdn = Model.BrandingAssetsCdn;
+    ViewBag.Title = Model.PageTitle;
+    ViewBag.PhaseBannerHtml = Model.PhaseBannerHtml;
+
+    ViewBag.VersionedPathForMainMinCss = Model.VersionedPathForMainMinCss;
+    ViewBag.VersionedPathForGovukMinCss = Model.VersionedPathForGovukMinCss;
+    ViewBag.VersionedPathForAllIe8Css = Model.VersionedPathForAllIe8Css;
+    ViewBag.VersionedPathForSiteCss = Model.VersionedPathForSiteCss;
+    ViewBag.VersionedPathForJQueryBundleMinJs = Model.VersionedPathForJQueryBundleMinJs;
+    ViewBag.VersionedPathForAllMinJs = Model.VersionedPathForAllMinJs;
+    ViewBag.VersionedPathForDfcDigitalMinJs = Model.VersionedPathForDfcDigitalMinJs;
+    ViewBag.VersionedPathForSiteJs = Model.VersionedPathForSiteJs;
+}
+
+@{
+    DefineSection("Head", async (a) =>
+    {
+        if (Model.ContentHead != null)
+        {
+            this.WriteLiteral(Model.ContentHead.Value);
+        }
+    });
+}
+
+@{
+    DefineSection("Body", async (a) =>
+    {
+        if (Model.ContentBody != null)
+        {
+            this.WriteLiteral(Model.ContentBody.Value);
+        }
+    });
+}
+
+@{
+    DefineSection("BodyTop", async (a) =>
+    {
+        if (Model.ContentBodyTop != null)
+        {
+            this.WriteLiteral(Model.ContentBodyTop.Value);
+        }
+    });
+}
+
+@{
+    DefineSection("Breadcrumb", async (a) =>
+    {
+        if (Model.ContentBreadcrumb != null)
+        {
+            this.WriteLiteral(Model.ContentBreadcrumb.Value);
+        }
+    });
+}
+
+@{
+    DefineSection("SideBarLeft", async (a) =>
+    {
+        if (Model.ContentSidebarLeft != null)
+        {
+            this.WriteLiteral(Model.ContentSidebarLeft.Value);
+        }
+    });
+}
+
+@{
+    DefineSection("SideBarRight", async (a) =>
+    {
+        if (Model.ContentSidebarRight != null)
+        {
+            this.WriteLiteral(Model.ContentSidebarRight.Value);
+        }
+    });
+}
+
+@{
+    DefineSection("BodyFooter", async (a) =>
+    {
+        if (Model.ContentBodyFooter != null)
+        {
+            this.WriteLiteral(Model.ContentBodyFooter.Value);
+        }
+    });
+}
