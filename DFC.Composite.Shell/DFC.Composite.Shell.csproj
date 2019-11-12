@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
+    <ProjectGuid>80508BC7-EBF7-4F48-83B6-02C6D0B2E60A</ProjectGuid>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <ApplicationInsightsResourceId>/subscriptions/962cae10-2950-412a-93e3-d8ae92b17896/resourcegroups/dfc-dev-compui-shell-rg/providers/microsoft.insights/components/dfc-dev-compui-shell-ai</ApplicationInsightsResourceId>

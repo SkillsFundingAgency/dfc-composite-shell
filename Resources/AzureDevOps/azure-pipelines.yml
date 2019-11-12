@@ -10,7 +10,7 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.6.4
+    ref: refs/tags/v1.6.7
     endpoint: 'GitHub (ESFA)'
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
   pool:
-    name: Continuous Integration 02 - SSD - 160ACU
+    name: NCS - CI and CD
     demands:
     - msbuild
     - visualstudio
@@ -36,7 +36,8 @@ jobs:
       SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
       TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
 
-  - template: AzureDevOpsTemplates/Build/dfc-dotnetcore-build-notests.yml@dfc-devops
+
+  - template: AzureDevOpsTemplates/Build/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
