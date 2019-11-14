@@ -12,10 +12,6 @@
 
         string VersionedPathForMainMinCss { get; }
 
-        string VersionedPathForSiteCss { get; }
-
         string VersionedPathForDfcDigitalMinJs { get; }
-
-        string VersionedPathForSiteJs { get; }
     }
 }

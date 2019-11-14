@@ -165,11 +165,9 @@ namespace DFC.Composite.Shell.Controllers
             result.VersionedPathForMainMinCss = source.VersionedPathForMainMinCss;
             result.VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss;
             result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
-            result.VersionedPathForSiteCss = source.VersionedPathForSiteCss;
             result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
             result.VersionedPathForAllMinJs = source.VersionedPathForAllMinJs;
             result.VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs;
-            result.VersionedPathForSiteJs = source.VersionedPathForSiteJs;
 
             result.ContentBody = GetContent(source, PageRegion.Body);
             result.ContentBodyFooter = GetContent(source, PageRegion.BodyFooter);
