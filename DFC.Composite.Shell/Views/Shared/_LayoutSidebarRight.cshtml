@@ -40,16 +40,16 @@
                 <div class="govuk-grid-column-two-thirds">
                     @if (IsSectionDefined("Body"))
                     {
-                        <div class="CompositeUI-Region CompositeUI-RegionScrollX">
+                        <div>
                             @RenderSection("Body", required: false)
                         </div>
                     }
                 </div>
 
-                <div class="govuk-grid-column-one-third CompositeUI-RegionScrollX">
+                <div class="govuk-grid-column-one-third">
                     @if (IsSectionDefined("SideBarRight"))
                     {
-                        <div class="CompositeUI-Region">
+                        <div>
                             @RenderSection("SideBarRight", required: false)
                         </div>
                     }

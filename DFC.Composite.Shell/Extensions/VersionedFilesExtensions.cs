@@ -14,11 +14,9 @@ namespace DFC.Composite.Shell.Extensions
                 VersionedPathForMainMinCss = versionedFiles?.VersionedPathForMainMinCss,
                 VersionedPathForGovukMinCss = versionedFiles?.VersionedPathForGovukMinCss,
                 VersionedPathForAllIe8Css = versionedFiles?.VersionedPathForAllIe8Css,
-                VersionedPathForSiteCss = versionedFiles?.VersionedPathForSiteCss,
                 VersionedPathForJQueryBundleMinJs = versionedFiles?.VersionedPathForJQueryBundleMinJs,
                 VersionedPathForAllMinJs = versionedFiles?.VersionedPathForAllMinJs,
                 VersionedPathForDfcDigitalMinJs = versionedFiles?.VersionedPathForDfcDigitalMinJs,
-                VersionedPathForSiteJs = versionedFiles?.VersionedPathForSiteJs,
             };
         }
     }
