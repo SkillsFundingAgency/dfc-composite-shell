@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
+using System.Net;
 
 namespace DFC.Composite.Shell.Controllers
 {
@@ -31,6 +32,25 @@ namespace DFC.Composite.Shell.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [Route("/home/alert/{statusCode}")]
+        public IActionResult Alert(HttpStatusCode statusCode)
+        {
+            string viewName = nameof(Alert);
+            var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
+
+            viewModel.PageTitle = "Error | Explore careers | National Careers Service";
+
+            switch (statusCode)
+            {
+                case HttpStatusCode.NotFound:
+                    viewName += $"{(int)statusCode}";
+                    viewModel.PageTitle = "Page not found";
+                    break;
+            }
+
+            return View(viewName, viewModel);
         }
     }
 }

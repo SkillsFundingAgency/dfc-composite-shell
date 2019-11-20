@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Extensions;
 using DFC.Composite.Shell.Services.Regions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -37,6 +38,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 if (regionModel != null && regionModel.IsHealthy)
                 {
+                    string originalUrl = url;
+
                     logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
                     HttpResponseMessage response = null;
@@ -69,6 +72,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         {
                             break;
                         }
+                    }
+
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        var redirectTo = new Uri($"/home/alert/{response.StatusCode}", UriKind.Relative);
+
+                        throw new RedirectException(new Uri(originalUrl, UriKind.Absolute), redirectTo, false);
                     }
 
                     response?.EnsureSuccessStatusCode();
