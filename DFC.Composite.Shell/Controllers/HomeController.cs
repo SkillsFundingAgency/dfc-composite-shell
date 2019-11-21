@@ -34,19 +34,20 @@ namespace DFC.Composite.Shell.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [Route("/home/alert/{statusCode}")]
+        [Route("/alert/{statusCode?}")]
         public IActionResult Alert(HttpStatusCode statusCode)
         {
             string viewName = nameof(Alert);
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
-
-            viewModel.PageTitle = "Error | Explore careers | National Careers Service";
 
             switch (statusCode)
             {
                 case HttpStatusCode.NotFound:
                     viewName += $"{(int)statusCode}";
                     viewModel.PageTitle = "Page not found";
+                    break;
+                default:
+                    viewModel.PageTitle = "Error";
                     break;
             }
 

@@ -76,7 +76,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     if (response.StatusCode == HttpStatusCode.NotFound)
                     {
-                        var redirectTo = new Uri($"/home/alert/{response.StatusCode}", UriKind.Relative);
+                        var redirectTo = new Uri($"/alert/{response.StatusCode}", UriKind.Relative);
 
                         throw new RedirectException(new Uri(originalUrl, UriKind.Absolute), redirectTo, false);
                     }
