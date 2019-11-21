@@ -35,23 +35,28 @@ namespace DFC.Composite.Shell.Controllers
         }
 
         [Route("/alert/{statusCode?}")]
-        public IActionResult Alert(HttpStatusCode statusCode)
+        public IActionResult Alert(int? statusCode)
         {
-            string viewName = nameof(Alert);
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
 
-            switch (statusCode)
+            if (statusCode.HasValue)
             {
-                case HttpStatusCode.NotFound:
-                    viewName += $"{(int)statusCode}";
-                    viewModel.PageTitle = "Page not found";
-                    break;
-                default:
-                    viewModel.PageTitle = "Error";
-                    break;
+                switch ((HttpStatusCode)statusCode.Value)
+                {
+                    case HttpStatusCode.NotFound:
+                        viewModel.PageTitle = "Page not found";
+                        break;
+                    default:
+                        viewModel.PageTitle = $"Error ({statusCode.Value})";
+                        break;
+                }
+            }
+            else
+            {
+                viewModel.PageTitle = $"Error";
             }
 
-            return View(viewName, viewModel);
+            return View(viewModel);
         }
     }
 }
