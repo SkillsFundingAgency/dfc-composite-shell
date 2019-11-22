@@ -28,8 +28,8 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         [Fact]
         public async Task WhenInvokedReturnsPaths()
         {
-            var pathModel1 = new PathModel() { Path = "path1", IsOnline = true, OfflineHtml = "OfflineHtml1" };
-            var pathModel2 = new PathModel() { Path = "path2", IsOnline = true, OfflineHtml = "OfflineHtml2" };
+            var pathModel1 = new PathModel() { TopNavigationText = "blah", Path = "path1", IsOnline = true, OfflineHtml = "OfflineHtml1" };
+            var pathModel2 = new PathModel() { TopNavigationText = "blah", Path = "path2", IsOnline = true, OfflineHtml = "OfflineHtml2" };
             var paths = new List<PathModel>() { pathModel1, pathModel2 };
             pathDataService.Setup(x => x.GetPaths()).ReturnsAsync(paths);
 
