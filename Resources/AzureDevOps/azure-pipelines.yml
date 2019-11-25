@@ -10,7 +10,7 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.6.7
+    ref: refs/tags/v1.6.12
     endpoint: 'GitHub (ESFA)'
 
 jobs:
@@ -42,4 +42,6 @@ jobs:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
       BuildConfiguration: $(BuildConfiguration)
+      DotNetCoreVersion: 2.2.402
       PublishWebApp: true
+      TestSuffix: UnitTests

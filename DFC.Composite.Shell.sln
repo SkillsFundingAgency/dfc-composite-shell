@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFC.Composite.Shell", "DFC.Composite.Shell\DFC.Composite.Shell.csproj", "{80508BC7-EBF7-4F48-83B6-02C6D0B2E60A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFC.Composite.Shell.Test", "DFC.Composite.Shell.Test\DFC.Composite.Shell.Test.csproj", "{405FF219-6887-4D27-9F74-2A1FF4EFD062}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFC.Composite.Shell.UnitTests", "DFC.Composite.Shell.UnitTests\DFC.Composite.Shell.UnitTests.csproj", "{405FF219-6887-4D27-9F74-2A1FF4EFD062}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{EC09364A-8219-4180-95AD-327D219E6E15}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		UnitTests.CodeAnalysis.ruleset = UnitTests.CodeAnalysis.ruleset
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFC.Composite.Shell.Integration.Test", "DFC.Composite.Shell.Integration.Test\DFC.Composite.Shell.Integration.Test.csproj", "{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DFC.Composite.Shell.IntegrationTests", "DFC.Composite.Shell.IntegrationTests\DFC.Composite.Shell.IntegrationTests.csproj", "{F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DFC.Composite.Shell.Views.Test", "DFC.Composite.Shell.Views.Test\DFC.Composite.Shell.Views.Test.csproj", "{B1951870-4D2F-4EAD-BDCE-DC1033237212}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DFC.Composite.Shell.Views.Test", "DFC.Composite.Shell.Views.UnitTests\DFC.Composite.Shell.Views.UnitTests.csproj", "{B1951870-4D2F-4EAD-BDCE-DC1033237212}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{29362C4D-B10A-469C-81E9-B0678A5908F8}"
 EndProject
