@@ -34,6 +34,16 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
+        public void HomeControllerAlertActionReturnsSuccess()
+        {
+            var result = defaultController.Alert(404);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
+            Assert.Equal("Page not found", model.PageTitle);
+        }
+
+        [Fact]
         public void HomeControllerErrorActionReturnsSuccess()
         {
             var homeController = new HomeController(defaultVersionedFiles, defaultConfiguration)
