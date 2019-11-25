@@ -11,9 +11,9 @@ namespace DFC.Composite.Shell.Views.Test.Tests
 {
     public class ShowHelpLinksViewComponentTests
     {
-        private ShowHelpLinksViewComponent viewComponent;
-        private Mock<ILogger<ShowHelpLinksViewComponent>> logger;
-        private Mock<IPathDataService> pathDataService;
+        private readonly ShowHelpLinksViewComponent viewComponent;
+        private readonly Mock<ILogger<ShowHelpLinksViewComponent>> logger;
+        private readonly Mock<IPathDataService> pathDataService;
 
         public ShowHelpLinksViewComponentTests()
         {
@@ -39,7 +39,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         [Fact]
         public async Task ReturnsOfflineFalseWhenPathDoesNotExist()
         {
-            var pathModel = new PathModel() { IsOnline = false};
+            var pathModel = new PathModel() { IsOnline = false };
             pathDataService.Setup(x => x.GetPath(It.IsAny<string>())).ReturnsAsync(pathModel);
 
             var result = await viewComponent.InvokeAsync();

@@ -8,14 +8,16 @@ namespace DFC.Composite.Shell.Views.Test.Tests
 {
     public class LayoutSideBarLeftTests : TestBase
     {
-        private string _layout = "_LayoutSideBarLeft";
+        private const string _layout = "_LayoutSideBarLeft";
 
         [Fact]
         public void SideBarRightDoesNotAppear()
         {
-            var model = new PageViewModelResponse();
-            model.LayoutName = _layout;
-            model.ContentSidebarRight = new HtmlString("ContentSideBarRight");
+            var model = new PageViewModelResponse
+            {
+                LayoutName = _layout,
+                ContentSidebarRight = new HtmlString("ContentSideBarRight")
+            };
             var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 
@@ -27,14 +29,16 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         [Fact]
         public void ContainsContentFromOtherSections()
         {
-            var model = new PageViewModelResponse();
-            model.LayoutName = _layout;
-            model.ContentHead = new HtmlString("ContentHead");
-            model.ContentBodyTop = new HtmlString("ContentBodyTop");
-            model.ContentBreadcrumb = new HtmlString("ContentBreadcrumb");
-            model.ContentBody = new HtmlString("ContentBody");
-            model.ContentBodyFooter = new HtmlString("ContentBodyFooter");
-            model.ContentSidebarLeft = new HtmlString("ContentSideBarLeft");
+            var model = new PageViewModelResponse
+            {
+                LayoutName = _layout,
+                ContentHead = new HtmlString("ContentHead"),
+                ContentBodyTop = new HtmlString("ContentBodyTop"),
+                ContentBreadcrumb = new HtmlString("ContentBreadcrumb"),
+                ContentBody = new HtmlString("ContentBody"),
+                ContentBodyFooter = new HtmlString("ContentBodyFooter"),
+                ContentSidebarLeft = new HtmlString("ContentSideBarLeft")
+            };
             var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 
