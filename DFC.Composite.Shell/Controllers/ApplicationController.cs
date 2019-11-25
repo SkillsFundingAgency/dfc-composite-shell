@@ -85,9 +85,11 @@ namespace DFC.Composite.Shell.Controllers
             }
             catch (RedirectException ex)
             {
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.PathAndQuery} to: {ex.Location?.PathAndQuery}");
+                string redirectTo = ex.Location?.OriginalString;
 
-                Response.Redirect(ex.Location?.PathAndQuery, ex.IsPermenant);
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.PathAndQuery} to: {redirectTo}");
+
+                Response.Redirect(redirectTo, ex.IsPermenant);
             }
             catch (Exception ex)
             {
@@ -154,28 +156,29 @@ namespace DFC.Composite.Shell.Controllers
 
         private PageViewModelResponse Map(PageViewModel source)
         {
-            var result = new PageViewModelResponse();
+            var result = new PageViewModelResponse
+            {
+                BrandingAssetsCdn = source.BrandingAssetsCdn,
+                LayoutName = source.LayoutName,
+                PageTitle = source.PageTitle,
+                Path = source.Path,
+                PhaseBannerHtml = source.PhaseBannerHtml,
 
-            result.BrandingAssetsCdn = source.BrandingAssetsCdn;
-            result.LayoutName = source.LayoutName;
-            result.PageTitle = source.PageTitle;
-            result.Path = source.Path;
-            result.PhaseBannerHtml = source.PhaseBannerHtml;
+                VersionedPathForMainMinCss = source.VersionedPathForMainMinCss,
+                VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss,
+                VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css,
+                VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs,
+                VersionedPathForAllMinJs = source.VersionedPathForAllMinJs,
+                VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs,
 
-            result.VersionedPathForMainMinCss = source.VersionedPathForMainMinCss;
-            result.VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss;
-            result.VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css;
-            result.VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs;
-            result.VersionedPathForAllMinJs = source.VersionedPathForAllMinJs;
-            result.VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs;
-
-            result.ContentBody = GetContent(source, PageRegion.Body);
-            result.ContentBodyFooter = GetContent(source, PageRegion.BodyFooter);
-            result.ContentBodyTop = GetContent(source, PageRegion.BodyTop);
-            result.ContentBreadcrumb = GetContent(source, PageRegion.Breadcrumb);
-            result.ContentHead = GetContent(source, PageRegion.Head);
-            result.ContentSidebarLeft = GetContent(source, PageRegion.SidebarLeft);
-            result.ContentSidebarRight = GetContent(source, PageRegion.SidebarRight);
+                ContentBody = GetContent(source, PageRegion.Body),
+                ContentBodyFooter = GetContent(source, PageRegion.BodyFooter),
+                ContentBodyTop = GetContent(source, PageRegion.BodyTop),
+                ContentBreadcrumb = GetContent(source, PageRegion.Breadcrumb),
+                ContentHead = GetContent(source, PageRegion.Head),
+                ContentSidebarLeft = GetContent(source, PageRegion.SidebarLeft),
+                ContentSidebarRight = GetContent(source, PageRegion.SidebarRight),
+            };
 
             return result;
         }

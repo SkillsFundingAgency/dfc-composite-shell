@@ -13,9 +13,9 @@ namespace DFC.Composite.Shell.Views.Test.Tests
 {
     public class ListPathsViewComponentTests
     {
-        private ListPathsViewComponent viewComponent;
-        private Mock<ILogger<ListPathsViewComponent>> logger;
-        private Mock<IPathDataService> pathDataService;
+        private readonly ListPathsViewComponent viewComponent;
+        private readonly Mock<ILogger<ListPathsViewComponent>> logger;
+        private readonly Mock<IPathDataService> pathDataService;
 
         public ListPathsViewComponentTests()
         {
@@ -28,8 +28,8 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         [Fact]
         public async Task WhenInvokedReturnsPaths()
         {
-            var pathModel1 = new PathModel() { Path = "path1", IsOnline = true, OfflineHtml = "OfflineHtml1" };
-            var pathModel2 = new PathModel() { Path = "path2", IsOnline = true, OfflineHtml = "OfflineHtml2" };
+            var pathModel1 = new PathModel() { Path = "path1", IsOnline = true, OfflineHtml = "OfflineHtml1", TopNavigationText = "Offline Html1" };
+            var pathModel2 = new PathModel() { Path = "path2", IsOnline = true, OfflineHtml = "OfflineHtml2", TopNavigationText = "Offline Html2" };
             var paths = new List<PathModel>() { pathModel1, pathModel2 };
             pathDataService.Setup(x => x.GetPaths()).ReturnsAsync(paths);
 
