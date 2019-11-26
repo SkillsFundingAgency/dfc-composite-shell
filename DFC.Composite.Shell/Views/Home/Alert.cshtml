@@ -1,16 +1,16 @@
 ﻿@model PageViewModel
 
 @{
+    Layout = Model.LayoutName;
+    ViewData["BrandingAssetsCdn"] = Model.BrandingAssetsCdn;
+    ViewData["Title"] = Model.PageTitle;
+
     ViewData["VersionedPathForMainMinCss"] = Model.VersionedPathForMainMinCss;
     ViewData["VersionedPathForGovukMinCss"] = Model.VersionedPathForGovukMinCss;
     ViewData["VersionedPathForAllIe8Css"] = Model.VersionedPathForAllIe8Css;
     ViewData["VersionedPathForJQueryBundleMinJs"] = Model.VersionedPathForJQueryBundleMinJs;
     ViewData["VersionedPathForAllMinJs"] = Model.VersionedPathForAllMinJs;
     ViewData["VersionedPathForDfcDigitalMinJs"] = Model.VersionedPathForDfcDigitalMinJs;
-
-    Layout = Model.LayoutName;
-    ViewData["BrandingAssetsCdn"] = Model.BrandingAssetsCdn;
-    ViewData["Title"] = Model.PageTitle;
 }
 
 @{
