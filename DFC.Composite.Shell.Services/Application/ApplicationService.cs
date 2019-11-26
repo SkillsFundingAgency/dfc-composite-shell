@@ -52,17 +52,22 @@ namespace DFC.Composite.Shell.Services.Application
             if (application.Path.IsOnline)
             {
                 //Get the markup at the head url first. This will create the session if it doesn't already exist
-                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
-                pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+                if (!string.IsNullOrWhiteSpace(article))
+                {
+                    var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
+                    pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+
+                    //Load related regions
+                    var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
+
+                    //Wait until everything is done
+                    await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
+                }
 
                 //Get the markup at this url
                 var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, article);
 
-                //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
-
-                //Wait until everything is done
-                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
+                await Task.WhenAll(applicationBodyRegionTask).ConfigureAwait(false);
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
