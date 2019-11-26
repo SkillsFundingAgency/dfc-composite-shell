@@ -34,7 +34,7 @@ namespace DFC.Composite.Shell.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [Route("/alert/{statusCode?}")]
+        [Route("alert/{statusCode?}")]
         public IActionResult Alert(int? statusCode)
         {
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
