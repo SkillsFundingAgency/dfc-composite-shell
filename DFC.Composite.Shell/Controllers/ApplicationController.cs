@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
@@ -121,6 +122,26 @@ namespace DFC.Composite.Shell.Controllers
 
                         ModelState.AddModelError(string.Empty, errorString);
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
+                    }
+                    else if (!string.IsNullOrEmpty(application.Path.ExternalURL))
+                    {
+                        logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestViewModel.Path}");
+
+                        var urlStringBuilder = new StringBuilder(application.Path.ExternalURL);
+
+                        if (requestViewModel.FormCollection.Any())
+                        {
+                            urlStringBuilder.Append("?");
+
+                            foreach (var item in requestViewModel.FormCollection)
+                            {
+                                urlStringBuilder.Append($"{item.Key}={Uri.EscapeDataString(item.Value)}&");
+                            }
+                        }
+
+                        string url = urlStringBuilder.ToString().TrimEnd('&');
+
+                        return Redirect(url);
                     }
                     else
                     {
