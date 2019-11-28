@@ -123,26 +123,6 @@ namespace DFC.Composite.Shell.Controllers
                         ModelState.AddModelError(string.Empty, errorString);
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
                     }
-                    else if (!string.IsNullOrEmpty(application.Path.ExternalURL))
-                    {
-                        logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestViewModel.Path}");
-
-                        var urlStringBuilder = new StringBuilder(application.Path.ExternalURL);
-
-                        if (requestViewModel.FormCollection.Any())
-                        {
-                            urlStringBuilder.Append("?");
-
-                            foreach (var item in requestViewModel.FormCollection)
-                            {
-                                urlStringBuilder.Append($"{item.Key}={Uri.EscapeDataString(item.Value)}&");
-                            }
-                        }
-
-                        string url = urlStringBuilder.ToString().TrimEnd('&');
-
-                        return Redirect(url);
-                    }
                     else
                     {
                         mapper.Map(application, viewModel);
