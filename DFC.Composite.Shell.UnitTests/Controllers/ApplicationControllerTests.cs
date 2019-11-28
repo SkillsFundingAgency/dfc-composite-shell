@@ -186,6 +186,29 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
+        public async Task ApplicationControllerPostActionToExternalUrl()
+        {
+            var requestModel = new ActionPostRequestModel
+            {
+                Path = "external",
+                FormCollection = new FormCollection(new Dictionary<string, StringValues>
+                {
+                    { "someKey", "someFormValue" },
+                }),
+            };
+            var externalApplicationModel = new ApplicationModel
+            {
+                Path = new PathModel { Path = requestModel.Path, ExternalURL = "https:/an-external-url", },
+            };
+            A.CallTo(() => defaultApplicationService.GetApplicationAsync(A<string>.Ignored)).Returns(externalApplicationModel);
+
+            var response = await defaultPostController.Action(requestModel).ConfigureAwait(false);
+
+            var redirectResult = Assert.IsAssignableFrom<RedirectResult>(response);
+            Assert.Contains(externalApplicationModel.Path.ExternalURL, redirectResult.Url, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
         public async Task ApplicationControllerPostActionThrowsAndLogsExceptionWhenExceptionOccurs()
         {
             var fakehttpContext = A.Fake<HttpContext>();
