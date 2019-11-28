@@ -46,5 +46,13 @@
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/get-a-job"
+  },
+  {
+    "Path": "search-results",
+    "TopNavigationText": "Explore careers search",
+    "TopNavigationOrder": 706,
+    "Layout": 0,
+    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+    "ExternalUrl": "__ExternalLiveSite__/search-results"
   }
 ]
