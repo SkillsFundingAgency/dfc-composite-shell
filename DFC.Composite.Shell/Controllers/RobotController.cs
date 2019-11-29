@@ -90,14 +90,13 @@ namespace DFC.Composite.Shell.Controllers
             var shellRobotsText = await shellRobotFileService.GetFileText(hostingEnvironment.WebRootPath).ConfigureAwait(false);
             robot.Append(shellRobotsText);
 
-            // add any dynamic robots data form the Shell app
-            //robot.Add("<<add any dynamic text or other here>>");
+            // add any dynamic robots data from the Shell app
         }
 
         private async Task<IEnumerable<ApplicationRobotModel>> GetApplicationRobotsAsync()
         {
             var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.RobotsURL)).ToList();
+            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrWhiteSpace(w.RobotsURL)).ToList();
 
             var applicationRobotModels = await CreateApplicationRobotModelTasksAsync(onlinePaths).ConfigureAwait(false);
 
@@ -145,7 +144,7 @@ namespace DFC.Composite.Shell.Controllers
                     logger.LogInformation($"{nameof(Action)}: Received child robots.txt for: {applicationRobotModel.Path}");
 
                     var applicationRobotsText = applicationRobotModel.RetrievalTask.Result;
-                    if (string.IsNullOrEmpty(applicationRobotsText))
+                    if (string.IsNullOrWhiteSpace(applicationRobotsText))
                     {
                         continue;
                     }
@@ -154,7 +153,7 @@ namespace DFC.Composite.Shell.Controllers
 
                     for (var i = 0; i < robotsLines.Length; i++)
                     {
-                        if (string.IsNullOrEmpty(robotsLines[i]))
+                        if (string.IsNullOrWhiteSpace(robotsLines[i]))
                         {
                             continue;
                         }
@@ -178,7 +177,7 @@ namespace DFC.Composite.Shell.Controllers
                         }
                     }
 
-                    robot.Append(string.Join(Environment.NewLine, robotsLines.Where(w => !string.IsNullOrEmpty(w))));
+                    robot.Append(string.Join(Environment.NewLine, robotsLines.Where(w => !string.IsNullOrWhiteSpace(w))));
                 }
                 else
                 {

@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public void ProcessReturnsEmptyStringIfNoContent()
         {
             var result = contentProcessorService.Process(string.Empty, string.Empty, string.Empty);
-            Assert.True(string.IsNullOrEmpty(result));
+            Assert.True(string.IsNullOrWhiteSpace(result));
         }
 
         [Fact]

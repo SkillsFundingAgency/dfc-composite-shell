@@ -19,17 +19,17 @@ namespace DFC.Composite.Shell.Models.SitemapModels
 
         public bool ShouldSerializeCaption()
         {
-            return !string.IsNullOrEmpty(Caption);
+            return !string.IsNullOrWhiteSpace(Caption);
         }
 
         public bool ShouldSerializeTitle()
         {
-            return !string.IsNullOrEmpty(Title);
+            return !string.IsNullOrWhiteSpace(Title);
         }
 
         public bool ShouldSerializeGeoLoacation()
         {
-            return !string.IsNullOrEmpty(GeoLocation);
+            return !string.IsNullOrWhiteSpace(GeoLocation);
         }
     }
 }

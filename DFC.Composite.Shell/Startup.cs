@@ -31,21 +31,46 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace DFC.Composite.Shell
 {
     public class Startup
     {
-        private readonly Guid correlationId;
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            correlationId = Guid.NewGuid();
         }
 
         private IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public static void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.UseCorrelationId(new CorrelationIdOptions
+            {
+                Header = Constants.CorrelationIdHeaderName,
+                UseGuidForCorrelationId = true,
+                UpdateTraceIdentifier = false,
+            });
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
+
+            ConfigureRouting(app);
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -116,35 +141,6 @@ namespace DFC.Composite.Shell
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.UseCorrelationId(new CorrelationIdOptions
-            {
-                Header = Constants.CorrelationIdHeaderName,
-                UseGuidForCorrelationId = true,
-                UpdateTraceIdentifier = false,
-            });
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-
-            ConfigureRouting(app);
         }
 
         private static void ConfigureRouting(IApplicationBuilder app)

@@ -101,7 +101,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             var result = await defaultController.Sitemap().ConfigureAwait(false);
 
-            Assert.True(!string.IsNullOrEmpty(result.Content) && result.ContentType == MediaTypeNames.Application.Xml);
+            Assert.True(!string.IsNullOrWhiteSpace(result.Content) && result.ContentType == MediaTypeNames.Application.Xml);
         }
 
         [Fact]

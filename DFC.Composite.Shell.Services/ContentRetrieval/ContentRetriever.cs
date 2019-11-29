@@ -94,7 +94,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
+                    if (!string.IsNullOrWhiteSpace(regionModel?.OfflineHTML))
                     {
                         results = regionModel.OfflineHTML;
                     }
@@ -113,7 +113,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
+                if (!string.IsNullOrWhiteSpace(regionModel?.OfflineHTML))
                 {
                     results = regionModel.OfflineHTML;
                 }
@@ -122,7 +122,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
-                if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
+                if (!string.IsNullOrWhiteSpace(regionModel?.OfflineHTML))
                 {
                     results = regionModel.OfflineHTML;
                 }
@@ -167,7 +167,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
+                    if (!string.IsNullOrWhiteSpace(regionModel?.OfflineHTML))
                     {
                         results = regionModel.OfflineHTML;
                     }
@@ -186,7 +186,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
+                if (!string.IsNullOrWhiteSpace(regionModel?.OfflineHTML))
                 {
                     results = regionModel.OfflineHTML;
                 }
@@ -195,7 +195,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
-                if (!string.IsNullOrEmpty(regionModel?.OfflineHTML))
+                if (!string.IsNullOrWhiteSpace(regionModel?.OfflineHTML))
                 {
                     results = regionModel.OfflineHTML;
                 }

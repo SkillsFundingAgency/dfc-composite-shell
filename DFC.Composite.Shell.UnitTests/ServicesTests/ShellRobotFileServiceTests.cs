@@ -15,7 +15,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var service = new ShellRobotFileService(fileInfoHelper);
 
             var result = await service.GetFileText("SomeRobotsPath").ConfigureAwait(false);
-            Assert.True(string.IsNullOrEmpty(result));
+            Assert.True(string.IsNullOrWhiteSpace(result));
         }
 
         [Fact]

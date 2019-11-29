@@ -38,7 +38,7 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL);
 
-                if (!string.IsNullOrEmpty(model.BearerToken))
+                if (!string.IsNullOrWhiteSpace(model.BearerToken))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
                 }

@@ -35,7 +35,9 @@ namespace DFC.Composite.Shell.ViewComponents
             }
             catch (BrokenCircuitException ex)
             {
-                logger.LogError(ex, $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}");
+                var errorString = $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}";
+
+                logger.LogError(ex, errorString);
             }
             catch (Exception ex)
             {

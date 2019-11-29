@@ -21,7 +21,7 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
             }
 
             var shellRobotsText = await fileInfoHelper.ReadAllTextAsync(shellRobotsFile).ConfigureAwait(false);
-            return !string.IsNullOrEmpty(shellRobotsText) ? shellRobotsText : string.Empty;
+            return !string.IsNullOrWhiteSpace(shellRobotsText) ? shellRobotsText : string.Empty;
         }
     }
 }
