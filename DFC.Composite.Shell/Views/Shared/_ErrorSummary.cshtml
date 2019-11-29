@@ -18,7 +18,7 @@
                 {
                     foreach (var error in ViewData.ModelState[key].Errors)
                     {
-                        if (string.IsNullOrEmpty(key))
+                        if (string.IsNullOrWhiteSpace(key))
                         {
                             <li>
                                 @error.ErrorMessage

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Html;
-using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.Models
 {

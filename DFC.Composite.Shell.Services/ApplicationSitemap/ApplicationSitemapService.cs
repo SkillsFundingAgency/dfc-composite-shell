@@ -41,7 +41,7 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl);
 
-                if (!string.IsNullOrEmpty(model.BearerToken))
+                if (!string.IsNullOrWhiteSpace(model.BearerToken))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
                 }

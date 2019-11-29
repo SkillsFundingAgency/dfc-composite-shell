@@ -33,6 +33,7 @@ namespace DFC.Composite.Shell.Integration.Test
 
             // Assert
             Assert.Equal(MediaTypeNames.Application.Json, response.Content.Headers.ContentType.MediaType);
+            request.Dispose();
         }
     }
 }

@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
@@ -65,7 +64,7 @@ namespace DFC.Composite.Shell.Controllers
                         ModelState.AddModelError(string.Empty, errorString);
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
                     }
-                    else if (!string.IsNullOrEmpty(application.Path.ExternalURL))
+                    else if (!string.IsNullOrWhiteSpace(application.Path.ExternalURL))
                     {
                         logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestViewModel.Path}");
 
@@ -155,7 +154,7 @@ namespace DFC.Composite.Shell.Controllers
             return View(MainRenderViewName, Map(viewModel));
         }
 
-        private PageViewModelResponse Map(PageViewModel source)
+        private static PageViewModelResponse Map(PageViewModel source)
         {
             var result = new PageViewModelResponse
             {
@@ -184,7 +183,7 @@ namespace DFC.Composite.Shell.Controllers
             return result;
         }
 
-        private HtmlString GetContent(PageViewModel pageViewModel, PageRegion pageRegionType)
+        private static HtmlString GetContent(PageViewModel pageViewModel, PageRegion pageRegionType)
         {
             var result = string.Empty;
             var pageRegionContentModel = pageViewModel.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == pageRegionType);

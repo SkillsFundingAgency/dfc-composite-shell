@@ -83,7 +83,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
             var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.SitemapURL)).ToList();
+            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrWhiteSpace(w.SitemapURL)).ToList();
 
             var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlinePaths).ConfigureAwait(false);
 

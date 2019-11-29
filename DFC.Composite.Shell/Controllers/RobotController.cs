@@ -65,7 +65,7 @@ namespace DFC.Composite.Shell.Controllers
 
                 if (sitemapRouteUrl != null)
                 {
-                    robot.Append($"Sitemap: {Request.Scheme}://{Request.Host}{sitemapRouteUrl}");
+                    robot.Add($"Sitemap: {Request.Scheme}://{Request.Host}{sitemapRouteUrl}");
                 }
 
                 logger.LogInformation("Generated Robots.txt");
@@ -85,19 +85,47 @@ namespace DFC.Composite.Shell.Controllers
             return Content(null, MediaTypeNames.Text.Plain);
         }
 
+        private static IEnumerable<string> ProcessRobotsLines(ApplicationRobotModel applicationRobotModel, string baseUrl, string[] robotsLines)
+        {
+            for (var i = 0; i < robotsLines.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(robotsLines[i]))
+                {
+                    // remove any user-agent and sitemap lines
+                    var lineSegments = robotsLines[i].Split(new[] { ':' }, 2);
+                    var skipLinesWithSegment = new[] { "User-agent", "Sitemap" };
+
+                    if (lineSegments.Length > 0 && skipLinesWithSegment.Contains(lineSegments[0], StringComparer.OrdinalIgnoreCase))
+                    {
+                        robotsLines[i] = string.Empty;
+                    }
+
+                    // rewrite the URL to swap any child application address prefix for the composite UI address prefix
+                    var pathRootUri = new Uri(applicationRobotModel.RobotsURL);
+                    var appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
+
+                    if (robotsLines[i].Contains(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        robotsLines[i] = robotsLines[i].Replace(appBaseUrl, baseUrl, StringComparison.InvariantCultureIgnoreCase);
+                    }
+                }
+            }
+
+            return robotsLines.Where(w => !string.IsNullOrWhiteSpace(w));
+        }
+
         private async Task AppendShellRobot(Robot robot)
         {
             var shellRobotsText = await shellRobotFileService.GetFileText(hostingEnvironment.WebRootPath).ConfigureAwait(false);
             robot.Append(shellRobotsText);
 
-            // add any dynamic robots data form the Shell app
-            //robot.Add("<<add any dynamic text or other here>>");
+            // add any dynamic robots data from the Shell app
         }
 
         private async Task<IEnumerable<ApplicationRobotModel>> GetApplicationRobotsAsync()
         {
             var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrEmpty(w.RobotsURL)).ToList();
+            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrWhiteSpace(w.RobotsURL)).ToList();
 
             var applicationRobotModels = await CreateApplicationRobotModelTasksAsync(onlinePaths).ConfigureAwait(false);
 
@@ -145,40 +173,21 @@ namespace DFC.Composite.Shell.Controllers
                     logger.LogInformation($"{nameof(Action)}: Received child robots.txt for: {applicationRobotModel.Path}");
 
                     var applicationRobotsText = applicationRobotModel.RetrievalTask.Result;
-                    if (string.IsNullOrEmpty(applicationRobotsText))
+
+                    if (!string.IsNullOrWhiteSpace(applicationRobotsText))
                     {
-                        continue;
-                    }
+                        var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                    var robotsLines = applicationRobotsText.Split(Environment.NewLine);
+                        var robotResults = ProcessRobotsLines(applicationRobotModel, baseUrl, robotsLines);
 
-                    for (var i = 0; i < robotsLines.Length; i++)
-                    {
-                        if (string.IsNullOrEmpty(robotsLines[i]))
+                        foreach (var robotResult in robotResults)
                         {
-                            continue;
-                        }
-
-                        // remove any user-agent and sitemap lines
-                        var lineSegments = robotsLines[i].Split(new[] { ':' }, 2);
-                        var skipLinesWithSegment = new[] { "User-agent", "Sitemap" };
-
-                        if (lineSegments.Length > 0 && skipLinesWithSegment.Contains(lineSegments[0], StringComparer.OrdinalIgnoreCase))
-                        {
-                            robotsLines[i] = string.Empty;
-                        }
-
-                        // rewrite the URL to swap any child application address prefix for the composite UI address prefix
-                        var pathRootUri = new Uri(applicationRobotModel.RobotsURL);
-                        var appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
-
-                        if (robotsLines[i].Contains(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            robotsLines[i] = robotsLines[i].Replace(appBaseUrl, baseUrl, StringComparison.InvariantCultureIgnoreCase);
+                            if (!robot.Lines.Contains(robotResult))
+                            {
+                                robot.Add(robotResult);
+                            }
                         }
                     }
-
-                    robot.Append(string.Join(Environment.NewLine, robotsLines.Where(w => !string.IsNullOrEmpty(w))));
                 }
                 else
                 {

@@ -61,7 +61,7 @@ namespace DFC.Composite.Shell.Services.CookieParsers
             for (var i = 0; i < dataSegments.Length; i++)
             {
                 var dataSegmentValue = dataSegments[i];
-                if (!string.IsNullOrEmpty(dataSegmentValue))
+                if (!string.IsNullOrWhiteSpace(dataSegmentValue))
                 {
                     dataSegments[i] = dataSegmentValue.Trim();
                 }

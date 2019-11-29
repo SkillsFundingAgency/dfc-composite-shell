@@ -4,32 +4,36 @@
     Layout = null;
 }
 
-<html>
-    <body>
-        <main role="main">
-            <div>
-                <h2 class="heading-medium">Service Status</h2>
-                <h2 class="heading-small">At : @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</h2>
+<!DOCTYPE html>
+<html lang="en-gb">
+<head>
+    <title>Health</title>
+</head>
+<body>
+    <main role="main">
+        <div>
+            <h2 class="heading-medium">Service Status</h2>
+            <h2 class="heading-small">At : @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</h2>
 
-                @if (Model.HealthItems?.Count > 0)
-                {
-                    <ul class="list-service">
-                        @foreach (var healthItem in Model.HealthItems)
-                        {
-                            <li>
-                                <div class="grid-row">
-                                    <div>
-                                        @Html.DisplayFor(m => healthItem.Service)
-                                    </div>
-                                    <div>
-                                        @Html.DisplayFor(m => healthItem.Message)
-                                    </div>
+            @if (Model.HealthItems?.Count > 0)
+            {
+                <ul class="list-service">
+                    @foreach (var healthItem in Model.HealthItems)
+                    {
+                        <li>
+                            <div class="grid-row">
+                                <div>
+                                    @Html.DisplayFor(m => healthItem.Service)
                                 </div>
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
-        </main>
-    </body>
+                                <div>
+                                    @Html.DisplayFor(m => healthItem.Message)
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </main>
+</body>
 </html>

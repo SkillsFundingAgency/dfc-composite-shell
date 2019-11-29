@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var result = service.GetBaseUrl(null, null);
 
-            Assert.True(string.IsNullOrEmpty(result));
+            Assert.True(string.IsNullOrWhiteSpace(result));
         }
 
         [Fact]
