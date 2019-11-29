@@ -27,11 +27,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetAsyncReturnsRobotTextWhenApiReturnsRobotText()
         {
-            const string ResponseText = "SomeResponseText";
+            const string ExpectedResponseText = "SomeResponseText";
             var httpResponse = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(ResponseText),
+                Content = new StringContent(ExpectedResponseText),
             };
 
             var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
@@ -44,7 +44,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var model = new ApplicationRobotModel { BearerToken = "SomeBearerToken" };
 
             var result = await robotService.GetAsync(model).ConfigureAwait(false);
-            Assert.Equal($"{ResponseText}\r\n", result);
+            Assert.Equal(ExpectedResponseText, result);
 
             httpResponse.Dispose();
             httpClient.Dispose();
