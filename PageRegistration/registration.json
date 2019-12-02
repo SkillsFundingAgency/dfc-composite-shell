@@ -41,7 +41,7 @@
   },
   {
     "Path": "get-a-job",
-    "TopNavigationText": "How to get a job",
+    "TopNavigationText": "Help to get a job",
     "TopNavigationOrder": 705,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",

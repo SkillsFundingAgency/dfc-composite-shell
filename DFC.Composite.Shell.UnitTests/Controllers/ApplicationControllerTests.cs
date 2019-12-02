@@ -23,6 +23,7 @@ namespace DFC.Composite.Shell.Test.Controllers
     public class ApplicationControllerTests
     {
         private const string ChildAppPath = "ChildAppPath";
+        private const string BadChildAppPath = "BadChildAppPath";
 
         private readonly ApplicationController defaultGetController;
         private readonly ApplicationController defaultPostController;
@@ -106,14 +107,23 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task ApplicationControllerGetActionAddsModelStateErrorWhenPathIsNull()
         {
-            var requestModel = new ActionGetRequestModel { Path = null };
+            var requestModel = new ActionGetRequestModel { Path = BadChildAppPath };
+            var fakeApplicationService = A.Fake<IApplicationService>();
+            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var response = await defaultGetController.Action(requestModel).ConfigureAwait(false);
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext(),
+                },
+            };
 
-            var viewResult = Assert.IsAssignableFrom<ViewResult>(response);
-            var errors = Assert.IsAssignableFrom<ModelStateDictionary>(viewResult.ViewData.ModelState);
+            await applicationController.Action(requestModel).ConfigureAwait(false);
 
-            Assert.True(errors.ErrorCount > 0);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
+            applicationController.Dispose();
         }
 
         [Fact]
@@ -168,21 +178,22 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task ApplicationControllerPostActionAddsModelStateErrorWhenPathIsNull()
         {
-            var requestModel = new ActionPostRequestModel
+            var fakeApplicationService = A.Fake<IApplicationService>();
+            A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(BadChildAppPath)).Returns(null as ApplicationModel);
+
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
             {
-                Path = null,
-                FormCollection = new FormCollection(new Dictionary<string, StringValues>
+                ControllerContext = new ControllerContext
                 {
-                    { "someKey", "someFormValue" },
-                }),
+                    HttpContext = new DefaultHttpContext { Request = { Method = "POST" }, },
+                },
             };
 
-            var response = await defaultPostController.Action(requestModel).ConfigureAwait(false);
+            await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
-            var viewResult = Assert.IsAssignableFrom<ViewResult>(response);
-            var errors = Assert.IsAssignableFrom<ModelStateDictionary>(viewResult.ViewData.ModelState);
-
-            Assert.True(errors.ErrorCount > 0);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
+            applicationController.Dispose();
         }
 
         [Fact]
