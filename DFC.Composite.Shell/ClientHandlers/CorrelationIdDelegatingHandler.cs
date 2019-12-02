@@ -21,10 +21,13 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (correlationContextAccessor.CorrelationContext != null && request != null && !request.Headers.Contains(correlationContextAccessor.CorrelationContext.Header))
+            if (this.correlationContextAccessor.CorrelationContext != null)
             {
-                request.Headers.Add(correlationContextAccessor.CorrelationContext.Header, correlationContextAccessor.CorrelationContext.CorrelationId);
-                logger.Log(LogLevel.Information, $"Added CorrelationID header with name {correlationContextAccessor.CorrelationContext.Header} and value {correlationContextAccessor.CorrelationContext.CorrelationId}");
+                if (request != null && !request.Headers.Contains(correlationContextAccessor.CorrelationContext.Header))
+                {
+                    request.Headers.Add(correlationContextAccessor.CorrelationContext.Header, correlationContextAccessor.CorrelationContext.CorrelationId);
+                    logger.Log(LogLevel.Information, $"Added CorrelationID header with name {correlationContextAccessor.CorrelationContext.Header} and value {correlationContextAccessor.CorrelationContext.CorrelationId}");
+                }
             }
 
             return base.SendAsync(request, cancellationToken);
