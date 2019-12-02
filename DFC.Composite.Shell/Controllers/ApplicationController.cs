@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
@@ -61,8 +62,11 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         var errorString = $"The path {requestViewModel.Path} is not registered";
 
-                        ModelState.AddModelError(string.Empty, errorString);
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
+
+                        var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
+
+                        throw new RedirectException(new Uri($"/{requestViewModel.Path}/{requestViewModel.Data}", UriKind.Relative), redirectTo, false);
                     }
                     else if (!string.IsNullOrWhiteSpace(application.Path.ExternalURL))
                     {
@@ -87,7 +91,7 @@ namespace DFC.Composite.Shell.Controllers
             {
                 string redirectTo = ex.Location?.OriginalString;
 
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.PathAndQuery} to: {redirectTo}");
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                 Response.Redirect(redirectTo, ex.IsPermenant);
             }
@@ -119,8 +123,11 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         var errorString = $"The path {requestViewModel.Path} is not registered";
 
-                        ModelState.AddModelError(string.Empty, errorString);
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
+
+                        var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
+
+                        throw new RedirectException(new Uri($"/{requestViewModel.Path}/{requestViewModel.Data}", UriKind.Relative), redirectTo, false);
                     }
                     else
                     {
@@ -139,9 +146,11 @@ namespace DFC.Composite.Shell.Controllers
             }
             catch (RedirectException ex)
             {
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.PathAndQuery} to: {ex.Location?.PathAndQuery}");
+                string redirectTo = ex.Location?.OriginalString;
 
-                Response.Redirect(ex.Location?.PathAndQuery, true);
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
+
+                Response.Redirect(redirectTo, ex.IsPermenant);
             }
             catch (Exception ex)
             {
