@@ -146,9 +146,11 @@ namespace DFC.Composite.Shell.Controllers
             }
             catch (RedirectException ex)
             {
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {ex.Location?.PathAndQuery}");
+                string redirectTo = ex.Location?.OriginalString;
 
-                Response.Redirect(ex.Location?.PathAndQuery, true);
+                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
+
+                Response.Redirect(redirectTo, ex.IsPermenant);
             }
             catch (Exception ex)
             {
