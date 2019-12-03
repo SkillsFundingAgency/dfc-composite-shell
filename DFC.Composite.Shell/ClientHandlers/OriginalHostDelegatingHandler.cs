@@ -21,8 +21,8 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            const string xForwardedProto = "x-forwarded-prot";
-            const string xOriginalHost = "x-original-host";
+            const string xForwardedProto = "X-Forwarded-Proto";
+            const string xOriginalHost = "X-Original-Host";
 
             if (request != null)
             {
