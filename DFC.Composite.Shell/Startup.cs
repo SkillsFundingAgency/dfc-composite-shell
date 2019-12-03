@@ -28,6 +28,7 @@ using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,6 +69,7 @@ namespace DFC.Composite.Shell
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseForwardedHeaders();
 
             ConfigureRouting(app);
         }
@@ -98,6 +100,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
+            services.AddTransient<OriginalHostDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
@@ -139,6 +142,11 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
