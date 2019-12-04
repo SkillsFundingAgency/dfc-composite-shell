@@ -42,5 +42,14 @@
     <SonarQubeSetting Include="sonar.cpd.exclusions">
       <Value>**/*.cshtml</Value>
     </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria">
+      <Value>w1</Value>
+    </SonarQubeSetting>
+      <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.w1.ruleKey">
+      <Value>Web:PageWithoutTitleCheck</Value>
+    </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.w1.resourceKey">
+      <Value>**/_Layout*.cshtml</Value>
+    </SonarQubeSetting>
   </ItemGroup>
 </Project>
