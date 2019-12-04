@@ -183,6 +183,7 @@ namespace DFC.Composite.Shell.Controllers
                 ContentBody = GetContent(source, PageRegion.Body),
                 ContentBodyFooter = GetContent(source, PageRegion.BodyFooter),
                 ContentBodyTop = GetContent(source, PageRegion.BodyTop),
+                ContentHeroBanner = GetContent(source, PageRegion.HeroBanner),
                 ContentBreadcrumb = GetContent(source, PageRegion.Breadcrumb),
                 ContentHead = GetContent(source, PageRegion.Head),
                 ContentSidebarLeft = GetContent(source, PageRegion.SidebarLeft),

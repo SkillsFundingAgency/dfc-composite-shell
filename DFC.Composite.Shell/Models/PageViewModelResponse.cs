@@ -32,6 +32,8 @@ namespace DFC.Composite.Shell.Models
 
         public HtmlString ContentHead { get; set; }
 
+        public HtmlString ContentHeroBanner { get; set; }
+
         public HtmlString ContentBreadcrumb { get; set; }
 
         public HtmlString ContentBodyTop { get; set; }

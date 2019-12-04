@@ -198,6 +198,7 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var tasks = new List<Task<string>>();
 
+            var heroBannerRegionTask = GetMarkupAsync(tasks, PageRegion.HeroBanner, application.Regions, article);
             var breadcrumbRegionTask = GetMarkupAsync(tasks, PageRegion.Breadcrumb, application.Regions, article);
             var bodyTopRegionTask = GetMarkupAsync(tasks, PageRegion.BodyTop, application.Regions, article);
             var sidebarLeftRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarLeft, application.Regions, article);
@@ -206,6 +207,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
+            PopulatePageRegionContent(application, pageModel, PageRegion.HeroBanner, heroBannerRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.Breadcrumb, breadcrumbRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyTop, bodyTopRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.SidebarLeft, sidebarLeftRegionTask);
