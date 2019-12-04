@@ -43,6 +43,16 @@
 }
 
 @{
+    DefineSection("HeroBanner", async (a) =>
+    {
+        if (Model.ContentHeroBanner != null)
+        {
+            this.WriteLiteral(Model.ContentHeroBanner.Value);
+        }
+    });
+}
+
+@{
     DefineSection("Breadcrumb", async (a) =>
     {
         if (Model.ContentBreadcrumb != null)

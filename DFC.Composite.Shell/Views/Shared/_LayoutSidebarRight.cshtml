@@ -22,13 +22,17 @@
         <partial name="_ErrorSummary" />
     </div>
 
+    @if (IsSectionDefined("BodyTop"))
+    {
+        @RenderSection("BodyTop", required: false)
+    }
+
+    @if (IsSectionDefined("HeroBanner"))
+    {
+        @RenderSection("HeroBanner", required: false)
+    }
+
     <div class="govuk-width-container">
-
-        @if (IsSectionDefined("BodyTop"))
-        {
-            @RenderSection("BodyTop", required: false)
-        }
-
         <main class="govuk-main-wrapper" id="main-content" role="main">
 
             @if (IsSectionDefined("Breadcrumb"))
