@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Framework;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -20,7 +21,7 @@ namespace DFC.Composite.Shell.Integration.Test
             factory.ClientOptions.AllowAutoRedirect = false;
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync("/externalpath1").ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri("/externalpath1", UriKind.Relative)).ConfigureAwait(false);
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
             Assert.Equal("http://www.externalpath1.com/", response.Headers.Location.AbsoluteUri);

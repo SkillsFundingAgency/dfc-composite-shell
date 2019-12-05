@@ -18,10 +18,10 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task When_ShellUrlIsEntryPoint_ItContainsResponseFromRegisteredRegions()
         {
-            var shellUrl = Path;
+            var shellUri = new Uri(Path, UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -32,10 +32,10 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task When_ShellUrlStartsWithPath_ItContainsResponseFromRegisteredRegions()
         {
-            var shellUrl = string.Concat(Path, "/edit");
+            var shellUri = new Uri(string.Concat(Path, "/edit"), UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -46,10 +46,10 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task When_ShellUrlStartsWithPathAndContainsQueryString_ItContainsResponseFromRegisteredRegions()
         {
-            var shellUrl = string.Concat(Path, "/edit?id=1");
+            var shellUri = new Uri(string.Concat(Path, "/edit?id=1"), UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

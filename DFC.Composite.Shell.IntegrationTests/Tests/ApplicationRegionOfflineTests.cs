@@ -17,10 +17,10 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task WhenAnRegionIsOfflineContentIncludesTheRegionsOfflineHtml()
         {
-            var shellUrl = "path1";
+            var shellUri = new Uri("path1/article", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -30,17 +30,14 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task WhenAnRegionIsOfflineAndOtherRegionsAreOnlineContentIncludesOfflineRegionHtmlAndContentFromOnlineRegions()
         {
-            var shellUrl = "path1";
+            var shellUri = new Uri("path1/article", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             Assert.Contains("path1 region bodyfooter is offline", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("GET, http://www.path1.com/path1/head, path1, Head", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("GET, http://www.path1.com/path1/breadcrumb, path1, Breadcrumb", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("GET, http://www.path1.com/path1/body, path1, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

@@ -119,8 +119,7 @@ namespace DFC.Composite.Shell.Services.CookieParsers
 
         private void ParseMaxAge(CookieOptions cookieOptions, string[] dataSegments)
         {
-            double maxAge = 0;
-            if (double.TryParse(ParseValue(dataSegments, MaxAge), out maxAge))
+            if (double.TryParse(ParseValue(dataSegments, MaxAge), out double maxAge))
             {
                 cookieOptions.MaxAge = TimeSpan.FromSeconds(maxAge);
             }

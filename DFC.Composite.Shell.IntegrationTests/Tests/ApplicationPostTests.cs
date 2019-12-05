@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Integration.Test
         public async Task When_ShellSendsPostData_ItsSendItToRegisteredApplication()
         {
             var path = "path1";
-            var shellUrl = string.Concat(path, "/edit?id=1");
+            var shellUri = new Uri(string.Concat(path, "/edit?id=1"), UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
             var formContent = new FormUrlEncodedContent(new[]
@@ -29,7 +29,7 @@ namespace DFC.Composite.Shell.Integration.Test
                 new KeyValuePair<string, string>("field2", "value2"),
             });
 
-            var response = await client.PostAsync(shellUrl, formContent).ConfigureAwait(false);
+            var response = await client.PostAsync(shellUri, formContent).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

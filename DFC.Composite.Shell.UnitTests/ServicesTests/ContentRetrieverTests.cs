@@ -129,6 +129,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
+        public async Task GetContentWhenRegionIsNullCreateException()
+        {
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+        }
+
+        [Fact]
         public async Task GetContentWhenRegionReturnsRedirectResponseThenThrowRedirectException()
         {
             var redirectHttpResponse = new HttpResponseMessage
@@ -229,6 +235,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var result = await service.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
 
             Assert.Equal(offlineHTML, result);
+        }
+
+        [Fact]
+        public async Task PostContentWhenRegionIsNullCreateException()
+        {
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         [Fact]

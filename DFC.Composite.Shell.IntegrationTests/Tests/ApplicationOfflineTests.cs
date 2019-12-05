@@ -17,10 +17,10 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task WhenAnApplicationIsOfflineItContainsTheApplicationsOfflineMessage()
         {
-            var shellUrl = "path3";
+            var shellUri = new Uri("path3", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -30,10 +30,10 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task WhenAnApplicationIsOfflineItDoesntContainsContentFromAnyRegions()
         {
-            var shellUrl = "path3";
+            var shellUri = new Uri("path3", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUrl).ConfigureAwait(false);
+            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

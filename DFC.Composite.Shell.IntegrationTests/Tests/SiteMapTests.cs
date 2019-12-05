@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Integration.Test
         {
             var client = factory.CreateClient();
 
-            var response = await client.GetAsync("/sitemap.xml").ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri("/sitemap.xml", UriKind.Relative)).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
