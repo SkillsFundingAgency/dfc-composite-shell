@@ -189,31 +189,29 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
-                if (response.IsRedirectionStatus())
+                if (!response.IsRedirectionStatus())
                 {
-                    if (followRedirects)
-                    {
-                        url = response.Headers.Location.IsAbsoluteUri ? response.Headers.Location.ToString() : $"{requestBaseUrl}/{response.Headers.Location.ToString().TrimStart('/')}";
-
-                        logger.LogWarning($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
-                    }
-                    else
-                    {
-                        var relativeUrl = response.Headers.Location.IsAbsoluteUri
-                            ? response.Headers.Location.PathAndQuery
-                            : response.Headers.Location.ToString();
-                        var redirectUrl = $"{requestBaseUrl}{relativeUrl}";
-
-                        throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
-                    }
+                    return response;
                 }
-                else
+
+                if (!followRedirects)
                 {
-                    break;
+                    var relativeUrl = response.Headers.Location.IsAbsoluteUri
+                        ? response.Headers.Location.PathAndQuery
+                        : response.Headers.Location.ToString();
+                    var redirectUrl = $"{requestBaseUrl}{relativeUrl}";
+
+                    throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                 }
+
+                url = response.Headers.Location.IsAbsoluteUri
+                    ? response.Headers.Location.ToString()
+                    : $"{requestBaseUrl}/{response.Headers.Location.ToString().TrimStart('/')}";
+
+                logger.LogWarning($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
             }
 
-            return response;
+            return null;
         }
     }
 }

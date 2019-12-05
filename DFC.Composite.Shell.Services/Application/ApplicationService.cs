@@ -101,7 +101,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
             else
             {
-                var pageRegionContentModel = pageModel?.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
+                var pageRegionContentModel = pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
 
                 if (pageRegionContentModel != null)
                 {
@@ -198,12 +198,12 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var tasks = new List<Task<string>>();
 
-            var heroBannerRegionTask = GetMarkupAsync(tasks, PageRegion.HeroBanner, application.Regions, article);
-            var breadcrumbRegionTask = GetMarkupAsync(tasks, PageRegion.Breadcrumb, application.Regions, article);
-            var bodyTopRegionTask = GetMarkupAsync(tasks, PageRegion.BodyTop, application.Regions, article);
-            var sidebarLeftRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarLeft, application.Regions, article);
-            var sidebarRightRegionTask = GetMarkupAsync(tasks, PageRegion.SidebarRight, application.Regions, article);
-            var bodyFooterRegionTask = GetMarkupAsync(tasks, PageRegion.BodyFooter, application.Regions, article);
+            var heroBannerRegionTask = GetMarkup(tasks, PageRegion.HeroBanner, application.Regions, article);
+            var breadcrumbRegionTask = GetMarkup(tasks, PageRegion.Breadcrumb, application.Regions, article);
+            var bodyTopRegionTask = GetMarkup(tasks, PageRegion.BodyTop, application.Regions, article);
+            var sidebarLeftRegionTask = GetMarkup(tasks, PageRegion.SidebarLeft, application.Regions, article);
+            var sidebarRightRegionTask = GetMarkup(tasks, PageRegion.SidebarRight, application.Regions, article);
+            var bodyFooterRegionTask = GetMarkup(tasks, PageRegion.BodyFooter, application.Regions, article);
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -215,7 +215,7 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyFooter, bodyFooterRegionTask);
         }
 
-        private Task<string> GetMarkupAsync(List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions, string article)
+        private Task<string> GetMarkup(List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions, string article)
         {
             var pageRegionModel = regions.FirstOrDefault(x => x.PageRegion == regionType);
 

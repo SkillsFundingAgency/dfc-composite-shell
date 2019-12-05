@@ -186,7 +186,7 @@ namespace DFC.Composite.Shell.Controllers
             }
         }
 
-        private void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
+        private static void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
         {
             var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
