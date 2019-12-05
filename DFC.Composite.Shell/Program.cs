@@ -1,14 +1,22 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 namespace DFC.Composite.Shell
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateWebHostBuilder(args)
+                   .UseApplicationInsights()
+                   .ConfigureLogging((webHostBuilderContext, loggingBuilder) =>
+                   {
+                       loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Trace);
+                   })
+                   .Build()
+                   .Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

@@ -1,0 +1,16 @@
+﻿@{
+    string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
+
+    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/gds_service_toolkit";
+
+    string VersionedPathForJQueryBundleMinJs = ViewData["VersionedPathForJQueryBundleMinJs"].ToString();
+    string VersionedPathForAllMinJs = ViewData["VersionedPathForAllMinJs"].ToString();
+    string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString(); 
+}
+
+<script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript"></script>
+<script src="@(VersionedPathForAllMinJs)" type="text/javascript"></script>
+
+<script>window.GOVUKFrontend.initAll()</script>
+
+<script src="@(VersionedPathForDfcDigitalMinJs)"></script>

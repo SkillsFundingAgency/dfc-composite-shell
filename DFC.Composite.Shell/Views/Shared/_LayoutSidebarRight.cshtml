@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="en-gb" class="govuk-template ">
+
+<head>
+    <partial name="_Head" />
+
+    @if (IsSectionDefined("Head"))
+    {
+        @RenderSection("Head", required: false)
+    }
+
+    <partial name="ApplicationInsightsJavascript" />
+</head>
+
+<body class="govuk-template__body ">
+    <partial name="_GovUkHeader" />
+
+    <div class="govuk-width-container">
+
+        <partial name="_PhaseBanner" />
+
+        <partial name="_ErrorSummary" />
+    </div>
+
+    @if (IsSectionDefined("BodyTop"))
+    {
+        @RenderSection("BodyTop", required: false)
+    }
+
+    @if (IsSectionDefined("HeroBanner"))
+    {
+        @RenderSection("HeroBanner", required: false)
+    }
+
+    <div class="govuk-width-container">
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+
+            @if (IsSectionDefined("Breadcrumb"))
+            {
+                @RenderSection("Breadcrumb", required: false)
+            }
+
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    @if (IsSectionDefined("Body"))
+                    {
+                        <div>
+                            @RenderSection("Body", required: false)
+                        </div>
+                    }
+                </div>
+
+                <div class="govuk-grid-column-one-third">
+                    @if (IsSectionDefined("SideBarRight"))
+                    {
+                        <div>
+                            @RenderSection("SideBarRight", required: false)
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @RenderBody()
+
+            @{
+                if (IsSectionDefined("SideBarLeft"))
+                {
+                    IgnoreSection("SideBarLeft");
+                }
+            }
+
+        </main>
+
+        @if (IsSectionDefined("BodyFooter"))
+        {
+            @RenderSection("BodyFooter", required: false)
+        }
+
+    </div>
+
+    <partial name="_GovUkFooter" />
+
+    <partial name="_JQueryInclude" />
+
+    <partial name="_JQueryInitialise" />
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

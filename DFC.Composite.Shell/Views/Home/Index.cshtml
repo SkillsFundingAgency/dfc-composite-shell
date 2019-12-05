@@ -1,0 +1,25 @@
+﻿@model PageViewModel
+
+@{
+    Layout = Model.LayoutName;
+    ViewData["BrandingAssetsCdn"] = Model.BrandingAssetsCdn;
+    ViewData["Title"] = Model.PageTitle;
+
+    ViewData["VersionedPathForMainMinCss"] = Model.VersionedPathForMainMinCss;
+    ViewData["VersionedPathForGovukMinCss"] = Model.VersionedPathForGovukMinCss;
+    ViewData["VersionedPathForAllIe8Css"] = Model.VersionedPathForAllIe8Css;
+    ViewData["VersionedPathForJQueryBundleMinJs"] = Model.VersionedPathForJQueryBundleMinJs;
+    ViewData["VersionedPathForAllMinJs"] = Model.VersionedPathForAllMinJs;
+    ViewData["VersionedPathForDfcDigitalMinJs"] = Model.VersionedPathForDfcDigitalMinJs;
+}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
+
+            <p class="govuk-body">
+                Welcome to the Composite UI Shell Application.
+            </p>
+        </div>
+    </div>
+</div>
