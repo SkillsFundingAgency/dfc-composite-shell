@@ -1,7 +1,7 @@
 [
   {
     "Path": "explore-careers",
-    "TopNavigationText": "Explore careers",
+    "TopNavigationText": null,
     "TopNavigationOrder": 700,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
