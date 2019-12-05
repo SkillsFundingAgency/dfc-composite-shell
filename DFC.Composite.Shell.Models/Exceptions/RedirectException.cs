@@ -1,28 +1,27 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace DFC.Composite.Shell.Models.Exceptions
 {
+    [Serializable]
     public class RedirectException : Exception
     {
+        [NonSerialized]
         private readonly Uri location;
+
+        public RedirectException()
+        {
+        }
+
+        protected RedirectException(SerializationInfo info, StreamingContext context)
+        {
+        }
 
         public RedirectException(Uri oldLocation, Uri location, bool isPermenant)
         {
             IsPermenant = isPermenant;
             this.OldLocation = oldLocation;
             this.location = location;
-        }
-
-        public RedirectException()
-        {
-        }
-
-        public RedirectException(string message) : base(message)
-        {
-        }
-
-        public RedirectException(string message, Exception innerException) : base(message, innerException)
-        {
         }
 
         public Uri OldLocation { get; }

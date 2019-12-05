@@ -73,7 +73,7 @@ namespace DFC.Composite.Shell.Services.AssetLocationAndVersion
         {
             try
             {
-                var response = await httpClient.GetAsync(assetLocation).ConfigureAwait(false);
+                var response = await httpClient.GetAsync(new Uri(assetLocation)).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {

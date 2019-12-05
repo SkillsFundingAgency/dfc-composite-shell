@@ -8,7 +8,7 @@ namespace DFC.Composite.Shell.Models.SitemapModels
     [XmlRoot("urlset", Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
     public class Sitemap
     {
-        private ArrayList map;
+        private readonly ArrayList map;
 
         public Sitemap()
         {
@@ -16,13 +16,7 @@ namespace DFC.Composite.Shell.Models.SitemapModels
         }
 
         [XmlIgnore]
-        public IEnumerable<SitemapLocation> Mappings
-        {
-            get
-            {
-                return map as IEnumerable<SitemapLocation>;
-            }
-        }
+        public IEnumerable<SitemapLocation> Mappings => map as IEnumerable<SitemapLocation>;
 
         [XmlElement("url")]
         public SitemapLocation[] Locations

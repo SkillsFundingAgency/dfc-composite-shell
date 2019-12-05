@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Models;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Mime;
@@ -36,7 +37,7 @@ namespace DFC.Composite.Shell.Services.Regions
 
             using (var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json))
             {
-                var response = await httpClient.PatchAsync(regionsUrl, content).ConfigureAwait(false);
+                var response = await httpClient.PatchAsync(new Uri(regionsUrl), content).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
 

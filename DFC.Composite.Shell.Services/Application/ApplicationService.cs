@@ -221,7 +221,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (pageRegionModel == null || string.IsNullOrWhiteSpace(pageRegionModel.RegionEndpoint))
             {
-                return null;
+                return Task.FromResult<string>(null);
             }
 
             if (!pageRegionModel.IsHealthy)
@@ -245,21 +245,28 @@ namespace DFC.Composite.Shell.Services.Application
                 return;
             }
 
-            var pageRegionContentModel = pageModel?.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == regionType);
+            string outputHtmlMarkup = string.Empty;
 
             if (taskHelper.TaskCompletedSuccessfully(task))
             {
                 var taskResult = task.Result;
                 var result = contentProcessorService.Process(taskResult, RequestBaseUrl, application.RootUrl);
-                pageRegionContentModel.Content = new HtmlString(result);
+                outputHtmlMarkup = result;
             }
             else
             {
                 var pageRegionModel = application.Regions.FirstOrDefault(x => x.PageRegion == regionType);
                 if (pageRegionModel != null)
                 {
-                    pageRegionContentModel.Content = new HtmlString(pageRegionModel.OfflineHTML);
+                    outputHtmlMarkup = pageRegionModel.OfflineHTML;
                 }
+            }
+
+            var pageRegionContentModel = pageModel.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == regionType);
+
+            if (pageRegionContentModel != null)
+            {
+                pageRegionContentModel.Content = new HtmlString(outputHtmlMarkup);
             }
         }
     }

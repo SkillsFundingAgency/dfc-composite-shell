@@ -176,22 +176,27 @@ namespace DFC.Composite.Shell.Controllers
 
                     if (!string.IsNullOrWhiteSpace(applicationRobotsText))
                     {
-                        var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-                        var robotResults = ProcessRobotsLines(applicationRobotModel, baseUrl, robotsLines);
-
-                        foreach (var robotResult in robotResults)
-                        {
-                            if (!robot.Lines.Contains(robotResult))
-                            {
-                                robot.Add(robotResult);
-                            }
-                        }
+                        AppendApplicationRobotData(applicationRobotModel, applicationRobotsText, baseUrl, robot);
                     }
                 }
                 else
                 {
                     logger.LogError($"{nameof(Action)}: Error getting child robots.txt for: {applicationRobotModel.Path}");
+                }
+            }
+        }
+
+        private void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
+        {
+            var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+
+            var robotResults = ProcessRobotsLines(applicationRobotModel, baseUrl, robotsLines);
+
+            foreach (var robotResult in robotResults)
+            {
+                if (!robot.Lines.Contains(robotResult))
+                {
+                    robot.Add(robotResult);
                 }
             }
         }
