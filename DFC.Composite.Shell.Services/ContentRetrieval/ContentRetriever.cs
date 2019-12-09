@@ -44,20 +44,14 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 if (regionModel.IsHealthy)
                 {
-                    string originalUrl = url;
-
                     logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
                     var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
 
-                    if (response?.StatusCode == HttpStatusCode.NotFound)
+                    if (response != null && !response.IsSuccessStatusCode)
                     {
-                        var redirectTo = new Uri($"/alert/{(int)response.StatusCode}", UriKind.Relative);
-
-                        throw new RedirectException(new Uri(originalUrl, UriKind.Absolute), redirectTo, false);
+                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
                     }
-
-                    response?.EnsureSuccessStatusCode();
 
                     responseHandler.Process(response);
 
@@ -73,10 +67,6 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     results = regionModel.OfflineHTML;
                 }
             }
-            catch (RedirectException)
-            {
-                throw;
-            }
             catch (BrokenCircuitException ex)
             {
                 logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
@@ -85,15 +75,6 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
-
-                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
-                {
-                    results = regionModel.OfflineHTML;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
                 if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
                 {
@@ -137,7 +118,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                     }
 
-                    response.EnsureSuccessStatusCode();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
+                    }
 
                     results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
@@ -148,10 +132,6 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     results = regionModel.OfflineHTML;
                 }
             }
-            catch (RedirectException)
-            {
-                throw;
-            }
             catch (BrokenCircuitException ex)
             {
                 logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
@@ -160,15 +140,6 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
-
-                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
-                {
-                    results = regionModel.OfflineHTML;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(ContentRetriever)}: {url} - {ex.Message}");
 
                 if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
                 {

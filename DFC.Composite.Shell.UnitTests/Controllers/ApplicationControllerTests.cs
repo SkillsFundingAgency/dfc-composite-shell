@@ -126,23 +126,6 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
-        public async Task ApplicationControllerGetActionThrowsAndLogsExceptionWhenExceptionOccurs()
-        {
-            var requestModel = new ActionGetRequestModel { Path = ChildAppPath };
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = A.Fake<HttpContext>(),
-                },
-            };
-
-            await Assert.ThrowsAnyAsync<Exception>(async () => await applicationController.Action(requestModel).ConfigureAwait(false)).ConfigureAwait(false);
-            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
-            applicationController.Dispose();
-        }
-
-        [Fact]
         public async Task ApplicationControllerGetActionThrowsAndLogsRedirectExceptionWhenExceptionOccurs()
         {
             var requestModel = new ActionGetRequestModel { Path = ChildAppPath };
@@ -192,25 +175,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
-            applicationController.Dispose();
-        }
-
-        [Fact]
-        public async Task ApplicationControllerPostActionThrowsAndLogsExceptionWhenExceptionOccurs()
-        {
-            var fakehttpContext = A.Fake<HttpContext>();
-            fakehttpContext.Request.Method = "POST";
-
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = fakehttpContext,
-                },
-            };
-
-            await Assert.ThrowsAnyAsync<Exception>(async () => await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false)).ConfigureAwait(false);
-            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
             applicationController.Dispose();
         }
 
