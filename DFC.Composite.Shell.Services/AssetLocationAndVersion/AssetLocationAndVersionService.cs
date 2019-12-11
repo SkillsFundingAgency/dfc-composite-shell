@@ -71,22 +71,15 @@ namespace DFC.Composite.Shell.Services.AssetLocationAndVersion
 
         private async Task<string> GetFileHashAsync(string assetLocation)
         {
-            try
-            {
-                var response = await httpClient.GetAsync(new Uri(assetLocation)).ConfigureAwait(false);
+            var response = await httpClient.GetAsync(new Uri(assetLocation)).ConfigureAwait(false);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var hashCode = response.Content.Headers.GetValues(ContentMDS).FirstOrDefault();
-
-                    return !string.IsNullOrWhiteSpace(hashCode)
-                        ? hashCode.Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase)
-                        : DateTime.Now.ToString("yyyyMMddHH", CultureInfo.InvariantCulture);
-                }
-            }
-            catch (Exception ex)
+            if (response.IsSuccessStatusCode)
             {
-                logger.LogError(ex, $"{nameof(GetFileHashAsync)}: Failed to get file hash");
+                var hashCode = response.Content.Headers.GetValues(ContentMDS).FirstOrDefault();
+
+                return !string.IsNullOrWhiteSpace(hashCode)
+                    ? hashCode.Replace("-", string.Empty, StringComparison.OrdinalIgnoreCase)
+                    : DateTime.Now.ToString("yyyyMMddHH", CultureInfo.InvariantCulture);
             }
 
             //If we don't get a valid response use the current time to the nearest hour.

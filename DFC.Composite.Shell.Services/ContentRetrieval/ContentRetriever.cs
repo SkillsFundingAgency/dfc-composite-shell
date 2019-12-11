@@ -48,9 +48,23 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
 
-                    if (response != null && !response.IsSuccessStatusCode)
+                    if (response != null)
                     {
-                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
+                        if (response.StatusCode == HttpStatusCode.NotFound)
+                        {
+                            var errorString = $"The content {url} is not found";
+
+                            logger.LogWarning($"{nameof(Action)}: {errorString}");
+
+                            var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
+
+                            throw new RedirectException(new Uri(url, UriKind.Absolute), redirectTo, false);
+                        }
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
+                        }
                     }
 
                     responseHandler.Process(response);
@@ -76,10 +90,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
-                {
-                    results = regionModel.OfflineHTML;
-                }
+                results = regionModel.OfflineHTML;
             }
 
             return results;
@@ -118,6 +129,17 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                     }
 
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        var errorString = $"The content {url} is not found";
+
+                        logger.LogWarning($"{nameof(Action)}: {errorString}");
+
+                        var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
+
+                        throw new RedirectException(new Uri(url, UriKind.Absolute), redirectTo, false);
+                    }
+
                     if (!response.IsSuccessStatusCode)
                     {
                         throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
@@ -141,10 +163,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
-                {
-                    results = regionModel.OfflineHTML;
-                }
+                results = regionModel.OfflineHTML;
             }
 
             return results;

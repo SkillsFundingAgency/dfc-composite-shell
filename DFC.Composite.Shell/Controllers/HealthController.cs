@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
@@ -46,41 +45,31 @@ namespace DFC.Composite.Shell.Controllers
 
             logger.LogInformation($"{nameof(Health)} has been called");
 
-            try
+            message = "Composite Shell is available";
+            logger.LogInformation($"{nameof(Health)} responded with: {resourceName} - {message}");
+
+            var viewModel = CreateHealthViewModel(resourceName, message);
+
+            // loop through the registered applications and create some tasks - one per application for their health
+            var paths = await pathDataService.GetPaths().ConfigureAwait(false);
+            var onlinePaths = paths.Where(w => w.IsOnline && string.IsNullOrWhiteSpace(w.ExternalURL)).ToList();
+            var offlinePaths = paths.Where(w => !w.IsOnline && string.IsNullOrWhiteSpace(w.ExternalURL)).ToList();
+
+            if (onlinePaths?.Count > 0)
             {
-                message = "Composite Shell is available";
-                logger.LogInformation($"{nameof(Health)} responded with: {resourceName} - {message}");
+                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlinePaths).ConfigureAwait(false);
 
-                var viewModel = CreateHealthViewModel(resourceName, message);
-
-                // loop through the registered applications and create some tasks - one per application for their health
-                var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-                var onlinePaths = paths.Where(w => w.IsOnline && string.IsNullOrWhiteSpace(w.ExternalURL)).ToList();
-                var offlinePaths = paths.Where(w => !w.IsOnline && string.IsNullOrWhiteSpace(w.ExternalURL)).ToList();
-
-                if (onlinePaths?.Count > 0)
-                {
-                    var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlinePaths).ConfigureAwait(false);
-
-                    AppendApplicationsHealths(viewModel.HealthItems, applicationOnlineHealthModels);
-                }
-
-                if (offlinePaths?.Count > 0)
-                {
-                    var applicationOfflineHealthItemModels = CreateOfflineApplicationHealthModels(offlinePaths.ToList());
-
-                    viewModel.HealthItems.AddRange(applicationOfflineHealthItemModels);
-                }
-
-                return this.NegotiateContentResult(viewModel);
-            }
-            catch (Exception ex)
-            {
-                message = $"{resourceName} exception: {ex.Message}";
-                logger.LogError(ex, $"{nameof(Health)}: {message}");
+                AppendApplicationsHealths(viewModel.HealthItems, applicationOnlineHealthModels);
             }
 
-            return StatusCode((int)HttpStatusCode.ServiceUnavailable);
+            if (offlinePaths?.Count > 0)
+            {
+                var applicationOfflineHealthItemModels = CreateOfflineApplicationHealthModels(offlinePaths.ToList());
+
+                viewModel.HealthItems.AddRange(applicationOfflineHealthItemModels);
+            }
+
+            return this.NegotiateContentResult(viewModel);
         }
 
         [HttpGet]

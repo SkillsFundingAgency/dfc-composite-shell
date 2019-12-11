@@ -25,7 +25,7 @@ namespace DFC.Composite.Shell.Controllers
 
             var errorString = $"{nameof(Error)}: HttpStatusCode: {(int)statusCode} Unhandled error for:{path}: {enhancedHttpException?.Message}";
 
-            logger.LogError(enhancedHttpException, errorString);
+            logger.LogError(exceptionPathDetails?.Error, errorString);
 
             return RedirectPermanent($"/alert/{(int)statusCode}");
         }
