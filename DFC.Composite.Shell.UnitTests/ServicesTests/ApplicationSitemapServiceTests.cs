@@ -67,15 +67,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task GetAsyncReturnsNullIfNoSitemapsTextFound()
+        public async Task GetAsyncReturnsExceptionIfNoSitemapsTextFound()
         {
             var sitemapService = new ApplicationSitemapService(defaultHttpClient, logger);
 
             var model = new ApplicationSitemapModel { BearerToken = "SomeBearerToken" };
-            var result = await sitemapService.GetAsync(model).ConfigureAwait(false);
+            var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await sitemapService.GetAsync(model).ConfigureAwait(false)).ConfigureAwait(false);
 
-            Assert.Null(result);
-            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
+            Assert.StartsWith("An invalid request URI was provided.", exceptionResult.Message, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

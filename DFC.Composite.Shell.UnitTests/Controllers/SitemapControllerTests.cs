@@ -113,37 +113,6 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
-        public async Task SitemapControllerWhenErroneousChildAppUrlThenErrorWrittenToLogger()
-        {
-            var pathModels = new List<PathModel>
-            {
-                new PathModel
-                {
-                    SitemapURL = "NotAValidUrl",
-                    IsOnline = true,
-                },
-            };
-
-            var erroroneousPathDataService = A.Fake<IPathDataService>();
-
-            A.CallTo(() => erroroneousPathDataService.GetPaths()).Returns(pathModels);
-
-            var sitemapController = new SitemapController(erroroneousPathDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, defaultSitemapService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = defaultHttpContext,
-                },
-                Url = defaultUrlHelper,
-            };
-
-            await sitemapController.Sitemap().ConfigureAwait(false);
-
-            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
-            sitemapController.Dispose();
-        }
-
-        [Fact]
         public async Task SitemapControllerReplacesApplicationBaseUrlWithShellUrl()
         {
             const string appBaseUrl = "http://appBaseUrl";
@@ -189,28 +158,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             Assert.DoesNotContain(appBaseUrl, result.Content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("http://SomeBaseUrl", result.Content, StringComparison.OrdinalIgnoreCase);
 
-            sitemapController.Dispose();
-        }
-
-        [Fact]
-        public async Task RobotsControllerWhenBrokenCircuitExceptionThrownItIsLogged()
-        {
-            var fakeApplicationService = A.Fake<IApplicationSitemapService>();
-            A.CallTo(() => fakeApplicationService.GetAsync(A<ApplicationSitemapModel>.Ignored))
-                .Throws<BrokenCircuitException>();
-
-            var sitemapController = new SitemapController(defaultPathDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, fakeApplicationService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = defaultHttpContext,
-                },
-                Url = defaultUrlHelper,
-            };
-
-            await sitemapController.Sitemap().ConfigureAwait(false);
-
-            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
             sitemapController.Dispose();
         }
     }
