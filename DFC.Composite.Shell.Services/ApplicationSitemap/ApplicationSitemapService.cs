@@ -1,5 +1,4 @@
 ﻿using DFC.Composite.Shell.Models.SitemapModels;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System.Collections.Generic;
 using System.IO;
@@ -15,12 +14,10 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
     public class ApplicationSitemapService : IApplicationSitemapService
     {
         private readonly HttpClient httpClient;
-        private readonly ILogger<ApplicationSitemapService> logger;
 
-        public ApplicationSitemapService(HttpClient httpClient, ILogger<ApplicationSitemapService> logger)
+        public ApplicationSitemapService(HttpClient httpClient)
         {
             this.httpClient = httpClient;
-            this.logger = logger;
         }
 
         public async Task<IEnumerable<SitemapLocation>> GetAsync(ApplicationSitemapModel model)
@@ -36,28 +33,29 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
         private async Task<T> CallHttpClientXmlAsync<T>(ApplicationSitemapModel model)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl);
-
-            if (!string.IsNullOrWhiteSpace(model.BearerToken))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
-            }
-
-            request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
-
-            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            var serializer = new XmlSerializer(typeof(T));
-            using (var reader = new StringReader(responseString))
-            {
-                using (var xmlReader = XmlReader.Create(reader))
+                if (!string.IsNullOrWhiteSpace(model.BearerToken))
                 {
-                    xmlReader.Read();
-                    return (T)serializer.Deserialize(xmlReader);
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+                }
+
+                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
+
+                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                var serializer = new XmlSerializer(typeof(T));
+                using (var reader = new StringReader(responseString))
+                {
+                    using (var xmlReader = XmlReader.Create(reader))
+                    {
+                        xmlReader.Read();
+                        return (T)serializer.Deserialize(xmlReader);
+                    }
                 }
             }
         }

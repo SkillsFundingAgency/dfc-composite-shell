@@ -43,7 +43,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyCDNUrl") };
 
-            var sitemapService = new ApplicationSitemapService(httpClient, logger);
+            var sitemapService = new ApplicationSitemapService(httpClient);
             var model = new ApplicationSitemapModel { BearerToken = "SomeBearerToken" };
 
             var result = await sitemapService.GetAsync(model).ConfigureAwait(false);
@@ -59,7 +59,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetAsyncReturnsNullIfModelIsNull()
         {
-            var sitemapService = new ApplicationSitemapService(defaultHttpClient, logger);
+            var sitemapService = new ApplicationSitemapService(defaultHttpClient);
 
             var result = await sitemapService.GetAsync(null).ConfigureAwait(false);
 
@@ -69,7 +69,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetAsyncReturnsExceptionIfNoSitemapsTextFound()
         {
-            var sitemapService = new ApplicationSitemapService(defaultHttpClient, logger);
+            var sitemapService = new ApplicationSitemapService(defaultHttpClient);
 
             var model = new ApplicationSitemapModel { BearerToken = "SomeBearerToken" };
             var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await sitemapService.GetAsync(model).ConfigureAwait(false)).ConfigureAwait(false);

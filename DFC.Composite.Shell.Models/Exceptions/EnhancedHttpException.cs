@@ -11,7 +11,7 @@ namespace DFC.Composite.Shell.Models.Exceptions
         {
         }
 
-        public EnhancedHttpException(SerializationInfo info, StreamingContext context)
+        protected EnhancedHttpException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 

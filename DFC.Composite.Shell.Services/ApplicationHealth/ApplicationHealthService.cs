@@ -73,8 +73,6 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
                 return result;
             }
-
-            return null;
         }
     }
 }

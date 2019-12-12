@@ -8,12 +8,10 @@ namespace DFC.Composite.Shell.ViewComponents
 {
     public class ListPathsViewComponent : ViewComponent
     {
-        private readonly ILogger<ListPathsViewComponent> logger;
         private readonly IPathDataService pathDataService;
 
-        public ListPathsViewComponent(ILogger<ListPathsViewComponent> logger, IPathDataService pathDataService)
+        public ListPathsViewComponent(IPathDataService pathDataService)
         {
-            this.logger = logger;
             this.pathDataService = pathDataService;
         }
 

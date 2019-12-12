@@ -1,5 +1,4 @@
 ﻿using DFC.Composite.Shell.Models.Robots;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System.IO;
 using System.Net.Http;
@@ -12,12 +11,10 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
     public class ApplicationRobotService : IApplicationRobotService
     {
         private readonly HttpClient httpClient;
-        private readonly ILogger<ApplicationRobotService> logger;
 
-        public ApplicationRobotService(HttpClient httpClient, ILogger<ApplicationRobotService> logger)
+        public ApplicationRobotService(HttpClient httpClient)
         {
             this.httpClient = httpClient;
-            this.logger = logger;
         }
 
         public async Task<string> GetAsync(ApplicationRobotModel model)
@@ -33,26 +30,27 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 
         private async Task<Robot> CallHttpClientTxtAsync(ApplicationRobotModel model)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL);
-
-            if (!string.IsNullOrWhiteSpace(model.BearerToken))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
-            }
+                if (!string.IsNullOrWhiteSpace(model.BearerToken))
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+                }
 
-            request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
+                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
 
-            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
-            response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
 
-            var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var result = new Robot();
+                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var result = new Robot();
 
-            using (var reader = new StringReader(responseString))
-            {
-                result.Append(reader.ReadToEnd());
-                return result;
+                using (var reader = new StringReader(responseString))
+                {
+                    result.Append(reader.ReadToEnd());
+                    return result;
+                }
             }
         }
     }
