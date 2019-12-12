@@ -173,7 +173,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var model = new RegionModel
             {
                 IsHealthy = true,
-                HeathCheckRequired = true,
+                HealthCheckRequired = true,
             };
 
             var fakeRedirectHttpMessageHandler = A.Fake<IHttpResponseMessageHandler>();
@@ -315,7 +315,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var model = new RegionModel
             {
                 IsHealthy = true,
-                HeathCheckRequired = true,
+                HealthCheckRequired = true,
             };
 
             var fakeLogger = A.Fake<ILogger<ContentRetriever>>();

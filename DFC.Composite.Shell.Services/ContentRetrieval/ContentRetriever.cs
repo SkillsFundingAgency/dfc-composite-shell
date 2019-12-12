@@ -85,7 +85,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
 
-                if (regionModel.HeathCheckRequired)
+                if (regionModel.HealthCheckRequired)
                 {
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
@@ -147,7 +147,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
 
-                if (regionModel.HeathCheckRequired)
+                if (regionModel.HealthCheckRequired)
                 {
                     await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
