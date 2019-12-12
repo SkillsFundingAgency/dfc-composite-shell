@@ -12,7 +12,7 @@ namespace DFC.Composite.Shell.Models
 
         public string RegionEndpoint { get; set; }
 
-        public bool HeathCheckRequired { get; set; }
+        public bool HealthCheckRequired { get; set; }
 
         public string OfflineHTML { get; set; }
 
