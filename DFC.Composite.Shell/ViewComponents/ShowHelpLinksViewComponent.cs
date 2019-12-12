@@ -38,14 +38,8 @@ namespace DFC.Composite.Shell.ViewComponents
                 var errorString = $"{nameof(ShowHelpLinksViewComponent)}: BrokenCircuit: {ex.Message}";
 
                 logger.LogError(ex, errorString);
-            }
-            catch (Exception ex)
-            {
-                var errorString = $"{nameof(ShowHelpLinksViewComponent)}: {ex.Message}";
 
-                logger.LogError(ex, errorString);
-
-                ModelState.AddModelError(string.Empty, errorString);
+                throw;
             }
 
             return View(vm);

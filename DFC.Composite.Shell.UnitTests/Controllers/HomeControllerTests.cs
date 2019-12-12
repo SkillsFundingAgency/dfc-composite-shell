@@ -32,34 +32,5 @@ namespace DFC.Composite.Shell.Test.Controllers
             var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
             Assert.Equal("Home", model.PageTitle);
         }
-
-        [Fact]
-        public void HomeControllerAlertActionReturnsSuccess()
-        {
-            var result = defaultController.Alert(404);
-
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
-            Assert.Equal("Page not found", model.PageTitle);
-        }
-
-        [Fact]
-        public void HomeControllerErrorActionReturnsSuccess()
-        {
-            var homeController = new HomeController(defaultVersionedFiles, defaultConfiguration)
-            {
-                ControllerContext = new ControllerContext()
-                {
-                    HttpContext = new DefaultHttpContext { TraceIdentifier = "SomeIdentifier" },
-                },
-            };
-
-            var result = homeController.Error();
-
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<ErrorViewModel>(viewResult.ViewData.Model);
-            Assert.Equal("SomeIdentifier", model.RequestId);
-            homeController.Dispose();
-        }
     }
 }

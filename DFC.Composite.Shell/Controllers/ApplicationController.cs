@@ -55,8 +55,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestViewModel.Path}");
 
-                    var application = await applicationService.GetApplicationAsync(requestViewModel.Path)
-                        .ConfigureAwait(false);
+                    var application = await applicationService.GetApplicationAsync(requestViewModel.Path).ConfigureAwait(false);
 
                     if (application?.Path == null)
                     {
@@ -94,13 +93,6 @@ namespace DFC.Composite.Shell.Controllers
                 logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                 Response.Redirect(redirectTo, ex.IsPermenant);
-            }
-            catch (Exception ex)
-            {
-                var errorString = $"{requestViewModel?.Path}: {ex.Message}";
-
-                ModelState.AddModelError(string.Empty, errorString);
-                logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
             return View(MainRenderViewName, Map(viewModel));
@@ -151,13 +143,6 @@ namespace DFC.Composite.Shell.Controllers
                 logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                 Response.Redirect(redirectTo, ex.IsPermenant);
-            }
-            catch (Exception ex)
-            {
-                var errorString = $"{requestViewModel?.Path}: {ex.Message}";
-
-                ModelState.AddModelError(string.Empty, errorString);
-                logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
             return View(MainRenderViewName, Map(viewModel));

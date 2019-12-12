@@ -52,17 +52,14 @@ namespace DFC.Composite.Shell.Services.Application
             if (application.Path.IsOnline)
             {
                 //Get the markup at the head url first. This will create the session if it doesn't already exist
-                if (!string.IsNullOrWhiteSpace(article))
-                {
-                    var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
-                    pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
+                pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
-                    //Load related regions
-                    var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
+                //Load related regions
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
 
-                    //Wait until everything is done
-                    await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
-                }
+                //Wait until everything is done
+                await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
 
                 //Get the markup at this url
                 var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, article);

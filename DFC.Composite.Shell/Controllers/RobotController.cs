@@ -8,7 +8,6 @@ using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,41 +47,27 @@ namespace DFC.Composite.Shell.Controllers
         [HttpGet]
         public async Task<ContentResult> Robot()
         {
-            try
+            logger.LogInformation("Generating Robots.txt");
+
+            var robot = new Robot();
+
+            await AppendShellRobot(robot).ConfigureAwait(false);
+
+            // get all the registered application robots.txt
+            var applicationRobotModels = await GetApplicationRobotsAsync().ConfigureAwait(false);
+            AppendApplicationsRobots(robot, applicationRobotModels);
+
+            // add the Shell sitemap route to the bottom
+            var sitemapRouteUrl = Url.RouteUrl("Sitemap", null);
+
+            if (sitemapRouteUrl != null)
             {
-                logger.LogInformation("Generating Robots.txt");
-
-                var robot = new Robot();
-
-                await AppendShellRobot(robot).ConfigureAwait(false);
-
-                // get all the registered application robots.txt
-                var applicationRobotModels = await GetApplicationRobotsAsync().ConfigureAwait(false);
-                AppendApplicationsRobots(robot, applicationRobotModels);
-
-                // add the Shell sitemap route to the bottom
-                var sitemapRouteUrl = Url.RouteUrl("Sitemap", null);
-
-                if (sitemapRouteUrl != null)
-                {
-                    robot.Add($"Sitemap: {Request.Scheme}://{Request.Host}{sitemapRouteUrl}");
-                }
-
-                logger.LogInformation("Generated Robots.txt");
-
-                return Content(robot.Data, MediaTypeNames.Text.Plain);
-            }
-            catch (BrokenCircuitException ex)
-            {
-                logger.LogError(ex, $"{nameof(Robot)}: BrokenCircuit: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(Robot)}: {ex.Message}");
+                robot.Add($"Sitemap: {Request.Scheme}://{Request.Host}{sitemapRouteUrl}");
             }
 
-            // fall through from errors
-            return Content(null, MediaTypeNames.Text.Plain);
+            logger.LogInformation("Generated Robots.txt");
+
+            return Content(robot.Data, MediaTypeNames.Text.Plain);
         }
 
         private static IEnumerable<string> ProcessRobotsLines(ApplicationRobotModel applicationRobotModel, string baseUrl, string[] robotsLines)
