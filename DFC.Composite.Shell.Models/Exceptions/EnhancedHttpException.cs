@@ -23,9 +23,10 @@ namespace DFC.Composite.Shell.Models.Exceptions
         {
         }
 
-        public EnhancedHttpException(HttpStatusCode statusCode, string message) : base(message)
+        public EnhancedHttpException(HttpStatusCode statusCode, string message, string url) : base(message)
         {
             this.StatusCode = statusCode;
+            this.Url = url;
         }
 
         public EnhancedHttpException(HttpStatusCode statusCode, string message, Exception innerException) : base(message, innerException)
@@ -34,5 +35,7 @@ namespace DFC.Composite.Shell.Models.Exceptions
         }
 
         public HttpStatusCode StatusCode { get; }
+
+        public string Url { get; }
     }
 }

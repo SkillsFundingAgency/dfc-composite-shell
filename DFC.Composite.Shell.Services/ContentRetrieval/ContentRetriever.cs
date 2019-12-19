@@ -48,23 +48,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
 
-                    if (response != null)
+                    if (response != null && !response.IsSuccessStatusCode)
                     {
-                        if (response.StatusCode == HttpStatusCode.NotFound)
-                        {
-                            var errorString = $"The content {url} is not found";
-
-                            logger.LogWarning($"{nameof(Action)}: {errorString}");
-
-                            var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
-
-                            throw new RedirectException(new Uri(url, UriKind.Absolute), redirectTo, false);
-                        }
-
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
-                        }
+                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
                     }
 
                     responseHandler.Process(response);
@@ -113,7 +99,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
-                        Content = new FormUrlEncodedContent(formParameters),
+                        Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
                     };
 
                     var response = await httpClient.SendAsync(request).ConfigureAwait(false);
@@ -131,7 +117,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase);
+                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
                     }
 
                     results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
