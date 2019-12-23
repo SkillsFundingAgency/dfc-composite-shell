@@ -104,7 +104,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
-                    if (response.StatusCode == HttpStatusCode.Found)
+                    if (response.IsRedirectionStatus())
                     {
                         var redirectUrl = requestBaseUrl;
 

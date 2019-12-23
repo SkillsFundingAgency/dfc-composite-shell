@@ -1,6 +1,7 @@
 ﻿using CorrelationId;
 using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
+using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
@@ -68,7 +69,7 @@ namespace DFC.Composite.Shell
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/alert/{0}");
+            app.UseStatusCodePagesWithReExecute("/" + ApplicationController.AlertPathName + "/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

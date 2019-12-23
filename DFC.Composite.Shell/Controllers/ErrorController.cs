@@ -27,7 +27,9 @@ namespace DFC.Composite.Shell.Controllers
 
             logger.LogError(exceptionPathDetails?.Error, errorString);
 
-            return RedirectPermanent($"/alert/{(int)statusCode}");
+            Response.StatusCode = (int)statusCode;
+
+            return Redirect($"/{ApplicationController.AlertPathName}/{(int)statusCode}");
         }
     }
 }

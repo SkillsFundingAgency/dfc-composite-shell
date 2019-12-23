@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class ApplicationController : Controller
     {
+        public const string AlertPathName = "alert";
         private const string MainRenderViewName = "Application/RenderView";
 
         private readonly IMapper<ApplicationModel, PageViewModel> mapper;
@@ -50,13 +52,19 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
+                var errorRequestViewModel = new ActionGetRequestModel
+                {
+                    Path = AlertPathName,
+                    Data = $"{(int)HttpStatusCode.NotFound}",
+                };
                 var requestItems = new[]
                 {
                     requestViewModel,
+                    errorRequestViewModel,
                     new ActionGetRequestModel
                     {
-                        Path = "alert",
-                        Data = $"{(int)HttpStatusCode.NotFound}",
+                        Path = AlertPathName,
+                        Data = $"{(int)HttpStatusCode.InternalServerError}",
                     },
                 };
 
@@ -92,23 +100,25 @@ namespace DFC.Composite.Shell.Controllers
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
 
+                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
+                            {
+                                if (int.TryParse(requestItem.Data, out var statusCode))
+                                {
+                                    Response.StatusCode = statusCode;
+                                }
+                            }
+
                             break;
                         }
                     }
                     catch (EnhancedHttpException ex)
                     {
-                        if (ex.StatusCode == HttpStatusCode.NotFound)
-                        {
-                            var errorString = $"The content {ex.Url} is not found";
+                        var errorString = $"The content {ex.Url} responded with {ex.StatusCode}";
 
-                            logger.LogWarning($"{nameof(Action)}: {errorString}");
+                        logger.LogWarning($"{nameof(Action)}: {errorString}");
 
-                            Response.StatusCode = (int)ex.StatusCode;
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        Response.StatusCode = (int)ex.StatusCode;
+                        errorRequestViewModel.Data = $"{Response.StatusCode}";
                     }
                     catch (RedirectException ex)
                     {
@@ -131,13 +141,20 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
+                bool postFirstRequest = true;
+                var errorRequestViewModel = new ActionPostRequestModel
+                {
+                    Path = AlertPathName,
+                    Data = $"{(int)HttpStatusCode.NotFound}",
+                };
                 var requestItems = new[]
                 {
                     requestViewModel,
+                    errorRequestViewModel,
                     new ActionPostRequestModel
                     {
-                        Path = "alert",
-                        Data = $"{(int)HttpStatusCode.NotFound}",
+                        Path = AlertPathName,
+                        Data = $"{(int)HttpStatusCode.InternalServerError}",
                     },
                 };
 
@@ -171,27 +188,37 @@ namespace DFC.Composite.Shell.Controllers
                                                   select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
                             }
 
-                            await applicationService.PostMarkupAsync(application, requestItem.Path, requestItem.Data, formParameters, viewModel).ConfigureAwait(false);
+                            if (postFirstRequest)
+                            {
+                                postFirstRequest = false;
+                                await applicationService.PostMarkupAsync(application, requestItem.Path, requestItem.Data, formParameters, viewModel).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel).ConfigureAwait(false);
+                            }
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
+
+                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
+                            {
+                                if (int.TryParse(requestItem.Data, out var statusCode))
+                                {
+                                    Response.StatusCode = statusCode;
+                                }
+                            }
 
                             break;
                         }
                     }
                     catch (EnhancedHttpException ex)
                     {
-                        if (ex.StatusCode == HttpStatusCode.NotFound)
-                        {
-                            var errorString = $"The content {ex.Url} is not found";
+                        var errorString = $"The content {ex.Url} responded with {ex.StatusCode}";
 
-                            logger.LogWarning($"{nameof(Action)}: {errorString}");
+                        logger.LogWarning($"{nameof(Action)}: {errorString}");
 
-                            Response.StatusCode = (int)ex.StatusCode;
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        Response.StatusCode = (int)ex.StatusCode;
+                        errorRequestViewModel.Data = $"{Response.StatusCode}";
                     }
                     catch (RedirectException ex)
                     {
@@ -200,6 +227,8 @@ namespace DFC.Composite.Shell.Controllers
                         logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                         Response.Redirect(redirectTo, ex.IsPermenant);
+
+                        break;
                     }
                 }
             }
