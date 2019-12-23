@@ -121,7 +121,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(requestModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
             applicationController.Dispose();
         }
 
@@ -143,7 +143,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(requestModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
             applicationController.Dispose();
         }
 
@@ -174,7 +174,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
             applicationController.Dispose();
         }
 
@@ -195,7 +195,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
             applicationController.Dispose();
         }
     }
