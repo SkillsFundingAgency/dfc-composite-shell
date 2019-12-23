@@ -1,11 +1,8 @@
 ﻿using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -24,7 +21,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         public void ErrorControllerErrorActionReturnsSuccess()
         {
             // Arrange
-            const string expectedUrl = "/alert/500";
+            string expectedUrl = $"/{ApplicationController.AlertPathName}/500";
             var errorController = new ErrorController(fakeLogger)
             {
                 ControllerContext = new ControllerContext()
