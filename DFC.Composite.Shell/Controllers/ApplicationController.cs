@@ -19,7 +19,7 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class ApplicationController : Controller
     {
-        public const string AlertPathName = "alert";
+        public const string AlertPathName = "alerts";
         private const string MainRenderViewName = "Application/RenderView";
 
         private readonly IMapper<ApplicationModel, PageViewModel> mapper;
