@@ -99,6 +99,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             applicationService = new ApplicationService(pathDataService, regionService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
         }
 
+        public static IEnumerable<object[]> QueryStringParams => new List<object[]>
+        {
+            new object[] { string.Empty, $"{RequestBaseUrl}/headRegionEndpoint/{Article}" },
+            new object[] { "invalid-query-string", $"{RequestBaseUrl}/headRegionEndpoint/{Article}" },
+            new object[] { "?dummy-query-string=somedata", $"{RequestBaseUrl}/headRegionEndpoint/{Article}?dummy-query-string=somedata" },
+        };
+
         [Fact]
         public async Task GetMarkupAsyncForOnlineApplication()
         {
@@ -107,7 +114,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             mapper.Map(defaultApplicationModel, pageModel);
 
             //Act
-            await applicationService.GetMarkupAsync(defaultApplicationModel, "index", pageModel).ConfigureAwait(false);
+            await applicationService.GetMarkupAsync(defaultApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
 
             //Assert
             Assert.Equal(defaultRegions.Count, pageModel.PageRegionContentModels.Count);
@@ -135,7 +142,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => contentRetriever.GetContent($"{fakeBodyRegion.RegionEndpoint}/index", fakeBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
 
             //Act
-            await applicationService.GetMarkupAsync(fakeApplicationModel, "index", pageModel).ConfigureAwait(false);
+            await applicationService.GetMarkupAsync(fakeApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
 
             //Assert
             Assert.Equal(fakeRegions.Count, pageModel.PageRegionContentModels.Count);
@@ -151,7 +158,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetMarkupAsyncWhenApplicationIsOfflineThenOfflineHTMLIsReturned()
         {
-            await applicationService.GetMarkupAsync(offlineApplicationModel, "index", defaultPageViewModel).ConfigureAwait(false);
+            await applicationService.GetMarkupAsync(offlineApplicationModel, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false);
 
             Assert.Equal(OfflineHTML, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
         }
@@ -159,13 +166,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetMarkupAsyncWhenApplicationModelIsNullThenArgumentNullExceptionThrown()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(null, "index", defaultPageViewModel).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(null, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         [Fact]
         public async Task GetMarkupAsyncWhenPageViewModelIsNullThenArgumentNullExceptionThrown()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(defaultApplicationModel, "index", null).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(defaultApplicationModel, "index", null, string.Empty).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -295,11 +302,26 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             //Act
             var service = new ApplicationService(pathDataService, regionService, contentRetriever, contentProcessor, incompleteTask) { RequestBaseUrl = RequestBaseUrl };
-            await service.GetMarkupAsync(defaultApplicationModel, "index", pageModel).ConfigureAwait(false);
+            await service.GetMarkupAsync(defaultApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(OfflineHTML, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
             Assert.Equal(OfflineHTML, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
+        }
+
+        [Theory]
+        [MemberData(nameof(QueryStringParams))]
+        public async Task GetMarkupAsyncMakesContentRequestWithQueryStringInCorrectPosition(string queryString, string expectedResult)
+        {
+            // Arrange
+            var pageModel = new PageViewModel();
+            mapper.Map(defaultApplicationModel, pageModel);
+
+            //Act
+            var service = new ApplicationService(pathDataService, regionService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            await service.GetMarkupAsync(defaultApplicationModel, Article, pageModel, queryString).ConfigureAwait(false);
+
+            A.CallTo(() => contentRetriever.GetContent(expectedResult, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
     }
 }
