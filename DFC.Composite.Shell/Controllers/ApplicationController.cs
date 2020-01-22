@@ -52,21 +52,7 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
-                var errorRequestViewModel = new ActionGetRequestModel
-                {
-                    Path = AlertPathName,
-                    Data = $"{(int)HttpStatusCode.NotFound}",
-                };
-                var requestItems = new[]
-                {
-                    requestViewModel,
-                    errorRequestViewModel,
-                    new ActionGetRequestModel
-                    {
-                        Path = AlertPathName,
-                        Data = $"{(int)HttpStatusCode.InternalServerError}",
-                    },
-                };
+                var requestItems = GetRequestItemModels(requestViewModel);
 
                 foreach (var requestItem in requestItems)
                 {
@@ -96,16 +82,13 @@ namespace DFC.Composite.Shell.Controllers
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
-                            await applicationService.GetMarkupAsync(application, requestItem.Data + Request.QueryString, viewModel).ConfigureAwait(false);
+                            await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, Request.QueryString.Value).ConfigureAwait(false);
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
 
-                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
+                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0 && int.TryParse(requestItem.Data, out var statusCode))
                             {
-                                if (int.TryParse(requestItem.Data, out var statusCode))
-                                {
-                                    Response.StatusCode = statusCode;
-                                }
+                                Response.StatusCode = statusCode;
                             }
 
                             break;
@@ -118,11 +101,11 @@ namespace DFC.Composite.Shell.Controllers
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
 
                         Response.StatusCode = (int)ex.StatusCode;
-                        errorRequestViewModel.Data = $"{Response.StatusCode}";
+                        requestItems.First(m => m.Data == $"{(int)HttpStatusCode.NotFound}").Data = $"{Response.StatusCode}";
                     }
                     catch (RedirectException ex)
                     {
-                        string redirectTo = ex.Location?.OriginalString;
+                        var redirectTo = ex.Location?.OriginalString;
 
                         logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
@@ -132,6 +115,28 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return View(MainRenderViewName, Map(viewModel));
+        }
+
+        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
+        {
+            var notFoundErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.NotFound}",
+            };
+
+            var internalServerErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.InternalServerError}",
+            };
+
+            return new[]
+            {
+                requestViewModel,
+                notFoundErrorRequestViewModel,
+                internalServerErrorRequestViewModel,
+            };
         }
 
         [HttpPost]
@@ -195,7 +200,7 @@ namespace DFC.Composite.Shell.Controllers
                             }
                             else
                             {
-                                await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel).ConfigureAwait(false);
+                                await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, string.Empty).ConfigureAwait(false);
                             }
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
