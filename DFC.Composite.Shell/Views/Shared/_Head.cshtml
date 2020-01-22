@@ -1,7 +1,7 @@
 ﻿@{
     string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
 
-    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/gds_service_toolkit";
+    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/nationalcareers_toolkit";
 
     string VersionedPathForMainMinCss = ViewData["VersionedPathForMainMinCss"].ToString();
     string VersionedPathForGovukMinCss = ViewData["VersionedPathForGovukMinCss"].ToString();
@@ -22,13 +22,6 @@
 <link rel="apple-touch-icon" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon.png">
 
 <link href="@(VersionedPathForMainMinCss)" rel="stylesheet" type="text/css" />
-
-<!--[if !IE 8]><!-->
-<link href="@(VersionedPathForGovukMinCss)" rel="stylesheet" type="text/css" />
-<!--<![endif]-->
-<!--[if IE 8]>
-    <link href="@(VersionedPathForAllIe8Css)" rel="stylesheet" type="text/css" />
-<![endif]-->
 <!--[if lt IE 9]>
     <script src="/html5-shiv/html5shiv.js"></script>
 <![endif]-->
