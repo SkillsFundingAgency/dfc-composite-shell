@@ -6,13 +6,13 @@
 
 <partial name="_CookieBanner" />
 
-<header class="govuk-header " role="banner" data-module="header">
+<header class="govuk-header " role="banner" data-module="govuk-header">
     <div class="govuk-header__container govuk-width-container">
         <a href="/" class="govuk-header__link govuk-header__link--service-name">
             National Careers Service
         </a>
 
-        <button type="button" role="button" class="govuk-header__menu-button js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
+        <button type="button" role="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation">Menu</button>
 
         @await Component.InvokeAsync("ListPaths")
     </div>
