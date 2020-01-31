@@ -46,5 +46,23 @@
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/get-a-job"
+  },
+  {
+    "Path": "dysac",
+    "TopNavigationText": "Skills assessment",
+    "TopNavigationOrder": 706,
+    "Layout": 1,
+    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>Dysac is Unavailable</H2></div>",
+    "Regions": [
+      {
+        "PageRegion": 1,
+        "RegionEndpoint": "https://__AppServiceName__.__appServiceDomain__/head"
+      },
+      {
+        "PageRegion": 4,
+        "RegionEndpoint": "https://__AppServiceName__.__appServiceDomain__/dysac",
+        "OfflineHtml": "<div class=\"govuk-width-container\"><H3>Dysac region Unavailable</H3></div>"
+      }
+    ]
   }
 ]
