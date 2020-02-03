@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace DFC.Composite.Shell.Test.ClientHandlers
 {
     /// <summary>
-    /// A test handler that returns a Status code of 200
+    /// A test handler that returns a Status code of 200.
     /// </summary>
     public class StatusOkDelegatingHandler : DelegatingHandler
     {

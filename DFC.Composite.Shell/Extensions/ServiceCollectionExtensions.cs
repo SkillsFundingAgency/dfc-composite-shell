@@ -83,6 +83,7 @@ namespace DFC.Composite.Shell.Extensions
                         .AddPolicyHandlerFromRegistry($"{configurationSectionName}_{circuitBreakerPolicyName}")
                         .AddHttpMessageHandler<CorrelationIdDelegatingHandler>()
                         .AddHttpMessageHandler<UserAgentDelegatingHandler>()
-                        .AddHttpMessageHandler<OriginalHostDelegatingHandler>();
+                        .AddHttpMessageHandler<OriginalHostDelegatingHandler>()
+                        .AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
     }
 }
