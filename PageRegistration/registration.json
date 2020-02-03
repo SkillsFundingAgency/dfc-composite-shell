@@ -51,7 +51,7 @@
     "Path": "dysac",
     "TopNavigationText": "Skills assessment",
     "TopNavigationOrder": 706,
-    "Layout": 0,
+    "Layout": 1,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>Skills assessment is Unavailable</H2></div>",
     "Regions": [
       {
