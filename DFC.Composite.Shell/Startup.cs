@@ -105,6 +105,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
             services.AddTransient<OriginalHostDelegatingHandler>();
+            services.AddTransient<CompositeRequestDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
