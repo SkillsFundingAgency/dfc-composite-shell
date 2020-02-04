@@ -14,7 +14,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
             {
                 new RegionModel()
                 {
-                    HeathCheckRequired = false,
+                    HealthCheckRequired = false,
                     IsHealthy = true,
                     OfflineHTML = $"{path} region body is offline",
                     PageRegion = PageRegion.Body,
@@ -23,7 +23,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 },
                 new RegionModel()
                 {
-                    HeathCheckRequired = false,
+                    HealthCheckRequired = false,
                     IsHealthy = true,
                     OfflineHTML = $"{path} region head is offline",
                     PageRegion = PageRegion.Head,
@@ -32,7 +32,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 },
                 new RegionModel()
                 {
-                    HeathCheckRequired = false,
+                    HealthCheckRequired = false,
                     IsHealthy = true,
                     OfflineHTML = $"{path} region breadcrumb is offline",
                     PageRegion = PageRegion.Breadcrumb,
@@ -41,7 +41,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 },
                 new RegionModel()
                 {
-                    HeathCheckRequired = false,
+                    HealthCheckRequired = false,
                     IsHealthy = false,
                     OfflineHTML = $"{path} region bodyfooter is offline",
                     PageRegion = PageRegion.BodyFooter,

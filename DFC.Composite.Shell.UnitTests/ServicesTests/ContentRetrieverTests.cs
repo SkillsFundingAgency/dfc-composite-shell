@@ -173,7 +173,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var model = new RegionModel
             {
                 IsHealthy = true,
-                HeathCheckRequired = true,
+                HealthCheckRequired = true,
             };
 
             var fakeRedirectHttpMessageHandler = A.Fake<IHttpResponseMessageHandler>();
@@ -212,27 +212,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
-
-            Assert.Equal(offlineHTML, result);
-        }
-
-        [Fact]
-        public async Task GetContentWhenGenericExceptionThrownThenReturnOfflineHTML()
-        {
-            const string offlineHTML = "<p>Offline HTML</p>";
-            var model = new RegionModel
-            {
-                IsHealthy = true,
-                OfflineHTML = offlineHTML,
-            };
-
-            var fakeRedirectHttpMessageHandler = A.Fake<IHttpResponseMessageHandler>();
-            A.CallTo(() => fakeRedirectHttpMessageHandler.Process(A<HttpResponseMessage>.Ignored))
-                .Throws<Exception>();
-
-            var service = new ContentRetriever(httpClient, logger, regionService, fakeRedirectHttpMessageHandler);
-
-            var result = await service.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
 
             Assert.Equal(offlineHTML, result);
         }
@@ -336,7 +315,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var model = new RegionModel
             {
                 IsHealthy = true,
-                HeathCheckRequired = true,
+                HealthCheckRequired = true,
             };
 
             var fakeLogger = A.Fake<ILogger<ContentRetriever>>();
@@ -377,28 +356,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
-
-            Assert.Equal(offlineHTML, result);
-        }
-
-        [Fact]
-        public async Task PostContentWhenGenericExceptionThrownThenReturnOfflineHTML()
-        {
-            const string offlineHTML = "<p>Offline HTML</p>";
-            var model = new RegionModel
-            {
-                IsHealthy = true,
-                OfflineHTML = offlineHTML,
-            };
-
-            var fakeLogger = A.Fake<ILogger<ContentRetriever>>();
-
-            A.CallTo(() => fakeLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored))
-                .Throws<Exception>();
-
-            var service = new ContentRetriever(httpClient, fakeLogger, regionService, httpResponseMessageHandler);
-
-            var result = await service.PostContent("http://someUrl", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
             Assert.Equal(offlineHTML, result);
         }

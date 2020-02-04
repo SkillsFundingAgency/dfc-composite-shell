@@ -8,7 +8,7 @@ namespace DFC.Composite.Shell.Utilities
         public VersionedFiles(IConfiguration configuration, IAssetLocationAndVersionService assetLocationAndVersionService)
         {
             var brandingAssetsCdn = configuration.GetValue<string>("BrandingAssetsCdn");
-            var brandingAssetsFolder = $"{brandingAssetsCdn}/gds_service_toolkit";
+            var brandingAssetsFolder = $"{brandingAssetsCdn}/nationalcareers_toolkit";
 
             VersionedPathForMainMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/all.min.css");
             VersionedPathForGovukMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/govuk.min.css");

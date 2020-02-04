@@ -22,7 +22,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
             logger = new Mock<ILogger<ListPathsViewComponent>>();
             pathDataService = new Mock<IPathDataService>();
 
-            viewComponent = new ListPathsViewComponent(logger.Object, pathDataService.Object);
+            viewComponent = new ListPathsViewComponent(pathDataService.Object);
         }
 
         [Fact]

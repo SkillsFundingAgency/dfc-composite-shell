@@ -5,7 +5,6 @@ using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,33 +38,19 @@ namespace DFC.Composite.Shell.Controllers
         [HttpGet]
         public async Task<ContentResult> Sitemap()
         {
-            try
-            {
-                logger.LogInformation("Generating Sitemap.xml");
+            logger.LogInformation("Generating Sitemap.xml");
 
-                var sitemap = AppendShellSitemap();
+            var sitemap = AppendShellSitemap();
 
-                // get all the registered application site maps
-                var applicationSitemapModels = await GetApplicationSitemapsAsync().ConfigureAwait(false);
-                AppendApplicationsSitemaps(sitemap, applicationSitemapModels);
+            // get all the registered application site maps
+            var applicationSitemapModels = await GetApplicationSitemapsAsync().ConfigureAwait(false);
+            AppendApplicationsSitemaps(sitemap, applicationSitemapModels);
 
-                var xmlString = sitemap.WriteSitemapToString();
+            var xmlString = sitemap.WriteSitemapToString();
 
-                logger.LogInformation("Generated Sitemap.xml");
+            logger.LogInformation("Generated Sitemap.xml");
 
-                return Content(xmlString, MediaTypeNames.Application.Xml);
-            }
-            catch (BrokenCircuitException ex)
-            {
-                logger.LogError(ex, $"{nameof(Sitemap)}: BrokenCircuit: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(Sitemap)}: {ex.Message}");
-            }
-
-            // fall through from errors
-            return Content(null, MediaTypeNames.Application.Xml);
+            return Content(xmlString, MediaTypeNames.Application.Xml);
         }
 
         private Sitemap AppendShellSitemap()

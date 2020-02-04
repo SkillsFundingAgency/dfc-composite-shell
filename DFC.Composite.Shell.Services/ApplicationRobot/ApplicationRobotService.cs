@@ -1,7 +1,5 @@
 ﻿using DFC.Composite.Shell.Models.Robots;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,12 +11,10 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
     public class ApplicationRobotService : IApplicationRobotService
     {
         private readonly HttpClient httpClient;
-        private readonly ILogger<ApplicationRobotService> logger;
 
-        public ApplicationRobotService(HttpClient httpClient, ILogger<ApplicationRobotService> logger)
+        public ApplicationRobotService(HttpClient httpClient)
         {
             this.httpClient = httpClient;
-            this.logger = logger;
         }
 
         public async Task<string> GetAsync(ApplicationRobotModel model)
@@ -34,10 +30,8 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 
         private async Task<Robot> CallHttpClientTxtAsync(ApplicationRobotModel model)
         {
-            try
+            using (var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL))
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL);
-
                 if (!string.IsNullOrWhiteSpace(model.BearerToken))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
@@ -58,12 +52,6 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
                     return result;
                 }
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
-            }
-
-            return null;
         }
     }
 }

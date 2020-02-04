@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,6 +19,7 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class ApplicationController : Controller
     {
+        public const string AlertPathName = "alerts";
         private const string MainRenderViewName = "Application/RenderView";
 
         private readonly IMapper<ApplicationModel, PageViewModel> mapper;
@@ -49,61 +50,93 @@ namespace DFC.Composite.Shell.Controllers
         {
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
 
-            try
+            if (requestViewModel != null)
             {
-                if (requestViewModel != null)
+                var requestItems = GetRequestItemModels(requestViewModel);
+
+                foreach (var requestItem in requestItems)
                 {
-                    logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestViewModel.Path}");
-
-                    var application = await applicationService.GetApplicationAsync(requestViewModel.Path)
-                        .ConfigureAwait(false);
-
-                    if (application?.Path == null)
+                    try
                     {
-                        var errorString = $"The path {requestViewModel.Path} is not registered";
+                        logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
+
+                        var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
+
+                        if (application?.Path == null)
+                        {
+                            var errorString = $"The path '{requestItem.Path}' is not registered";
+
+                            logger.LogWarning($"{nameof(Action)}: {errorString}");
+
+                            Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(application.Path.ExternalURL))
+                        {
+                            logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestItem.Path}");
+
+                            return Redirect(application.Path.ExternalURL);
+                        }
+                        else
+                        {
+                            mapper.Map(application, viewModel);
+
+                            applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
+
+                            await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, Request.QueryString.Value).ConfigureAwait(false);
+
+                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
+
+                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0 && int.TryParse(requestItem.Data, out var statusCode))
+                            {
+                                Response.StatusCode = statusCode;
+                            }
+
+                            break;
+                        }
+                    }
+                    catch (EnhancedHttpException ex)
+                    {
+                        var errorString = $"The content {ex.Url} responded with {ex.StatusCode}";
 
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
 
-                        var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
-
-                        throw new RedirectException(new Uri($"/{requestViewModel.Path}/{requestViewModel.Data}", UriKind.Relative), redirectTo, false);
+                        Response.StatusCode = (int)ex.StatusCode;
+                        requestItems.First(m => m.Data == $"{(int)HttpStatusCode.NotFound}").Data = $"{Response.StatusCode}";
                     }
-                    else if (!string.IsNullOrWhiteSpace(application.Path.ExternalURL))
+                    catch (RedirectException ex)
                     {
-                        logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestViewModel.Path}");
+                        var redirectTo = ex.Location?.OriginalString;
 
-                        return Redirect(application.Path.ExternalURL);
-                    }
-                    else
-                    {
-                        mapper.Map(application, viewModel);
+                        logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
-                        applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
-
-                        await applicationService.GetMarkupAsync(application, requestViewModel.Data + Request.QueryString, viewModel).ConfigureAwait(false);
-
-                        logger.LogInformation(
-                            $"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                        Response.Redirect(redirectTo, ex.IsPermenant);
                     }
                 }
             }
-            catch (RedirectException ex)
-            {
-                string redirectTo = ex.Location?.OriginalString;
-
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
-
-                Response.Redirect(redirectTo, ex.IsPermenant);
-            }
-            catch (Exception ex)
-            {
-                var errorString = $"{requestViewModel?.Path}: {ex.Message}";
-
-                ModelState.AddModelError(string.Empty, errorString);
-                logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
-            }
 
             return View(MainRenderViewName, Map(viewModel));
+        }
+
+        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
+        {
+            var notFoundErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.NotFound}",
+            };
+
+            var internalServerErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.InternalServerError}",
+            };
+
+            return new[]
+            {
+                requestViewModel,
+                notFoundErrorRequestViewModel,
+                internalServerErrorRequestViewModel,
+            };
         }
 
         [HttpPost]
@@ -111,53 +144,98 @@ namespace DFC.Composite.Shell.Controllers
         {
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
 
-            try
+            if (requestViewModel != null)
             {
-                if (requestViewModel != null)
+                bool postFirstRequest = true;
+                var errorRequestViewModel = new ActionPostRequestModel
                 {
-                    logger.LogInformation($"{nameof(Action)}: Posting child request for: {requestViewModel.Path}");
-
-                    var application = await applicationService.GetApplicationAsync(requestViewModel.Path).ConfigureAwait(false);
-
-                    if (application?.Path == null)
+                    Path = AlertPathName,
+                    Data = $"{(int)HttpStatusCode.NotFound}",
+                };
+                var requestItems = new[]
+                {
+                    requestViewModel,
+                    errorRequestViewModel,
+                    new ActionPostRequestModel
                     {
-                        var errorString = $"The path {requestViewModel.Path} is not registered";
+                        Path = AlertPathName,
+                        Data = $"{(int)HttpStatusCode.InternalServerError}",
+                    },
+                };
+
+                foreach (var requestItem in requestItems)
+                {
+                    try
+                    {
+                        logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
+
+                        var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
+
+                        if (application?.Path == null)
+                        {
+                            var errorString = $"The path '{requestItem.Path}' is not registered";
+
+                            logger.LogWarning($"{nameof(Action)}: {errorString}");
+
+                            Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
+                        else
+                        {
+                            mapper.Map(application, viewModel);
+
+                            applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
+
+                            KeyValuePair<string, string>[] formParameters = null;
+
+                            if (requestItem.FormCollection != null && requestItem.FormCollection.Any())
+                            {
+                                formParameters = (from a in requestItem.FormCollection
+                                                  select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
+                            }
+
+                            if (postFirstRequest)
+                            {
+                                postFirstRequest = false;
+                                await applicationService.PostMarkupAsync(application, requestItem.Path, requestItem.Data, formParameters, viewModel).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, string.Empty).ConfigureAwait(false);
+                            }
+
+                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
+
+                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
+                            {
+                                if (int.TryParse(requestItem.Data, out var statusCode))
+                                {
+                                    Response.StatusCode = statusCode;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+                    catch (EnhancedHttpException ex)
+                    {
+                        var errorString = $"The content {ex.Url} responded with {ex.StatusCode}";
 
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
 
-                        var redirectTo = new Uri($"/alert/{(int)HttpStatusCode.NotFound}", UriKind.Relative);
-
-                        throw new RedirectException(new Uri($"/{requestViewModel.Path}/{requestViewModel.Data}", UriKind.Relative), redirectTo, false);
+                        Response.StatusCode = (int)ex.StatusCode;
+                        errorRequestViewModel.Data = $"{Response.StatusCode}";
                     }
-                    else
+                    catch (RedirectException ex)
                     {
-                        mapper.Map(application, viewModel);
+                        string redirectTo = ex.Location?.OriginalString;
 
-                        applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
+                        logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
-                        var formParameters = (from a in requestViewModel.FormCollection
-                                              select new KeyValuePair<string, string>(a.Key, a.Value)).ToArray();
+                        Response.Redirect(redirectTo, ex.IsPermenant);
 
-                        await applicationService.PostMarkupAsync(application, requestViewModel.Path, requestViewModel.Data, formParameters, viewModel).ConfigureAwait(false);
-
-                        logger.LogInformation($"{nameof(Action)}: Received child response for: {requestViewModel.Path}");
+                        break;
                     }
                 }
-            }
-            catch (RedirectException ex)
-            {
-                string redirectTo = ex.Location?.OriginalString;
-
-                logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
-
-                Response.Redirect(redirectTo, ex.IsPermenant);
-            }
-            catch (Exception ex)
-            {
-                var errorString = $"{requestViewModel?.Path}: {ex.Message}";
-
-                ModelState.AddModelError(string.Empty, errorString);
-                logger.LogError(ex, $"{nameof(Action)}: Error getting child response for: {errorString}");
             }
 
             return View(MainRenderViewName, Map(viewModel));

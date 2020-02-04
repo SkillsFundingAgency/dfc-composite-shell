@@ -1,7 +1,6 @@
 ﻿using DFC.Composite.Shell.Models.HealthModels;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -35,37 +34,35 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
         private async Task<IEnumerable<HealthItemModel>> CallHttpClientJsonAsync(ApplicationHealthModel model)
         {
-            try
+            logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loading health data from {model.HealthUrl}");
+
+            var request = new HttpRequestMessage(HttpMethod.Get, model.HealthUrl);
+
+            if (!string.IsNullOrWhiteSpace(model.BearerToken))
             {
-                logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loading health data from {model.HealthUrl}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+            }
 
-                var request = new HttpRequestMessage(HttpMethod.Get, model.HealthUrl);
+            request.Headers.Accept.Clear();
+            request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
 
-                if (!string.IsNullOrWhiteSpace(model.BearerToken))
-                {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
-                }
+            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
-                request.Headers.Accept.Clear();
-                request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var result = JsonConvert.DeserializeObject<List<HealthItemModel>>(responseString);
 
-                if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
 
-                    var result = JsonConvert.DeserializeObject<List<HealthItemModel>>(responseString);
+                return result;
+            }
+            else
+            {
+                logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {response.StatusCode}");
 
-                    logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
-
-                    return result;
-                }
-                else
-                {
-                    logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {response.StatusCode}");
-
-                    var result = new List<HealthItemModel>
+                var result = new List<HealthItemModel>
                     {
                         new HealthItemModel
                         {
@@ -73,22 +70,6 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                             Message = $"No health response from {model.HealthUrl} app",
                         },
                     };
-
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(CallHttpClientJsonAsync)}: {ex.Message}");
-
-                var result = new List<HealthItemModel>
-                {
-                    new HealthItemModel
-                    {
-                        Service = model.Path,
-                        Message = $"{ex.GetType().Name}: {ex.Message}",
-                    },
-                };
 
                 return result;
             }

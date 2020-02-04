@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Services.Application
 
         public string RequestBaseUrl { get; set; }
 
-        public async Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel)
+        public async Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel, string queryString)
         {
             if (application == null)
             {
@@ -52,20 +52,17 @@ namespace DFC.Composite.Shell.Services.Application
             if (application.Path.IsOnline)
             {
                 //Get the markup at the head url first. This will create the session if it doesn't already exist
-                if (!string.IsNullOrWhiteSpace(article))
-                {
-                    var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article).ConfigureAwait(false);
-                    pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article, queryString).ConfigureAwait(false);
+                pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
-                    //Load related regions
-                    var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
+                //Load related regions
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
 
-                    //Wait until everything is done
-                    await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
-                }
+                //Wait until everything is done
+                await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
 
                 //Get the markup at this url
-                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, article);
+                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, article, queryString);
 
                 await Task.WhenAll(applicationBodyRegionTask).ConfigureAwait(false);
 
@@ -137,24 +134,32 @@ namespace DFC.Composite.Shell.Services.Application
             return applicationModel;
         }
 
-        private static string FormatArticleUrl(string regionEndpoint, string article)
+        private static string FormatArticleUrl(string regionEndpoint, string article, string queryString)
         {
-            const string Placeholder = "{0}";
-            const string SlashedPlaceholder = "/" + Placeholder;
+            const string ArticlePlaceholder = "{0}";
+            const string QueryStringPlaceholder = "{1}";
+            const string SlashedPlaceholder = "/" + ArticlePlaceholder;
 
             var urlFormatString = regionEndpoint;
 
-            if (!urlFormatString.Contains(Placeholder, StringComparison.OrdinalIgnoreCase))
+            if (!urlFormatString.Contains(ArticlePlaceholder, StringComparison.OrdinalIgnoreCase))
             {
                 urlFormatString += SlashedPlaceholder;
             }
 
+            if (!string.IsNullOrWhiteSpace(queryString) && queryString.TrimStart().StartsWith('?'))
+            {
+                urlFormatString += QueryStringPlaceholder;
+            }
+
             return !string.IsNullOrWhiteSpace(article)
-                ? string.Format(CultureInfo.InvariantCulture, urlFormatString, article)
-                : urlFormatString.Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
+                ? string.Format(CultureInfo.InvariantCulture, urlFormatString, article, queryString)
+                : urlFormatString
+                    .Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Replace(QueryStringPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string article)
+        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string article, string queryString)
         {
             //Get the body region
             var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
@@ -164,14 +169,14 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(string.Empty);
             }
 
-            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article);
+            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article, queryString);
 
             return contentRetriever.GetContent(url, bodyRegion, false, RequestBaseUrl);
         }
 
-        private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article)
+        private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article, string queryString)
         {
-            var url = FormatArticleUrl(regionModel.RegionEndpoint, article);
+            var url = FormatArticleUrl(regionModel.RegionEndpoint, article, queryString);
 
             var result = await this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
 
@@ -229,7 +234,7 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(pageRegionModel.OfflineHTML);
             }
 
-            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article);
+            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, string.Empty);
 
             var task = contentRetriever.GetContent(url, pageRegionModel, true, RequestBaseUrl);
 

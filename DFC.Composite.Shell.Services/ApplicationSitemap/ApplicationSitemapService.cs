@@ -1,7 +1,5 @@
 ﻿using DFC.Composite.Shell.Models.SitemapModels;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -16,12 +14,10 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
     public class ApplicationSitemapService : IApplicationSitemapService
     {
         private readonly HttpClient httpClient;
-        private readonly ILogger<ApplicationSitemapService> logger;
 
-        public ApplicationSitemapService(HttpClient httpClient, ILogger<ApplicationSitemapService> logger)
+        public ApplicationSitemapService(HttpClient httpClient)
         {
             this.httpClient = httpClient;
-            this.logger = logger;
         }
 
         public async Task<IEnumerable<SitemapLocation>> GetAsync(ApplicationSitemapModel model)
@@ -37,10 +33,8 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
         private async Task<T> CallHttpClientXmlAsync<T>(ApplicationSitemapModel model)
         {
-            try
+            using (var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl))
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl);
-
                 if (!string.IsNullOrWhiteSpace(model.BearerToken))
                 {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
@@ -64,12 +58,6 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{nameof(Exception)}: {ex.Message}");
-            }
-
-            return default(T);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace DFC.Composite.Shell.Services.Application
         /// <param name="application">The application model.</param>
         /// <param name="article">The relative url.</param>
         /// <param name="pageModel">A page model object, that has its path set.</param>
-        Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel);
+        Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel, string queryString);
 
         /// <summary>
         /// Posts a request to the specified url with the specified form data and loads other related regions for the specified path.
