@@ -65,10 +65,10 @@ namespace DFC.Composite.Shell
             else
             {
                 app.UseExceptionHandler("/Error");
-
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
             }
+
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
 
             app.UseStatusCodePagesWithReExecute("/" + ApplicationController.AlertPathName + "/{0}");
             app.UseHttpsRedirection();
@@ -76,7 +76,6 @@ namespace DFC.Composite.Shell
             app.UseCookiePolicy();
             app.UseForwardedHeaders();
 
-            /*
             app.Use(async (context, next) =>
             {
                 context.Response.OnStarting(() =>
@@ -88,7 +87,6 @@ namespace DFC.Composite.Shell
                 });
                 await next().ConfigureAwait(false);
             });
-            */
 
             app.UseRouting();
             ConfigureRouting(app);
