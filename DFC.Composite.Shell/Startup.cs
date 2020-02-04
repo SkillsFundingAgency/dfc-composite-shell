@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell
 {
@@ -48,7 +49,7 @@ namespace DFC.Composite.Shell
         private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseCorrelationId(new CorrelationIdOptions
             {
@@ -74,6 +75,18 @@ namespace DFC.Composite.Shell
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseForwardedHeaders();
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.OnStarting(() =>
+                {
+                    context.Response.Headers.Add("Content-Security-Policy", $"default-src 'self' google-analytics.com {Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))}");
+                    context.Response.Headers.Add("X-Frame-Options", "sameorigin");
+                    context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
+                    return Task.FromResult(0);
+                });
+                await next().ConfigureAwait(false);
+            });
 
             ConfigureRouting(app);
         }
