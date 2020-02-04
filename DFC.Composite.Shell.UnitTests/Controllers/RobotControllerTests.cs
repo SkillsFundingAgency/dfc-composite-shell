@@ -156,37 +156,6 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
-        public async Task RobotsControllerWhenErroneousChildAppUrlThenErrorWrittenToLogger()
-        {
-            var pathModels = new List<PathModel>
-            {
-                new PathModel
-                {
-                    RobotsURL = "NotAValidUrl",
-                    IsOnline = true,
-                },
-            };
-
-            var erroroneousPathDataService = A.Fake<IPathDataService>();
-
-            A.CallTo(() => erroroneousPathDataService.GetPaths()).Returns(pathModels);
-
-            var robotController = new RobotController(erroroneousPathDataService, defaultLogger, defaultHostingEnvironment, defaultTokenRetriever, defaultApplicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = defaultHttpContext,
-                },
-                Url = defaultUrlHelper,
-            };
-
-            await robotController.Robot().ConfigureAwait(false);
-
-            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
-            robotController.Dispose();
-        }
-
-        [Fact]
         public async Task RobotsControllerReplacesApplicationBaseUrlWithShellUrl()
         {
             const string appBaseUrl = "http://appBaseUrl";
@@ -220,30 +189,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.DoesNotContain("http://appBaseUrl", resultLines.ToList());
-            robotController.Dispose();
-        }
-
-        [Fact]
-        public async Task RobotsControllerWhenBrokenCircuitExceptionThrownItIsLogged()
-        {
-            var fakeApplicationService = A.Fake<IApplicationRobotService>();
-            A.CallTo(() => fakeApplicationService.GetAsync(A<ApplicationRobotModel>.Ignored))
-                .Throws<BrokenCircuitException>();
-
-            A.CallTo(() => defaultApplicationRobotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns("RetrievedValue: SomeValue");
-
-            var robotController = new RobotController(defaultPathDataService, defaultLogger, defaultHostingEnvironment, defaultTokenRetriever, fakeApplicationService, defaultShellRobotFileService, defaultBaseUrlService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = defaultHttpContext,
-                },
-                Url = defaultUrlHelper,
-            };
-
-            await robotController.Robot().ConfigureAwait(false);
-
-            A.CallTo(() => defaultLogger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
             robotController.Dispose();
         }
     }

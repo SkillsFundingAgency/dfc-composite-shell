@@ -1,6 +1,7 @@
 ﻿using CorrelationId;
 using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
+using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
@@ -32,9 +33,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DFC.Composite.Shell
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -60,12 +63,13 @@ namespace DFC.Composite.Shell
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
 
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute("/" + ApplicationController.AlertPathName + "/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -101,6 +105,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
             services.AddTransient<OriginalHostDelegatingHandler>();
+            services.AddTransient<CompositeRequestDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
@@ -172,7 +177,7 @@ namespace DFC.Composite.Shell
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute("Application.Get", "{path}/{**data}", new { controller = "Application", action = "Action" });
+                routes.MapRoute("Application.GetOrPost", "{path}/{**data}", new { controller = "Application", action = "Action" });
             });
         }
     }

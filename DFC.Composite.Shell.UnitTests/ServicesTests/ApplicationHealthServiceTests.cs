@@ -4,11 +4,9 @@ using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -86,20 +84,17 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task GetAsyncReturnsNullIfNoHealthsTextFound()
+        public async Task GetAsyncReturnsExceptionIfNoHealthsTextFound()
         {
             // Arrange
             var healthService = new ApplicationHealthService(defaultHttpClient, logger);
             var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken", Path = "aPath" };
 
             // Act
-            var result = await healthService.GetAsync(model).ConfigureAwait(false);
+            var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await healthService.GetAsync(model).ConfigureAwait(false)).ConfigureAwait(false);
 
             // Assert
-            Assert.Single(result);
-            Assert.Equal(result.First().Service, model.Path);
-            Assert.Equal("InvalidOperationException: An invalid request URI was provided. The request URI must either be an absolute URI or BaseAddress must be set.", result.First().Message);
-            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
+            Assert.StartsWith("An invalid request URI was provided.", exceptionResult.Message, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
