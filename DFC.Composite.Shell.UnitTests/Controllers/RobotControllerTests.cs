@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
-using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +33,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         private readonly IShellRobotFileService defaultShellRobotFileService;
         private readonly IPathDataService defaultPathDataService;
         private readonly ILogger<RobotController> defaultLogger;
-        private readonly IHostingEnvironment defaultHostingEnvironment;
+        private readonly IWebHostEnvironment defaultWebHostEnvironment;
         private readonly HttpContext defaultHttpContext;
         private readonly IUrlHelper defaultUrlHelper;
         private readonly IBearerTokenRetriever defaultTokenRetriever;
@@ -46,7 +44,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             defaultPathDataService = A.Fake<IPathDataService>();
             defaultLogger = A.Fake<ILogger<RobotController>>();
-            defaultHostingEnvironment = A.Fake<IHostingEnvironment>();
+            defaultWebHostEnvironment = A.Fake<IWebHostEnvironment>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
 
             var pathModels = new List<PathModel>
@@ -84,7 +82,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             defaultShellRobotFileService = A.Fake<IShellRobotFileService>();
 
-            defaultController = new RobotController(defaultPathDataService, defaultLogger, defaultHostingEnvironment, defaultTokenRetriever, defaultApplicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
+            defaultController = new RobotController(defaultPathDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, defaultApplicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -139,7 +137,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var applicationRobotService = A.Fake<IApplicationRobotService>();
             A.CallTo(() => applicationRobotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"{segmentToSkip}: Dummy text value");
 
-            var robotController = new RobotController(defaultPathDataService, defaultLogger, defaultHostingEnvironment, defaultTokenRetriever, applicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
+            var robotController = new RobotController(defaultPathDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, applicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -176,7 +174,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var robotService = A.Fake<IApplicationRobotService>();
             A.CallTo(() => robotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"RetrievedValue: {appBaseUrl}/test");
 
-            var robotController = new RobotController(shellPathDataService, defaultLogger, defaultHostingEnvironment, defaultTokenRetriever, robotService, defaultShellRobotFileService, defaultBaseUrlService)
+            var robotController = new RobotController(shellPathDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, robotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {

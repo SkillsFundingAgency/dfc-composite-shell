@@ -80,10 +80,10 @@ namespace DFC.Composite.Shell
             // Configure security headers
             app.UseCsp(options => options
             .DefaultSources(s => s.Self())
-            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/nationalcareers_toolkit/js/" }))
-            .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/nationalcareers_toolkit/css/"))
-            .FontSources(s => s.Self().CustomSources($"{cdnLocation}/nationalcareers_toolkit/fonts/"))
-            .ImageSources(s => s.Self().CustomSources($"{cdnLocation}/nationalcareers_toolkit/images/")));
+            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/" }))
+            .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
+            .FontSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
+            .ImageSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/")));
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
 

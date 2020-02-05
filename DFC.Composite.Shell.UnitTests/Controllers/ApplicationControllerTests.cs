@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
@@ -111,6 +111,8 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
+            var dLogger = new NullLogger<ApplicationController>();
+
             var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext()
@@ -121,7 +123,10 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(requestModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
+           // A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
+
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<object>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
+
             applicationController.Dispose();
         }
 
@@ -143,7 +148,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(requestModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string,object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
             applicationController.Dispose();
         }
 
@@ -174,7 +179,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
             applicationController.Dispose();
         }
 
@@ -195,7 +200,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
-            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
+            A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(2, Times.Exactly);
             applicationController.Dispose();
         }
     }

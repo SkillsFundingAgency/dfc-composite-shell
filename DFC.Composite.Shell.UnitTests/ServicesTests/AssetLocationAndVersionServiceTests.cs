@@ -6,8 +6,8 @@ using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -104,7 +104,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
 
-            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]

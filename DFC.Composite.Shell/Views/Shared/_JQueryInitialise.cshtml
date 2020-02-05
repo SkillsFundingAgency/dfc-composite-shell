@@ -1,11 +1,12 @@
-﻿@{
+﻿@using DFC.Composite.Shell.Models.Common;
+@{
     string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
 
-    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/nationalcareers_toolkit";
+    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
 
     string VersionedPathForJQueryBundleMinJs = ViewData["VersionedPathForJQueryBundleMinJs"].ToString();
     string VersionedPathForAllMinJs = ViewData["VersionedPathForAllMinJs"].ToString();
-    string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString(); 
+    string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString();
 }
 
 <script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript"></script>
