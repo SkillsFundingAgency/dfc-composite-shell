@@ -34,7 +34,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell
 {
@@ -76,17 +75,17 @@ namespace DFC.Composite.Shell
             app.UseCookiePolicy();
             app.UseForwardedHeaders();
 
-            app.Use(async (context, next) =>
-            {
-                context.Response.OnStarting(() =>
-                {
-                    context.Response.Headers.Add("Content-Security-Policy", $"default-src 'self' google-analytics.com {Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn))}");
-                    context.Response.Headers.Add("X-Frame-Options", "sameorigin");
-                    context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
-                    return Task.FromResult(0);
-                });
-                await next().ConfigureAwait(false);
-            });
+            var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
+
+            // Configure security headers
+            app.UseCsp(options => options
+            .DefaultSources(s => s.Self())
+            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/nationalcareers_toolkit/js/" }))
+            .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/nationalcareers_toolkit/css/"))
+            .FontSources(s => s.Self().CustomSources($"{cdnLocation}/nationalcareers_toolkit/fonts/"))
+            .ImageSources(s => s.Self().CustomSources($"{cdnLocation}/nationalcareers_toolkit/images/")));
+            app.UseXfo(options => options.SameOrigin());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
 
             app.UseRouting();
             ConfigureRouting(app);
