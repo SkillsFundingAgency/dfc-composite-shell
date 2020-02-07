@@ -1,5 +1,5 @@
 variables:
-    ArmTemplateRoot: '$(Build.SourcesDirectory)\Resources\ArmTemplates'     
+    ArmTemplateRoot: '$(Build.SourcesDirectory)\Resources\ArmTemplates'
     SolutionBaseName: 'DFC.Composite.Shell'
     BuildPlatform: 'any cpu'
     BuildConfiguration: 'release'
@@ -10,24 +10,27 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.6.12
+    ref: refs/tags/v1.8.6
     endpoint: 'GitHub (ESFA)'
+
+pool:
+  name: NCS - CI and CD
+  demands:
+  - msbuild
+  - visualstudio
 
 jobs:
 
 #Build and test resources
-- template: AzureDevOpsTemplates/Build/dfc-arm-build.yml@dfc-devops
-  parameters:
-    ArmTemplateRoot: $(ArmTemplateRoot)
+- job: BuildArmTemplates
+  steps:
+  - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-arm-build.yml@dfc-devops
+    parameters:
+      ArmTemplateRoot: $(ArmTemplateRoot)
 
 #Build and test application
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
-  pool:
-    name: NCS - CI and CD
-    demands:
-    - msbuild
-    - visualstudio
 
   steps:
   - task: CopyFiles@2
@@ -36,8 +39,7 @@ jobs:
       SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
       TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
 
-
-  - template: AzureDevOpsTemplates/Build/dfc-dotnetcore-build-sonar.yml@dfc-devops
+  - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
