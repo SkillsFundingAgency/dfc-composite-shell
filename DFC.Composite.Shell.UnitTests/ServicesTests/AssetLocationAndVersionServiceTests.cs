@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -102,9 +103,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, hostingEnvironment, logger, fileInfoHelper);
 
-            assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
+            var result = assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
 
-            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
+            result.Should().Be($"{TestCDNLocation}?{DateTime.Now.ToString("yyyyMMddHH", CultureInfo.InvariantCulture)}");
         }
 
         [Fact]
