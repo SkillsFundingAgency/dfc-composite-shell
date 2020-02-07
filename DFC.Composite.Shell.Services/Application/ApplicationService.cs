@@ -88,7 +88,7 @@ namespace DFC.Composite.Shell.Services.Application
                 var applicationBodyRegionTask = GetPostMarkUpAsync(application, article, formParameters);
 
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
 
                 //Wait until everything is done
                 await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
@@ -193,8 +193,7 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(string.Empty);
             }
 
-            var uri = new Uri(bodyRegion.RegionEndpoint);
-            var url = $"{uri.Scheme}://{uri.Authority}/{application.Path.Path}/{article}";
+            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article, string.Empty);
 
             return contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
         }
