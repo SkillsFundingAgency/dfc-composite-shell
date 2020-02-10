@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.Models;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Paths
@@ -21,7 +22,11 @@ namespace DFC.Composite.Shell.Services.Paths
             {
                 var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsAsync<List<PathModel>>().ConfigureAwait(false);
+                var responseContent = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+
+                return await JsonSerializer.DeserializeAsync<List<PathModel>>(responseContent, options);
+                //return await response.Content.ReadAsAsync<List<PathModel>>().ConfigureAwait(false);
             }
         }
     }

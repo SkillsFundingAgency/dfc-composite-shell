@@ -1,10 +1,10 @@
 ﻿using DFC.Composite.Shell.Models;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Regions
@@ -25,7 +25,9 @@ namespace DFC.Composite.Shell.Services.Regions
             {
                 var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsAsync<IEnumerable<RegionModel>>().ConfigureAwait(false);
+                var responseContent = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+                return await JsonSerializer.DeserializeAsync<IEnumerable<RegionModel>>(responseContent, options);
             }
         }
 
@@ -33,7 +35,7 @@ namespace DFC.Composite.Shell.Services.Regions
         {
             var regionsUrl = $"{httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
             var regionPatchModel = new RegionPatchModel { IsHealthy = isHealthy };
-            var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
+            var jsonRequest = JsonSerializer.Serialize(regionPatchModel);
 
             using (var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json))
             {
