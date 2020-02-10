@@ -22,11 +22,7 @@ namespace DFC.Composite.Shell.Services.Paths
             {
                 var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
-                var responseContent = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                var options = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
-
-                return await JsonSerializer.DeserializeAsync<List<PathModel>>(responseContent, options);
-                //return await response.Content.ReadAsAsync<List<PathModel>>().ConfigureAwait(false);
+                return await response.Content.ReadAsAsync<List<PathModel>>().ConfigureAwait(false);
             }
         }
     }
