@@ -1,7 +1,6 @@
 ﻿using DFC.Composite.Shell.Models;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Paths
