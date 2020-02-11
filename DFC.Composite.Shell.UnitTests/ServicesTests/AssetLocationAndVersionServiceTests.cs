@@ -4,9 +4,9 @@ using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using System;
 using System.Globalization;
 using System.IO;
@@ -24,7 +24,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private const string TestLocalLocation = "SomeLocalLocation";
 
         private readonly IAsyncHelper asyncHelper;
-        private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IWebHostEnvironment webHostEnvironment;
         private readonly ILogger<AssetLocationAndVersionService> logger;
         private readonly IFileInfoHelper fileInfoHelper;
         private readonly HttpClient defaultHttpClient;
@@ -32,7 +32,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public AssetLocationAndVersionServiceTests()
         {
             asyncHelper = new AsyncHelper();
-            hostingEnvironment = A.Fake<IHostingEnvironment>();
+            webHostEnvironment = A.Fake<IWebHostEnvironment>();
             logger = A.Fake<ILogger<AssetLocationAndVersionService>>();
             fileInfoHelper = A.Fake<IFileInfoHelper>();
             defaultHttpClient = new HttpClient();
@@ -53,7 +53,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var httpClient = new HttpClient(fakeHttpMessageHandler);
 
-            var assetLocationAndVersionService = new AssetLocationAndVersionService(httpClient, asyncHelper, hostingEnvironment, logger, fileInfoHelper);
+            var assetLocationAndVersionService = new AssetLocationAndVersionService(httpClient, asyncHelper, webHostEnvironment, logger, fileInfoHelper);
 
             var result = assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
             var expectedFormattedDate = DateTime.Now.ToString("yyyyMMddHH", CultureInfo.InvariantCulture);
@@ -84,7 +84,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var httpClient = new HttpClient(fakeHttpMessageHandler);
 
-            var assetLocationAndVersionService = new AssetLocationAndVersionService(httpClient, asyncHelper, hostingEnvironment, logger, fileInfoHelper);
+            var assetLocationAndVersionService = new AssetLocationAndVersionService(httpClient, asyncHelper, webHostEnvironment, logger, fileInfoHelper);
 
             var result = assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
 
@@ -100,17 +100,17 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public void GetCdnAssetFileAndVersionLogsErrorWhenExceptionThrown()
         {
-            var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, hostingEnvironment, logger, fileInfoHelper);
+            var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, webHostEnvironment, logger, fileInfoHelper);
 
-            assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
+            var result = assetLocationAndVersionService.GetCdnAssetFileAndVersion(TestCDNLocation);
 
-            A.CallTo(() => logger.Log(LogLevel.Error, 0, A<FormattedLogValues>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappenedOnceExactly();
+            result.Should().Be($"{TestCDNLocation}?{DateTime.Now.ToString("yyyyMMddHH", CultureInfo.InvariantCulture)}");
         }
 
         [Fact]
         public void GetLocalAssetFileAndVersionReturnsLocationWhenFileDoesNotExist()
         {
-            var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, hostingEnvironment, logger, fileInfoHelper);
+            var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, webHostEnvironment, logger, fileInfoHelper);
 
             var result = assetLocationAndVersionService.GetLocalAssetFileAndVersion(TestLocalLocation);
 
@@ -130,7 +130,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fileExists.FileExists(A<string>.Ignored)).Returns(true);
             A.CallTo(() => fileExists.GetStream(A<string>.Ignored)).Returns(fakeStream);
 
-            var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, hostingEnvironment, logger, fileExists);
+            var assetLocationAndVersionService = new AssetLocationAndVersionService(defaultHttpClient, asyncHelper, webHostEnvironment, logger, fileExists);
 
             var result = assetLocationAndVersionService.GetLocalAssetFileAndVersion(TestLocalLocation);
 

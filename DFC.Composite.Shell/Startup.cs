@@ -30,9 +30,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
 
 namespace DFC.Composite.Shell
@@ -48,7 +48,7 @@ namespace DFC.Composite.Shell
         private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCorrelationId(new CorrelationIdOptions
             {
@@ -64,10 +64,10 @@ namespace DFC.Composite.Shell
             else
             {
                 app.UseExceptionHandler("/Error");
-
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
             }
+
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
 
             app.UseStatusCodePagesWithReExecute("/" + ApplicationController.AlertPathName + "/{0}");
             app.UseHttpsRedirection();
@@ -75,6 +75,19 @@ namespace DFC.Composite.Shell
             app.UseCookiePolicy();
             app.UseForwardedHeaders();
 
+            var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
+
+            // Configure security headers
+            app.UseCsp(options => options
+            .DefaultSources(s => s.Self())
+            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/" }))
+            .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
+            .FontSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
+            .ImageSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/")));
+            app.UseXfo(options => options.SameOrigin());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
+
+            app.UseRouting();
             ConfigureRouting(app);
         }
 
@@ -153,31 +166,27 @@ namespace DFC.Composite.Shell
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddRazorPages();
+            services.AddControllersWithViews();
         }
 
         private static void ConfigureRouting(IApplicationBuilder app)
         {
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                // add the site map route
-                routes.MapRoute(
-                    name: "Sitemap",
-                    template: "Sitemap.xml",
-                    defaults: new { controller = "Sitemap", action = "Sitemap" });
-
-                // add the robots.txt route
-                routes.MapRoute(
-                    name: "Robots",
-                    template: "Robots.txt",
-                    defaults: new { controller = "Robot", action = "Robot" });
+                endpoints.MapRazorPages();
 
                 // add the default route
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute("Application.GetOrPost", "{path}/{**data}", new { controller = "Application", action = "Action" });
+                // add the site map route
+                endpoints.MapControllerRoute("Sitemap", "Sitemap.xml", new { controller = "Sitemap", action = "Sitemap" });
+
+                // add the robots.txt route
+                endpoints.MapControllerRoute("Robots", "Robots.txt", new { controller = "Robot", action = "Robot" });
+
+                endpoints.MapControllerRoute("Application.GetOrPost", "{path}/{**data}", new { controller = "Application", action = "Action" });
+
             });
         }
     }

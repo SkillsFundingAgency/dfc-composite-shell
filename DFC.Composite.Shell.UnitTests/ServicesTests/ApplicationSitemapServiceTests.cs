@@ -3,8 +3,6 @@ using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
 using System;
 using System.Linq;
 using System.Net;
@@ -16,12 +14,10 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class ApplicationSitemapServiceTests
     {
-        private readonly ILogger<ApplicationSitemapService> logger;
         private readonly HttpClient defaultHttpClient;
 
         public ApplicationSitemapServiceTests()
         {
-            logger = A.Fake<ILogger<ApplicationSitemapService>>();
             defaultHttpClient = new HttpClient();
         }
 
