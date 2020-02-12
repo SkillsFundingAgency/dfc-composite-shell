@@ -80,10 +80,10 @@ namespace DFC.Composite.Shell
             // Configure security headers
             app.UseCsp(options => options
             .DefaultSources(s => s.Self())
-            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/" }))
+            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}" }))
             .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
             .FontSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
-            .ImageSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/")));
+            .ImageSources(s => s.Self().CustomSources(new string[] { $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com" })));
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
 

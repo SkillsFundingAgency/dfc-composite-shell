@@ -7,5 +7,6 @@
         public const string BearerTokenName = "id_token";
         public const string CorrelationIdHeaderName = "CorrelationId";
         public const string NationalCareersToolkit = "nationalcareers_toolkit";
+        public const string ApplicationInsightsScriptResourceAddress = "ApplicationInsights:ScriptResourceAddress";
     }
 }
