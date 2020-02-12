@@ -146,6 +146,10 @@
                                 "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                                 "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
                             },
+ 			                      {
+                                "name": "ApplicationInsights__ScriptResourceAddress",
+                                "value": "https://az416426.vo.msecnd.net/scripts/"
+                            },
                             {
                                 "name": "AzureWebJobsStorage",
                                 "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
