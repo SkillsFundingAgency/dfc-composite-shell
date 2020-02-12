@@ -168,7 +168,6 @@ namespace DFC.Composite.Shell
 
             services.AddRazorPages();
             services.AddControllersWithViews();
-            services.AddApplicationInsightsTelemetry();
         }
 
         private static void ConfigureRouting(IApplicationBuilder app)
