@@ -83,7 +83,9 @@ namespace DFC.Composite.Shell
             .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}" }))
             .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
             .FontSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
-            .ImageSources(s => s.Self().CustomSources(new string[] { $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com" })));
+            .ImageSources(s => s.Self().CustomSources(new string[] { $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com" }))
+            .ConnectSources(s => s.Self().CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}")));
+
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
 
