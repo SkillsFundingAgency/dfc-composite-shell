@@ -137,92 +137,100 @@
                         "value": false
                     },
                     "appServiceAppSettings": {
-                        "value": [
-                            {
-                                "name": "MSDEPLOY_RENAME_LOCKED_FILES",
-                                "value": "1"
-                            },
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "AzureWebJobsStorage",
-                                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
-                            },
-                            {
-                                "name": "ApplicationClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "ApplicationClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "BrandingAssetsCdn",
-                                "value": "[parameters('CompositeUiCdnUrl')]"
-                            },
-                            {
-                                "name": "Logging__LogLevel__Default",
-                                "value": "Error"
-                            },
-                            {
-                                "name": "PathClientOptions__BaseAddress",
-                                "value": "[variables('CompositePathUrl')]"
-                            },
-                            {
-                                "name": "PathClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "PathClientOptions__ApiKey",
-                                "value": "[parameters('ApimKey')]"
-                            },
-                            {
-                                "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
-                                "value": "00:01:00"
-                            },
-                            {
-                                "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
-                                "value": 3
-                            },
-                            {
-                                "name": "Policies__HttpRetry__BackoffPower",
-                                "value": 3
-                            },
-                            {
-                                "name": "Policies__HttpRetry__Count",
-                                "value": 3
-                            },
-                             {
-                                "name": "RegionClientOptions__BaseAddress",
-                                "value": "[variables('CompositeRegionUrl')]"
-                            },
-                            {
-                                "name": "RegionClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "RegionClientOptions__ApiKey",
-                                "value": "[parameters('ApimKey')]"
-                            },
-                            {
-                                "name": "RobotClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "RobotClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "SitemapClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "SitemapClientOptions__Timeout",
-                                "value": "00:00:10"
-                            }
-                        ]
+                      "value": [
+                        {
+                          "name": "MSDEPLOY_RENAME_LOCKED_FILES",
+                          "value": "1"
+                        },
+                        {
+                          "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                          "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
+                        },
+                        {
+                          "name": "ApplicationInsights__ScriptResourceAddress",
+                          "value": "https://az416426.vo.msecnd.net/scripts/"
+                        },
+                        {
+                          "name": "ApplicationInsights__ConnectSources",
+                          "value": "https://dc.services.visualstudio.com/"
+                        },
+                        {
+                          "name": "AzureWebJobsStorage",
+                          "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                        },
+                        {
+                          "name": "ApplicationClientOptions__BaseAddress",
+                          "value": null
+                        },
+                        {
+                          "name": "ApplicationClientOptions__Timeout",
+                          "value": "00:00:10"
+                        },
+                        {
+                          "name": "BrandingAssetsCdn",
+                          "value": "[parameters('CompositeUiCdnUrl')]"
+                        },
+                        {
+                          "name": "Logging__LogLevel__Default",
+                          "value": "Error"
+                        },
+                        {
+                          "name": "PathClientOptions__BaseAddress",
+                          "value": "[variables('CompositePathUrl')]"
+                        },
+                        {
+                          "name": "PathClientOptions__Timeout",
+                          "value": "00:00:10"
+                        },
+                        {
+                          "name": "PathClientOptions__ApiKey",
+                          "value": "[parameters('ApimKey')]"
+                        },
+                        {
+                          "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
+                          "value": "00:01:00"
+                        },
+                        {
+                          "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
+                          "value": 3
+                        },
+                        {
+                          "name": "Policies__HttpRetry__BackoffPower",
+                          "value": 3
+                        },
+                        {
+                          "name": "Policies__HttpRetry__Count",
+                          "value": 3
+                        },
+                        {
+                          "name": "RegionClientOptions__BaseAddress",
+                          "value": "[variables('CompositeRegionUrl')]"
+                        },
+                        {
+                          "name": "RegionClientOptions__Timeout",
+                          "value": "00:00:10"
+                        },
+                        {
+                          "name": "RegionClientOptions__ApiKey",
+                          "value": "[parameters('ApimKey')]"
+                        },
+                        {
+                          "name": "RobotClientOptions__BaseAddress",
+                          "value": null
+                        },
+                        {
+                          "name": "RobotClientOptions__Timeout",
+                          "value": "00:00:10"
+                        },
+                        {
+                          "name": "SitemapClientOptions__BaseAddress",
+                          "value": null
+                        },
+                        {
+                          "name": "SitemapClientOptions__Timeout",
+                          "value": "00:00:10"
+                        }
+                      ]
                     }
                 }
             },

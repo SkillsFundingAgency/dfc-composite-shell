@@ -16,11 +16,11 @@ namespace DFC.Composite.Shell.Integration.Test
             factory = shellTestWebApplicationFactory;
         }
 
-        [Fact]
+        [Fact(Skip = "Needs revisiting as part of DFC-11808")]
         public async Task Should_ReturnValidContent()
         {
             // Arrange
-            var client = factory.CreateClient();
+            var client = factory.CreateClientWithWebHostBuilder();
             var request = new HttpRequestMessage(HttpMethod.Get, "/health");
 
             request.Headers.Accept.Clear();

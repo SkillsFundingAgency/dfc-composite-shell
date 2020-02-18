@@ -117,28 +117,6 @@ namespace DFC.Composite.Shell.Controllers
             return View(MainRenderViewName, Map(viewModel));
         }
 
-        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
-        {
-            var notFoundErrorRequestViewModel = new ActionGetRequestModel
-            {
-                Path = AlertPathName,
-                Data = $"{(int)HttpStatusCode.NotFound}",
-            };
-
-            var internalServerErrorRequestViewModel = new ActionGetRequestModel
-            {
-                Path = AlertPathName,
-                Data = $"{(int)HttpStatusCode.InternalServerError}",
-            };
-
-            return new[]
-            {
-                requestViewModel,
-                notFoundErrorRequestViewModel,
-                internalServerErrorRequestViewModel,
-            };
-        }
-
         [HttpPost]
         public async Task<IActionResult> Action(ActionPostRequestModel requestViewModel)
         {
@@ -281,6 +259,28 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return new HtmlString(result);
+        }
+
+        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
+        {
+            var notFoundErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.NotFound}",
+            };
+
+            var internalServerErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.InternalServerError}",
+            };
+
+            return new[]
+            {
+                requestViewModel,
+                notFoundErrorRequestViewModel,
+                internalServerErrorRequestViewModel,
+            };
         }
     }
 }
