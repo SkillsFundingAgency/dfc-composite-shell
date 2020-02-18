@@ -1,10 +1,10 @@
 ﻿using DFC.Composite.Shell.Models.HealthModels;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.ApplicationHealth
@@ -52,7 +52,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
             {
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                var result = JsonConvert.DeserializeObject<List<HealthItemModel>>(responseString);
+                var result = JsonSerializer.Deserialize<List<HealthItemModel>>(responseString);
 
                 logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
 

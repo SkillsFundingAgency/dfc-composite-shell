@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Internal;
-using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Net.Mime;

@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Services.AssetLocationAndVersion;
+﻿using DFC.Composite.Shell.Models.Common;
+using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using Microsoft.Extensions.Configuration;
 
 namespace DFC.Composite.Shell.Utilities
@@ -8,7 +9,7 @@ namespace DFC.Composite.Shell.Utilities
         public VersionedFiles(IConfiguration configuration, IAssetLocationAndVersionService assetLocationAndVersionService)
         {
             var brandingAssetsCdn = configuration.GetValue<string>("BrandingAssetsCdn");
-            var brandingAssetsFolder = $"{brandingAssetsCdn}/nationalcareers_toolkit";
+            var brandingAssetsFolder = $"{brandingAssetsCdn}/{Constants.NationalCareersToolkit}";
 
             VersionedPathForMainMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/all.min.css");
             VersionedPathForGovukMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/govuk.min.css");

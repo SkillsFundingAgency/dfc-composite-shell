@@ -16,14 +16,6 @@
     "ExternalUrl": "__ExternalLiveSite__/skills-assessment"
   },
   {
-    "Path": "find-a-course",
-    "TopNavigationText": "Find a course",
-    "TopNavigationOrder": 702,
-    "Layout": 0,
-    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
-    "ExternalUrl": "__ExternalLiveSite__/find-a-course"
-  },
-  {
     "Path": "contact-us",
     "TopNavigationText": "Contact us",
     "TopNavigationOrder": 703,

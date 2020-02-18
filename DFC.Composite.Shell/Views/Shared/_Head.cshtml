@@ -1,7 +1,8 @@
-﻿@{
+﻿@using DFC.Composite.Shell.Models.Common;
+@{
     string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
 
-    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/nationalcareers_toolkit";
+    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
 
     string VersionedPathForMainMinCss = ViewData["VersionedPathForMainMinCss"].ToString();
     string VersionedPathForGovukMinCss = ViewData["VersionedPathForGovukMinCss"].ToString();

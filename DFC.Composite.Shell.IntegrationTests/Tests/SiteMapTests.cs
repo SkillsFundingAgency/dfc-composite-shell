@@ -18,7 +18,7 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task Should_ReturnValidContent()
         {
-            var client = factory.CreateClient();
+            var client = factory.CreateClientWithWebHostBuilder();
 
             var response = await client.GetAsync(new Uri("/sitemap.xml", UriKind.Relative)).ConfigureAwait(false);
 
