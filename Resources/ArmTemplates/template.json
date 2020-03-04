@@ -56,7 +56,7 @@
         "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
         "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
         "EnableAlerts": "[contains(createArray('PP', 'PRD'), toUpper(parameters('Environment')))]",
-        "ActionGroupName": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shared-actgrp'))]"
+        "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
     },
     "resources": [
         {
