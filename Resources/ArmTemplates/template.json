@@ -272,7 +272,7 @@
                       "value": "exceptions/count"
                   },
                   "operator": {
-                      "value": "GreaterThanOrEqual"
+                      "value": "GreaterThan"
                   },
                   "threshold": {
                       "value": "0"
