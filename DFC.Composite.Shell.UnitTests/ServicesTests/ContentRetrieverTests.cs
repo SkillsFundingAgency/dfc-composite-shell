@@ -378,7 +378,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
             var httpHandler = new MockHttpMessageHandler();
             var httpClient = httpHandler.ToHttpClient();
-            httpHandler.When(HttpMethod.Post, postUrl).Respond(httpResponseMessage);
+            httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
             var contentRetriever = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
 
             await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
@@ -407,7 +407,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
             var httpHandler = new MockHttpMessageHandler();
             var httpClient = httpHandler.ToHttpClient();
-            httpHandler.When(HttpMethod.Post, postUrl).Respond(httpResponseMessage);
+            httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
             var contentRetriever = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
 
             var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
