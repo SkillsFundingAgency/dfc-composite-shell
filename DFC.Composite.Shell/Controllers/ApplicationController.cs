@@ -261,7 +261,7 @@ namespace DFC.Composite.Shell.Controllers
             return new HtmlString(result);
         }
 
-        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
+        private static ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
         {
             var notFoundErrorRequestViewModel = new ActionGetRequestModel
             {

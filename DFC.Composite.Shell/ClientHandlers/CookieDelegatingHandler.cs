@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Services.PathLocator;
+﻿using DFC.Composite.Shell.Models.Common;
+using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -70,8 +71,9 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         private static bool ShouldAddCookie(string prefix, string value)
         {
-            var segment = value.Split('=').First();
-            var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+            var segments = value.Split('=');
+            var segment = segments.FirstOrDefault();
+            var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || segment == Constants.DfcSession;
             return result;
         }
 

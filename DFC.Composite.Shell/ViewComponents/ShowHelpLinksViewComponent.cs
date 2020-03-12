@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
-using System;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.ViewComponents

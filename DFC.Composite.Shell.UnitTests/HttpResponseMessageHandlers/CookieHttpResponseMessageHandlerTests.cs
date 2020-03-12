@@ -1,5 +1,7 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
+using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.PathLocator;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +19,7 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
         private IHttpContextAccessor httpContextAccessor;
         private ISetCookieParser setCookieParser;
         private CookieHttpResponseMessageHandler cookieHttpResponseMessageHandler;
+        private IHeaderRenamerService headerRenamerService;
 
         public CookieHttpResponseMessageHandlerTests()
         {
@@ -24,8 +27,9 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
             httpContextAccessor = A.Fake<IHttpContextAccessor>();
             setCookieParser = new SetCookieParser();
             httpContextAccessor.HttpContext = new DefaultHttpContext();
+            headerRenamerService = new HeaderRenamerService();
 
-            cookieHttpResponseMessageHandler = new CookieHttpResponseMessageHandler(httpContextAccessor, pathLocator, setCookieParser);
+            cookieHttpResponseMessageHandler = new CookieHttpResponseMessageHandler(httpContextAccessor, pathLocator, setCookieParser, headerRenamerService);
         }
 
         [Fact]
@@ -90,8 +94,8 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
                 var shellResponseHeaders = httpContextAccessor.HttpContext.Response.Headers;
                 var setCookieHeader = shellResponseHeaders[HeaderNames.SetCookie];
                 Assert.Equal(2, setCookieHeader.Count);
-                Assert.Contains("value1", setCookieHeader[0], StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("value2", setCookieHeader[1], StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("path1v1=value1", setCookieHeader[0], StringComparison.OrdinalIgnoreCase);
+                Assert.Contains("path1v2=value2", setCookieHeader[1], StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -112,8 +116,31 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
                 //Assert
                 var shellContextItems = httpContextAccessor.HttpContext.Items;
                 Assert.Equal(2, shellContextItems.Count);
-                Assert.Contains("value1", shellContextItems["path1v1"].ToString(), StringComparison.OrdinalIgnoreCase);
-                Assert.Contains("value2", shellContextItems["path1v2"].ToString(), StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(shellContextItems, x => x.Key.ToString() == "path1v1");
+                Assert.Contains(shellContextItems, x => x.Key.ToString() == "path1v2");
+            }
+        }
+
+        [Fact]
+        public void HeaderWithNameDfcSessionIsNotPrefixedWithPath()
+        {
+            using (var childHttpResponseMessage = new HttpResponseMessage())
+            {
+                //Arrange
+                var path = "path1";
+                A.CallTo(() => pathLocator.GetPath()).Returns(path);
+                childHttpResponseMessage.Headers.Add(HeaderNames.SetCookie, new List<string>() { $"{Constants.DfcSession}=value1", "v2=value2" });
+                childHttpResponseMessage.Headers.Add(HeaderNames.Referer, "Referer1=Referer1Value");
+
+                //Act
+                cookieHttpResponseMessageHandler.Process(childHttpResponseMessage);
+
+                //Assert
+                var shellResponseHeaders = httpContextAccessor.HttpContext.Response.Headers;
+                var setCookieHeader = shellResponseHeaders[HeaderNames.SetCookie];
+                Assert.Equal(2, setCookieHeader.Count);
+                Assert.StartsWith($"{Constants.DfcSession}=value1", setCookieHeader[0], StringComparison.OrdinalIgnoreCase);
+                Assert.StartsWith($"{path}v2=value2", setCookieHeader[1], StringComparison.OrdinalIgnoreCase);
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Framework;
-using System;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
