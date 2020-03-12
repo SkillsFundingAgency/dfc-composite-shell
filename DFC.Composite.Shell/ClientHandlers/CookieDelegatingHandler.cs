@@ -64,17 +64,17 @@ namespace DFC.Composite.Shell.ClientHandlers
             return key == HeaderNames.Cookie;
         }
 
+        private static bool ShouldAddHeader(string prefix, string key)
+        {
+            return key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+        }
+
         private static bool ShouldAddCookie(string prefix, string value)
         {
             var segments = value.Split('=');
             var segment = segments.FirstOrDefault();
             var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || segment == Constants.DfcSession;
             return result;
-        }
-
-        private static bool ShouldAddHeader(string prefix, string key)
-        {
-            return key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
         }
 
         private void CopyHeaders(string prefix, IHeaderDictionary sourceHeaders, HttpRequestHeaders destinationHeaders)
