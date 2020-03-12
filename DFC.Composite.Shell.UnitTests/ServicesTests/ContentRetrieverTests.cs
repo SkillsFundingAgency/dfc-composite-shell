@@ -417,6 +417,5 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             httpHandler.Dispose();
             httpResponseMessage.Dispose();
         }
-
     }
 }

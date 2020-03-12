@@ -2,7 +2,6 @@
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Xunit;

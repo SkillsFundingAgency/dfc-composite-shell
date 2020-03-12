@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Services.PathLocator;
+﻿using DFC.Composite.Shell.Models.Common;
+using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -63,16 +64,17 @@ namespace DFC.Composite.Shell.ClientHandlers
             return key == HeaderNames.Cookie;
         }
 
+        private static bool ShouldAddCookie(string prefix, string value)
+        {
+            var segments = value.Split('=');
+            var segment = segments.FirstOrDefault();
+            var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || segment == Constants.DfcSession;
+            return result;
+        }
+
         private static bool ShouldAddHeader(string prefix, string key)
         {
             return key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static bool ShouldAddCookie(string prefix, string value)
-        {
-            var segment = value.Split('=').First();
-            var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
-            return result;
         }
 
         private void CopyHeaders(string prefix, IHeaderDictionary sourceHeaders, HttpRequestHeaders destinationHeaders)

@@ -16,6 +16,7 @@ using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
@@ -125,6 +126,7 @@ namespace DFC.Composite.Shell
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IPathDataService, PathDataService>();
+            services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
@@ -188,7 +190,6 @@ namespace DFC.Composite.Shell
                 endpoints.MapControllerRoute("Robots", "Robots.txt", new { controller = "Robot", action = "Robot" });
 
                 endpoints.MapControllerRoute("Application.GetOrPost", "{path}/{**data}", new { controller = "Application", action = "Action" });
-
             });
         }
     }
