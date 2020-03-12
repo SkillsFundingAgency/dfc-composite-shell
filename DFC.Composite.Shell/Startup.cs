@@ -79,12 +79,24 @@ namespace DFC.Composite.Shell
 
             // Configure security headers
             app.UseCsp(options => options
-            .DefaultSources(s => s.Self())
-            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}" }))
-            .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
-            .FontSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
-            .ImageSources(s => s.Self().CustomSources(new string[] { $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net" }))
-            .ConnectSources(s => s.Self().CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}")));
+                .DefaultSources(s => s.Self())
+                .ScriptSources(s => s
+                    .StrictDynamic()
+                    .Self()
+                    .UnsafeEval()
+                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                .StyleSources(s => s
+                    .Self()
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
+                .FontSources(s => s
+                    .Self()
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
+                .ImageSources(s => s
+                    .Self()
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net"))
+                .ConnectSources(s => s
+                    .Self()
+                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/")));
 
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
@@ -188,7 +200,6 @@ namespace DFC.Composite.Shell
                 endpoints.MapControllerRoute("Robots", "Robots.txt", new { controller = "Robot", action = "Robot" });
 
                 endpoints.MapControllerRoute("Application.GetOrPost", "{path}/{**data}", new { controller = "Application", action = "Action" });
-
             });
         }
     }

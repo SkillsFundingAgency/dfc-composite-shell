@@ -9,5 +9,6 @@
         public const string NationalCareersToolkit = "nationalcareers_toolkit";
         public const string ApplicationInsightsScriptResourceAddress = "ApplicationInsights:ScriptResourceAddress";
         public const string ApplicationInsightsConnectSources = "ApplicationInsights:ConnectSources";
+        public const string ApplicationInsightsInstrumentationKey = "ApplicationInsights:InstrumentationKey";
     }
 }

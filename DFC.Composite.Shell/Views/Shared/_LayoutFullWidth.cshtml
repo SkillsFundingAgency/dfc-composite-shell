@@ -9,7 +9,7 @@
         @RenderSection("Head", required: false)
     }
 
-    <partial name="_ApplicationInsightsJavascript" />
+    @await Component.InvokeAsync("AppInsights", null)
 </head>
 
 <body class="govuk-template__body ">
@@ -20,7 +20,6 @@
         <partial name="_PhaseBanner" />
 
         <partial name="_ErrorSummary" />
-
     </div>
 
     @if (IsSectionDefined("BodyTop"))
@@ -62,14 +61,12 @@
                     IgnoreSection("SideBarRight");
                 }
             }
-
         </main>
 
         @if (IsSectionDefined("BodyFooter"))
         {
             @RenderSection("BodyFooter", required: false)
         }
-
     </div>
 
     <partial name="_GovUkFooter" />
