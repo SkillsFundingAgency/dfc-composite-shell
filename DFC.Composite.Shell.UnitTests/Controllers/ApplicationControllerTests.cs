@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -102,6 +103,28 @@ namespace DFC.Composite.Shell.Test.Controllers
             Assert.Equal(model.Path, ChildAppPath);
         }
 
+        [Fact]
+        public async Task ApplicationControllerGetActionReturnsRedirectWhenRedirectExceptionOccurs()
+        {
+            var requestModel = new ActionGetRequestModel { Path = ChildAppPath };
+            var fakeApplicationService = A.Fake<IApplicationService>();
+            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
+
+            var context = new DefaultHttpContext();
+
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = context
+                },
+            };
+
+            await applicationController.Action(requestModel).ConfigureAwait(false);
+            Assert.True(context.Response.StatusCode == (int) HttpStatusCode.Redirect);
+        }
+
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
         public async Task ApplicationControllerGetActionAddsModelStateErrorWhenPathIsNull()
         {
@@ -147,7 +170,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
             applicationController.Dispose();
         }
-
+        
         [Fact]
         public async Task ApplicationControllerPostActionReturnsSuccess()
         {
