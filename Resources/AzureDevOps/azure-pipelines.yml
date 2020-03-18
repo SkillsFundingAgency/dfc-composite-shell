@@ -47,7 +47,6 @@ jobs:
       version: 3.1.x
   - task: DotNetCoreCLI@2
     displayName: 'dotnet restore application'
-    condition: ${{ parameters.PublishWebApp }}
     inputs:
       command: 'restore'
       projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
