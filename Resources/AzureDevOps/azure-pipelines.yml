@@ -45,6 +45,7 @@ jobs:
     displayName: 'Use .NET Core sdk'
     inputs:
       version: 3.1.x
+      installationPath: $(Agent.TempDirectory)/dotnet
   - task: DotNetCoreCLI@2
     displayName: 'dotnet restore application'
     inputs:
