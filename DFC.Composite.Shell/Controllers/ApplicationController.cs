@@ -110,6 +110,7 @@ namespace DFC.Composite.Shell.Controllers
                         logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                         Response.Redirect(redirectTo, ex.IsPermenant);
+                        break;
                     }
                 }
             }
