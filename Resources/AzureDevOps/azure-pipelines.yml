@@ -50,6 +50,23 @@ jobs:
     inputs:
       command: 'restore'
       projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build application'
+    inputs:
+      command: 'build'
+      projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
+      arguments: '-o $(build.artifactstagingdirectory)\Build\  -c $(BuildConfiguration)'
+  - task: ArchiveFiles@2
+    displayName: 'Archive Application'
+    inputs: 
+      rootFolderOrFile: $(build.artifactstagingdirectory)\Build\
+      archiveFile: $(build.artifactstagingdirectory)\Artifact\$(SolutionBaseName)\DeploymentPackages2\$(SolutionBaseName).zip
+      includeRootFolder: false
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Artifact: DeploymentPackages2'
+    inputs:
+      targetPath: $(build.artifactstagingdirectory)\Artifact\$(SolutionBaseName)\DeploymentPackages
+      artifactName: $(SolutionBaseName).DeploymentPackages2
 
   - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
