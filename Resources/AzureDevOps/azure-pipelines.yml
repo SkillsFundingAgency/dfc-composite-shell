@@ -46,5 +46,6 @@ jobs:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
       BuildConfiguration: $(BuildConfiguration)
+      DotNetCoreVersion: 3.1.101
       PublishWebApp: true
       TestSuffix: UnitTests
