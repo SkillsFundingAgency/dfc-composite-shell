@@ -31,6 +31,8 @@ jobs:
 #Build and test application
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
+  workspace:
+    clean: all
 
   steps:
   - task: CopyFiles@2
