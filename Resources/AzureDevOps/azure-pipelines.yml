@@ -50,12 +50,13 @@ jobs:
     inputs:
       command: 'restore'
       projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
+      arguments: '-packages $(build.artifactstagingdirectory)\Build\'
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build application'
     inputs:
       command: 'build'
       projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
-      arguments: '-o $(build.artifactstagingdirectory)\Build\  -c $(BuildConfiguration)'
+      arguments: '-o $(build.artifactstagingdirectory)\Build\  -c $(BuildConfiguration) --no-restore'
   - task: ArchiveFiles@2
     displayName: 'Archive Application'
     inputs: 
