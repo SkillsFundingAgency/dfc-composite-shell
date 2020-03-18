@@ -41,6 +41,17 @@ jobs:
       SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
       TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
 
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk'
+    inputs:
+      version: 3.1.x
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore application'
+    condition: ${{ parameters.PublishWebApp }}
+    inputs:
+      command: 'restore'
+      projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
+
   - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
