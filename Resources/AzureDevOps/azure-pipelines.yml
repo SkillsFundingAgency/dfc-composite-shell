@@ -10,7 +10,8 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.8.6
+    ##TO DO: reset to latest tag
+    ref: refs/heads/NCSD-3126-FixDotNetCore3Builds
     endpoint: 'GitHub (ESFA)'
 
 pool:
@@ -41,40 +42,11 @@ jobs:
       SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
       TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
 
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core sdk'
-    inputs:
-      version: 3.1.101
-      installationPath: $(Agent.TempDirectory)/dotnet
-  - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore application'
-    inputs:
-      command: 'restore'
-      projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
-      arguments: '-packages $(build.artifactstagingdirectory)\Build\'
-  - task: DotNetCoreCLI@2
-    displayName: 'dotnet build application'
-    inputs:
-      command: 'build'
-      projects: '$(SolutionBaseName)\$(SolutionBaseName).csproj'
-      arguments: '-o $(build.artifactstagingdirectory)\Build\  -c $(BuildConfiguration) --no-restore'
-  - task: ArchiveFiles@2
-    displayName: 'Archive Application'
-    inputs: 
-      rootFolderOrFile: $(build.artifactstagingdirectory)\Build\
-      archiveFile: $(build.artifactstagingdirectory)\Artifact\$(SolutionBaseName)\DeploymentPackages\$(SolutionBaseName).zip
-      includeRootFolder: false
-  - task: PublishPipelineArtifact@1
-    displayName: 'Publish Artifact: DeploymentPackages'
-    inputs:
-      targetPath: $(build.artifactstagingdirectory)\Artifact\$(SolutionBaseName)\DeploymentPackages
-      artifactName: $(SolutionBaseName).DeploymentPackages
-
-  # - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
-  #   parameters:
-  #     SolutionBaseName: $(SolutionBaseName)
-  #     BuildPlatform: $(BuildPlatform)
-  #     BuildConfiguration: $(BuildConfiguration)
-  #     DotNetCoreVersion: 3.1.x
-  #     PublishWebApp: true
-  #     TestSuffix: UnitTests
+  - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
+    parameters:
+      SolutionBaseName: $(SolutionBaseName)
+      BuildPlatform: $(BuildPlatform)
+      BuildConfiguration: $(BuildConfiguration)
+      DotNetCoreVersion: 3.1.101
+      PublishWebApp: true
+      TestSuffix: UnitTests
