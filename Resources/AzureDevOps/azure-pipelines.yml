@@ -32,7 +32,9 @@ jobs:
     displayName: 'Copy Page Registration to Staging'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
-      TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
+      TargetFolder: $(build.artifactstagingdirectory)/PageRegistration
+      Contents: |
+        *.json
 
   - task: PublishPipelineArtifact@0
     displayName: Publish Pipeline Artifact
