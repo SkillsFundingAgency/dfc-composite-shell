@@ -10,7 +10,7 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.8.6
+    ref: refs/tags/v1.11.1
     endpoint: 'GitHub (ESFA)'
 
 pool:
@@ -31,6 +31,8 @@ jobs:
 #Build and test application
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
+  workspace:
+    clean: all
 
   steps:
   - task: CopyFiles@2
