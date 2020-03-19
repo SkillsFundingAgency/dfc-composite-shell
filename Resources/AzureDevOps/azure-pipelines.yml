@@ -28,6 +28,18 @@ jobs:
     parameters:
       ArmTemplateRoot: $(ArmTemplateRoot)
 
+  - task: CopyFiles@2
+    displayName: 'Copy Page Registration to Staging'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
+      TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
+
+  - task: PublishPipelineArtifact@0
+    displayName: Publish Pipeline Artifact
+    inputs:
+      targetPath: $(build.artifactstagingdirectory)/PageRegistrations
+      artifactName: ${{ variables.SolutionBaseName }}.PageRegistrations
+
 #Build and test application
 - job: BuildDotNetCore
   displayName: Build-DotNetCore
@@ -35,12 +47,6 @@ jobs:
     clean: all
 
   steps:
-  - task: CopyFiles@2
-    displayName: 'Copy Page Registration to Staging'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
-      TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
-
   - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
