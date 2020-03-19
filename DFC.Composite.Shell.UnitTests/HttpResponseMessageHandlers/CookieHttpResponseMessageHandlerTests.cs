@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.HeaderCountService;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.PathLocator;
 using FakeItEasy;
@@ -20,6 +21,7 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
         private ISetCookieParser setCookieParser;
         private CookieHttpResponseMessageHandler cookieHttpResponseMessageHandler;
         private IHeaderRenamerService headerRenamerService;
+        private IHeaderCountService headerCountService;
 
         public CookieHttpResponseMessageHandlerTests()
         {
@@ -28,8 +30,9 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
             setCookieParser = new SetCookieParser();
             httpContextAccessor.HttpContext = new DefaultHttpContext();
             headerRenamerService = new HeaderRenamerService();
+            headerCountService = new HeaderCountService();
 
-            cookieHttpResponseMessageHandler = new CookieHttpResponseMessageHandler(httpContextAccessor, pathLocator, setCookieParser, headerRenamerService);
+            cookieHttpResponseMessageHandler = new CookieHttpResponseMessageHandler(httpContextAccessor, pathLocator, setCookieParser, headerRenamerService, headerCountService);
         }
 
         [Fact]
@@ -140,6 +143,28 @@ namespace DFC.Composite.Shell.Test.HttpResponseMessageHandlers
                 var setCookieHeader = shellResponseHeaders[HeaderNames.SetCookie];
                 Assert.Equal(2, setCookieHeader.Count);
                 Assert.StartsWith($"{Constants.DfcSession}=value1", setCookieHeader[0], StringComparison.OrdinalIgnoreCase);
+                Assert.StartsWith($"{path}v2=value2", setCookieHeader[1], StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        [Fact]
+        public void WhenMultipleDfcSessionsExistsFirstIsUsed()
+        {
+            using (var childHttpResponseMessage = new HttpResponseMessage())
+            {
+                //Arrange
+                var path = "path1";
+                A.CallTo(() => pathLocator.GetPath()).Returns(path);
+                childHttpResponseMessage.Headers.Add(HeaderNames.SetCookie, new List<string>() { $"{Constants.DfcSession}=dfc1", "v2=value2", $"{Constants.DfcSession}=dfc2" });
+
+                //Act
+                cookieHttpResponseMessageHandler.Process(childHttpResponseMessage);
+
+                //Assert
+                var shellResponseHeaders = httpContextAccessor.HttpContext.Response.Headers;
+                var setCookieHeader = shellResponseHeaders[HeaderNames.SetCookie];
+                Assert.Equal(2, setCookieHeader.Count);
+                Assert.StartsWith($"{Constants.DfcSession}=dfc1", setCookieHeader[0], StringComparison.OrdinalIgnoreCase);
                 Assert.StartsWith($"{path}v2=value2", setCookieHeader[1], StringComparison.OrdinalIgnoreCase);
             }
         }
