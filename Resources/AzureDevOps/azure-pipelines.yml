@@ -10,8 +10,7 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ##TO DO: reset to latest tag
-    ref: refs/heads/NCSD-3126-FixDotNetCore3Builds
+    ref: refs/tags/v1.11.1
     endpoint: 'GitHub (ESFA)'
 
 pool:
