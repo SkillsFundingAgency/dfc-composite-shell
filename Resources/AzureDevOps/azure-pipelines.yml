@@ -31,8 +31,8 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Page Registration to Staging'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
-      TargetFolder: $(build.artifactstagingdirectory)/PageRegistration
+      SourceFolder: '$(Build.SourcesDirectory)/PageRegistration'
+      TargetFolder: $(build.artifactstagingdirectory)/PageRegistrations
       Contents: |
         *.json
 
@@ -40,7 +40,7 @@ jobs:
     displayName: Publish Pipeline Artifact
     inputs:
       targetPath: $(build.artifactstagingdirectory)/PageRegistrations
-      artifactName: ${{ variables.SolutionBaseName }}.PageRegistrations
+      artifactName: $(SolutionBaseName).PageRegistrations
 
 #Build and test application
 - job: BuildDotNetCore
