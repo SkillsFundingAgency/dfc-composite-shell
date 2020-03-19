@@ -1,5 +1,5 @@
 ﻿using DFC.Composite.Shell.Models.Common;
-using DFC.Composite.Shell.Services.HeaderCountService;
+using DFC.Composite.Shell.Services.HeaderCount;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.HeaderCounterTests

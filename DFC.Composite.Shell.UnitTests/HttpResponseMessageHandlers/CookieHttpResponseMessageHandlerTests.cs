@@ -1,7 +1,7 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.CookieParsers;
-using DFC.Composite.Shell.Services.HeaderCountService;
+using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.PathLocator;
 using FakeItEasy;

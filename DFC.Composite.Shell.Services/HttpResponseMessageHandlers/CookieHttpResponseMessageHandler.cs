@@ -1,5 +1,5 @@
 ﻿using DFC.Composite.Shell.Services.CookieParsers;
-using DFC.Composite.Shell.Services.HeaderCountService;
+using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;

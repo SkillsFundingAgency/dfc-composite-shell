@@ -1,4 +1,4 @@
-﻿namespace DFC.Composite.Shell.Services.HeaderCountService
+﻿namespace DFC.Composite.Shell.Services.HeaderCount
 {
     public interface IHeaderCountService
     {

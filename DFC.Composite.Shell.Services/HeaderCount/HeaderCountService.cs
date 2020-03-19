@@ -1,6 +1,6 @@
 ﻿using DFC.Composite.Shell.Models.Common;
 
-namespace DFC.Composite.Shell.Services.HeaderCountService
+namespace DFC.Composite.Shell.Services.HeaderCount
 {
     public class HeaderCountService : IHeaderCountService
     {
@@ -8,12 +8,9 @@ namespace DFC.Composite.Shell.Services.HeaderCountService
         {
             var result = int.MaxValue;
 
-            if (!string.IsNullOrWhiteSpace(headerName))
+            if (!string.IsNullOrWhiteSpace(headerName) && headerName == Constants.DfcSession)
             {
-                if (headerName == Constants.DfcSession)
-                {
-                    result = 1;
-                }
+                result = 1;
             }
 
             return result;
