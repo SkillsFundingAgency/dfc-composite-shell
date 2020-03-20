@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using System;
 
 namespace DFC.Composite.Shell.Services.DataProtectionProviders
 {
@@ -8,6 +9,11 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
 
         public CompositeDataProtectionDataProvider(IDataProtectionProvider dataProtectionProvider)
         {
+            if (dataProtectionProvider == null)
+            {
+                throw new ArgumentNullException(nameof(dataProtectionProvider));
+            }
+
             this.dataProtector = dataProtectionProvider.CreateProtector(nameof(CompositeDataProtectionDataProvider));
         }
 

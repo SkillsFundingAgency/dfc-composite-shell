@@ -64,12 +64,17 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
                     {
                         RegisterHeader(headers, cookieKey);
                         httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKeyWithPrefix, cookieValue, cookieSettings.CookieOptions);
-                        if (!httpContextAccessor.HttpContext.Items.ContainsKey(cookieKeyWithPrefix))
-                        {
-                            httpContextAccessor.HttpContext.Items[cookieKeyWithPrefix] = cookieValue;
-                        }
+                        AddToHttpContext(cookieKeyWithPrefix, cookieValue);
                     }
                 }
+            }
+        }
+
+        private void AddToHttpContext(string key, string value)
+        {
+            if (!httpContextAccessor.HttpContext.Items.ContainsKey(key))
+            {
+                httpContextAccessor.HttpContext.Items[key] = value;
             }
         }
 

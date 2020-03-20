@@ -68,13 +68,19 @@ namespace DFC.Composite.Shell.ClientHandlers
             return result;
         }
 
-        private string GetCookieValue(string value)
+        private string GetCookieValue(string key, string value)
         {
             var result = string.Empty;
             var startPosition = value.IndexOf("=", StringComparison.OrdinalIgnoreCase);
             if (startPosition != -1)
             {
                 result = value.Substring(startPosition + 1);
+                result = Uri.UnescapeDataString(result);
+            }
+
+            if (!string.IsNullOrWhiteSpace(result) && key == Constants.DfcSession)
+            {
+                result = compositeDataProtectionDataProvider.Unprotect(result);
             }
 
             return result;
@@ -94,14 +100,7 @@ namespace DFC.Composite.Shell.ClientHandlers
                         if (ShouldAddCookie(prefix, sourceHeaderValueTrimmed))
                         {
                             var cookieKey = GetCookieKey(prefix, sourceHeaderValueTrimmed);
-                            var cookieValue = GetCookieValue(sourceHeaderValueTrimmed);
-
-                            cookieValue = Uri.UnescapeDataString(cookieValue);
-
-                            if (!string.IsNullOrWhiteSpace(cookieValue) && cookieKey == Constants.DfcSession)
-                            {
-                                cookieValue = compositeDataProtectionDataProvider.Unprotect(cookieValue);
-                            }
+                            var cookieValue = GetCookieValue(cookieKey, sourceHeaderValueTrimmed);
 
                             cookieValue = $"{cookieKey}={cookieValue}";
                             cookieValues.Add(cookieValue);
