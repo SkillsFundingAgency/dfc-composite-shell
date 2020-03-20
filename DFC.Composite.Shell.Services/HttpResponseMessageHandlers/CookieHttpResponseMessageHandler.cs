@@ -1,4 +1,6 @@
-﻿using DFC.Composite.Shell.Services.CookieParsers;
+﻿using DFC.Composite.Shell.Models.Common;
+using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.DataProtectionProviders;
 using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.PathLocator;
@@ -21,19 +23,22 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
         private readonly ISetCookieParser setCookieParser;
         private readonly IHeaderRenamerService headerRenamerService;
         private readonly IHeaderCountService headerCountService;
+        private readonly ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider;
 
         public CookieHttpResponseMessageHandler(
             IHttpContextAccessor httpContextAccessor,
             IPathLocator pathLocator,
             ISetCookieParser setCookieParser,
             IHeaderRenamerService headerRenamerService,
-            IHeaderCountService headerCountService)
+            IHeaderCountService headerCountService,
+            ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.pathLocator = pathLocator;
             this.setCookieParser = setCookieParser;
             this.headerRenamerService = headerRenamerService;
             this.headerCountService = headerCountService;
+            this.compositeDataProtectionDataProvider = compositeDataProtectionDataProvider;
         }
 
         public void Process(HttpResponseMessage httpResponseMessage)
@@ -49,13 +54,19 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
                     var cookieKeyWithPrefix = string.Concat(prefix, cookieKey);
                     var allowedHeaderCount = headerCountService.Count(cookieKey);
                     var currentHeaderCount = GetHeaderCount(headers, cookieKey);
+                    var cookieValue = cookieSettings.Value;
+                    if (cookieSettings.Key == Constants.DfcSession)
+                    {
+                        cookieValue = compositeDataProtectionDataProvider.Protect(cookieValue);
+                    }
+
                     if (currentHeaderCount < allowedHeaderCount)
                     {
                         RegisterHeader(headers, cookieKey);
-                        httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKeyWithPrefix, cookieSettings.Value, cookieSettings.CookieOptions);
+                        httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKeyWithPrefix, cookieValue, cookieSettings.CookieOptions);
                         if (!httpContextAccessor.HttpContext.Items.ContainsKey(cookieKeyWithPrefix))
                         {
-                            httpContextAccessor.HttpContext.Items[cookieKeyWithPrefix] = cookieSettings.Value;
+                            httpContextAccessor.HttpContext.Items[cookieKeyWithPrefix] = cookieValue;
                         }
                     }
                 }
