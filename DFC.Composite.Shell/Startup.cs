@@ -16,6 +16,7 @@ using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.DataProtectionProviders;
 using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
@@ -119,6 +120,7 @@ namespace DFC.Composite.Shell
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddDataProtection();
             services.AddHttpContextAccessor();
 
             services.AddTransient<IApplicationService, ApplicationService>();
@@ -129,6 +131,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
             services.AddTransient<ISetCookieParser, SetCookieParser>();
             services.AddTransient<IUrlRewriterService, UrlRewriterService>();
+            services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
 
             services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
