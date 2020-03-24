@@ -166,6 +166,10 @@
                           "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
                         },
                         {
+                          "name": "ApimProxyAddress",
+                          "value": "[parameters('ApimProxyAddress')]"
+                        },
+                        {
                           "name": "ApplicationClientOptions__BaseAddress",
                           "value": null
                         },
