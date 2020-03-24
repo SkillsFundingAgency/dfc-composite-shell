@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Models.Common;
+using DFC.Composite.Shell.Services.DataProtectionProviders;
 using DFC.Composite.Shell.Services.PathLocator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
@@ -19,11 +20,13 @@ namespace DFC.Composite.Shell.ClientHandlers
     {
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IPathLocator pathLocator;
+        private readonly ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider;
 
-        public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator)
+        public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator, ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.pathLocator = pathLocator;
+            this.compositeDataProtectionDataProvider = compositeDataProtectionDataProvider;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -47,18 +50,6 @@ namespace DFC.Composite.Shell.ClientHandlers
             return result;
         }
 
-        private static string GetCookieValue(string value)
-        {
-            var result = string.Empty;
-            var startPosition = value.IndexOf("=", StringComparison.OrdinalIgnoreCase);
-            if (startPosition != -1)
-            {
-                result = value.Substring(startPosition + 1);
-            }
-
-            return result;
-        }
-
         private static bool ShouldAddHeader(string key)
         {
             return key == HeaderNames.Cookie;
@@ -77,6 +68,24 @@ namespace DFC.Composite.Shell.ClientHandlers
             return result;
         }
 
+        private string GetCookieValue(string key, string value)
+        {
+            var result = string.Empty;
+            var startPosition = value.IndexOf("=", StringComparison.OrdinalIgnoreCase);
+            if (startPosition != -1)
+            {
+                result = value.Substring(startPosition + 1);
+                result = Uri.UnescapeDataString(result);
+            }
+
+            if (!string.IsNullOrWhiteSpace(result) && key == Constants.DfcSession)
+            {
+                result = compositeDataProtectionDataProvider.Unprotect(result);
+            }
+
+            return result;
+        }
+
         private void CopyHeaders(string prefix, IHeaderDictionary sourceHeaders, HttpRequestHeaders destinationHeaders)
         {
             foreach (var sourceHeader in sourceHeaders)
@@ -91,9 +100,7 @@ namespace DFC.Composite.Shell.ClientHandlers
                         if (ShouldAddCookie(prefix, sourceHeaderValueTrimmed))
                         {
                             var cookieKey = GetCookieKey(prefix, sourceHeaderValueTrimmed);
-                            var cookieValue = GetCookieValue(sourceHeaderValueTrimmed);
-
-                            cookieValue = Uri.UnescapeDataString(cookieValue);
+                            var cookieValue = GetCookieValue(cookieKey, sourceHeaderValueTrimmed);
 
                             cookieValue = $"{cookieKey}={cookieValue}";
                             cookieValues.Add(cookieValue);
