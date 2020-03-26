@@ -10,7 +10,7 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.8.6
+    ref: refs/tags/v1.11.1
     endpoint: 'GitHub (ESFA)'
 
 pool:
@@ -28,17 +28,27 @@ jobs:
     parameters:
       ArmTemplateRoot: $(ArmTemplateRoot)
 
-#Build and test application
-- job: BuildDotNetCore
-  displayName: Build-DotNetCore
-
-  steps:
   - task: CopyFiles@2
     displayName: 'Copy Page Registration to Staging'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\PageRegistration'
-      TargetFolder: $(build.artifactstagingdirectory)/Artifact/PageRegistration
+      SourceFolder: '$(Build.SourcesDirectory)/PageRegistration'
+      TargetFolder: $(build.artifactstagingdirectory)/PageRegistrations
+      Contents: |
+        *.json
 
+  - task: PublishPipelineArtifact@0
+    displayName: Publish Pipeline Artifact
+    inputs:
+      targetPath: $(build.artifactstagingdirectory)/PageRegistrations
+      artifactName: $(SolutionBaseName).PageRegistrations
+
+#Build and test application
+- job: BuildDotNetCore
+  displayName: Build-DotNetCore
+  workspace:
+    clean: all
+
+  steps:
   - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)

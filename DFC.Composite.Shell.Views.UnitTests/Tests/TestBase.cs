@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace DFC.Composite.Shell.Views.Test.Tests
+﻿namespace DFC.Composite.Shell.Views.Test.Tests
 {
     public class TestBase
     {
