@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using System;
+using System.Security.Cryptography;
 
 namespace DFC.Composite.Shell.Services.DataProtectionProviders
 {
@@ -24,7 +25,19 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
 
         public string Unprotect(string value)
         {
-            return dataProtector.Unprotect(value);
+            var result = string.Empty;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    result = dataProtector.Unprotect(value);
+                }
+            }
+            catch (CryptographicException)
+            {
+            }
+
+            return result;
         }
     }
 }
