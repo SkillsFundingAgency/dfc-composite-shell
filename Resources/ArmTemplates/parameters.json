@@ -40,6 +40,9 @@
         },
         "SharedAppServicePlanResourceGroup": {
             "value": "__CompositeUiSharedResourceGroup__"
+        },
+        "enableAlerts": {
+            "value": __EnableAzureMonitorAlerting__
         }
     }
 }

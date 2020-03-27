@@ -9,9 +9,9 @@
     string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString();
 }
 
-<script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript"></script>
-<script src="@(VersionedPathForAllMinJs)" type="text/javascript"></script>
+<script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
+<script src="@(VersionedPathForAllMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
 
-<script>window.GOVUKFrontend.initAll()</script>
+<script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
 
-<script src="@(VersionedPathForDfcDigitalMinJs)"></script>
+<script src="@(VersionedPathForDfcDigitalMinJs)" nws-csp-add-nonce="true"></script>

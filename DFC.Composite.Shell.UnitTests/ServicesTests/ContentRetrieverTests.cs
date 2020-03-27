@@ -8,6 +8,7 @@ using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
+using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -357,6 +358,64 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 .MustNotHaveHappened();
 
             Assert.Equal(offlineHTML, result);
+        }
+
+        [Fact]
+        public async Task WhenPostContentIssuesARedirectThenHandlerProcessesRequest()
+        {
+            var baseUrl = "https://base/baseurl";
+            var postUrl = "https://base/posturl";
+            var redirectUrl = "https://child1/redirecturl";
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.Redirect,
+            };
+            httpResponseMessage.Headers.Location = new Uri(redirectUrl);
+
+            var model = new RegionModel
+            {
+                IsHealthy = true,
+            };
+            var httpHandler = new MockHttpMessageHandler();
+            var httpClient = httpHandler.ToHttpClient();
+            httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
+            var contentRetriever = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
+
+            await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
+
+            A.CallTo(() => httpResponseMessageHandler.Process(A<HttpResponseMessage>.That.Matches(x => x.StatusCode == HttpStatusCode.Redirect))).MustHaveHappenedOnceExactly();
+
+            httpHandler.Dispose();
+            httpResponseMessage.Dispose();
+        }
+
+        [Fact]
+        public async Task WhenPostContentIssuesARedirectThenRedirectExceptionIsThrown()
+        {
+            var baseUrl = "https://base/baseurl";
+            var postUrl = "https://base/posturl";
+            var redirectUrl = "https://child1/redirecturl";
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.Redirect,
+            };
+            httpResponseMessage.Headers.Location = new Uri(redirectUrl);
+
+            var model = new RegionModel
+            {
+                IsHealthy = true,
+            };
+            var httpHandler = new MockHttpMessageHandler();
+            var httpClient = httpHandler.ToHttpClient();
+            httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
+            var contentRetriever = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
+
+            var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
+            Assert.Equal("https://base/baseurl/redirecturl", ex.Location.AbsoluteUri);
+            Assert.Equal(postUrl, ex.OldLocation.AbsoluteUri);
+
+            httpHandler.Dispose();
+            httpResponseMessage.Dispose();
         }
     }
 }

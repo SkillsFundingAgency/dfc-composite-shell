@@ -16,6 +16,9 @@ using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.CookieParsers;
+using DFC.Composite.Shell.Services.DataProtectionProviders;
+using DFC.Composite.Shell.Services.HeaderCount;
+using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.PathLocator;
@@ -79,12 +82,24 @@ namespace DFC.Composite.Shell
 
             // Configure security headers
             app.UseCsp(options => options
-            .DefaultSources(s => s.Self())
-            .ScriptSources(s => s.Self().UnsafeInline().CustomSources(new string[] { "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}" }))
-            .StyleSources(s => s.Self().UnsafeInline().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
-            .FontSources(s => s.Self().CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
-            .ImageSources(s => s.Self().CustomSources(new string[] { $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net" }))
-            .ConnectSources(s => s.Self().CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}")));
+                .DefaultSources(s => s.Self())
+                .ScriptSources(s => s
+                    .Self()
+                    .UnsafeEval()
+                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                .StyleSources(s => s
+                    .Self()
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
+                .FontSources(s => s
+                    .Self()
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
+                .ImageSources(s => s
+                    .Self()
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net"))
+                .FrameAncestors(s => s.Self())
+                .ConnectSources(s => s
+                    .Self()
+                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
 
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
@@ -105,6 +120,7 @@ namespace DFC.Composite.Shell
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddDataProtection();
             services.AddHttpContextAccessor();
 
             services.AddTransient<IApplicationService, ApplicationService>();
@@ -115,6 +131,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IMapper<ApplicationModel, PageViewModel>, ApplicationToPageModelMapper>();
             services.AddTransient<ISetCookieParser, SetCookieParser>();
             services.AddTransient<IUrlRewriterService, UrlRewriterService>();
+            services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
 
             services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
@@ -125,6 +142,8 @@ namespace DFC.Composite.Shell
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IPathDataService, PathDataService>();
+            services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
+            services.AddScoped<IHeaderCountService, HeaderCountService>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
@@ -188,7 +207,6 @@ namespace DFC.Composite.Shell
                 endpoints.MapControllerRoute("Robots", "Robots.txt", new { controller = "Robot", action = "Robot" });
 
                 endpoints.MapControllerRoute("Application.GetOrPost", "{path}/{**data}", new { controller = "Application", action = "Action" });
-
             });
         }
     }

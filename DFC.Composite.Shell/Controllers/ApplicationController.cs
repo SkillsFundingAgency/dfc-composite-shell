@@ -110,6 +110,7 @@ namespace DFC.Composite.Shell.Controllers
                         logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                         Response.Redirect(redirectTo, ex.IsPermenant);
+                        break;
                     }
                 }
             }
@@ -261,7 +262,7 @@ namespace DFC.Composite.Shell.Controllers
             return new HtmlString(result);
         }
 
-        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
+        private static ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
         {
             var notFoundErrorRequestViewModel = new ActionGetRequestModel
             {
