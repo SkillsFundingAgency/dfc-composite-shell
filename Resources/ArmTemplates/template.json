@@ -124,7 +124,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service.json')]",
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-staging.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -139,9 +139,6 @@
                     },
                     "appServiceType": {
                         "value": "app"
-                    },
-                    "deployStagingSlot": {
-                        "value": true
                     },
                     "appServiceAppSettings": {
                       "value": [
