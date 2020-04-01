@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en-gb" class="govuk-template ">
+
+<head>
+    <partial name="_Head" />
+
+    @if (IsSectionDefined("Head"))
+    {
+        @RenderSection("Head", required: false)
+    }
+
+    @await Component.InvokeAsync("AppInsights", null)
+</head>
+
+<body class="govuk-template__body ">
+    <partial name="_GovUkHeader" />
+
+    <div class="govuk-width-container">
+
+        <partial name="_PhaseBanner" />
+
+        <partial name="_ErrorSummary" />
+    </div>
+
+    @if (IsSectionDefined("BodyTop"))
+    {
+        @RenderSection("BodyTop", required: false)
+    }
+
+    @if (IsSectionDefined("HeroBanner"))
+    {
+        @RenderSection("HeroBanner", required: false)
+    }
+
+
+    @if (IsSectionDefined("Breadcrumb"))
+    {
+        @RenderSection("Breadcrumb", required: false)
+    }
+
+
+    @if (IsSectionDefined("Body"))
+    {
+        @RenderSection("Body", required: false)
+    }
+
+    @RenderBody()
+
+    @{
+        if (IsSectionDefined("SideBarLeft"))
+        {
+            IgnoreSection("SideBarLeft");
+        }
+        if (IsSectionDefined("SideBarRight"))
+        {
+            IgnoreSection("SideBarRight");
+        }
+    }
+
+@if (IsSectionDefined("BodyFooter"))
+{
+    @RenderSection("BodyFooter", required: false)
+}
+
+    <partial name="_GovUkFooter" />
+
+    <partial name="_JQueryInitialise" />
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
