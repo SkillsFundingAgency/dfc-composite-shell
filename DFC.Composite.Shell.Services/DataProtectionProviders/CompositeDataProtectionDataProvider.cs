@@ -1,13 +1,18 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Security.Cryptography;
 
 namespace DFC.Composite.Shell.Services.DataProtectionProviders
 {
     public class CompositeDataProtectionDataProvider : ICompositeDataProtectionDataProvider
     {
         private readonly IDataProtector dataProtector;
+        private readonly ILogger<CompositeDataProtectionDataProvider> logger;
 
-        public CompositeDataProtectionDataProvider(IDataProtectionProvider dataProtectionProvider)
+        public CompositeDataProtectionDataProvider(
+            IDataProtectionProvider dataProtectionProvider,
+            ILogger<CompositeDataProtectionDataProvider> logger)
         {
             if (dataProtectionProvider == null)
             {
@@ -15,6 +20,7 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
             }
 
             this.dataProtector = dataProtectionProvider.CreateProtector(nameof(CompositeDataProtectionDataProvider));
+            this.logger = logger;
         }
 
         public string Protect(string value)
@@ -24,7 +30,20 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
 
         public string Unprotect(string value)
         {
-            return dataProtector.Unprotect(value);
+            var result = string.Empty;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    result = dataProtector.Unprotect(value);
+                }
+            }
+            catch (CryptographicException ex)
+            {
+                logger.LogWarning($"{nameof(CompositeDataProtectionDataProvider)} Unprotect. Error occured {ex.ToString()}");
+            }
+
+            return result;
         }
     }
 }
