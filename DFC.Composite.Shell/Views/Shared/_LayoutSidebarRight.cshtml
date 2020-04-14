@@ -9,7 +9,7 @@
         @RenderSection("Head", required: false)
     }
 
-    <partial name="_ApplicationInsightsJavascript" />
+    @await Component.InvokeAsync("AppInsights", null)
 </head>
 
 <body class="govuk-template__body ">
@@ -68,19 +68,15 @@
                     IgnoreSection("SideBarLeft");
                 }
             }
-
         </main>
 
         @if (IsSectionDefined("BodyFooter"))
         {
             @RenderSection("BodyFooter", required: false)
         }
-
     </div>
 
     <partial name="_GovUkFooter" />
-
-    <partial name="_JQueryInclude" />
 
     <partial name="_JQueryInitialise" />
 

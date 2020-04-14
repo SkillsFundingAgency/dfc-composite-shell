@@ -110,33 +110,12 @@ namespace DFC.Composite.Shell.Controllers
                         logger.LogInformation(ex, $"{nameof(Action)}: Redirecting from: {ex.OldLocation?.ToString()} to: {redirectTo}");
 
                         Response.Redirect(redirectTo, ex.IsPermenant);
+                        break;
                     }
                 }
             }
 
             return View(MainRenderViewName, Map(viewModel));
-        }
-
-        private ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
-        {
-            var notFoundErrorRequestViewModel = new ActionGetRequestModel
-            {
-                Path = AlertPathName,
-                Data = $"{(int)HttpStatusCode.NotFound}",
-            };
-
-            var internalServerErrorRequestViewModel = new ActionGetRequestModel
-            {
-                Path = AlertPathName,
-                Data = $"{(int)HttpStatusCode.InternalServerError}",
-            };
-
-            return new[]
-            {
-                requestViewModel,
-                notFoundErrorRequestViewModel,
-                internalServerErrorRequestViewModel,
-            };
         }
 
         [HttpPost]
@@ -281,6 +260,28 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return new HtmlString(result);
+        }
+
+        private static ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
+        {
+            var notFoundErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.NotFound}",
+            };
+
+            var internalServerErrorRequestViewModel = new ActionGetRequestModel
+            {
+                Path = AlertPathName,
+                Data = $"{(int)HttpStatusCode.InternalServerError}",
+            };
+
+            return new[]
+            {
+                requestViewModel,
+                notFoundErrorRequestViewModel,
+                internalServerErrorRequestViewModel,
+            };
         }
     }
 }

@@ -17,20 +17,20 @@ namespace DFC.Composite.Shell.Services.AssetLocationAndVersion
         private const string ContentMDS = "content-md5";
         private readonly HttpClient httpClient;
         private readonly IAsyncHelper asyncHelper;
-        private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IWebHostEnvironment webHostEnvironment;
         private readonly ILogger<AssetLocationAndVersionService> logger;
         private readonly IFileInfoHelper fileInfoHelper;
 
         public AssetLocationAndVersionService(
             HttpClient httpClientService,
             IAsyncHelper asyncHelper,
-            IHostingEnvironment hostingEnvironment,
+            IWebHostEnvironment webHostEnvironment,
             ILogger<AssetLocationAndVersionService> logger,
             IFileInfoHelper fileInfoHelper)
         {
             httpClient = httpClientService;
             this.asyncHelper = asyncHelper;
-            this.hostingEnvironment = hostingEnvironment;
+            this.webHostEnvironment = webHostEnvironment;
             this.logger = logger;
             this.fileInfoHelper = fileInfoHelper;
         }
@@ -44,7 +44,7 @@ namespace DFC.Composite.Shell.Services.AssetLocationAndVersion
 
         public string GetLocalAssetFileAndVersion(string assetLocation)
         {
-            var physicalPath = Path.Combine(hostingEnvironment.WebRootPath, assetLocation?.Replace('/', Path.DirectorySeparatorChar));
+            var physicalPath = Path.Combine(webHostEnvironment.WebRootPath, assetLocation?.Replace('/', Path.DirectorySeparatorChar));
             var version = GetFileHash(physicalPath);
 
             return $"/{assetLocation}?{version}";

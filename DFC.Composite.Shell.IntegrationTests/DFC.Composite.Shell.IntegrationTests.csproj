@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <CodeAnalysisRuleSet>../DFC.Digital.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <IsPackable>false</IsPackable>
     <ProjectGuid>F4953E44-C13F-4322-B5E3-BAC8E3F5BDEB</ProjectGuid>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings-template.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings-template.json">
@@ -21,9 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>

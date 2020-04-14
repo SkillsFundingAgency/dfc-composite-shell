@@ -106,6 +106,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     if (response.IsRedirectionStatus())
                     {
+                        responseHandler.Process(response);
+
                         var redirectUrl = requestBaseUrl;
 
                         redirectUrl += response.Headers.Location.IsAbsoluteUri

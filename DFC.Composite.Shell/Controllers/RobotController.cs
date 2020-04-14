@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Controllers
     {
         private readonly IPathDataService pathDataService;
         private readonly ILogger<RobotController> logger;
-        private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IApplicationRobotService applicationRobotService;
         private readonly IShellRobotFileService shellRobotFileService;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
@@ -29,7 +29,7 @@ namespace DFC.Composite.Shell.Controllers
         public RobotController(
             IPathDataService pathDataService,
             ILogger<RobotController> logger,
-            IHostingEnvironment hostingEnvironment,
+            IWebHostEnvironment webHostEnvironment,
             IBearerTokenRetriever bearerTokenRetriever,
             IApplicationRobotService applicationRobotService,
             IShellRobotFileService shellRobotFileService,
@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             this.pathDataService = pathDataService;
             this.logger = logger;
-            this.hostingEnvironment = hostingEnvironment;
+            this.webHostEnvironment = webHostEnvironment;
             this.bearerTokenRetriever = bearerTokenRetriever;
             this.applicationRobotService = applicationRobotService;
             this.shellRobotFileService = shellRobotFileService;
@@ -99,9 +99,24 @@ namespace DFC.Composite.Shell.Controllers
             return robotsLines.Where(w => !string.IsNullOrWhiteSpace(w));
         }
 
+        private static void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
+        {
+            var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+
+            var robotResults = ProcessRobotsLines(applicationRobotModel, baseUrl, robotsLines);
+
+            foreach (var robotResult in robotResults)
+            {
+                if (!robot.Lines.Contains(robotResult))
+                {
+                    robot.Add(robotResult);
+                }
+            }
+        }
+
         private async Task AppendShellRobot(Robot robot)
         {
-            var shellRobotsText = await shellRobotFileService.GetFileText(hostingEnvironment.WebRootPath).ConfigureAwait(false);
+            var shellRobotsText = await shellRobotFileService.GetFileText(webHostEnvironment.WebRootPath).ConfigureAwait(false);
             robot.Append(shellRobotsText);
 
             // add any dynamic robots data from the Shell app
@@ -167,21 +182,6 @@ namespace DFC.Composite.Shell.Controllers
                 else
                 {
                     logger.LogError($"{nameof(Action)}: Error getting child robots.txt for: {applicationRobotModel.Path}");
-                }
-            }
-        }
-
-        private static void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
-        {
-            var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-            var robotResults = ProcessRobotsLines(applicationRobotModel, baseUrl, robotsLines);
-
-            foreach (var robotResult in robotResults)
-            {
-                if (!robot.Lines.Contains(robotResult))
-                {
-                    robot.Add(robotResult);
                 }
             }
         }
