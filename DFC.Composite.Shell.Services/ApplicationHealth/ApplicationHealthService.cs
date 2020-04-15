@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System;
 
 namespace DFC.Composite.Shell.Services.ApplicationHealth
 {
@@ -50,13 +51,34 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                try
+                {
+                    var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    };
+                    var result = JsonSerializer.Deserialize<List<HealthItemModel>>(responseString, options);
 
-                var result = JsonSerializer.Deserialize<List<HealthItemModel>>(responseString);
+                    logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
 
-                logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {ex.Message}");
 
-                return result;
+                    var result = new List<HealthItemModel>
+                    {
+                        new HealthItemModel
+                        {
+                            Service = model.Path,
+                            Message = $"Bad health response from {model.HealthUrl} app",
+                        },
+                    };
+
+                    return result;
+                }
             }
             else
             {
