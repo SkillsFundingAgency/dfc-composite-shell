@@ -52,7 +52,21 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
-                var requestItems = GetRequestItemModels(requestViewModel);
+                var errorRequestViewModel = new ActionGetRequestModel
+                {
+                    Path = AlertPathName,
+                    Data = $"{(int)HttpStatusCode.NotFound}",
+                };
+                var requestItems = new[]
+                {
+                    requestViewModel,
+                    errorRequestViewModel,
+                    new ActionGetRequestModel
+                    {
+                        Path = AlertPathName,
+                        Data = $"{(int)HttpStatusCode.InternalServerError}",
+                    },
+                };
 
                 foreach (var requestItem in requestItems)
                 {
@@ -101,7 +115,7 @@ namespace DFC.Composite.Shell.Controllers
                         logger.LogWarning($"{nameof(Action)}: {errorString}");
 
                         Response.StatusCode = (int)ex.StatusCode;
-                        requestItems.First(m => m.Data == $"{(int)HttpStatusCode.NotFound}").Data = $"{Response.StatusCode}";
+                        errorRequestViewModel.Data = $"{Response.StatusCode}";
                     }
                     catch (RedirectException ex)
                     {
@@ -260,28 +274,6 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return new HtmlString(result);
-        }
-
-        private static ActionGetRequestModel[] GetRequestItemModels(ActionGetRequestModel requestViewModel)
-        {
-            var notFoundErrorRequestViewModel = new ActionGetRequestModel
-            {
-                Path = AlertPathName,
-                Data = $"{(int)HttpStatusCode.NotFound}",
-            };
-
-            var internalServerErrorRequestViewModel = new ActionGetRequestModel
-            {
-                Path = AlertPathName,
-                Data = $"{(int)HttpStatusCode.InternalServerError}",
-            };
-
-            return new[]
-            {
-                requestViewModel,
-                notFoundErrorRequestViewModel,
-                internalServerErrorRequestViewModel,
-            };
         }
     }
 }
