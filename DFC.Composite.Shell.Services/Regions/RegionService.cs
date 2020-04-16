@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace DFC.Composite.Shell.Services.Regions
         public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
         {
             var regionsUrl = $"{httpClient.BaseAddress}api/paths/{path}/regions/{(int)pageRegion}";
-            var regionPatchModel = new RegionPatchModel { IsHealthy = isHealthy };
+            var regionPatchModel = new JsonPatchDocument<RegionModel>().Add(x => x.IsHealthy, isHealthy);
             var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
 
             using (var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json))
