@@ -97,6 +97,9 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net"))
                 .FrameAncestors(s => s.Self())
+                .FrameSources(s => s
+                    .Self()
+                    .CustomSources("https://*.serco.com/"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
