@@ -250,6 +250,7 @@ namespace DFC.Composite.Shell.Controllers
                 VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs,
                 VersionedPathForAllMinJs = source.VersionedPathForAllMinJs,
                 VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs,
+                VersionedPathForCompUiMinJs = source.VersionedPathForCompUiMinJs,
 
                 ContentBody = GetContent(source, PageRegion.Body),
                 ContentBodyFooter = GetContent(source, PageRegion.BodyFooter),

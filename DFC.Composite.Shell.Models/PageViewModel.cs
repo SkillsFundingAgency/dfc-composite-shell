@@ -22,6 +22,8 @@ namespace DFC.Composite.Shell.Models
 
         public string VersionedPathForDfcDigitalMinJs { get; set; }
 
+        public string VersionedPathForCompUiMinJs { get; set; }
+
         public string Path { get; set; }
 
         public string LayoutName { get; set; } = "_LayoutFullWidth";
