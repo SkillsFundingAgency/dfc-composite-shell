@@ -84,7 +84,6 @@ namespace DFC.Composite.Shell
             app.UseCsp(options => options
                 .DefaultSources(s => s.Self())
                 .ScriptSources(s => s
-                    .StrictDynamic()
                     .Self()
                     .UnsafeEval()
                     .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
@@ -97,9 +96,13 @@ namespace DFC.Composite.Shell
                 .ImageSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net"))
+                .FrameAncestors(s => s.Self())
+                .FrameSources(s => s
+                    .Self()
+                    .CustomSources("https://*.serco.com/"))
                 .ConnectSources(s => s
                     .Self()
-                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/")));
+                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
 
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());

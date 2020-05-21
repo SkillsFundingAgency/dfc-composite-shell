@@ -56,7 +56,7 @@ namespace DFC.Composite.Shell.Services.Application
                 pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article, queryString);
 
                 //Wait until everything is done
                 await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
@@ -88,7 +88,7 @@ namespace DFC.Composite.Shell.Services.Application
                 var applicationBodyRegionTask = GetPostMarkUpAsync(application, article, formParameters);
 
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article, string.Empty);
 
                 //Wait until everything is done
                 await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
@@ -178,7 +178,7 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var url = FormatArticleUrl(regionModel.RegionEndpoint, article, queryString);
 
-            var result = await this.contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
+            var result = await contentRetriever.GetContent(url, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
 
             return contentProcessorService.Process(result, RequestBaseUrl, application.RootUrl);
         }
@@ -193,22 +193,21 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(string.Empty);
             }
 
-            var uri = new Uri(bodyRegion.RegionEndpoint);
-            var url = $"{uri.Scheme}://{uri.Authority}/{application.Path.Path}/{article}";
+            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article, string.Empty);
 
             return contentRetriever.PostContent(url, bodyRegion, formParameters, RequestBaseUrl);
         }
 
-        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article)
+        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article, string queryString)
         {
             var tasks = new List<Task<string>>();
 
-            var heroBannerRegionTask = GetMarkup(tasks, PageRegion.HeroBanner, application.Regions, article);
-            var breadcrumbRegionTask = GetMarkup(tasks, PageRegion.Breadcrumb, application.Regions, article);
-            var bodyTopRegionTask = GetMarkup(tasks, PageRegion.BodyTop, application.Regions, article);
-            var sidebarLeftRegionTask = GetMarkup(tasks, PageRegion.SidebarLeft, application.Regions, article);
-            var sidebarRightRegionTask = GetMarkup(tasks, PageRegion.SidebarRight, application.Regions, article);
-            var bodyFooterRegionTask = GetMarkup(tasks, PageRegion.BodyFooter, application.Regions, article);
+            var heroBannerRegionTask = GetMarkup(tasks, PageRegion.HeroBanner, application.Regions, article, queryString);
+            var breadcrumbRegionTask = GetMarkup(tasks, PageRegion.Breadcrumb, application.Regions, article, queryString);
+            var bodyTopRegionTask = GetMarkup(tasks, PageRegion.BodyTop, application.Regions, article, queryString);
+            var sidebarLeftRegionTask = GetMarkup(tasks, PageRegion.SidebarLeft, application.Regions, article, queryString);
+            var sidebarRightRegionTask = GetMarkup(tasks, PageRegion.SidebarRight, application.Regions, article, queryString);
+            var bodyFooterRegionTask = GetMarkup(tasks, PageRegion.BodyFooter, application.Regions, article, queryString);
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -220,7 +219,7 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyFooter, bodyFooterRegionTask);
         }
 
-        private Task<string> GetMarkup(List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions, string article)
+        private Task<string> GetMarkup(List<Task<string>> tasks, PageRegion regionType, IEnumerable<RegionModel> regions, string article, string queryString)
         {
             var pageRegionModel = regions.FirstOrDefault(x => x.PageRegion == regionType);
 
@@ -234,7 +233,7 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(pageRegionModel.OfflineHTML);
             }
 
-            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, string.Empty);
+            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, queryString);
 
             var task = contentRetriever.GetContent(url, pageRegionModel, true, RequestBaseUrl);
 
