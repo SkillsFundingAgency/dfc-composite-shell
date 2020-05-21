@@ -37,6 +37,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
+using DFC.Composite.Shell.Services.Auth;
+using DFC.Composite.Shell.Services.Auth.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DFC.Composite.Shell
 {
@@ -106,8 +111,11 @@ namespace DFC.Composite.Shell
 
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
-
+            app.UseSession();
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             ConfigureRouting(app);
         }
 
@@ -142,11 +150,15 @@ namespace DFC.Composite.Shell
             services.AddTransient<OriginalHostDelegatingHandler>();
             services.AddTransient<CompositeRequestDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
+            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IPathDataService, PathDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
+            services.AddScoped<IOpenIdConnectService, OpenIdConnectService>();
+            services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
+            services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
@@ -154,6 +166,14 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
+
+            services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
+            services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings))); 
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            {
+                options.LoginPath = "/auth/signin";
+            });
 
             var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
             var policyRegistry = services.AddPolicyRegistry();
@@ -174,6 +194,11 @@ namespace DFC.Composite.Shell
                 .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
+                .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions)
+                .AddHttpClient<IOpenIdConnectService, OpenIdConnectService, AuthClientOptions>(Configuration, nameof(AuthClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                .AddHttpMessageHandler<CookieDelegatingHandler>();
+
+            services
                 .AddPolicies(policyRegistry, nameof(HealthClientOptions), policyOptions)
                 .AddHttpClient<IApplicationHealthService, ApplicationHealthService, HealthClientOptions>(Configuration, nameof(HealthClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
@@ -184,6 +209,8 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services.AddSession();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

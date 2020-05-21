@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.Application
@@ -36,7 +37,7 @@ namespace DFC.Composite.Shell.Services.Application
         }
 
         public string RequestBaseUrl { get; set; }
-
+        
         public async Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel, string queryString)
         {
             if (application == null)

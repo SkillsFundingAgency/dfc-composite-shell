@@ -35,6 +35,7 @@ namespace DFC.Composite.Shell.ClientHandlers
 
             CopyHeaders(prefix, httpContextAccessor.HttpContext.Request.Headers, request?.Headers);
             CopyHeaders(prefix, httpContextAccessor.HttpContext.Items, request?.Headers);
+            AddTokenHeaderFromCookie(httpContextAccessor.HttpContext, request);
 
             return base.SendAsync(request, cancellationToken);
         }
@@ -135,6 +136,13 @@ namespace DFC.Composite.Shell.ClientHandlers
             {
                 destinationHeaders.Add(HeaderNames.Cookie, cookieValues);
             }
+        }
+
+        private void AddTokenHeaderFromCookie(HttpContext context, HttpRequestMessage message)
+        {
+            if (!context.User.Identity.IsAuthenticated) return;
+            var token = context.User.Claims.FirstOrDefault(claim => claim.Type == "bearer")?.Value;
+            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }
