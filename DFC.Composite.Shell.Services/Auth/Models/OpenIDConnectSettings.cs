@@ -25,5 +25,7 @@
         public string EndSessionUrl { get; set; }
 
         public string SignOutRedirectUrl { get; set; }
+
+        public string Exponent { get; set; }
     }
 }

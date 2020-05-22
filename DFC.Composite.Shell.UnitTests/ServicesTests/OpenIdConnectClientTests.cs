@@ -30,6 +30,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 ClientId = "clientid",
                 EndSessionUrl = "Endsesison",
                 JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
+                Exponent = "AQAB",
             });
 
             tokenHandler = A.Fake<SecurityTokenHandler>();
@@ -106,6 +107,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 ClientId = "clientid",
                 EndSessionUrl = "Endsesison",
                 JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
+                Exponent = "AQAB",
             });
 
             var config = new OpenIdConnectConfig

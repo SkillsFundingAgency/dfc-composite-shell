@@ -102,7 +102,7 @@ namespace DFC.Composite.Shell.Services.Auth
                 new RSAParameters()
                 {
                     Modulus = FromBase64Url(settings.JWK),
-                    Exponent = FromBase64Url("AQAB"),
+                    Exponent = FromBase64Url(settings.Exponent),
                 });
             var rsaKey = new RsaSecurityKey(rsa);
 
