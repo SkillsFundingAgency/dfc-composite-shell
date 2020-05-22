@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DFC.Composite.Shell.Services.Auth.Models
+﻿namespace DFC.Composite.Shell.Services.Auth.Models
 {
     public class AuthSettings
     {

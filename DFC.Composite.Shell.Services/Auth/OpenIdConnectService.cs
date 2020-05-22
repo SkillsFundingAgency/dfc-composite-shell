@@ -20,7 +20,6 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public async Task<OpenIdConnectConfig> GetOpenIDConnectConfig()
         {
-            var config = new OpenIdConnectConfig();
             using var msg = new HttpRequestMessage(HttpMethod.Get, settings.OIDCConfigMetaDataUrl);
             var response = await client.SendAsync(msg).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();

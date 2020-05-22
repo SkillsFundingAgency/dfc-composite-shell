@@ -27,7 +27,10 @@ namespace DFC.Composite.Shell.Controllers
 
         public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings)
         {
-            if (settings == null) { throw new ArgumentNullException(nameof(settings)); }
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;
@@ -90,8 +93,6 @@ namespace DFC.Composite.Shell.Controllers
 
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
             var now = DateTime.UtcNow;
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(settings.ClientSecret));
 

@@ -79,7 +79,7 @@ namespace DFC.Composite.Shell.Services.Auth
 
             var queryParams = new Dictionary<string, string>();
             queryParams.Add("client_id", settings.ClientId);
-            queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl.ToString() : redirectUrl);
+            queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl);
             string registerUrl = QueryHelpers.AddQueryString(settings.EndSessionUrl, queryParams);
 
             return registerUrl;

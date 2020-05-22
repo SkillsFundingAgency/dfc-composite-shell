@@ -140,7 +140,10 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         private void AddTokenHeaderFromCookie(HttpContext context, HttpRequestMessage message)
         {
-            if (!context.User.Identity.IsAuthenticated) { return; }
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                return;
+            }
             var token = context.User.Claims.FirstOrDefault(claim => claim.Type == "bearer")?.Value;
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
