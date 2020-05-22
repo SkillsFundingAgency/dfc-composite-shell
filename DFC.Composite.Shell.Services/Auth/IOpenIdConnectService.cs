@@ -8,6 +8,5 @@ namespace DFC.Composite.Shell.Services.Auth
         public Task<OpenIdConnectConfig> GetOpenIDConnectConfig();
 
         public Task<string> GetJwkKey();
-
     }
 }

@@ -113,7 +113,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 HttpContext = defaultContext,
             };
           
-            await controller.Auth(token, "state").ConfigureAwait(false);
+            await controller.Auth(token).ConfigureAwait(false);
 
             A.CallTo(() => authClient.ValidateToken(token)).MustHaveHappened();
         }
@@ -122,12 +122,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         public async Task WhenAuthCalledAndTokenIsInvalidThenThrowError()
         {
             var token = "token";
-            var claims = new List<Claim>
-            {
-                new Claim("tid", "tid"),
-                new Claim("email", "email"),
-                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
-            };
             A.CallTo(() => authClient.ValidateToken(token)).Throws(new Exception());
 
             var controller = new AuthController(authClient, log, defaultsettings);
@@ -136,7 +130,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 HttpContext = defaultContext,
             };
 
-            await Assert.ThrowsAsync<Exception>(async () => await controller.Auth(token, "state").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<Exception>(async () => await controller.Auth(token).ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -157,7 +151,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 HttpContext = defaultContext,
             };
 
-            await controller.Auth(token, "state").ConfigureAwait(false);
+            await controller.Auth(token).ConfigureAwait(false);
 
             A.CallTo(() => defaultAuthService.SignInAsync(A<HttpContext>.Ignored, A<string>.Ignored, A<ClaimsPrincipal>.Ignored, A<AuthenticationProperties>.Ignored)).MustHaveHappened();
         }
@@ -166,14 +160,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         public async Task WhenSignOutCalledThenCookieIsRemoved()
         {
             A.CallTo(() => authClient.GetSignOutUrl(string.Empty)).Returns("test");
-            var token = "token";
-            var claims = new List<Claim>
-            {
-                new Claim("tid", "tid"),
-                new Claim("email", "email"),
-                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
-            };
-
             var controller = new AuthController(authClient, log, defaultsettings);
             controller.ControllerContext = new ControllerContext
             {
@@ -204,7 +190,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             defaultContext.HttpContext.Session.SetString(AuthController.RedirectSessionKey, AuthController.RedirectSessionKey);
 
-            var result = await controller.Auth(token, "state").ConfigureAwait(false) as RedirectResult;
+            var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
 
             Assert.Equal(result.Url, AuthController.RedirectSessionKey);
         }
@@ -227,7 +213,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 HttpContext = defaultContext,
             };
 
-            var result = await controller.Auth(token, "state").ConfigureAwait(false) as RedirectResult;
+            var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
 
             Assert.Equal(result.Url, defaultsettings.Value.DefaultRedirectUrl);
         }

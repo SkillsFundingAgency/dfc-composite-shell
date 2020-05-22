@@ -11,6 +11,5 @@ namespace DFC.Composite.Shell.Services.Auth.Models
         public string ClientSecret { get; set; }
 
         public string DefaultRedirectUrl { get; set; }
-
     }
 }

@@ -160,7 +160,6 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
 
-            SecurityToken secToken;
             var token = await client.GetSignOutUrl("test").ConfigureAwait(true);
             A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).MustHaveHappened();
         }
@@ -195,7 +194,6 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
 
-            SecurityToken secToken;
             var token = await client.GetSignInUrl().ConfigureAwait(true);
             A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).MustHaveHappened();
         }
@@ -230,29 +228,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
 
-            SecurityToken secToken;
             var token = await client.GetRegisterUrl().ConfigureAwait(true);
             A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).MustHaveHappened();
         }
-
-
-
-        //var redirectHttpResponse = new HttpResponseMessage
-        //{
-        //StatusCode = HttpStatusCode.OK,
-        //Content = new StringContent(JsonConvert.SerializeObject(config), System.Text.Encoding.UTF8, "application/json"),
-        //};
-        //redirectHttpResponse.Headers.Location = new Uri("http://SomeLocation");
-
-        //var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
-        //A.CallTo(() => fakeHttpRequestSender.Send(new HttpRequestMessage(HttpMethod.Get, settings.Value.OIDCConfigMetaDataUrl))).Returns(redirectHttpResponse);
-        //A.CallTo(() =>
-        //fakeHttpRequestSender.Send(new HttpRequestMessage(HttpMethod.Get, settings.Value.JWK))).Returns(new HttpResponseMessage(HttpStatusCode.Conflict));
-        //var fakeRedirectHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
-
-        //var redirectHttpClient = new HttpClient(fakeRedirectHttpMessageHandler)
-        //{
-        //BaseAddress = new Uri("http://SomeRegionBaseAddress"),
-        //};
     }
 }

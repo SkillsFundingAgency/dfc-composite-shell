@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace DFC.Composite.Shell.Controllers
 {
@@ -27,6 +27,7 @@ namespace DFC.Composite.Shell.Controllers
 
         public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings)
         {
+            if (settings == null) { throw new ArgumentNullException(nameof(settings)); }
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;
@@ -47,7 +48,7 @@ namespace DFC.Composite.Shell.Controllers
             return Redirect(signInUrl);
         }
 
-        public async Task<IActionResult> Auth(string id_token, string state)
+        public async Task<IActionResult> Auth(string id_token)
         {
             JwtSecurityToken validatedToken;
             try

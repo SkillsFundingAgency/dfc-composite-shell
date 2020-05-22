@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -21,6 +19,11 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public AzureB2CAuthClient(IOptions<OpenIDConnectSettings> settings, SecurityTokenHandler securityTokenHandler, IOpenIdConnectService openIdConnectService)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             this.settings = settings.Value;
             tokenHandler = securityTokenHandler;
             this.openIdConnectService = openIdConnectService;
@@ -76,7 +79,7 @@ namespace DFC.Composite.Shell.Services.Auth
 
             var queryParams = new Dictionary<string, string>();
             queryParams.Add("client_id", settings.ClientId);
-            queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl);
+            queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl.ToString() : redirectUrl);
             string registerUrl = QueryHelpers.AddQueryString(settings.EndSessionUrl, queryParams);
 
             return registerUrl;
@@ -86,12 +89,22 @@ namespace DFC.Composite.Shell.Services.Auth
         {
             if (settings.UseOIDCConfigDiscovery)
             {
-                await LoadOpenIDConnectConfig();
-                await LoadJsonWebKeyAsync();
+                await LoadOpenIDConnectConfig().ConfigureAwait(false);
+                await LoadJsonWebKeyAsync().ConfigureAwait(false);
             }
 
             // Do we include Personally Identifiable Information in any exceptions or logging?
             IdentityModelEventSource.ShowPII = settings.LogPersonalInfo;
+
+            var rsa = new RSACryptoServiceProvider(2048);
+
+            rsa.ImportParameters(
+                new RSAParameters()
+                {
+                    Modulus = FromBase64Url(settings.JWK),
+                    Exponent = FromBase64Url("AQAB"),
+                });
+            var rsaKey = new RsaSecurityKey(rsa);
 
             // This will throw an exception if the token fails to validate.
             tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -99,11 +112,21 @@ namespace DFC.Composite.Shell.Services.Auth
                 ValidateIssuer = true,
                 ValidIssuer = settings.Issuer,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = GetRsaSecurityKey(),
+                IssuerSigningKey = rsaKey,
                 ValidateAudience = false,
             }, out SecurityToken validatedToken);
 
+            rsa.Dispose();
+
             return validatedToken as JwtSecurityToken;
+        }
+
+        private static byte[] FromBase64Url(string base64Url)
+        {
+            string padded = base64Url.Length % 4 == 0
+                ? base64Url : base64Url + "====".Substring(base64Url.Length % 4);
+            string base64 = padded.Replace("_", "/", StringComparison.InvariantCultureIgnoreCase).Replace("-", "+", StringComparison.InvariantCultureIgnoreCase);
+            return Convert.FromBase64String(base64);
         }
 
         private static string GetUrlWithoutParams(string url)
@@ -123,28 +146,6 @@ namespace DFC.Composite.Shell.Services.Auth
         private async Task LoadJsonWebKeyAsync()
         {
             settings.JWK = await openIdConnectService.GetJwkKey().ConfigureAwait(false);
-        }
-
-        private static byte[] FromBase64Url(string base64Url)
-        {
-            string padded = base64Url.Length % 4 == 0
-                ? base64Url : base64Url + "====".Substring(base64Url.Length % 4);
-            string base64 = padded.Replace("_", "/", StringComparison.InvariantCultureIgnoreCase).Replace("-", "+", StringComparison.InvariantCultureIgnoreCase);
-            return Convert.FromBase64String(base64);
-        }
-
-        private RsaSecurityKey GetRsaSecurityKey()
-        {
-            var rsa = new RSACryptoServiceProvider(2048);
-
-            rsa.ImportParameters(
-                new RSAParameters()
-                {
-                    Modulus = FromBase64Url(settings.JWK),
-                    Exponent = FromBase64Url("AQAB"),
-                });
-            var rsaKey = new RsaSecurityKey(rsa);
-            return rsaKey;
         }
     }
 }
