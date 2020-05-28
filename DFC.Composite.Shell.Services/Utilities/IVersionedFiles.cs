@@ -13,5 +13,7 @@
         string VersionedPathForMainMinCss { get; }
 
         string VersionedPathForDfcDigitalMinJs { get; }
+
+        string VersionedPathForCompUiMinJs { get; }
     }
 }
