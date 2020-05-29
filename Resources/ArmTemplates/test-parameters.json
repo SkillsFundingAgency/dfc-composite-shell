@@ -28,6 +28,18 @@
         },
         "enableAlerts": {
             "value": false
+        },
+        "AuthClientSecret": {
+            "value": "12345678"
+        },
+        "OIDCClientId": {
+            "value": "1244444"
+        },
+        "OIDCLogPersonalInfo": {
+            "value": false
+        },
+        "OIDCOIDCConfigMetaDataUrl": {
+            "value": "https://foo-compui-shell.azurewebsites.net"
         }
     }
 }
