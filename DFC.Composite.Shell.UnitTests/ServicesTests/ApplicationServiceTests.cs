@@ -208,7 +208,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).MustHaveHappenedOnceExactly();
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
-
+        
         [Fact]
         public async Task PostMarkupAsyncForOnlineApplicationWhenBodyRegionEndpointIsEmptyThenContentNotPosted()
         {
