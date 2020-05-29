@@ -51,10 +51,6 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (application.Path.IsOnline)
             {
-                //Get the markup at the head url first. This will create the session if it doesn't already exist
-                var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article, queryString).ConfigureAwait(false);
-                pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
-
                 //Load related regions
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, article, queryString);
 
@@ -200,6 +196,10 @@ namespace DFC.Composite.Shell.Services.Application
 
         private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article, string queryString)
         {
+            //Get the markup at the head url first. This will create the session if it doesn't already exist
+            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article, queryString).ConfigureAwait(false);
+            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+
             var tasks = new List<Task<string>>();
 
             var heroBannerRegionTask = GetMarkup(tasks, PageRegion.HeroBanner, application.Regions, article, queryString);

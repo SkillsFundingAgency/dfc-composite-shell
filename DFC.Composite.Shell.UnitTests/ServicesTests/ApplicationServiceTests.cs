@@ -187,7 +187,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task PostMarkupAsyncForOnlineApplication()
         {
             // Arrange
-            var footerAndBodyRegions = new List<RegionModel> { defaultBodyRegion, defaultBodyFooterRegion };
+            var footerAndBodyRegions = new List<RegionModel> { defaultHeadRegion, defaultBodyRegion, defaultBodyFooterRegion };
             var fakeApplicationModel = new ApplicationModel { Path = defaultPathModel, Regions = footerAndBodyRegions };
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
@@ -215,7 +215,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             // Arrange
             var fakeBodyRegionEndpoint = string.Empty;
             var fakeBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = fakeBodyRegionEndpoint, IsHealthy = true };
-            var fakeRegions = new List<RegionModel> { fakeBodyRegion, defaultBodyFooterRegion };
+            var fakeRegions = new List<RegionModel> { defaultHeadRegion, fakeBodyRegion, defaultBodyFooterRegion };
             var fakeApplicationModel = new ApplicationModel { Path = defaultPathModel, Regions = fakeRegions };
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
