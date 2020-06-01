@@ -66,8 +66,10 @@ namespace DFC.Composite.Shell.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim("CustomerId", validatedToken.Claims.FirstOrDefault(claim => claim.Type == "tid")?.Value),
-                new Claim("email", validatedToken.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value),
+                new Claim("CustomerId", validatedToken.Claims.FirstOrDefault(claim => claim.Type == "customerId")?.Value),
+                new Claim(ClaimTypes.Email, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value),
+                new Claim(ClaimTypes.GivenName, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value),
+                new Claim(ClaimTypes.Surname, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value),
             };
 
             var expiryTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -76,7 +78,7 @@ namespace DFC.Composite.Shell.Controllers
             {
                 AllowRefresh = false,
                 ExpiresUtc = expiryTime,
-                IsPersistent = false,
+                IsPersistent = true,
             };
 
             await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", CreateChildAppToken(claims, expiryTime)) }, CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);

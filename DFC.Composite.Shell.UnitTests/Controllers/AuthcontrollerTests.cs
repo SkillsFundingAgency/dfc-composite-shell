@@ -101,8 +101,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var token = "token";
             var claims = new List<Claim>
             {
-            new Claim("tid", "tid"),
-            new Claim("email", "email"),
+                new Claim("customerId", "customerId"),
+                new Claim("email", "email"),
+                new Claim("given_name", "given_name"),
+                new Claim("family_name", "family_name"),
             new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
@@ -139,8 +141,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var token = "token";
             var claims = new List<Claim>
             {
-                new Claim("tid", "tid"),
+                new Claim("customerId", "customerId"),
                 new Claim("email", "email"),
+                new Claim("given_name", "given_name"),
+                new Claim("family_name", "family_name"),
                 new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
@@ -177,8 +181,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var token = "token";
             var claims = new List<Claim>
             {
-                new Claim("tid", "tid"),
+                new Claim("customerId", "customerId"),
                 new Claim("email", "email"),
+                new Claim("given_name", "given_name"),
+                new Claim("family_name", "family_name"),
                 new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
@@ -201,8 +207,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var token = "token";
             var claims = new List<Claim>
             {
-                new Claim("tid", "tid"),
+                new Claim("customerId", "customerId"),
                 new Claim("email", "email"),
+                new Claim("given_name", "given_name"),
+                new Claim("family_name", "family_name"),
                 new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
