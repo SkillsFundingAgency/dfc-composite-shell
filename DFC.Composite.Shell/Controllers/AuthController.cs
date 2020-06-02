@@ -15,6 +15,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace DFC.Composite.Shell.Controllers
 {
@@ -53,7 +55,7 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> Auth(string id_token)
         {
-            JwtSecurityToken validatedToken;
+            JwtSecurityToken validatedToken ;//= new JwtSecurityToken("");
             try
             {
                 validatedToken = await authClient.ValidateToken(id_token).ConfigureAwait(false);

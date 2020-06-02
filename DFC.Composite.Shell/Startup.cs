@@ -42,6 +42,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace DFC.Composite.Shell
 {
@@ -156,9 +158,8 @@ namespace DFC.Composite.Shell
             services.AddScoped<IPathDataService, PathDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
-            services.AddScoped<IOpenIdConnectService, OpenIdConnectService>();
             services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
-            services.AddScoped<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
@@ -166,6 +167,12 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
+
+            var authSettings = new OpenIDConnectSettings();
+            Configuration.GetSection("OIDCSettings").Bind(authSettings);
+
+            services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl,
+                new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
 
             services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));
@@ -194,9 +201,7 @@ namespace DFC.Composite.Shell
                 .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions)
-                .AddHttpClient<IOpenIdConnectService, OpenIdConnectService, AuthClientOptions>(Configuration, nameof(AuthClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
-                .AddHttpMessageHandler<CookieDelegatingHandler>();
+                .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions);
 
             services
                 .AddPolicies(policyRegistry, nameof(HealthClientOptions), policyOptions)
