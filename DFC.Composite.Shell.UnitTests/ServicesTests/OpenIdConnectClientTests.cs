@@ -5,7 +5,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.ServicesTests
@@ -16,7 +19,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         private readonly SecurityTokenHandler tokenHandler;
         const string defaultSignInRedirectUrl = "testSignInRedirect.com";
         const string defaultSignOutRedirectUrl = "testSignOutRedirect.com";
-        private readonly IOpenIdConnectService openIdConnectService;
+        private IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
 
         public OpenIdConnectClientTests()
         {
@@ -34,13 +37,20 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             });
 
             tokenHandler = A.Fake<SecurityTokenHandler>();
-            openIdConnectService = A.Fake<IOpenIdConnectService>();
+            configurationManager = A.Fake<IConfigurationManager<OpenIdConnectConfiguration>>();
+            A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).Returns(
+                new OpenIdConnectConfiguration
+                {
+                    AuthorizationEndpoint = "auth",
+                    EndSessionEndpoint = "end",
+                    Issuer = "issuer",
+                });
         }
 
         [Fact]
         public async Task WhenGetSignInUrlCalledWithoutParameterThenReturnUrlWithDefaultRedirect()
         {
-            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
             var url = await client.GetSignInUrl().ConfigureAwait(false);
 
@@ -52,7 +62,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         public async Task WhenGetSignOutUrlCalledWithParameterThenReturnUrlWithSuppliedRedirect()
         {
             var redirect = "RedirectFromChild";
-            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
             var url = await client.GetSignOutUrl(redirect).ConfigureAwait(false);
 
@@ -62,7 +72,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         [Fact]
         public async Task WhenGetSignOutUrlCalledWithoutParameterThenReturnUrlWithDefaultRedirect()
         {
-            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
             var url = await client.GetSignOutUrl(string.Empty).ConfigureAwait(false);
 
@@ -73,7 +83,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         [Fact]
         public async Task WhenGetRegisterUrlCalledWithoutParameterThenReturnUrlWithDefaultRedirect()
         {
-            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
             var url = await client.GetRegisterUrl().ConfigureAwait(false);
 
@@ -83,7 +93,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         [Fact]
         public async Task WhenValidateTokenCalledThenAttemptToValidateToken()
         {
-            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
             SecurityToken secToken;
             var token = await client.ValidateToken("token").ConfigureAwait(true);
             A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored,
@@ -110,24 +120,12 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 Exponent = "AQAB",
             });
 
-            var config = new OpenIdConnectConfig
-            {
-                Issuer = "issuerFromServer",
-                AuthorizationEndpoint = "AuthorizeUrl",
-                JwksUri = "jwksUri",
-                EndSessionEndpoint = "Endsesison",
-                TokenEndpoint = "tokenEndpoint",
-            };
-
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).Returns(config);
-            A.CallTo(() => openIdConnectService.GetJwkKey()).Returns(settings.Value.JWK);
-
-            var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
             SecurityToken secToken;
             var token = await client.ValidateToken("token").ConfigureAwait(true);
             A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored,
-                    A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == settings.Value.Issuer),
+                    A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == "issuer"),
                     out secToken))
                 .MustHaveHappened();
         }
@@ -148,22 +146,11 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 EndSessionUrl = "Endsesison",
                 JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
             });
-
-            var config = new OpenIdConnectConfig
-            {
-                Issuer = "issuerFromServer",
-                AuthorizationEndpoint = "AuthorizeUrl",
-                JwksUri = "jwksUri",
-                EndSessionEndpoint = "Endsesison",
-                TokenEndpoint = "tokenEndpoint",
-            };
-
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).Returns(config);
-
-            var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
+            
+            var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
             var token = await client.GetSignOutUrl("test").ConfigureAwait(true);
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).MustHaveHappened();
+            A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -183,21 +170,10 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
             });
 
-            var config = new OpenIdConnectConfig
-            {
-                Issuer = "issuerFromServer",
-                AuthorizationEndpoint = "AuthorizeUrl",
-                JwksUri = "jwksUri",
-                EndSessionEndpoint = "Endsesison",
-                TokenEndpoint = "tokenEndpoint",
-            };
-
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).Returns(config);
-
-            var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
             var token = await client.GetSignInUrl().ConfigureAwait(true);
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).MustHaveHappened();
+            A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -217,21 +193,10 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
             });
 
-            var config = new OpenIdConnectConfig
-            {
-                Issuer = "issuerFromServer",
-                AuthorizationEndpoint = "AuthorizeUrl",
-                JwksUri = "jwksUri",
-                EndSessionEndpoint = "Endsesison",
-                TokenEndpoint = "tokenEndpoint",
-            };
-
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).Returns(config);
-
-            var client = new AzureB2CAuthClient(settings, tokenHandler, openIdConnectService);
+            var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
             var token = await client.GetRegisterUrl().ConfigureAwait(true);
-            A.CallTo(() => openIdConnectService.GetOpenIDConnectConfig()).MustHaveHappened();
+            A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).MustHaveHappened();
         }
     }
 }
