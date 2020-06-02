@@ -20,7 +20,6 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public AzureB2CAuthClient(IOptions<OpenIDConnectSettings> settings, SecurityTokenHandler securityTokenHandler, IConfigurationManager<OpenIdConnectConfiguration> configurationManager)
         {
-
             if (settings == null)
             {
                 throw new ArgumentNullException(nameof(settings));
@@ -78,7 +77,7 @@ namespace DFC.Composite.Shell.Services.Auth
         public async Task<JwtSecurityToken> ValidateToken(string token)
         {
             var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
-            return await ValidateToken(token, configDoc).ConfigureAwait(false);
+            return ValidateToken(token, configDoc);
         }
 
         private static string GetUrlWithoutParams(string url)
@@ -86,14 +85,11 @@ namespace DFC.Composite.Shell.Services.Auth
             return new UriBuilder(url) { Query = string.Empty }.ToString();
         }
 
-        private async Task<JwtSecurityToken> ValidateToken(
+        private JwtSecurityToken ValidateToken(
             string token,
             OpenIdConnectConfiguration discoveryDocument,
             CancellationToken ct = default(CancellationToken))
         {
-            if (string.IsNullOrEmpty(token)) throw new ArgumentNullException(nameof(token));
-            if (string.IsNullOrEmpty(discoveryDocument.Issuer)) throw new ArgumentNullException(nameof(discoveryDocument.Issuer));
-
             var signingKeys = discoveryDocument.SigningKeys;
 
             var validationParameters = new TokenValidationParameters
