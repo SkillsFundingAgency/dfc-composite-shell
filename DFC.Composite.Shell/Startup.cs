@@ -39,11 +39,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace DFC.Composite.Shell
 {
@@ -114,6 +114,7 @@ namespace DFC.Composite.Shell
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
             app.UseSession();
+            app.UseCompositeSessionId();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -146,6 +147,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<IUrlRewriterService, UrlRewriterService>();
             services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
 
+            services.AddTransient<CompositeSessionIdDelegatingHandler>();
             services.AddTransient<CookieDelegatingHandler>();
             services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
@@ -196,6 +198,7 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
                 .AddHttpMessageHandler<CookieDelegatingHandler>()
                 .Services
                 .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
