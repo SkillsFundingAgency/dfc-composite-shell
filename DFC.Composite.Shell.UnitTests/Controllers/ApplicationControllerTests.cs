@@ -14,6 +14,7 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -26,6 +27,8 @@ namespace DFC.Composite.Shell.Test.Controllers
 
         private readonly ApplicationController defaultGetController;
         private readonly ApplicationController defaultPostController;
+        private readonly ApplicationController bearerTokenController;
+        private readonly ApplicationController postBearerTokenController;
         private readonly IBaseUrlService defaultBaseUrlService;
         private readonly IConfiguration defaultConfiguration;
         private readonly IVersionedFiles defaultVersionedFiles;
@@ -89,6 +92,22 @@ namespace DFC.Composite.Shell.Test.Controllers
                     },
                 },
             };
+
+            bearerTokenController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>{new Claim("bearer","test")},"mock")) },
+                },
+            };
+
+            postBearerTokenController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", "test") }, "mock")) },
+                },
+            };
         }
 
         [Fact]
@@ -102,7 +121,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var model = Assert.IsAssignableFrom<PageViewModelResponse>(viewResult.ViewData.Model);
             Assert.Equal(model.Path, ChildAppPath);
         }
-
+        
         [Fact]
         public async Task ApplicationControllerGetActionReturnsRedirectWhenRedirectExceptionOccurs()
         {
@@ -122,7 +141,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             };
 
             await applicationController.Action(requestModel).ConfigureAwait(false);
-            Assert.True(context.Response.StatusCode == (int) HttpStatusCode.Redirect);
+            Assert.True(context.Response.StatusCode == (int)HttpStatusCode.Redirect);
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
@@ -170,7 +189,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
             applicationController.Dispose();
         }
-        
+
         [Fact]
         public async Task ApplicationControllerPostActionReturnsSuccess()
         {
