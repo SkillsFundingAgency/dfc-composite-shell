@@ -17,6 +17,7 @@ namespace DFC.Composite.Shell.Extensions
                 VersionedPathForJQueryBundleMinJs = versionedFiles?.VersionedPathForJQueryBundleMinJs,
                 VersionedPathForAllMinJs = versionedFiles?.VersionedPathForAllMinJs,
                 VersionedPathForDfcDigitalMinJs = versionedFiles?.VersionedPathForDfcDigitalMinJs,
+                VersionedPathForCompUiMinJs = versionedFiles?.VersionedPathForCompUiMinJs,
             };
         }
     }

@@ -6,6 +6,7 @@
         FullWidth = 1,
         SidebarRight = 2,
         SidebarLeft = 3,
+        FullWidthNoMain = 4
     }
 
     public enum PageRegion

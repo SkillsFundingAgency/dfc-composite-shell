@@ -43,6 +43,18 @@
         },
         "enableAlerts": {
             "value": __EnableAzureMonitorAlerting__
+        },
+        "AuthClientSecret": {
+            "value": "__AuthClientSecret__"
+        },
+        "OIDCClientId": {
+            "value": "__OIDCClientId__"
+        },
+        "OIDCLogPersonalInfo": {
+            "value": __OIDCLogPersonalInfo__
+        },
+        "OIDCOIDCConfigMetaDataUrl": {
+            "value": "__OIDCOIDCConfigMetaDataUrl__"
         }
     }
 }

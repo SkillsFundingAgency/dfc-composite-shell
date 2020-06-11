@@ -48,6 +48,11 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
+                if (string.IsNullOrWhiteSpace(responseString))
+                {
+                    return default;
+                }
+
                 var serializer = new XmlSerializer(typeof(T));
                 using (var reader = new StringReader(responseString))
                 {

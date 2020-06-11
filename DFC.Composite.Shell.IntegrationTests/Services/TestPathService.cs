@@ -24,6 +24,16 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 
             paths.Add(new PathModel
             {
+                Path = "path4",
+                DocumentId = Guid.NewGuid(),
+                IsOnline = true,
+                Layout = PageLayout.FullWidthNoMain,
+                TopNavigationOrder = 1,
+                TopNavigationText = "Path4",
+            });
+
+            paths.Add(new PathModel
+            {
                 Path = "path2",
                 DocumentId = Guid.NewGuid(),
                 IsOnline = true,
