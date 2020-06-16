@@ -55,6 +55,15 @@
         },
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "__OIDCOIDCConfigMetaDataUrl__"
+        },
+        "Neo4JSettingsEndpoint": {
+            "value": "__Neo4JSettingsEndpoint__"
+        },
+        "Neo4JSettingsUserName": {
+            "value": "__Neo4JSettingsUserName__"
+        },
+        "Neo4JSettingsPassword": {
+            "value": "__Neo4JSettingsPassword__"
         }
     }
 }

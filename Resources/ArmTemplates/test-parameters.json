@@ -40,6 +40,15 @@
         },
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "https://foo-compui-shell.azurewebsites.net"
+        },
+        "Neo4JSettingsEndpoint": {
+            "value": "https://endpoint"
+        },
+        "Neo4JSettingsUserName": {
+            "value": "MyUsername"
+        },
+        "Neo4JSettingsPassword": {
+            "value": "MyPassword"
         }
     }
 }
