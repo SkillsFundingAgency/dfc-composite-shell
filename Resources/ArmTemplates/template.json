@@ -62,14 +62,14 @@
         "OIDCOIDCConfigMetaDataUrl": {
             "type": "string"
         },
-        "Neo4JSettingsEndpoint": {
+        "Neo4jUrl": {
             "type": "string"
         },
-        "Neo4JSettingsUserName": {
+        "Neo4jUsername": {
             "type": "string"
         },
-        "Neo4JSettingsPassword": {
-            "type": "string"
+        "Neo4jPassword": {
+            "type": "securestring"
         }
     },
     "variables": {
@@ -324,16 +324,20 @@
                                 "value": "AQAB"
                             },
                             {
-                                "name": "Neo4JSettings__Endpoint",
-                                "value": "[parameters('Neo4JSettingsEndpoint')]"
+                                "name": "Neo4j__Endpoints__0__Uri",
+                                "value": "[parameters('Neo4jUrl')]"
                             },
                             {
-                                "name": "Neo4JSettings__UserName",
-                                "value": "[parameters('Neo4JSettingsUserName')]"
+                                "name": "Neo4j__Endpoints__0__Username",
+                                "value": "[parameters('Neo4jUsername')]"
                             },
                             {
-                                "name": "Neo4JSettings__Password",
-                                "value": "[parameters('Neo4JSettingsPassword')]"
+                                "name": "Neo4j__Endpoints__0__Password",
+                                "value": "[parameters('Neo4jPassword')]"
+                            },
+                            {
+                                "name": "Neo4j__Endpoints__0__Enabled",
+                                "value": true
                             },
                             {
                                 "name": "Neo4JSettings__SendData",
