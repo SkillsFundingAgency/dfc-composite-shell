@@ -338,6 +338,10 @@
                             {
                                 "name": "Neo4j__Endpoints__0__Enabled",
                                 "value": true
+                            },
+                            {
+                                "name": "Neo4JSettings__SendData",
+                                "value": true
                             }
                         ]
                     }
