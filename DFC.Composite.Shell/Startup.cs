@@ -23,6 +23,7 @@ using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.Regions;
@@ -31,6 +32,11 @@ using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
+using DFC.ServiceTaxonomy.Neo4j.Commands;
+using DFC.ServiceTaxonomy.Neo4j.Commands.Interfaces;
+using DFC.ServiceTaxonomy.Neo4j.Configuration;
+using DFC.ServiceTaxonomy.Neo4j.Log;
+using DFC.ServiceTaxonomy.Neo4j.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +48,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using Neo4j.Driver;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -155,6 +162,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<CompositeRequestDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddTransient<INeo4JService, Neo4JService>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IPathDataService, PathDataService>();
@@ -170,8 +178,16 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
 
+            services.AddTransient<ILogger, NeoLogger>();
+            services.AddSingleton<INeoDriverBuilder, NeoDriverBuilder>();
+            services.AddSingleton<IGraphDatabase, NeoGraphDatabase>();
+            services.AddTransient<ICustomCommand, CustomCommand>();
+
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
+
+            services.Configure<Neo4JSettings>(Configuration.GetSection(nameof(Neo4JSettings)));
+            services.Configure<Neo4jConfiguration>(Configuration.GetSection("Neo4j"));
 
             services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl,
                 new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));

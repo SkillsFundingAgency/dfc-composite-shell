@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IVersionedFiles versionedFiles;
         private readonly IConfiguration configuration;
         private readonly IBaseUrlService baseUrlService;
+        private readonly INeo4JService neo4JService;
 
         public ApplicationController(
             IMapper<ApplicationModel, PageViewModel> mapper,
@@ -35,7 +37,8 @@ namespace DFC.Composite.Shell.Controllers
             IApplicationService applicationService,
             IVersionedFiles versionedFiles,
             IConfiguration configuration,
-            IBaseUrlService baseUrlService)
+            IBaseUrlService baseUrlService,
+            INeo4JService neo4JService)
         {
             this.mapper = mapper;
             this.logger = logger;
@@ -43,6 +46,7 @@ namespace DFC.Composite.Shell.Controllers
             this.versionedFiles = versionedFiles;
             this.configuration = configuration;
             this.baseUrlService = baseUrlService;
+            this.neo4JService = neo4JService;
         }
 
         [HttpGet]
@@ -73,6 +77,8 @@ namespace DFC.Composite.Shell.Controllers
                     try
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
+
+                        await neo4JService.InsertNewRequest(this.Request).ConfigureAwait(false);
 
                         var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
 
