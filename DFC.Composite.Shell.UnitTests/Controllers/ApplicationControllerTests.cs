@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.Services.Neo4J;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -37,6 +38,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         private readonly ApplicationToPageModelMapper defaultMapper;
         private readonly ActionPostRequestModel defaultPostRequestViewModel;
         private readonly ApplicationModel defaultApplicationModel;
+        private readonly INeo4JService neo4JService;
 
         public ApplicationControllerTests()
         {
@@ -46,6 +48,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             defaultVersionedFiles = A.Fake<IVersionedFiles>();
             defaultConfiguration = A.Fake<IConfiguration>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
+            neo4JService = A.Fake<INeo4JService>();
 
             defaultApplicationModel = new ApplicationModel
             {
@@ -74,7 +77,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 }),
             };
 
-            defaultGetController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            defaultGetController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -82,7 +85,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            defaultPostController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            defaultPostController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -93,7 +96,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            bearerTokenController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            bearerTokenController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -101,7 +104,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            postBearerTokenController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            postBearerTokenController = new ApplicationController(defaultMapper, defaultLogger, defaultApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -132,7 +135,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             var context = new DefaultHttpContext();
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -152,7 +155,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -176,7 +179,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -207,7 +210,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(BadChildAppPath)).Returns(null as ApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -228,7 +231,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
+            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
