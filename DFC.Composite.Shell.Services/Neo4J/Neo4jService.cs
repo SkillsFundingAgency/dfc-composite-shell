@@ -86,14 +86,14 @@ namespace DFC.Composite.Shell.Services.Neo4J
                 $"\r\nmerge (v:{NodeNameTransform}visit {{visitId: '{visitId}', dateofvisit:'{DateTime.UtcNow}', referrer: \"{GetReferer(request)}\" }})" +
                 $"\r\nmerge (p:{NodeNameTransform}page {{id:\"{request.Path}\"}})" +
                 "\r\nwith u,v,p" +
-                "\r\ncreate (v)-[:PageAccessed]->(p)" +
-                "\r\ncreate (u)-[:visited]->(v)" +
+                $"\r\ncreate (v)-[:{NodeNameTransform}PageAccessed]->(p)" +
+                $"\r\ncreate (u)-[:{NodeNameTransform}visited]->(v)" +
                 "\r\nwith u,v,p " +
-                $"\r\nmatch(a:{NodeNameTransform}user)-[:visited]-(parent)-[:PageAccessed]-(page)" +
+                $"\r\nmatch(a:{NodeNameTransform}user)-[:{NodeNameTransform}visited]-(parent)-[:{NodeNameTransform}PageAccessed]-(page)" +
                 $"\r\nwhere a.id = '{sessionId}' and parent.visitId <> '{visitId}'" +
                 "\r\nwith u,v,p,parent,page \r\n" +
                 "order by parent.dateOfVisit DESC limit 1" +
-                "\r\nForeach (i in case when page.id = v.referrer then [1] else [] end |\r\ncreate (v)-[:hasReferrer]->(parent)\r\n)";
+                $"\r\nForeach (i in case when page.id = v.referrer then [1] else [] end |\r\ncreate (v)-[:{NodeNameTransform}hasReferrer]->(parent)\r\n)";
 
             await graphDatabase.Run(customCommand).ConfigureAwait(false);
         }
