@@ -55,7 +55,7 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> Auth(string id_token)
         {
-            JwtSecurityToken validatedToken ;//= new JwtSecurityToken("");
+            JwtSecurityToken validatedToken;//= new JwtSecurityToken("");
             try
             {
                 validatedToken = await authClient.ValidateToken(id_token).ConfigureAwait(false);
@@ -83,7 +83,16 @@ namespace DFC.Composite.Shell.Controllers
                 IsPersistent = true,
             };
 
-            await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", CreateChildAppToken(claims, expiryTime)) }, CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
+            await HttpContext.SignInAsync(
+                new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    new List<Claim>
+                    {
+                        new Claim("bearer", CreateChildAppToken(claims, expiryTime)),
+                        new Claim(ClaimTypes.Name, $"{validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value} {validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value}"),
+
+                    },
+                    CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
 
             return Redirect(GetRedirectUrl());
         }
