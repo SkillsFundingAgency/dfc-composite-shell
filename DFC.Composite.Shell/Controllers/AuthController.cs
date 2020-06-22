@@ -90,7 +90,6 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         new Claim("bearer", CreateChildAppToken(claims, expiryTime)),
                         new Claim(ClaimTypes.Name, $"{validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value} {validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value}"),
-
                     },
                     CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
 
