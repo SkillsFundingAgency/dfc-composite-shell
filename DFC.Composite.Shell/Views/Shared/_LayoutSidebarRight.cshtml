@@ -27,6 +27,8 @@
         @RenderSection("BodyTop", required: false)
     }
 
+    <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+
     @if (IsSectionDefined("HeroBanner"))
     {
         @RenderSection("HeroBanner", required: false)
