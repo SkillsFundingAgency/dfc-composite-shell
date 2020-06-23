@@ -144,8 +144,10 @@ namespace DFC.Composite.Shell.ClientHandlers
             {
                 return;
             }
+
             var token = context.User.Claims.FirstOrDefault(claim => claim.Type == "bearer")?.Value;
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            context.Session.SetString(Constants.UserPreviouslyAuthenticated, "true");
         }
     }
 }

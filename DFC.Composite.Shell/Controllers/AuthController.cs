@@ -15,6 +15,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.Models.Common;
+using DFC.Composite.Shell.Utilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -23,11 +27,14 @@ namespace DFC.Composite.Shell.Controllers
     public class AuthController : Controller
     {
         public const string RedirectSessionKey = "RedirectSession";
+
         private readonly IOpenIdConnectClient authClient;
         private readonly ILogger<AuthController> logger;
         private readonly AuthSettings settings;
+        private readonly IVersionedFiles versionedFiles;
+        private readonly IConfiguration configuration;
 
-        public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings)
+        public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings, IVersionedFiles versionedFiles, IConfiguration configuration)
         {
             if (settings == null)
             {
@@ -36,12 +43,24 @@ namespace DFC.Composite.Shell.Controllers
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;
+            this.versionedFiles = versionedFiles;
+            this.configuration = configuration;
         }
 
         public async Task<IActionResult> SignIn(string redirectUrl)
         {
+            if (!User.Identity.IsAuthenticated &&
+                HttpContext.Session.GetString(Constants.UserPreviouslyAuthenticated) == "true")
+            {
+                var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
+                HttpContext.Session.SetString(Constants.UserPreviouslyAuthenticated, "false");
+                ViewData["RedirectUrl"] = redirectUrl;
+                return View("../Auth/Index", viewModel);
+            }
+
             SetRedirectUrl(redirectUrl);
             var signInUrl = await authClient.GetSignInUrl().ConfigureAwait(false);
+            HttpContext.Session.SetString(Constants.UserPreviouslyAuthenticated, "true");
             return Redirect(signInUrl);
         }
 
@@ -50,6 +69,7 @@ namespace DFC.Composite.Shell.Controllers
             SetRedirectUrl(redirectUrl);
             var signInUrl = await authClient.GetSignOutUrl(redirectUrl).ConfigureAwait(false);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
+            HttpContext.Session.SetString(RedirectSessionKey, "false");
             return Redirect(signInUrl);
         }
 
