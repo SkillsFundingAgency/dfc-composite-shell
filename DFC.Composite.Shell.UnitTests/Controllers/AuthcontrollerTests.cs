@@ -63,6 +63,14 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
             var settings = Options.Create(new AuthSettings());
             var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
+                    Session = new MockHttpSession()
+                },
+            };
 
             var result = await controller.SignIn(string.Empty).ConfigureAwait(false) as RedirectResult;
 

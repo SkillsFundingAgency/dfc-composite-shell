@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.UnitTests.ClientHandlers;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ClientHandlers
@@ -176,6 +177,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             //Set some headers on the incoming request
             httpContextAccessor.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", "test") }, "mock")) };
             httpContextAccessor.HttpContext.Request.Headers.Add(HeaderNames.Cookie, $"{Constants.DfcSession}=sessionId1;{path1}v1=value1;{path1}v2=value2;{path2}v3=value3;{path2}v4=value4");
+            httpContextAccessor.HttpContext.Session = new MockHttpSession();
 
             //Create a get request that is used to send data to the child app
             var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
