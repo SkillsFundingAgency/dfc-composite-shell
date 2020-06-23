@@ -21,12 +21,12 @@
 
         <partial name="_ErrorSummary" />
     </div>
-
+<partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
     @if (IsSectionDefined("BodyTop"))
     {
         @RenderSection("BodyTop", required: false)
     }
-    <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+    
     @if (IsSectionDefined("HeroBanner"))
     {
         @RenderSection("HeroBanner", required: false)
