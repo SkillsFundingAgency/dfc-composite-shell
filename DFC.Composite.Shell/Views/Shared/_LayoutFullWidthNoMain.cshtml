@@ -20,13 +20,15 @@
         <partial name="_PhaseBanner" />
 
         <partial name="_ErrorSummary" />
+
+        <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
     </div>
-<partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+
     @if (IsSectionDefined("BodyTop"))
     {
         @RenderSection("BodyTop", required: false)
     }
-    
+
     @if (IsSectionDefined("HeroBanner"))
     {
         @RenderSection("HeroBanner", required: false)
@@ -57,10 +59,10 @@
         }
     }
 
-@if (IsSectionDefined("BodyFooter"))
-{
-    @RenderSection("BodyFooter", required: false)
-}
+    @if (IsSectionDefined("BodyFooter"))
+    {
+        @RenderSection("BodyFooter", required: false)
+    }
 
     <partial name="_GovUkFooter" />
 
