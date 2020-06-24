@@ -21,8 +21,10 @@
         <partial name="_PhaseBanner" />
 
         <partial name="_ErrorSummary" />
+
+        <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
     </div>
-<partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+
     @if (IsSectionDefined("BodyTop"))
     {
         @RenderSection("BodyTop", required: false)
