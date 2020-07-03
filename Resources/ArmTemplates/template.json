@@ -276,6 +276,10 @@
                                 "value": "/your-account"
                             },
                             {
+                                "name": "AuthSettings__AuthDssEndpoint",
+                                "value": "/your-account/authsuccess?redirectUrl={Url}"
+                            },
+                            {
                                 "name": "OIDCSettings__OIDCConfigMetaDataUrl",
                                 "value": "[parameters('OIDCOIDCConfigMetaDataUrl')]"
                             },
