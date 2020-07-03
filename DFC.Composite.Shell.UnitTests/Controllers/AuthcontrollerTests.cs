@@ -56,6 +56,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 ClientSecret = "clientSecret123456",
                 Issuer = "issuer",
                 DefaultRedirectUrl = "test",
+                AuthDssEndpoint = "test/{url}",
             });
         }
 
@@ -79,29 +80,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             A.CallTo(() => authClient.GetSignInUrl()).MustHaveHappened();
             Assert.Equal("test", result.Url);
             controller.Dispose();
-        }
-
-        [Fact]
-        public async Task WhenSignInCalledAfterCookieTimesOutThenRetrunSessionTimeoutPage()
-        {
-            A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
-            var settings = Options.Create(new AuthSettings());
-            var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
-                    Session = new MockHttpSession(),
-                },
-            };
-            controller.ControllerContext.HttpContext.Session.SetString(Constants.UserPreviouslyAuthenticated, "true");
-
-
-            var result = await controller.SignIn("test").ConfigureAwait(false) as ViewResult;
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ViewResult>();
-            result.ViewData["RedirectUrl"].Should().Be("test");
         }
 
         [Fact]
@@ -237,7 +215,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
 
             var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
 
-            Assert.Equal(result.Url, AuthController.RedirectSessionKey);
+            Assert.Equal(result.Url, defaultsettings.Value.AuthDssEndpoint.Replace(AuthController.RedirectAttribute, AuthController.RedirectSessionKey, StringComparison.InvariantCultureIgnoreCase));
         }
 
         [Fact]
@@ -262,7 +240,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
 
             var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
 
-            Assert.Equal(result.Url, defaultsettings.Value.DefaultRedirectUrl);
+            Assert.Equal(result.Url, defaultsettings.Value.AuthDssEndpoint.Replace(AuthController.RedirectAttribute, defaultsettings.Value.DefaultRedirectUrl, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

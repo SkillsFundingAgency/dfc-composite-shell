@@ -147,7 +147,6 @@ namespace DFC.Composite.Shell.ClientHandlers
 
             var token = context.User.Claims.FirstOrDefault(claim => claim.Type == "bearer")?.Value;
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            context.Session.SetString(Constants.UserPreviouslyAuthenticated, "true");
         }
     }
 }

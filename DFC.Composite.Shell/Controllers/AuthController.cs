@@ -1,9 +1,11 @@
 ﻿using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -15,18 +17,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Extensions;
-using DFC.Composite.Shell.Models.Common;
-using DFC.Composite.Shell.Utilities;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace DFC.Composite.Shell.Controllers
 {
     public class AuthController : Controller
     {
         public const string RedirectSessionKey = "RedirectSession";
+        public const string RedirectAttribute = "{url}";
 
         private readonly IOpenIdConnectClient authClient;
         private readonly ILogger<AuthController> logger;
@@ -49,18 +46,8 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignIn(string redirectUrl)
         {
-            if (!User.Identity.IsAuthenticated &&
-                HttpContext.Session.GetString(Constants.UserPreviouslyAuthenticated) == "true")
-            {
-                var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
-                HttpContext.Session.SetString(Constants.UserPreviouslyAuthenticated, "false");
-                ViewData["RedirectUrl"] = redirectUrl;
-                return View("../Auth/Index", viewModel);
-            }
-
             SetRedirectUrl(redirectUrl);
             var signInUrl = await authClient.GetSignInUrl().ConfigureAwait(false);
-            HttpContext.Session.SetString(Constants.UserPreviouslyAuthenticated, "true");
             return Redirect(signInUrl);
         }
 
@@ -69,13 +56,12 @@ namespace DFC.Composite.Shell.Controllers
             SetRedirectUrl(redirectUrl);
             var signInUrl = await authClient.GetSignOutUrl(redirectUrl).ConfigureAwait(false);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
-            HttpContext.Session.SetString(RedirectSessionKey, "false");
             return Redirect(signInUrl);
         }
 
         public async Task<IActionResult> Auth(string id_token)
         {
-            JwtSecurityToken validatedToken;//= new JwtSecurityToken("");
+            JwtSecurityToken validatedToken;
             try
             {
                 validatedToken = await authClient.ValidateToken(id_token).ConfigureAwait(false);
@@ -92,6 +78,7 @@ namespace DFC.Composite.Shell.Controllers
                 new Claim(ClaimTypes.Email, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value),
                 new Claim(ClaimTypes.GivenName, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value),
                 new Claim(ClaimTypes.Surname, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value),
+                new Claim("DssToken", id_token),
             };
 
             var expiryTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -152,7 +139,8 @@ namespace DFC.Composite.Shell.Controllers
         private string GetRedirectUrl()
         {
             var url = HttpContext.Session.GetString(RedirectSessionKey);
-            return string.IsNullOrEmpty(url) ? settings.DefaultRedirectUrl : url;
+            var redirectUrl = string.IsNullOrEmpty(url) ? settings.DefaultRedirectUrl : url;
+            return settings.AuthDssEndpoint.Replace(RedirectAttribute, redirectUrl, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
