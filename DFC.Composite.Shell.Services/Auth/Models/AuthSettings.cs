@@ -9,5 +9,7 @@
         public string ClientSecret { get; set; }
 
         public string DefaultRedirectUrl { get; set; }
+
+        public string AuthDssEndpoint { get; set; }
     }
 }

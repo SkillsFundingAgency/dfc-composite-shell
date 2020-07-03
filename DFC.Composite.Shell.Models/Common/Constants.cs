@@ -12,6 +12,5 @@
         public const string ApplicationInsightsConnectSources = "ApplicationInsights:ConnectSources";
         public const string ApplicationInsightsInstrumentationKey = "ApplicationInsights:InstrumentationKey";
         public const string ApimProxyAddress = "ApimProxyAddress";
-        public const string UserPreviouslyAuthenticated = "UserPreviouslyAuthenticated";
     }
 }
