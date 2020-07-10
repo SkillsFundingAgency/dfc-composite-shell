@@ -1,12 +1,13 @@
 ﻿using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DFC.Composite.Shell.Services.Regions
+namespace DFC.Composite.Shell.Services.AppRegistry
 {
-    public interface IRegionService
+    public interface IAppRegistryService
     {
-        Task<IEnumerable<RegionModel>> GetRegions(string path);
+        Task<IEnumerable<AppRegistrationModel>> GetPaths();
 
         Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy);
     }

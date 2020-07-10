@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.HealthModels;
 using DFC.Composite.Shell.Services.ApplicationHealth;
-using DFC.Composite.Shell.Services.Paths;
-using DFC.Composite.Shell.Services.Regions;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -23,21 +24,19 @@ namespace DFC.Composite.Shell.Test.Controllers
     {
         private readonly HealthController healthController;
 
-        private readonly IPathDataService pathDataService;
-        private readonly IRegionService regionService;
+        private readonly IAppRegistryDataService appRegistryDataService;
         private readonly ILogger<HealthController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IApplicationHealthService applicationHealthService;
 
         public HealthControllerTests()
         {
-            pathDataService = A.Fake<IPathDataService>();
-            regionService = A.Fake<IRegionService>();
+            appRegistryDataService = A.Fake<IAppRegistryDataService>();
             logger = A.Fake<ILogger<HealthController>>();
             bearerTokenRetriever = A.Fake<IBearerTokenRetriever>();
             applicationHealthService = A.Fake<IApplicationHealthService>();
 
-            healthController = new HealthController(pathDataService, regionService, logger, bearerTokenRetriever, applicationHealthService);
+            healthController = new HealthController(appRegistryDataService, logger, bearerTokenRetriever, applicationHealthService);
         }
 
         [Fact]
@@ -57,48 +56,52 @@ namespace DFC.Composite.Shell.Test.Controllers
             var claims = new List<Claim>();
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
-            healthController.ControllerContext = new ControllerContext();
-            healthController.ControllerContext.HttpContext = new DefaultHttpContext() { User = user };
+            healthController.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext() { User = user },
+            };
             healthController.ControllerContext.HttpContext.Request.Headers.Add(HeaderNames.Accept, mediaTypeName);
 
-            var path1 = "path1";
-            var path2 = "path2";
-            var pathModels = new List<PathModel>
+            const string path1 = "path1";
+            const string path2 = "path2";
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
-                new PathModel
+                new AppRegistrationModel
                 {
                     Path = path1,
                     IsOnline = true,
+                    Regions = new List<RegionModel>()
+                    {
+                        new RegionModel()
+                        {
+                            RegionEndpoint = $"http://localhost/{path1}/region1",
+                            PageRegion = PageRegion.Body,
+                        },
+                    },
                 },
-                new PathModel
+                new AppRegistrationModel
                 {
                     Path = path2,
                     IsOnline = false,
+                    Regions = new List<RegionModel>()
+                    {
+                        new RegionModel()
+                        {
+                            RegionEndpoint = $"http://localhost/{path2}/region2",
+                            PageRegion = PageRegion.Body,
+                        },
+                    },
                 },
             };
 
-            var regions = new List<RegionModel>()
+            var path1HealthItemModels = new List<HealthItemModel>
             {
-                new RegionModel()
-                {
-                    Path = path1,
-                    RegionEndpoint = $"http://localhost/{path1}/region1",
-                    PageRegion = PageRegion.Body,
-                },
-                new RegionModel()
-                {
-                    Path = path2,
-                    RegionEndpoint = $"http://localhost/{path2}/region2",
-                    PageRegion = PageRegion.Body,
-                },
+                new HealthItemModel() { Message = "Message1", Service = "Service1" },
+                new HealthItemModel() { Message = "Message2", Service = "Service2" },
             };
 
-            var path1HealthItemModels = new List<HealthItemModel>();
-            path1HealthItemModels.Add(new HealthItemModel() { Message = "Message1", Service = "Service1" });
-            path1HealthItemModels.Add(new HealthItemModel() { Message = "Message2", Service = "Service2" });
-
-            A.CallTo(() => pathDataService.GetPaths()).Returns(pathModels);
-            A.CallTo(() => regionService.GetRegions(A<string>.Ignored)).Returns(regions);
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns(appRegistrationModels.FirstOrDefault(f => f.IsOnline));
             A.CallTo(() => applicationHealthService.GetAsync(A<ApplicationHealthModel>.Ignored)).Returns(path1HealthItemModels);
 
             //Act

@@ -82,7 +82,7 @@ namespace DFC.Composite.Shell.Controllers
 
                         var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
 
-                        if (application?.Path == null)
+                        if (application?.AppRegistrationModel == null)
                         {
                             var errorString = $"The path '{requestItem.Path}' is not registered";
 
@@ -90,11 +90,11 @@ namespace DFC.Composite.Shell.Controllers
 
                             Response.StatusCode = (int)HttpStatusCode.NotFound;
                         }
-                        else if (!string.IsNullOrWhiteSpace(application.Path.ExternalURL))
+                        else if (application.AppRegistrationModel.ExternalURL != null)
                         {
                             logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestItem.Path}");
 
-                            return Redirect(application.Path.ExternalURL);
+                            return Redirect(application.AppRegistrationModel.ExternalURL.ToString());
                         }
                         else
                         {
@@ -170,7 +170,7 @@ namespace DFC.Composite.Shell.Controllers
 
                         var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
 
-                        if (application?.Path == null)
+                        if (application?.AppRegistrationModel == null)
                         {
                             var errorString = $"The path '{requestItem.Path}' is not registered";
 

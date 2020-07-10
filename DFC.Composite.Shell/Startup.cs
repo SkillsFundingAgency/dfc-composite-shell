@@ -11,6 +11,7 @@ using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
@@ -25,8 +26,6 @@ using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
-using DFC.Composite.Shell.Services.Paths;
-using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Services.UrlRewriter;
@@ -165,7 +164,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<INeo4JService, Neo4JService>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
-            services.AddScoped<IPathDataService, PathDataService>();
+            services.AddScoped<IAppRegistryDataService, AppRegistryDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
             services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
@@ -204,12 +203,8 @@ namespace DFC.Composite.Shell
             var policyRegistry = services.AddPolicyRegistry();
 
             services
-                .AddPolicies(policyRegistry, nameof(PathClientOptions), policyOptions)
-                .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(RegionClientOptions), policyOptions)
-                .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+                .AddPolicies(policyRegistry, nameof(AppRegistryClientOptions), policyOptions)
+                .AddHttpClient<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(Configuration, nameof(AppRegistryClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)

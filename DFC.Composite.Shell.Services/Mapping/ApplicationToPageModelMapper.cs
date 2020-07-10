@@ -14,10 +14,10 @@ namespace DFC.Composite.Shell.Services.Mapping
                 return;
             }
 
-            destination.LayoutName = $"{Constants.LayoutPrefix}{source?.Path.Layout.ToString()}";
-            destination.Path = source?.Path.Path;
-            destination.PageTitle = source?.Path.TopNavigationText;
-            destination.PhaseBannerHtml = new HtmlString(source?.Path.PhaseBannerHtml);
+            destination.LayoutName = $"{Constants.LayoutPrefix}{source?.AppRegistrationModel.Layout.ToString()}";
+            destination.Path = source?.AppRegistrationModel.Path;
+            destination.PageTitle = source?.AppRegistrationModel.TopNavigationText;
+            destination.PhaseBannerHtml = new HtmlString(source?.AppRegistrationModel.PhaseBannerHtml);
 
             var pageRegionContentModels = source?.Regions
                 .Select(region => new PageRegionContentModel { PageRegionType = region.PageRegion }).ToList();

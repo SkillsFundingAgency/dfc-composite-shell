@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Services.Paths;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.ViewComponents;
 using DFC.Composite.Shell.Views.Test.Extensions;
 using Microsoft.Extensions.Logging;
@@ -15,28 +15,28 @@ namespace DFC.Composite.Shell.Views.Test.Tests
     {
         private readonly ListPathsViewComponent viewComponent;
         private readonly Mock<ILogger<ListPathsViewComponent>> logger;
-        private readonly Mock<IPathDataService> pathDataService;
+        private readonly Mock<IAppRegistryDataService> appRegistryDataService;
 
         public ListPathsViewComponentTests()
         {
             logger = new Mock<ILogger<ListPathsViewComponent>>();
-            pathDataService = new Mock<IPathDataService>();
+            appRegistryDataService = new Mock<IAppRegistryDataService>();
 
-            viewComponent = new ListPathsViewComponent(pathDataService.Object);
+            viewComponent = new ListPathsViewComponent(appRegistryDataService.Object);
         }
 
         [Fact]
         public async Task WhenInvokedReturnsPaths()
         {
-            var pathModel1 = new PathModel() { Path = "path1", IsOnline = true, OfflineHtml = "OfflineHtml1", TopNavigationText = "Offline Html1" };
-            var pathModel2 = new PathModel() { Path = "path2", IsOnline = true, OfflineHtml = "OfflineHtml2", TopNavigationText = "Offline Html2" };
-            var paths = new List<PathModel>() { pathModel1, pathModel2 };
-            pathDataService.Setup(x => x.GetPaths()).ReturnsAsync(paths);
+            var appRegistrationModel1 = new AppRegistrationModel() { Path = "path1", IsOnline = true, OfflineHtml = "OfflineHtml1", TopNavigationText = "Offline Html1" };
+            var appRegistrationModel2 = new AppRegistrationModel() { Path = "path2", IsOnline = true, OfflineHtml = "OfflineHtml2", TopNavigationText = "Offline Html2" };
+            var appRegistrationModels = new List<AppRegistrationModel>() { appRegistrationModel1, appRegistrationModel2 };
+            appRegistryDataService.Setup(x => x.GetAppRegistrationModels()).ReturnsAsync(appRegistrationModels);
 
             var result = await viewComponent.InvokeAsync();
 
             var viewComponentModel = result.ViewDataModelAs<ListPathsViewModel>();
-            Assert.Equal(paths.Count, viewComponentModel.Paths.Count());
+            Assert.Equal(appRegistrationModels.Count, viewComponentModel.Paths.Count());
         }
     }
 }

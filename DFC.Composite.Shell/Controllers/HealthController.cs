@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.HealthModels;
 using DFC.Composite.Shell.Services.ApplicationHealth;
-using DFC.Composite.Shell.Services.Paths;
-using DFC.Composite.Shell.Services.Regions;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,21 +16,18 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class HealthController : Controller
     {
-        private readonly IPathDataService pathDataService;
-        private readonly IRegionService regionService;
+        private readonly IAppRegistryDataService appRegistryDataService;
         private readonly ILogger<HealthController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IApplicationHealthService applicationHealthService;
 
         public HealthController(
-            IPathDataService pathDataService,
-            IRegionService regionService,
+            IAppRegistryDataService appRegistryDataService,
             ILogger<HealthController> logger,
             IBearerTokenRetriever bearerTokenRetriever,
             IApplicationHealthService applicationHealthService)
         {
-            this.pathDataService = pathDataService;
-            this.regionService = regionService;
+            this.appRegistryDataService = appRegistryDataService;
             this.logger = logger;
             this.bearerTokenRetriever = bearerTokenRetriever;
             this.applicationHealthService = applicationHealthService;
@@ -51,18 +48,18 @@ namespace DFC.Composite.Shell.Controllers
             var viewModel = CreateHealthViewModel(resourceName, message);
 
             // loop through the registered applications and create some tasks - one per application for their health
-            var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && string.IsNullOrWhiteSpace(w.ExternalURL)).ToList();
-            var offlinePaths = paths.Where(w => !w.IsOnline && string.IsNullOrWhiteSpace(w.ExternalURL)).ToList();
+            var paths = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var onlinePaths = paths.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
+            var offlinePaths = paths.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
 
-            if (onlinePaths?.Count > 0)
+            if (onlinePaths != null && onlinePaths.Any())
             {
                 var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlinePaths).ConfigureAwait(false);
 
                 AppendApplicationsHealths(viewModel.HealthItems, applicationOnlineHealthModels);
             }
 
-            if (offlinePaths?.Count > 0)
+            if (offlinePaths != null && offlinePaths.Any())
             {
                 var applicationOfflineHealthItemModels = CreateOfflineApplicationHealthModels(offlinePaths.ToList());
 
@@ -96,7 +93,7 @@ namespace DFC.Composite.Shell.Controllers
             };
         }
 
-        private async Task<IEnumerable<ApplicationHealthModel>> GetApplicationOnlineHealthAsync(IList<Models.PathModel> paths)
+        private async Task<IEnumerable<ApplicationHealthModel>> GetApplicationOnlineHealthAsync(IList<AppRegistrationModel> paths)
         {
             var applicationHealthModels = await CreateApplicationHealthModelTasksAsync(paths).ConfigureAwait(false);
 
@@ -108,7 +105,7 @@ namespace DFC.Composite.Shell.Controllers
             return applicationHealthModels;
         }
 
-        private async Task<List<ApplicationHealthModel>> CreateApplicationHealthModelTasksAsync(IList<Models.PathModel> paths)
+        private async Task<List<ApplicationHealthModel>> CreateApplicationHealthModelTasksAsync(IList<AppRegistrationModel> paths)
         {
             var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
 
@@ -137,9 +134,9 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task<string> GetPathBaseUrlFromBodyRegionAsync(string path)
         {
-            var regions = await regionService.GetRegions(path).ConfigureAwait(false);
+            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
 
-            var bodyRegion = regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = appRegistrationModel?.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
             if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
@@ -192,7 +189,7 @@ namespace DFC.Composite.Shell.Controllers
             }
         }
 
-        private List<HealthItemViewModel> CreateOfflineApplicationHealthModels(IList<Models.PathModel> paths)
+        private List<HealthItemViewModel> CreateOfflineApplicationHealthModels(IList<AppRegistrationModel> paths)
         {
             var healthItemViewModels = new List<HealthItemViewModel>();
 

@@ -1,9 +1,10 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.HttpClientService;
-using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly HttpClient httpClient;
         private readonly FakeHttpMessageHandler fakeHttpMessageHandler;
         private readonly ILogger<ContentRetriever> logger;
-        private readonly IRegionService regionService;
+        private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IHttpResponseMessageHandler httpResponseMessageHandler;
         private readonly List<KeyValuePair<string, string>> defaultFormPostParams;
 
@@ -47,13 +48,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 BaseAddress = new Uri("http://SomeRegionBaseAddress"),
             };
 
-            defaultFormPostParams = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("formParam1", "testvalue") };
+            defaultFormPostParams = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("formParam1", "test value") };
 
             logger = A.Fake<ILogger<ContentRetriever>>();
-            regionService = A.Fake<IRegionService>();
+            appRegistryDataService = A.Fake<IAppRegistryDataService>();
             httpResponseMessageHandler = A.Fake<IHttpResponseMessageHandler>();
 
-            defaultService = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
+            defaultService = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler);
         }
 
         ~ContentRetrieverTests()
@@ -73,24 +74,24 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 PageRegion = PageRegion.Body,
             };
 
-            var result = await defaultService.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
             Assert.Equal(DummyChildAppContent, result);
         }
 
         [Fact]
-        public async Task GetContentWhenRegionIsNotHealthyReturnOfflineHTML()
+        public async Task GetContentWhenRegionIsNotHealthyReturnOfflineHtml()
         {
-            const string offlineHTML = "<p>Offline HTML</p>";
+            const string OfflineHtml = "<p>Offline HTML</p>";
             var model = new RegionModel
             {
                 IsHealthy = false,
-                OfflineHTML = offlineHTML,
+                OfflineHtml = OfflineHtml,
             };
 
-            var result = await defaultService.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
-            Assert.Equal(offlineHTML, result);
+            Assert.Equal(OfflineHtml, result);
         }
 
         [Fact]
@@ -117,9 +118,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 IsHealthy = true,
             };
 
-            var service = new ContentRetriever(redirectHttpClient, logger, regionService, httpResponseMessageHandler);
+            var service = new ContentRetriever(redirectHttpClient, logger, appRegistryDataService, httpResponseMessageHandler);
 
-            await service.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
+            await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
             A.CallTo(() => httpResponseMessageHandler.Process(null)).MustHaveHappened();
 
@@ -131,7 +132,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -158,9 +159,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 IsHealthy = true,
             };
 
-            var service = new ContentRetriever(redirectHttpClient, logger, regionService, httpResponseMessageHandler);
+            var service = new ContentRetriever(redirectHttpClient, logger, appRegistryDataService, httpResponseMessageHandler);
 
-            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", model, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", "path", model, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
 
             fakeRedirectHttpMessageHandler.Dispose();
             redirectHttpResponse.Dispose();
@@ -180,46 +181,46 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeRedirectHttpMessageHandler.Process(A<HttpResponseMessage>.Ignored))
                 .Throws<BrokenCircuitException>();
 
-            var fakeRegionService = A.Fake<IRegionService>();
+            var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
             var service = new ContentRetriever(httpClient, logger, fakeRegionService, fakeRedirectHttpMessageHandler);
 
-            await service.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
+            await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustHaveHappenedOnceExactly();
         }
 
         [Fact]
-        public async Task GetContentWhenBrokenCircuitExceptionThrownAndHealthCheckIsNotRequiredThenReturnOfflineHTML()
+        public async Task GetContentWhenBrokenCircuitExceptionThrownAndHealthCheckIsNotRequiredThenReturnOfflineHtml()
         {
-            const string offlineHTML = "<p>Offline HTML</p>";
+            const string OfflineHtml = "<p>Offline HTML</p>";
             var model = new RegionModel
             {
                 IsHealthy = true,
-                OfflineHTML = offlineHTML,
+                OfflineHtml = OfflineHtml,
             };
 
             var fakeRedirectHttpMessageHandler = A.Fake<IHttpResponseMessageHandler>();
             A.CallTo(() => fakeRedirectHttpMessageHandler.Process(A<HttpResponseMessage>.Ignored))
                 .Throws<BrokenCircuitException>();
 
-            var fakeRegionService = A.Fake<IRegionService>();
+            var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
             var service = new ContentRetriever(httpClient, logger, fakeRegionService, fakeRedirectHttpMessageHandler);
 
-            var result = await service.GetContent("someUrl", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
 
-            Assert.Equal(offlineHTML, result);
+            Assert.Equal(OfflineHtml, result);
         }
 
         [Fact]
         public async Task PostContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, null, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
         }
 
         [Fact]
@@ -248,9 +249,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 BaseAddress = new Uri("http://SomeRegionBaseAddress"),
             };
 
-            var service = new ContentRetriever(postHttpClient, logger, regionService, httpResponseMessageHandler);
+            var service = new ContentRetriever(postHttpClient, logger, appRegistryDataService, httpResponseMessageHandler);
 
-            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.PostContent("http://someUrl", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
 
             httpResponseMessage.Dispose();
             fakeRedirectHttpMessageHandler.Dispose();
@@ -283,9 +284,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 BaseAddress = new Uri("http://SomeRegionBaseAddress"),
             };
 
-            var service = new ContentRetriever(postHttpClient, logger, regionService, httpResponseMessageHandler);
+            var service = new ContentRetriever(postHttpClient, logger, appRegistryDataService, httpResponseMessageHandler);
 
-            var result = await service.PostContent("http://someUrl", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
             Assert.Equal(DummyChildAppContent, result);
 
@@ -295,18 +296,18 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task PostContentWhenRegionIsNotHealthyReturnOfflineHTML()
+        public async Task PostContentWhenRegionIsNotHealthyReturnOfflineHtml()
         {
-            const string offlineHTML = "<p>Offline HTML</p>";
+            const string OfflineHtml = "<p>Offline HTML</p>";
             var model = new RegionModel
             {
                 IsHealthy = false,
-                OfflineHTML = offlineHTML,
+                OfflineHtml = OfflineHtml,
             };
 
-            var result = await defaultService.PostContent("http://someUrl", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
-            Assert.Equal(offlineHTML, result);
+            Assert.Equal(OfflineHtml, result);
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
@@ -323,24 +324,24 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored))
                 .Throws<BrokenCircuitException>();
 
-            var fakeRegionService = A.Fake<IRegionService>();
+            var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
             var service = new ContentRetriever(httpClient, fakeLogger, fakeRegionService, httpResponseMessageHandler);
 
-            await service.PostContent("http://someUrl", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustHaveHappenedOnceExactly();
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
-        public async Task PostContentWhenBrokenCircuitExceptionThrownAndHealthCheckIsNotRequiredThenReturnOfflineHTML()
+        public async Task PostContentWhenBrokenCircuitExceptionThrownAndHealthCheckIsNotRequiredThenReturnOfflineHtml()
         {
-            const string offlineHTML = "<p>Offline HTML</p>";
+            const string OfflineHtml = "<p>Offline HTML</p>";
             var model = new RegionModel
             {
                 IsHealthy = true,
-                OfflineHTML = offlineHTML,
+                OfflineHtml = OfflineHtml,
             };
 
             var fakeLogger = A.Fake<ILogger<ContentRetriever>>();
@@ -348,16 +349,16 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored))
                 .Throws<BrokenCircuitException>();
 
-            var fakeRegionService = A.Fake<IRegionService>();
+            var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
             var service = new ContentRetriever(httpClient, fakeLogger, fakeRegionService, httpResponseMessageHandler);
 
-            var result = await service.PostContent("http://someUrl", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
 
-            Assert.Equal(offlineHTML, result);
+            Assert.Equal(OfflineHtml, result);
         }
 
         [Fact]
@@ -379,9 +380,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var httpHandler = new MockHttpMessageHandler();
             var httpClient = httpHandler.ToHttpClient();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
-            var contentRetriever = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
+            var contentRetriever = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler);
 
-            await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
 
             A.CallTo(() => httpResponseMessageHandler.Process(A<HttpResponseMessage>.That.Matches(x => x.StatusCode == HttpStatusCode.Redirect))).MustHaveHappenedOnceExactly();
 
@@ -408,9 +409,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var httpHandler = new MockHttpMessageHandler();
             var httpClient = httpHandler.ToHttpClient();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
-            var contentRetriever = new ContentRetriever(httpClient, logger, regionService, httpResponseMessageHandler);
+            var contentRetriever = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler);
 
-            var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
+            var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
             Assert.Equal("https://base/baseurl/redirecturl", ex.Location.AbsoluteUri);
             Assert.Equal(postUrl, ex.OldLocation.AbsoluteUri);
 

@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
-using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using FakeItEasy;
@@ -31,7 +31,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
         private readonly RobotController defaultController;
         private readonly IShellRobotFileService defaultShellRobotFileService;
-        private readonly IPathDataService defaultPathDataService;
+        private readonly IAppRegistryDataService defaultAppRegistryDataService;
         private readonly ILogger<RobotController> defaultLogger;
         private readonly IWebHostEnvironment defaultWebHostEnvironment;
         private readonly HttpContext defaultHttpContext;
@@ -42,21 +42,21 @@ namespace DFC.Composite.Shell.Test.Controllers
 
         public RobotControllerTests()
         {
-            defaultPathDataService = A.Fake<IPathDataService>();
+            defaultAppRegistryDataService = A.Fake<IAppRegistryDataService>();
             defaultLogger = A.Fake<ILogger<RobotController>>();
             defaultWebHostEnvironment = A.Fake<IWebHostEnvironment>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
 
-            var pathModels = new List<PathModel>
+            var pathModels = new List<AppRegistrationModel>
             {
-                new PathModel
+                new AppRegistrationModel
                 {
-                    RobotsURL = "http://SomeRobotUrl.xyz",
+                    RobotsURL = new Uri("http://SomeRobotUrl.xyz", UriKind.Absolute),
                     IsOnline = true,
                 },
             };
 
-            A.CallTo(() => defaultPathDataService.GetPaths()).Returns(pathModels);
+            A.CallTo(() => defaultAppRegistryDataService.GetAppRegistrationModels()).Returns(pathModels);
 
             var user = A.Fake<ClaimsPrincipal>();
             A.CallTo(() => user.Identity.IsAuthenticated).Returns(true);
@@ -82,7 +82,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             defaultShellRobotFileService = A.Fake<IShellRobotFileService>();
 
-            defaultController = new RobotController(defaultPathDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, defaultApplicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
+            defaultController = new RobotController(defaultAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, defaultApplicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -137,7 +137,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var applicationRobotService = A.Fake<IApplicationRobotService>();
             A.CallTo(() => applicationRobotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"{segmentToSkip}: Dummy text value");
 
-            var robotController = new RobotController(defaultPathDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, applicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
+            var robotController = new RobotController(defaultAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, applicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -158,23 +158,23 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             const string appBaseUrl = "http://appBaseUrl";
 
-            var pathModels = new List<PathModel>
+            var pathModels = new List<AppRegistrationModel>
             {
-                new PathModel
+                new AppRegistrationModel
                 {
-                    RobotsURL = appBaseUrl,
+                    RobotsURL = new Uri(appBaseUrl, UriKind.Absolute),
                     IsOnline = true,
                 },
             };
 
-            var shellPathDataService = A.Fake<IPathDataService>();
+            var shellAppRegistryDataService = A.Fake<IAppRegistryDataService>();
 
-            A.CallTo(() => shellPathDataService.GetPaths()).Returns(pathModels);
+            A.CallTo(() => shellAppRegistryDataService.GetAppRegistrationModels()).Returns(pathModels);
 
             var robotService = A.Fake<IApplicationRobotService>();
             A.CallTo(() => robotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"RetrievedValue: {appBaseUrl}/test");
 
-            var robotController = new RobotController(shellPathDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, robotService, defaultShellRobotFileService, defaultBaseUrlService)
+            var robotController = new RobotController(shellAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, robotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {

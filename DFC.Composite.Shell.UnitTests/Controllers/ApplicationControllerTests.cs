@@ -1,9 +1,11 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +18,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Services.Neo4J;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -52,15 +53,17 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             defaultApplicationModel = new ApplicationModel
             {
-                Path = new PathModel { Path = ChildAppPath },
-                Regions = new List<RegionModel>
+                AppRegistrationModel = new AppRegistrationModel
                 {
-                    new RegionModel
+                    Path = ChildAppPath,
+                    Regions = new List<RegionModel>
                     {
-                        Path = ChildAppPath,
-                        IsHealthy = true,
-                        PageRegion = PageRegion.Body,
-                        RegionEndpoint = "http://childApp/bodyRegion",
+                        new RegionModel
+                        {
+                            IsHealthy = true,
+                            PageRegion = PageRegion.Body,
+                            RegionEndpoint = "http://childApp/bodyRegion",
+                        },
                     },
                 },
             };
@@ -100,7 +103,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             {
                 ControllerContext = new ControllerContext()
                 {
-                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>{new Claim("bearer","test")},"mock")) },
+                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", "test") }, "mock")) },
                 },
             };
 
@@ -124,7 +127,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var model = Assert.IsAssignableFrom<PageViewModelResponse>(viewResult.ViewData.Model);
             Assert.Equal(model.Path, ChildAppPath);
         }
-        
+
         [Fact]
         public async Task ApplicationControllerGetActionReturnsRedirectWhenRedirectExceptionOccurs()
         {
@@ -139,7 +142,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             {
                 ControllerContext = new ControllerContext()
                 {
-                    HttpContext = context
+                    HttpContext = context,
                 },
             };
 

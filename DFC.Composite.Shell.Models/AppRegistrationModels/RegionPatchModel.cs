@@ -1,4 +1,4 @@
-﻿namespace DFC.Composite.Shell.Models
+﻿namespace DFC.Composite.Shell.Models.AppRegistrationModels
 {
     public class RegionPatchModel
     {
