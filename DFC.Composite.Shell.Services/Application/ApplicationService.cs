@@ -102,18 +102,17 @@ namespace DFC.Composite.Shell.Services.Application
 
         public async Task<ApplicationModel> GetApplicationAsync(string path)
         {
-            var applicationModel = new ApplicationModel();
+            var applicationModel = new ApplicationModel
+            {
+                AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false)
+            };
 
-            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
-
-            if (appRegistrationModel == null)
+            if (applicationModel.AppRegistrationModel == null)
             {
                 return applicationModel;
             }
 
-            applicationModel.AppRegistrationModel = appRegistrationModel;
-
-            var bodyRegion = applicationModel.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = applicationModel.AppRegistrationModel.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
             if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
@@ -154,7 +153,7 @@ namespace DFC.Composite.Shell.Services.Application
         private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string article, string queryString)
         {
             //Get the body region
-            var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
             if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
@@ -178,7 +177,7 @@ namespace DFC.Composite.Shell.Services.Application
         private Task<string> GetPostMarkUpAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
         {
             //Get the body region
-            var bodyRegion = application.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
             if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
@@ -193,17 +192,17 @@ namespace DFC.Composite.Shell.Services.Application
         private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article, string queryString)
         {
             //Get the markup at the head url first. This will create the session if it doesn't already exist
-            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.Regions.First(x => x.PageRegion == PageRegion.Head), article, queryString).ConfigureAwait(false);
+            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), article, queryString).ConfigureAwait(false);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
             var tasks = new List<Task<string>>();
 
-            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.Regions, article, queryString);
-            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.Regions, article, queryString);
-            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.Regions, article, queryString);
-            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.Regions, article, queryString);
-            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.Regions, article, queryString);
-            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.Regions, article, queryString);
+            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.AppRegistrationModel.Regions, article, queryString);
+            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.AppRegistrationModel.Regions, article, queryString);
+            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.AppRegistrationModel.Regions, article, queryString);
+            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.AppRegistrationModel.Regions, article, queryString);
+            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, article, queryString);
+            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, article, queryString);
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
@@ -255,7 +254,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
             else
             {
-                var pageRegionModel = application.Regions.FirstOrDefault(x => x.PageRegion == regionType);
+                var pageRegionModel = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == regionType);
                 if (pageRegionModel != null)
                 {
                     outputHtmlMarkup = pageRegionModel.OfflineHtml;

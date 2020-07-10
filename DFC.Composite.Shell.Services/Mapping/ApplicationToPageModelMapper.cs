@@ -19,7 +19,7 @@ namespace DFC.Composite.Shell.Services.Mapping
             destination.PageTitle = source?.AppRegistrationModel.TopNavigationText;
             destination.PhaseBannerHtml = new HtmlString(source?.AppRegistrationModel.PhaseBannerHtml);
 
-            var pageRegionContentModels = source?.Regions
+            var pageRegionContentModels = source?.AppRegistrationModel?.Regions
                 .Select(region => new PageRegionContentModel { PageRegionType = region.PageRegion }).ToList();
 
             destination.PageRegionContentModels = pageRegionContentModels;

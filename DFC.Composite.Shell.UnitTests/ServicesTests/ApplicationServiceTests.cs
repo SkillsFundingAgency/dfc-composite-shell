@@ -191,7 +191,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
 
-            var body = fakeApplicationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var body = fakeApplicationModel.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
             A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
@@ -249,7 +249,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             // Assert
             Assert.Null(result.RootUrl);
             Assert.Null(result.AppRegistrationModel);
-            Assert.Null(result.Regions);
         }
 
         [Fact]
@@ -269,7 +268,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             // Assert
             Assert.Equal(defaultAppRegistrationModel.Path, result.AppRegistrationModel.Path);
-            Assert.Equal(bodyAndFooterRegions.Count, result.Regions.Count());
+            Assert.Equal(bodyAndFooterRegions.Count, result.AppRegistrationModel.Regions.Count);
             Assert.Equal(RequestBaseUrl, result.RootUrl);
         }
 
@@ -287,7 +286,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             // Assert
             Assert.Null(result.RootUrl);
             Assert.Equal(defaultAppRegistrationModel.Path, result.AppRegistrationModel.Path);
-            Assert.Equal(fakeRegionModels.Count, result.Regions.Count());
+            Assert.Equal(fakeRegionModels.Count, result.AppRegistrationModel.Regions.Count);
         }
 
         [Fact]
