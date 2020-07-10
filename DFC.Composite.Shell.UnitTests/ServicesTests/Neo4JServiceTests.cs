@@ -18,7 +18,6 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         private readonly FakeHttpMessageHandler fakeHttpMessageHandler;
         private readonly IFakeHttpRequestSender fakeHttpRequestSender;
 
-
         public Neo4JServiceTests()
         {
             settings = Options.Create(new Neo4JSettings

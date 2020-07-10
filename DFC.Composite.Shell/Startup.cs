@@ -176,8 +176,7 @@ namespace DFC.Composite.Shell
 
             services.Configure<Neo4JSettings>(Configuration.GetSection(nameof(Neo4JSettings)));
 
-            services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl,
-                new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
+            services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl, new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
 
             services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));

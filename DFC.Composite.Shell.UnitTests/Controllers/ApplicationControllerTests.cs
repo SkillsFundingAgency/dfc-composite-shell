@@ -138,7 +138,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             var context = new DefaultHttpContext();
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -158,7 +158,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -170,8 +170,6 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             //A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
             A.CallTo(() => defaultLogger.Log<ApplicationController>(A<LogLevel>.Ignored, A<EventId>.Ignored, A<ApplicationController>.Ignored, A<Exception>.Ignored, A<Func<ApplicationController, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
-
-            applicationController.Dispose();
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
@@ -182,7 +180,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -193,7 +191,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             await applicationController.Action(requestModel).ConfigureAwait(false);
 
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
-            applicationController.Dispose();
         }
 
         [Fact]
@@ -213,7 +210,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(BadChildAppPath)).Returns(null as ApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -224,7 +221,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
-            applicationController.Dispose();
         }
 
         [Fact]
@@ -234,7 +230,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -243,8 +239,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             };
 
             var result = await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
-
-            applicationController.Dispose();
         }
     }
 }

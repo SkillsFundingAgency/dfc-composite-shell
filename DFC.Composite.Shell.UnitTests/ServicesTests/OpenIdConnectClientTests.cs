@@ -2,31 +2,30 @@
 using DFC.Composite.Shell.Services.Auth.Models;
 using FakeItEasy;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.ServicesTests
 {
     public class OpenIdConnectClientTests
     {
+        private const string DefaultSignInRedirectUrl = "testSignInRedirect.com";
+        private const string DefaultSignOutRedirectUrl = "testSignOutRedirect.com";
         private readonly IOptions<OpenIDConnectSettings> defaultSettings;
         private readonly SecurityTokenHandler tokenHandler;
-        const string defaultSignInRedirectUrl = "testSignInRedirect.com";
-        const string defaultSignOutRedirectUrl = "testSignOutRedirect.com";
-        private IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
+        private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
 
         public OpenIdConnectClientTests()
         {
             defaultSettings = Options.Create(new OpenIDConnectSettings
             {
-                RedirectUrl = defaultSignInRedirectUrl,
-                SignOutRedirectUrl = defaultSignOutRedirectUrl,
+                RedirectUrl = DefaultSignInRedirectUrl,
+                SignOutRedirectUrl = DefaultSignOutRedirectUrl,
                 Issuer = "issuer",
                 AuthdUrl = "auth",
                 AuthorizeUrl = "AuthorizeUrl",
@@ -54,8 +53,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var url = await client.GetSignInUrl().ConfigureAwait(false);
 
-            Assert.Contains(defaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
-
+            Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
         }
 
         [Fact]
@@ -76,8 +74,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var url = await client.GetSignOutUrl(string.Empty).ConfigureAwait(false);
 
-            Assert.Contains(defaultSignOutRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
-
+            Assert.Contains(DefaultSignOutRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
         }
 
         [Fact]
@@ -87,7 +84,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var url = await client.GetRegisterUrl().ConfigureAwait(false);
 
-            Assert.Contains(defaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
+            Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
         }
 
         [Fact]
@@ -96,9 +93,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
             SecurityToken secToken;
             var token = await client.ValidateToken("token").ConfigureAwait(true);
-            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored,
-                A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == defaultSettings.Value.Issuer),
-                out secToken)).MustHaveHappened();
+            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored, A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == defaultSettings.Value.Issuer), out secToken)).MustHaveHappened();
         }
 
         [Fact]
@@ -109,8 +104,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             {
                 UseOIDCConfigDiscovery = true,
                 OIDCConfigMetaDataUrl = "test",
-                RedirectUrl = defaultSignInRedirectUrl,
-                SignOutRedirectUrl = defaultSignOutRedirectUrl,
+                RedirectUrl = DefaultSignInRedirectUrl,
+                SignOutRedirectUrl = DefaultSignOutRedirectUrl,
                 Issuer = "issuerFromServer",
                 AuthdUrl = "auth",
                 AuthorizeUrl = "AuthorizeUrl",
@@ -124,9 +119,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             SecurityToken secToken;
             var token = await client.ValidateToken("token").ConfigureAwait(true);
-            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored,
-                    A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == "issuer"),
-                    out secToken))
+            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored, A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == "issuer"), out secToken))
                 .MustHaveHappened();
         }
 
@@ -137,8 +130,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             {
                 UseOIDCConfigDiscovery = true,
                 OIDCConfigMetaDataUrl = "test",
-                RedirectUrl = defaultSignInRedirectUrl,
-                SignOutRedirectUrl = defaultSignOutRedirectUrl,
+                RedirectUrl = DefaultSignInRedirectUrl,
+                SignOutRedirectUrl = DefaultSignOutRedirectUrl,
                 Issuer = "issuerFromServer",
                 AuthdUrl = "auth",
                 AuthorizeUrl = "AuthorizeUrl",
@@ -146,7 +139,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 EndSessionUrl = "Endsesison",
                 JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
             });
-            
+
             var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
             var token = await client.GetSignOutUrl("test").ConfigureAwait(true);
@@ -160,8 +153,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             {
                 UseOIDCConfigDiscovery = true,
                 OIDCConfigMetaDataUrl = "test",
-                RedirectUrl = defaultSignInRedirectUrl,
-                SignOutRedirectUrl = defaultSignOutRedirectUrl,
+                RedirectUrl = DefaultSignInRedirectUrl,
+                SignOutRedirectUrl = DefaultSignOutRedirectUrl,
                 Issuer = "issuerFromServer",
                 AuthdUrl = "auth",
                 AuthorizeUrl = "AuthorizeUrl",
@@ -183,8 +176,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             {
                 UseOIDCConfigDiscovery = true,
                 OIDCConfigMetaDataUrl = "test",
-                RedirectUrl = defaultSignInRedirectUrl,
-                SignOutRedirectUrl = defaultSignOutRedirectUrl,
+                RedirectUrl = DefaultSignInRedirectUrl,
+                SignOutRedirectUrl = DefaultSignOutRedirectUrl,
                 Issuer = "issuerFromServer",
                 AuthdUrl = "auth",
                 AuthorizeUrl = "AuthorizeUrl",

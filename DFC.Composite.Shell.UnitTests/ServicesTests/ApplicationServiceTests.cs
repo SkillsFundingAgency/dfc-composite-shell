@@ -131,7 +131,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeBodyRegionEndPoint = string.Empty;
             var fakeBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = fakeBodyRegionEndPoint, IsHealthy = true };
             var fakeRegions = new List<RegionModel> { defaultHeadRegion, fakeBodyRegion, defaultBodyFooterRegion };
-            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel};
+            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
             fakeApplicationModel.AppRegistrationModel.Regions = fakeRegions;
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
@@ -191,8 +191,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
 
-            var body = fakeApplicationModel.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
-
             A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
 
@@ -215,7 +213,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeBodyRegionEndpoint = string.Empty;
             var fakeBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = fakeBodyRegionEndpoint, IsHealthy = true };
             var fakeRegions = new List<RegionModel> { defaultHeadRegion, fakeBodyRegion, defaultBodyFooterRegion };
-            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel};
+            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
             fakeApplicationModel.AppRegistrationModel.Regions = fakeRegions;
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
@@ -239,11 +237,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task GetApplicationAsyncReturnsEmptyApplicationModelWhenPathNotFound()
         {
             // Arrange
-            var appRegistryDataService = A.Fake<IAppRegistryDataService>();
-            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns((AppRegistrationModel)null);
+            var localAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            A.CallTo(() => localAppRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns((AppRegistrationModel)null);
 
             // Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper);
             var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
 
             // Assert

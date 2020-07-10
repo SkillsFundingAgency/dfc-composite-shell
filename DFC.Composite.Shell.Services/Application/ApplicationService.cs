@@ -104,7 +104,7 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var applicationModel = new ApplicationModel
             {
-                AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false)
+                AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false),
             };
 
             if (applicationModel.AppRegistrationModel == null)

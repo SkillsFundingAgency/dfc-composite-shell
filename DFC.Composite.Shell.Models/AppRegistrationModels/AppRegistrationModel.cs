@@ -1,19 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.Models.AppRegistrationModels
 {
     public class AppRegistrationModel
     {
-        public Guid Id { get; set; }
-
-        [JsonProperty(PropertyName = "_etag")]
-        public string Etag { get; set; }
-
         public string Path { get; set; }
-
-        public string PartitionKey { get; set; }
 
         public string TopNavigationText { get; set; }
 

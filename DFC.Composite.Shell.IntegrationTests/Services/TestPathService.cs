@@ -15,7 +15,6 @@ namespace DFC.Composite.Shell.Integration.Test.Services
             {
                 new AppRegistrationModel
                 {
-                    Id = Guid.NewGuid(),
                     Path = "path1",
                     IsOnline = true,
                     Layout = PageLayout.FullWidth,
@@ -25,7 +24,6 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 
                 new AppRegistrationModel
                 {
-                    Id = Guid.NewGuid(),
                     Path = "path4",
                     IsOnline = true,
                     Layout = PageLayout.FullWidthNoMain,
@@ -35,7 +33,6 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 
                 new AppRegistrationModel
                 {
-                    Id = Guid.NewGuid(),
                     Path = "path2",
                     IsOnline = true,
                     Layout = PageLayout.SidebarLeft,
@@ -45,7 +42,6 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 
                 new AppRegistrationModel
                 {
-                    Id = Guid.NewGuid(),
                     Path = "path3",
                     IsOnline = false,
                     Layout = PageLayout.SidebarRight,
@@ -56,7 +52,6 @@ namespace DFC.Composite.Shell.Integration.Test.Services
 
                 new AppRegistrationModel
                 {
-                    Id = Guid.NewGuid(),
                     Path = "externalpath1",
                     ExternalURL = new Uri("http://www.externalpath1.com", UriKind.Absolute),
                     IsOnline = true,
