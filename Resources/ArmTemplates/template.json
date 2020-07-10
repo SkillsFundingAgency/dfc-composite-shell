@@ -8,6 +8,9 @@
         "ApimKey": {
             "type": "string"
         },
+        "ApimVisitsKey": {
+            "type": "string"
+        },
         "AseHostingEnvironmentName": {
             "type": "string",
             "defaultValue": ""
@@ -82,6 +85,7 @@
         "IsDraftEnvironment": "[endsWith(toLower(parameters('Environment')), '-draft')]",
         "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
         "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
+        "ApimVisitsUrl": "[concat(parameters('ApimProxyAddress'), '/visits/AddVisit', '/')]",
         "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
     },
     "resources": [
@@ -346,6 +350,18 @@
                             {
                                 "name": "Neo4JSettings__SendData",
                                 "value": true
+                            },
+                            {
+                                "name": "VisitClientOptions__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "VisitClientOptions__ApiKey",
+                                "value": "[parameters('ApimVisitsKey')]"
+                            },
+                            {
+                                "name": "VisitClientOptions__BaseAddress",
+                                "value": "[variables('ApimVisitsUrl')]"
                             }
                         ]
                     }

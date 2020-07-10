@@ -1,31 +1,29 @@
-﻿using DFC.ServiceTaxonomy.Neo4j.Commands.Interfaces;
-using DFC.ServiceTaxonomy.Neo4j.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using System;
+using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Net.Mime;
 using System.Threading.Tasks;
-using UAParser;
 
 namespace DFC.Composite.Shell.Services.Neo4J
 {
     public class Neo4JService : INeo4JService
     {
-        private const string NodeNameTransform = "recommendation__";
+        public const string CreateEndpoint = "api/CreateVisit";
         private readonly bool sendData;
-        private readonly IGraphDatabase graphDatabase;
-        private readonly IServiceProvider serviceProvider;
+        private readonly HttpClient httpClient;
 
-        public Neo4JService(IOptions<Neo4JSettings> settings, IGraphDatabase graphDatabase, IServiceProvider serviceProvider)
+        public Neo4JService(IOptions<Neo4JSettings> settings, HttpClient client)
         {
             if (settings == null)
             {
                 throw new ArgumentNullException(nameof(settings));
             }
 
-            this.graphDatabase = graphDatabase;
-            this.serviceProvider = serviceProvider;
+            _ = client ?? throw new ArgumentNullException(nameof(client));
 
+            httpClient = client;
             sendData = settings.Value.SendData;
         }
 
@@ -56,13 +54,6 @@ namespace DFC.Composite.Shell.Services.Neo4J
             return default;
         }
 
-        private static string GenerateVisitKey(Guid userId, string page)
-        {
-            string newGuid = Guid.NewGuid().ToString("D");
-
-            return $"{userId}{page}/{newGuid}";
-        }
-
         private static string GetReferer(HttpRequest request)
         {
             var refererHeader = request.Headers["Referer"].ToString();
@@ -72,29 +63,23 @@ namespace DFC.Composite.Shell.Services.Neo4J
 
         private async Task InsertNewRequestInternal(HttpRequest request)
         {
-            var parser = Parser.GetDefault();
-            var userAgent = parser.Parse(request.Headers["User-agent"].ToString());
+            var model = new VisitRequestModel
+            {
+                Referer = GetReferer(request),
+                RequestPath = request.Path,
+                SessionId = GetSessionId(request),
+                UserAgent = request.Headers["User-agent"].ToString(),
+                VisitTime = DateTime.UtcNow,
+            };
 
-            var sessionId = GetSessionId(request);
-            var visitId = GenerateVisitKey(sessionId, request.Path);
-
-            var customCommand = serviceProvider.GetRequiredService<ICustomCommand>();
-
-            customCommand.Command =
-                $"merge (u:{NodeNameTransform}user {{id: '{sessionId}', browser: '{userAgent.UA.Family}', device:'{userAgent.Device}', OS: '{userAgent.OS}'}})" +
-                $"\r\nmerge (v:{NodeNameTransform}visit {{visitId: '{visitId}', dateofvisit:'{DateTime.UtcNow}', referrer: \"{GetReferer(request)}\" }})" +
-                $"\r\nmerge (p:{NodeNameTransform}page {{id:\"{request.Path}\"}})" +
-                "\r\nwith u,v,p" +
-                $"\r\ncreate (v)-[:{NodeNameTransform}PageAccessed]->(p)" +
-                $"\r\ncreate (u)-[:{NodeNameTransform}visited]->(v)" +
-                "\r\nwith u,v,p " +
-                $"\r\nmatch(a:{NodeNameTransform}user)-[:{NodeNameTransform}visited]-(parent)-[:{NodeNameTransform}PageAccessed]-(page)" +
-                $"\r\nwhere a.id = '{sessionId}' and parent.visitId <> '{visitId}'" +
-                "\r\nwith u,v,p,parent,page \r\n" +
-                "order by parent.dateOfVisit DESC limit 1" +
-                $"\r\nForeach (i in case when page.id = v.referrer then [1] else [] end |\r\ncreate (v)-[:{NodeNameTransform}hasReferrer]->(parent)\r\n)";
-
-            await graphDatabase.Run(customCommand).ConfigureAwait(false);
+            using var msg = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri($"{httpClient.BaseAddress}{CreateEndpoint}"),
+                Content = new ObjectContent(typeof(VisitRequestModel), model, new JsonMediaTypeFormatter(), MediaTypeNames.Application.Json),
+            };
+            var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
         }
     }
 }
