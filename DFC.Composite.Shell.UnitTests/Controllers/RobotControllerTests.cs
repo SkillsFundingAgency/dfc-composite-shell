@@ -47,7 +47,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             defaultWebHostEnvironment = A.Fake<IWebHostEnvironment>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
 
-            var pathModels = new List<AppRegistrationModel>
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
                 new AppRegistrationModel
                 {
@@ -56,7 +56,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            A.CallTo(() => defaultAppRegistryDataService.GetAppRegistrationModels()).Returns(pathModels);
+            A.CallTo(() => defaultAppRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
 
             var user = A.Fake<ClaimsPrincipal>();
             A.CallTo(() => user.Identity.IsAuthenticated).Returns(true);
@@ -158,7 +158,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             const string appBaseUrl = "http://appBaseUrl";
 
-            var pathModels = new List<AppRegistrationModel>
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
                 new AppRegistrationModel
                 {
@@ -169,7 +169,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             var shellAppRegistryDataService = A.Fake<IAppRegistryDataService>();
 
-            A.CallTo(() => shellAppRegistryDataService.GetAppRegistrationModels()).Returns(pathModels);
+            A.CallTo(() => shellAppRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
 
             var robotService = A.Fake<IApplicationRobotService>();
             A.CallTo(() => robotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"RetrievedValue: {appBaseUrl}/test");

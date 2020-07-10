@@ -68,10 +68,10 @@ namespace DFC.Composite.Shell.Controllers
         private async Task<IEnumerable<ApplicationSitemapModel>> GetApplicationSitemapsAsync()
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
-            var paths = await aappRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && w.SitemapURL != null).ToList();
+            var appRegistrationModels = await aappRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.SitemapURL != null).ToList();
 
-            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlinePaths).ConfigureAwait(false);
+            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels).ConfigureAwait(false);
 
             // await all application sitemap service tasks to complete
             var allTasks = (from a in applicationSitemapModels select a.RetrievalTask).ToArray();
@@ -81,13 +81,13 @@ namespace DFC.Composite.Shell.Controllers
             return applicationSitemapModels;
         }
 
-        private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(IList<AppRegistrationModel> paths)
+        private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(IList<AppRegistrationModel> appRegistrationModels)
         {
             var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
 
             var applicationSitemapModels = new List<ApplicationSitemapModel>();
 
-            foreach (var path in paths)
+            foreach (var path in appRegistrationModels)
             {
                 logger.LogInformation($"{nameof(Action)}: Getting child Sitemap for: {path.Path}");
 

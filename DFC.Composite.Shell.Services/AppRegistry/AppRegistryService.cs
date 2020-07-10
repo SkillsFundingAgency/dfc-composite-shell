@@ -36,7 +36,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 
         public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
         {
-            var patchUrl =new Uri( $"{httpClient.BaseAddress}{path}/regions/{(int)pageRegion}", UriKind.Absolute);
+            var patchUrl = new Uri($"{httpClient.BaseAddress}{path}/regions/{(int)pageRegion}", UriKind.Absolute);
             var regionPatchModel = new JsonPatchDocument<RegionModel>().Add(x => x.IsHealthy, isHealthy);
             var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
             using var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
@@ -51,7 +51,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
             }
             catch (BrokenCircuitException ex)
             {
-                logger.LogError(ex, $"{nameof(SetRegionHealthState)}: BrokenCircuit: {patchUrl} - {ex.Message}");
+                logger.LogError(ex, $"{nameof(SetRegionHealthState)}: BrokenCircuit: {patchUrl} - {ex.Message}, marking AppRegistration: {path}.{pageRegion} IsHealthy = {isHealthy}");
 
                 return false;
             }

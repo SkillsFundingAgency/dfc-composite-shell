@@ -36,7 +36,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
             var result = await viewComponent.InvokeAsync();
 
             var viewComponentModel = result.ViewDataModelAs<ListPathsViewModel>();
-            Assert.Equal(appRegistrationModels.Count, viewComponentModel.Paths.Count());
+            Assert.Equal(appRegistrationModels.Count, viewComponentModel.AppRegistrationModels.Count());
         }
     }
 }

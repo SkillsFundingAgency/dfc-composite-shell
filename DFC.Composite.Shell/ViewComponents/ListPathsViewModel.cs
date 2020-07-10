@@ -5,6 +5,6 @@ namespace DFC.Composite.Shell.ViewComponents
 {
     public class ListPathsViewModel
     {
-        public IEnumerable<AppRegistrationModel> Paths { get; set; }
+        public IEnumerable<AppRegistrationModel> AppRegistrationModels { get; set; }
     }
 }

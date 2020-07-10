@@ -104,14 +104,14 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var applicationModel = new ApplicationModel();
 
-            var pathModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
+            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
 
-            if (pathModel == null)
+            if (appRegistrationModel == null)
             {
                 return applicationModel;
             }
 
-            applicationModel.AppRegistrationModel = pathModel;
+            applicationModel.AppRegistrationModel = appRegistrationModel;
 
             var bodyRegion = applicationModel.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 

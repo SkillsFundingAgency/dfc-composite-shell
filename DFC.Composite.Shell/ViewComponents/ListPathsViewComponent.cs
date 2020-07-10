@@ -18,9 +18,9 @@ namespace DFC.Composite.Shell.ViewComponents
         {
             var vm = new ListPathsViewModel();
 
-            var paths = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
 
-            vm.Paths = paths.Where(w => !string.IsNullOrWhiteSpace(w.TopNavigationText));
+            vm.AppRegistrationModels = appRegistrationModels.Where(w => !string.IsNullOrWhiteSpace(w.TopNavigationText));
 
             return View(vm);
         }

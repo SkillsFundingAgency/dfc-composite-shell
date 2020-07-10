@@ -48,20 +48,20 @@ namespace DFC.Composite.Shell.Controllers
             var viewModel = CreateHealthViewModel(resourceName, message);
 
             // loop through the registered applications and create some tasks - one per application for their health
-            var paths = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
-            var offlinePaths = paths.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
+            var offlineAppRegistrationModels = appRegistrationModels.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
 
-            if (onlinePaths != null && onlinePaths.Any())
+            if (onlineAppRegistrationModels != null && onlineAppRegistrationModels.Any())
             {
-                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlinePaths).ConfigureAwait(false);
+                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlineAppRegistrationModels).ConfigureAwait(false);
 
                 AppendApplicationsHealths(viewModel.HealthItems, applicationOnlineHealthModels);
             }
 
-            if (offlinePaths != null && offlinePaths.Any())
+            if (offlineAppRegistrationModels != null && offlineAppRegistrationModels.Any())
             {
-                var applicationOfflineHealthItemModels = CreateOfflineApplicationHealthModels(offlinePaths.ToList());
+                var applicationOfflineHealthItemModels = CreateOfflineApplicationHealthModels(offlineAppRegistrationModels.ToList());
 
                 viewModel.HealthItems.AddRange(applicationOfflineHealthItemModels);
             }

@@ -11,7 +11,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
     {
         public async Task<IEnumerable<AppRegistrationModel>> GetPaths()
         {
-            var paths = new List<AppRegistrationModel>
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
                 new AppRegistrationModel
                 {
@@ -65,7 +65,7 @@ namespace DFC.Composite.Shell.Integration.Test.Services
                 },
             };
 
-            return await Task.FromResult(paths).ConfigureAwait(false);
+            return await Task.FromResult(appRegistrationModels).ConfigureAwait(false);
         }
 
         public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
