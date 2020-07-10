@@ -12,7 +12,6 @@
   <ItemGroup>
     <PackageReference Include="CorrelationId" Version="2.1.0" />
     <PackageReference Include="DFC.Common.Standard" Version="0.1.0" />
-    <PackageReference Include="DFC.ServiceTaxonomy.Neo4j" Version="0.1.218" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.4" />
     <PackageReference Include="Joonasw.AspNetCore.SecurityHeaders" Version="3.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.0" />
