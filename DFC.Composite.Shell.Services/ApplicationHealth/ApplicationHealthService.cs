@@ -1,12 +1,12 @@
 ﻿using DFC.Composite.Shell.Models.HealthModels;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System;
 
 namespace DFC.Composite.Shell.Services.ApplicationHealth
 {

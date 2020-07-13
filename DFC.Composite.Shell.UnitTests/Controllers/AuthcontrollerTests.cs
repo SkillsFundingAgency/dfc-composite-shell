@@ -2,10 +2,12 @@
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
 using DFC.Composite.Shell.UnitTests.ClientHandlers;
+using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -13,10 +15,6 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Models.Common;
-using DFC.Composite.Shell.Utilities;
-using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.Controllers
@@ -39,15 +37,14 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             defaultConfiguration = A.Fake<IConfiguration>();
             var requestServices = A.Fake<IServiceProvider>();
             defaultAuthService = A.Fake<IAuthenticationService>();
-            A.CallTo(() => defaultAuthService.SignInAsync(A<HttpContext>.Ignored, A<string>.Ignored,
-                A<ClaimsPrincipal>.Ignored, A<AuthenticationProperties>.Ignored)).Returns(Task.CompletedTask);
+            A.CallTo(() => defaultAuthService.SignInAsync(A<HttpContext>.Ignored, A<string>.Ignored, A<ClaimsPrincipal>.Ignored, A<AuthenticationProperties>.Ignored)).Returns(Task.CompletedTask);
 
             A.CallTo(() => requestServices.GetService(typeof(IAuthenticationService))).Returns(defaultAuthService);
 
             defaultContext = new DefaultHttpContext
             {
                 RequestServices = requestServices,
-                Session = new MockHttpSession()
+                Session = new MockHttpSession(),
             };
 
             defaultsettings = Options.Create(new AuthSettings
@@ -65,13 +62,15 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         {
             A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
             var settings = Options.Create(new AuthSettings());
-            var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = new DefaultHttpContext
+                ControllerContext = new ControllerContext
                 {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
-                    Session = new MockHttpSession()
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
+                        Session = new MockHttpSession(),
+                    },
                 },
             };
 
@@ -79,7 +78,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
 
             A.CallTo(() => authClient.GetSignInUrl()).MustHaveHappened();
             Assert.Equal("test", result.Url);
-            controller.Dispose();
         }
 
         [Fact]
@@ -87,10 +85,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         {
             A.CallTo(() => authClient.GetSignOutUrl(string.Empty)).Returns("test");
             var settings = Options.Create(new AuthSettings());
-            var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
             var result = await controller.SignOut(string.Empty).ConfigureAwait(false) as RedirectResult;
 
@@ -103,13 +103,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         {
             A.CallTo(() => authClient.GetRegisterUrl()).Returns("test");
             var settings = Options.Create(new AuthSettings());
-            var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
 
             var result = await controller.Register(string.Empty).ConfigureAwait(false) as RedirectResult;
 
             A.CallTo(() => authClient.GetRegisterUrl()).MustHaveHappened();
             Assert.Equal("test", result.Url);
-            controller.Dispose();
         }
 
         [Fact]
@@ -122,16 +121,18 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new Claim("email", "email"),
                 new Claim("given_name", "given_name"),
                 new Claim("family_name", "family_name"),
-            new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
+                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
-            
-            var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+
+            using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
-          
+
             await controller.Auth(token).ConfigureAwait(false);
 
             A.CallTo(() => authClient.ValidateToken(token)).MustHaveHappened();
@@ -143,10 +144,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var token = "token";
             A.CallTo(() => authClient.ValidateToken(token)).Throws(new Exception());
 
-            var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
 
             await Assert.ThrowsAsync<Exception>(async () => await controller.Auth(token).ConfigureAwait(false)).ConfigureAwait(false);
@@ -166,10 +169,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
-            var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
 
             await controller.Auth(token).ConfigureAwait(false);
@@ -181,10 +186,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         public async Task WhenSignOutCalledThenCookieIsRemoved()
         {
             A.CallTo(() => authClient.GetSignOutUrl(string.Empty)).Returns("test");
-            var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
 
             await controller.SignOut(string.Empty).ConfigureAwait(false);
@@ -206,10 +213,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
-            var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
             defaultContext.HttpContext.Session.SetString(AuthController.RedirectSessionKey, AuthController.RedirectSessionKey);
 
@@ -232,10 +241,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
-            var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration);
-            controller.ControllerContext = new ControllerContext
+            using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
-                HttpContext = defaultContext,
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
             };
 
             var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;

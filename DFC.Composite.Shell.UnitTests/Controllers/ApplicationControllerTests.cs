@@ -1,9 +1,11 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +18,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Services.Neo4J;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -52,15 +53,17 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             defaultApplicationModel = new ApplicationModel
             {
-                Path = new PathModel { Path = ChildAppPath },
-                Regions = new List<RegionModel>
+                AppRegistrationModel = new AppRegistrationModel
                 {
-                    new RegionModel
+                    Path = ChildAppPath,
+                    Regions = new List<RegionModel>
                     {
-                        Path = ChildAppPath,
-                        IsHealthy = true,
-                        PageRegion = PageRegion.Body,
-                        RegionEndpoint = "http://childApp/bodyRegion",
+                        new RegionModel
+                        {
+                            IsHealthy = true,
+                            PageRegion = PageRegion.Body,
+                            RegionEndpoint = "http://childApp/bodyRegion",
+                        },
                     },
                 },
             };
@@ -100,7 +103,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             {
                 ControllerContext = new ControllerContext()
                 {
-                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>{new Claim("bearer","test")},"mock")) },
+                    HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", "test") }, "mock")) },
                 },
             };
 
@@ -124,7 +127,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var model = Assert.IsAssignableFrom<PageViewModelResponse>(viewResult.ViewData.Model);
             Assert.Equal(model.Path, ChildAppPath);
         }
-        
+
         [Fact]
         public async Task ApplicationControllerGetActionReturnsRedirectWhenRedirectExceptionOccurs()
         {
@@ -135,11 +138,11 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             var context = new DefaultHttpContext();
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
-                    HttpContext = context
+                    HttpContext = context,
                 },
             };
 
@@ -155,7 +158,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -167,8 +170,6 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             //A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
             A.CallTo(() => defaultLogger.Log<ApplicationController>(A<LogLevel>.Ignored, A<EventId>.Ignored, A<ApplicationController>.Ignored, A<Exception>.Ignored, A<Func<ApplicationController, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
-
-            applicationController.Dispose();
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
@@ -179,7 +180,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -190,7 +191,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             await applicationController.Action(requestModel).ConfigureAwait(false);
 
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(4, Times.Exactly);
-            applicationController.Dispose();
         }
 
         [Fact]
@@ -210,7 +210,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(BadChildAppPath)).Returns(null as ApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -221,7 +221,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
 
             A.CallTo(() => defaultLogger.Log(LogLevel.Information, 0, A<IReadOnlyList<KeyValuePair<string, object>>>.Ignored, A<Exception>.Ignored, A<Func<object, Exception, string>>.Ignored)).MustHaveHappened(3, Times.Exactly);
-            applicationController.Dispose();
         }
 
         [Fact]
@@ -231,7 +230,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
             A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath)).Returns(defaultApplicationModel);
 
-            var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -240,8 +239,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             };
 
             var result = await applicationController.Action(defaultPostRequestViewModel).ConfigureAwait(false);
-
-            applicationController.Dispose();
         }
     }
 }

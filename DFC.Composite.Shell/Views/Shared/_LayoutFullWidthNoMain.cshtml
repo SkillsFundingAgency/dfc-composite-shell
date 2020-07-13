@@ -15,18 +15,15 @@
 <body class="govuk-template__body ">
     <partial name="_GovUkHeader" />
 
-    <div class="govuk-width-container">
+    <partial name="_AppHeaders" />
 
-        <partial name="_PhaseBanner" />
-
-        <partial name="_ErrorSummary" />
-
-        <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
-    </div>
+    <partial name="_ErrorSummary" />
 
     @if (IsSectionDefined("BodyTop"))
     {
-        @RenderSection("BodyTop", required: false)
+        <div class="govuk-width-container">
+            @RenderSection("BodyTop", required: false)
+        </div>
     }
 
     @if (IsSectionDefined("HeroBanner"))

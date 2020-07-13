@@ -1,10 +1,10 @@
 ﻿using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Mapping;
-using DFC.Composite.Shell.Services.Paths;
-using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.Utilities;
 using FakeItEasy;
 using System;
@@ -22,16 +22,15 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private const string HeadRegionContent = "headRegionContent";
         private const string BodyRegionContent = "bodyRegionContent";
         private const string BodyFooterRegionContent = "bodyfooterRegionContent";
-        private const string OfflineHTML = "<p>Offline HTML</p>";
+        private const string OfflineHtml = "<p>Offline HTML</p>";
         private const string Article = "article";
 
         private readonly IApplicationService applicationService;
         private readonly IMapper<ApplicationModel, PageViewModel> mapper;
-        private readonly IPathDataService pathDataService;
-        private readonly IRegionService regionService;
+        private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessor;
-        private readonly PathModel defaultPathModel;
+        private readonly AppRegistrationModel defaultAppRegistrationModel;
         private readonly RegionModel defaultHeadRegion;
         private readonly RegionModel defaultBodyRegion;
         private readonly RegionModel defaultBodyFooterRegion;
@@ -46,25 +45,24 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             mapper = new ApplicationToPageModelMapper();
 
-            pathDataService = A.Fake<IPathDataService>();
-            regionService = A.Fake<IRegionService>();
+            appRegistryDataService = A.Fake<IAppRegistryDataService>();
             contentRetriever = A.Fake<IContentRetriever>();
             contentProcessor = A.Fake<IContentProcessorService>();
-
-            defaultPathModel = new PathModel { Path = Path, TopNavigationOrder = 1, IsOnline = true };
 
             var headRegionEndPoint = $"{RequestBaseUrl}/headRegionEndpoint";
             var bodyRegionEndPoint = $"{RequestBaseUrl}/bodyRegionEndpoint";
             var footerRegionEndPoint = $"{RequestBaseUrl}/footerRegionEndpoint";
-            defaultHeadRegion = new RegionModel { PageRegion = PageRegion.Head, RegionEndpoint = headRegionEndPoint, IsHealthy = true, OfflineHTML = OfflineHTML };
-            defaultBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint, IsHealthy = true, OfflineHTML = OfflineHTML };
-            defaultBodyFooterRegion = new RegionModel { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint, IsHealthy = true, OfflineHTML = OfflineHTML };
+
+            defaultHeadRegion = new RegionModel { PageRegion = PageRegion.Head, RegionEndpoint = headRegionEndPoint, IsHealthy = true, OfflineHtml = OfflineHtml };
+            defaultBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = bodyRegionEndPoint, IsHealthy = true, OfflineHtml = OfflineHtml };
+            defaultBodyFooterRegion = new RegionModel { PageRegion = PageRegion.BodyFooter, RegionEndpoint = footerRegionEndPoint, IsHealthy = true, OfflineHtml = OfflineHtml };
             defaultRegions = new List<RegionModel>
             {
                 defaultHeadRegion,
                 defaultBodyRegion,
                 defaultBodyFooterRegion,
             };
+            defaultAppRegistrationModel = new AppRegistrationModel { Path = Path, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
 
             defaultPageViewModel = new PageViewModel
             {
@@ -77,15 +75,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 },
             };
 
-            defaultApplicationModel = new ApplicationModel { Path = defaultPathModel, Regions = defaultRegions };
-            offlineApplicationModel = new ApplicationModel { Path = new PathModel { IsOnline = false, OfflineHtml = OfflineHTML } };
+            defaultApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
+            offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
 
-            A.CallTo(() => pathDataService.GetPath(Path)).Returns(defaultPathModel);
-            A.CallTo(() => regionService.GetRegions(A<string>.Ignored)).Returns(defaultRegions);
-            A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(HeadRegionContent);
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/index", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(Path)).Returns(defaultAppRegistrationModel);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(HeadRegionContent);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
 
             A.CallTo(() => contentProcessor.Process(HeadRegionContent, A<string>.Ignored, A<string>.Ignored)).Returns(HeadRegionContent);
             A.CallTo(() => contentProcessor.Process(BodyRegionContent, A<string>.Ignored, A<string>.Ignored)).Returns(BodyRegionContent);
@@ -96,7 +93,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             taskHelper = A.Fake<ITaskHelper>();
             A.CallTo(() => taskHelper.TaskCompletedSuccessfully(A<Task>.Ignored)).Returns(true);
 
-            applicationService = new ApplicationService(pathDataService, regionService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            applicationService = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
         }
 
         public static IEnumerable<object[]> QueryStringParams => new List<object[]>
@@ -122,9 +119,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             Assert.Equal(BodyRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
             Assert.Equal(BodyFooterRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
 
-            A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/index", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
@@ -134,12 +131,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeBodyRegionEndPoint = string.Empty;
             var fakeBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = fakeBodyRegionEndPoint, IsHealthy = true };
             var fakeRegions = new List<RegionModel> { defaultHeadRegion, fakeBodyRegion, defaultBodyFooterRegion };
-            var fakeApplicationModel = new ApplicationModel { Path = defaultPathModel, Regions = fakeRegions };
+            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
+            fakeApplicationModel.AppRegistrationModel.Regions = fakeRegions;
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
 
-            A.CallTo(() => regionService.GetRegions(A<string>.Ignored)).Returns(fakeRegions);
-            A.CallTo(() => contentRetriever.GetContent($"{fakeBodyRegion.RegionEndpoint}/index", fakeBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.GetContent($"{fakeBodyRegion.RegionEndpoint}/index", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
 
             //Act
             await applicationService.GetMarkupAsync(fakeApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
@@ -150,17 +147,17 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             Assert.Equal(string.Empty, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
             Assert.Equal(BodyFooterRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
 
-            A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => contentRetriever.GetContent($"{fakeBodyRegion.RegionEndpoint}/index", fakeBodyRegion, A<bool>.Ignored, RequestBaseUrl)).MustNotHaveHappened();
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/index", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", fakeApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{fakeBodyRegion.RegionEndpoint}/index", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, A<bool>.Ignored, RequestBaseUrl)).MustNotHaveHappened();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/index", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
-        public async Task GetMarkupAsyncWhenApplicationIsOfflineThenOfflineHTMLIsReturned()
+        public async Task GetMarkupAsyncWhenApplicationIsOfflineThenOfflineHtmlIsReturned()
         {
             await applicationService.GetMarkupAsync(offlineApplicationModel, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false);
 
-            Assert.Equal(OfflineHTML, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
+            Assert.Equal(OfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
         }
 
         [Fact]
@@ -176,11 +173,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task PostMarkupAsyncWhenApplicationPathIsOfflineThenOfflineHTMLIsReturned()
+        public async Task PostMarkupAsyncWhenApplicationPathIsOfflineThenOfflineHtmlIsReturned()
         {
             await applicationService.PostMarkupAsync(offlineApplicationModel, "index", "article", defaultFormPostParams, defaultPageViewModel).ConfigureAwait(false);
 
-            Assert.Equal(OfflineHTML, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
+            Assert.Equal(OfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
         }
 
         [Fact]
@@ -188,14 +185,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             // Arrange
             var footerAndBodyRegions = new List<RegionModel> { defaultHeadRegion, defaultBodyRegion, defaultBodyFooterRegion };
-            var fakeApplicationModel = new ApplicationModel { Path = defaultPathModel, Regions = footerAndBodyRegions };
+            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
+            fakeApplicationModel.AppRegistrationModel.Regions = footerAndBodyRegions;
+
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
 
-            var body = fakeApplicationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
-
-            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
+            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
 
             // Act
             await applicationService.PostMarkupAsync(fakeApplicationModel, "index", Article, defaultFormPostParams, pageModel).ConfigureAwait(false);
@@ -205,10 +202,10 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             Assert.Equal(BodyRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
             Assert.Equal(BodyFooterRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
 
-            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
-        
+
         [Fact]
         public async Task PostMarkupAsyncForOnlineApplicationWhenBodyRegionEndpointIsEmptyThenContentNotPosted()
         {
@@ -216,12 +213,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeBodyRegionEndpoint = string.Empty;
             var fakeBodyRegion = new RegionModel { PageRegion = PageRegion.Body, RegionEndpoint = fakeBodyRegionEndpoint, IsHealthy = true };
             var fakeRegions = new List<RegionModel> { defaultHeadRegion, fakeBodyRegion, defaultBodyFooterRegion };
-            var fakeApplicationModel = new ApplicationModel { Path = defaultPathModel, Regions = fakeRegions };
+            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
+            fakeApplicationModel.AppRegistrationModel.Regions = fakeRegions;
             var pageModel = new PageViewModel();
             mapper.Map(fakeApplicationModel, pageModel);
 
-            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.Path.Path}/{Article}", fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
+            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
 
             // Act
             await applicationService.PostMarkupAsync(fakeApplicationModel, "index", Article, defaultFormPostParams, pageModel).ConfigureAwait(false);
@@ -231,25 +229,24 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             Assert.Equal(string.Empty, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
             Assert.Equal(BodyFooterRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
 
-            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.Path.Path}/{Article}", fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).MustNotHaveHappened();
-            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).MustNotHaveHappened();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
         public async Task GetApplicationAsyncReturnsEmptyApplicationModelWhenPathNotFound()
         {
             // Arrange
-            var pathService = A.Fake<IPathDataService>();
-            A.CallTo(() => pathService.GetPath(A<string>.Ignored)).Returns((PathModel)null);
+            var localAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            A.CallTo(() => localAppRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns((AppRegistrationModel)null);
 
             // Act
-            var service = new ApplicationService(pathService, regionService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper);
             var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result.RootUrl);
-            Assert.Null(result.Path);
-            Assert.Null(result.Regions);
+            Assert.Null(result.AppRegistrationModel);
         }
 
         [Fact]
@@ -261,17 +258,15 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyRegion,
                 defaultBodyFooterRegion,
             };
-
-            var fakeRegionService = A.Fake<IRegionService>();
-            A.CallTo(() => fakeRegionService.GetRegions(defaultPathModel.Path)).Returns(bodyAndFooterRegions);
+            appRegistryDataService.GetAppRegistrationModel(Path).Result.Regions = bodyAndFooterRegions;
 
             // Act
-            var service = new ApplicationService(pathDataService, fakeRegionService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
             var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
 
             // Assert
-            Assert.Equal(defaultPathModel.Path, result.Path.Path);
-            Assert.Equal(bodyAndFooterRegions.Count, result.Regions.Count());
+            Assert.Equal(defaultAppRegistrationModel.Path, result.AppRegistrationModel.Path);
+            Assert.Equal(bodyAndFooterRegions.Count, result.AppRegistrationModel.Regions.Count);
             Assert.Equal(RequestBaseUrl, result.RootUrl);
         }
 
@@ -280,21 +275,20 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             // Arrange
             var fakeRegionModels = new List<RegionModel> { defaultBodyFooterRegion };
-            var fakeRegionService = A.Fake<IRegionService>();
-            A.CallTo(() => fakeRegionService.GetRegions(defaultPathModel.Path)).Returns(fakeRegionModels);
+            appRegistryDataService.GetAppRegistrationModel(Path).Result.Regions = fakeRegionModels;
 
             // Act
-            var service = new ApplicationService(pathDataService, fakeRegionService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
             var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result.RootUrl);
-            Assert.Equal(defaultPathModel.Path, result.Path.Path);
-            Assert.Equal(fakeRegionModels.Count, result.Regions.Count());
+            Assert.Equal(defaultAppRegistrationModel.Path, result.AppRegistrationModel.Path);
+            Assert.Equal(fakeRegionModels.Count, result.AppRegistrationModel.Regions.Count);
         }
 
         [Fact]
-        public async Task GetMarkupAsyncWhenRegionContentRetrievalTaskIsNotCompletedReturnOfflineHTML()
+        public async Task GetMarkupAsyncWhenRegionContentRetrievalTaskIsNotCompletedReturnOfflineHtml()
         {
             // Arrange
             var pageModel = new PageViewModel();
@@ -304,12 +298,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => incompleteTask.TaskCompletedSuccessfully(A<Task>.Ignored)).Returns(false);
 
             //Act
-            var service = new ApplicationService(pathDataService, regionService, contentRetriever, contentProcessor, incompleteTask) { RequestBaseUrl = RequestBaseUrl };
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, incompleteTask) { RequestBaseUrl = RequestBaseUrl };
             await service.GetMarkupAsync(defaultApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
 
             // Assert
-            Assert.Equal(OfflineHTML, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
-            Assert.Equal(OfflineHTML, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
+            Assert.Equal(OfflineHtml, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body).Content.Value);
+            Assert.Equal(OfflineHtml, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
         }
 
         [Theory]
@@ -321,10 +315,10 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             mapper.Map(defaultApplicationModel, pageModel);
 
             //Act
-            var service = new ApplicationService(pathDataService, regionService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
             await service.GetMarkupAsync(defaultApplicationModel, Article, pageModel, queryString).ConfigureAwait(false);
 
-            A.CallTo(() => contentRetriever.GetContent(expectedResult, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent(expectedResult, defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
         }
     }
 }

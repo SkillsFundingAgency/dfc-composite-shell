@@ -37,6 +37,7 @@ namespace DFC.Composite.Shell.Controllers
             {
                 throw new ArgumentNullException(nameof(settings));
             }
+
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;

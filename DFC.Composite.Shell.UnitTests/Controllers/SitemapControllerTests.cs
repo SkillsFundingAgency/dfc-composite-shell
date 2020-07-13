@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.SitemapModels;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
-using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -33,24 +33,24 @@ namespace DFC.Composite.Shell.Test.Controllers
         private readonly IBearerTokenRetriever defaultTokenRetriever;
         private readonly IApplicationSitemapService defaultSitemapService;
         private readonly IBaseUrlService defaultBaseUrlService;
-        private readonly IPathDataService defaultPathDataService;
+        private readonly IAppRegistryDataService defaultAppRegistryDataService;
 
         public SitemapControllerTests()
         {
-            defaultPathDataService = A.Fake<IPathDataService>();
+            defaultAppRegistryDataService = A.Fake<IAppRegistryDataService>();
             defaultLogger = A.Fake<ILogger<SitemapController>>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
 
-            var pathModels = new List<PathModel>
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
-                new PathModel
+                new AppRegistrationModel
                 {
-                    SitemapURL = "http://SomeSitemapUrl.xyz",
+                    SitemapURL = new Uri("http://SomeSitemapUrl.xyz", UriKind.Absolute),
                     IsOnline = true,
                 },
             };
 
-            A.CallTo(() => defaultPathDataService.GetPaths()).Returns(pathModels);
+            A.CallTo(() => defaultAppRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
 
             var user = A.Fake<ClaimsPrincipal>();
             A.CallTo(() => user.Identity.IsAuthenticated).Returns(true);
@@ -70,8 +70,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             defaultTokenRetriever = A.Fake<IBearerTokenRetriever>();
             A.CallTo(() => defaultTokenRetriever.GetToken(A<HttpContext>.Ignored)).Returns("SomeToken");
 
-            A.CallTo(() => defaultBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
-                .Returns("http://SomeBaseUrl");
+            A.CallTo(() => defaultBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored)).Returns("http://SomeBaseUrl");
 
             defaultSitemapService = A.Fake<IApplicationSitemapService>();
             A.CallTo(() => defaultSitemapService.GetAsync(A<ApplicationSitemapModel>.Ignored))
@@ -80,11 +79,10 @@ namespace DFC.Composite.Shell.Test.Controllers
                     new SitemapLocation
                     {
                         Url = "http://Sitemap.xml",
-                        Priority = 1,
                     },
                 }));
 
-            defaultController = new SitemapController(defaultPathDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, defaultSitemapService)
+            defaultController = new SitemapController(defaultAppRegistryDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, defaultSitemapService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -115,18 +113,18 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             const string appBaseUrl = "http://appBaseUrl";
 
-            var pathModels = new List<PathModel>
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
-                new PathModel
+                new AppRegistrationModel
                 {
-                    SitemapURL = appBaseUrl,
+                    SitemapURL = new Uri(appBaseUrl, UriKind.Absolute),
                     IsOnline = true,
                 },
             };
 
-            var shellPathDataService = A.Fake<IPathDataService>();
+            var shellAppRegistryDataService = A.Fake<IAppRegistryDataService>();
 
-            A.CallTo(() => shellPathDataService.GetPaths()).Returns(pathModels);
+            A.CallTo(() => shellAppRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
 
             var applicationSitemapService = A.Fake<IApplicationSitemapService>();
             A.CallTo(() => applicationSitemapService.GetAsync(A<ApplicationSitemapModel>.Ignored))
@@ -143,7 +141,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => fakeBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
                 .Returns("http://SomeBaseUrl");
 
-            var sitemapController = new SitemapController(shellPathDataService, defaultLogger, defaultTokenRetriever, fakeBaseUrlService, applicationSitemapService)
+            var sitemapController = new SitemapController(shellAppRegistryDataService, defaultLogger, defaultTokenRetriever, fakeBaseUrlService, applicationSitemapService)
             {
                 ControllerContext = new ControllerContext
                 {

@@ -1,69 +1,71 @@
 ﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Services.Paths;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Services.AppRegistry;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Integration.Test.Services
 {
-    public class TestPathService : IPathService
+    public class TestPathService : IAppRegistryService
     {
-        public async Task<IEnumerable<PathModel>> GetPaths()
+        public async Task<IEnumerable<AppRegistrationModel>> GetPaths()
         {
-            var paths = new List<PathModel>();
-
-            paths.Add(new PathModel
+            var appRegistrationModels = new List<AppRegistrationModel>
             {
-                Path = "path1",
-                DocumentId = Guid.NewGuid(),
-                IsOnline = true,
-                Layout = PageLayout.FullWidth,
-                TopNavigationOrder = 1,
-                TopNavigationText = "Path1",
-            });
+                new AppRegistrationModel
+                {
+                    Path = "path1",
+                    IsOnline = true,
+                    Layout = PageLayout.FullWidth,
+                    TopNavigationOrder = 1,
+                    TopNavigationText = "Path1",
+                },
 
-            paths.Add(new PathModel
-            {
-                Path = "path4",
-                DocumentId = Guid.NewGuid(),
-                IsOnline = true,
-                Layout = PageLayout.FullWidthNoMain,
-                TopNavigationOrder = 1,
-                TopNavigationText = "Path4",
-            });
+                new AppRegistrationModel
+                {
+                    Path = "path4",
+                    IsOnline = true,
+                    Layout = PageLayout.FullWidthNoMain,
+                    TopNavigationOrder = 1,
+                    TopNavigationText = "Path4",
+                },
 
-            paths.Add(new PathModel
-            {
-                Path = "path2",
-                DocumentId = Guid.NewGuid(),
-                IsOnline = true,
-                Layout = PageLayout.SidebarLeft,
-                TopNavigationOrder = 2,
-                TopNavigationText = "Path2",
-            });
+                new AppRegistrationModel
+                {
+                    Path = "path2",
+                    IsOnline = true,
+                    Layout = PageLayout.SidebarLeft,
+                    TopNavigationOrder = 2,
+                    TopNavigationText = "Path2",
+                },
 
-            paths.Add(new PathModel
-            {
-                Path = "path3",
-                DocumentId = Guid.NewGuid(),
-                IsOnline = false,
-                Layout = PageLayout.SidebarRight,
-                OfflineHtml = "Path3 is offline",
-                TopNavigationOrder = 3,
-                TopNavigationText = "Path3",
-            });
+                new AppRegistrationModel
+                {
+                    Path = "path3",
+                    IsOnline = false,
+                    Layout = PageLayout.SidebarRight,
+                    OfflineHtml = "Path3 is offline",
+                    TopNavigationOrder = 3,
+                    TopNavigationText = "Path3",
+                },
 
-            paths.Add(new PathModel
-            {
-                Path = "externalpath1",
-                ExternalURL = "http://www.externalpath1.com",
-                DocumentId = Guid.NewGuid(),
-                IsOnline = true,
-                Layout = PageLayout.None,
-                TopNavigationOrder = 3,
-            });
+                new AppRegistrationModel
+                {
+                    Path = "externalpath1",
+                    ExternalURL = new Uri("http://www.externalpath1.com", UriKind.Absolute),
+                    IsOnline = true,
+                    Layout = PageLayout.None,
+                    TopNavigationOrder = 3,
+                },
+            };
 
-            return await Task.FromResult(paths).ConfigureAwait(false);
+            return await Task.FromResult(appRegistrationModels).ConfigureAwait(false);
+        }
+
+        public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
+        {
+            return await Task.FromResult(true).ConfigureAwait(false);
         }
     }
 }

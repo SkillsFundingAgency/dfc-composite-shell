@@ -1,10 +1,10 @@
-﻿using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
 using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.ViewComponents
 {
     public class ListPathsViewModel
     {
-        public IEnumerable<PathModel> Paths { get; set; }
+        public IEnumerable<AppRegistrationModel> AppRegistrationModels { get; set; }
     }
 }

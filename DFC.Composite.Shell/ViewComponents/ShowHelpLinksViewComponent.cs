@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Services.Paths;
+﻿using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,12 +10,12 @@ namespace DFC.Composite.Shell.ViewComponents
     public class ShowHelpLinksViewComponent : ViewComponent
     {
         private readonly ILogger<ShowHelpLinksViewComponent> logger;
-        private readonly IPathDataService pathDataService;
+        private readonly IAppRegistryDataService appRegistryDataService;
 
-        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IPathDataService pathDataService)
+        public ShowHelpLinksViewComponent(ILogger<ShowHelpLinksViewComponent> logger, IAppRegistryDataService appRegistryDataService)
         {
             this.logger = logger;
-            this.pathDataService = pathDataService;
+            this.appRegistryDataService = appRegistryDataService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -24,7 +24,7 @@ namespace DFC.Composite.Shell.ViewComponents
 
             try
             {
-                var helpPath = await pathDataService.GetPath("help").ConfigureAwait(false);
+                var helpPath = await appRegistryDataService.GetAppRegistrationModel("help").ConfigureAwait(false);
 
                 if (helpPath != null)
                 {

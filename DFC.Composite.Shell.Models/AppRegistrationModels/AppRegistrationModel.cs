@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace DFC.Composite.Shell.Models
+namespace DFC.Composite.Shell.Models.AppRegistrationModels
 {
-    public class PathModel
+    public class AppRegistrationModel
     {
-        public Guid DocumentId { get; set; }
-
         public string Path { get; set; }
 
         public string TopNavigationText { get; set; }
@@ -20,14 +19,18 @@ namespace DFC.Composite.Shell.Models
 
         public string PhaseBannerHtml { get; set; }
 
-        public string SitemapURL { get; set; }
+        public Uri SitemapURL { get; set; }
 
-        public string ExternalURL { get; set; }
+        public Uri ExternalURL { get; set; }
 
-        public string RobotsURL { get; set; }
+        public Uri RobotsURL { get; set; }
 
         public DateTime DateOfRegistration { get; set; }
 
         public DateTime LastModifiedDate { get; set; }
+
+        public List<RegionModel> Regions { get; set; }
+
+        public List<string> Locations { get; set; }
     }
 }

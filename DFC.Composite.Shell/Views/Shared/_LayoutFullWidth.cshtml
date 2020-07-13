@@ -15,41 +15,35 @@
 <body class="govuk-template__body ">
     <partial name="_GovUkHeader" />
 
-    <div class="govuk-width-container">
+    <partial name="_AppHeaders" />
 
-        <partial name="_PhaseBanner" />
+    <main class="govuk-main-wrapper" id="main-content" role="main">
 
         <partial name="_ErrorSummary" />
 
-        <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
-    </div>
-    @if (IsSectionDefined("BodyTop"))
-    {
-        @RenderSection("BodyTop", required: false)
-    }
-   
+        @if (IsSectionDefined("BodyTop"))
+        {
+            <div class="govuk-width-container">
+                @RenderSection("BodyTop", required: false)
+            </div>
+        }
 
-    @if (IsSectionDefined("HeroBanner"))
-    {
-        @RenderSection("HeroBanner", required: false)
-    }
+        @if (IsSectionDefined("HeroBanner"))
+        {
+            @RenderSection("HeroBanner", required: false)
+        }
 
-    <div class="govuk-width-container">
-        <main class="govuk-main-wrapper" id="main-content" role="main">
+        <div class="govuk-width-container">
 
             @if (IsSectionDefined("Breadcrumb"))
             {
                 @RenderSection("Breadcrumb", required: false)
             }
 
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-full">
-                    @if (IsSectionDefined("Body"))
-                    {
-                        @RenderSection("Body", required: false)
-                    }
-                </div>
-            </div>
+            @if (IsSectionDefined("Body"))
+            {
+                @RenderSection("Body", required: false)
+            }
 
             @RenderBody()
 
@@ -63,13 +57,14 @@
                     IgnoreSection("SideBarRight");
                 }
             }
-        </main>
 
-        @if (IsSectionDefined("BodyFooter"))
-        {
-            @RenderSection("BodyFooter", required: false)
-        }
-    </div>
+            @if (IsSectionDefined("BodyFooter"))
+            {
+                @RenderSection("BodyFooter", required: false)
+            }
+
+        </div>
+    </main>
 
     <partial name="_GovUkFooter" />
 
