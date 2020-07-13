@@ -362,6 +362,14 @@
                             {
                                 "name": "VisitClientOptions__BaseAddress",
                                 "value": "[variables('ApimVisitsUrl')]"
+                            },
+                            {
+                                "name": "AppRegistryClientOptions__BaseAddress",
+                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-appRegistry/appregistry/')]"
+                            },
+                            {
+                                "name": "AppRegistryClientOptions__ApiKey",
+                                "value": "[parameters('ApimKey')]"
                             }
                         ]
                     }
