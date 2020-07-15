@@ -54,7 +54,7 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
-            SetRedirectUrl(redirectUrl);
+            redirectUrl = string.IsNullOrEmpty(redirectUrl) ? Request.Headers["Referer"].ToString() : redirectUrl;
             var signInUrl = await authClient.GetSignOutUrl(redirectUrl).ConfigureAwait(false);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
             return Redirect(signInUrl);
@@ -104,13 +104,6 @@ namespace DFC.Composite.Shell.Controllers
             return Redirect(GetRedirectUrl());
         }
 
-        public async Task<IActionResult> Register(string redirectUrl)
-        {
-            SetRedirectUrl(redirectUrl);
-            var signInUrl = await authClient.GetRegisterUrl().ConfigureAwait(false);
-            return Redirect(signInUrl);
-        }
-
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)
         {
             var now = DateTime.UtcNow;
@@ -131,6 +124,7 @@ namespace DFC.Composite.Shell.Controllers
 
         private void SetRedirectUrl(string redirectUrl)
         {
+            redirectUrl = string.IsNullOrEmpty(redirectUrl) ? Request.Headers["Referer"].ToString() : redirectUrl;
             if (!string.IsNullOrEmpty(redirectUrl))
             {
                 HttpContext.Session.SetString(RedirectSessionKey, redirectUrl);
