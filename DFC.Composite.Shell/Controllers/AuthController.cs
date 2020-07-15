@@ -101,7 +101,7 @@ namespace DFC.Composite.Shell.Controllers
                     },
                     CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
 
-            return Redirect(GetRedirectUrl());
+            return Redirect(GetAndResetRedirectUrl());
         }
 
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)
@@ -131,10 +131,11 @@ namespace DFC.Composite.Shell.Controllers
             }
         }
 
-        private string GetRedirectUrl()
+        private string GetAndResetRedirectUrl()
         {
             var url = HttpContext.Session.GetString(RedirectSessionKey);
             var redirectUrl = string.IsNullOrEmpty(url) ? settings.DefaultRedirectUrl : url;
+            HttpContext.Session.Remove(RedirectSessionKey);
             return settings.AuthDssEndpoint.Replace(RedirectAttribute, redirectUrl, StringComparison.InvariantCultureIgnoreCase);
         }
     }
