@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="CorrelationId" Version="2.1.0" />
     <PackageReference Include="DFC.Common.Standard" Version="0.1.0" />
-    <PackageReference Include="DFC.Compui.Telemetry" Version="1.0.22" />
+    <PackageReference Include="DFC.Compui.Telemetry" Version="1.0.28" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.4" />
     <PackageReference Include="Joonasw.AspNetCore.SecurityHeaders" Version="3.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.0" />
