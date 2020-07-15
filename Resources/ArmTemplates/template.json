@@ -346,6 +346,10 @@
                             {
                                 "name": "AppRegistryClientOptions__ApiKey",
                                 "value": "[parameters('ApimKey')]"
+                            },
+                            {
+                                "name": "Configuration__ApplicationName",
+                                "value": "DFC-Composite-Shell"
                             }
                         ]
                     }
