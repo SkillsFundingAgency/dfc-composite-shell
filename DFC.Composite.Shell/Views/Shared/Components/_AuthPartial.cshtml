@@ -1,33 +1,38 @@
 ﻿@using System.Security.Claims
-
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 
 @{
     var userName = User.Identity.Name;
+    var parsed = bool.TryParse(Configuration["ShowLoginBanner"], out var showBanner);
 }
 
-<div role="region">
+@if (parsed && showBanner)
+{
+    <div role="region">
 
-    @if (User.Identity.IsAuthenticated)
-    {
-        <div class="dfc-composite-shell-account-info">
-            <div>
-                <span class="govuk-link" id="bannerUserName">Welcome @userName</span>
-                <a href="/auth/signout" id="signout-link">Sign out</a>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="dfc-composite-shell-account-info">
+                <div>
+                    <span class="govuk-link" id="bannerUserName">Welcome @userName</span>
+                    <a href="/auth/signout" id="signout-link">Sign out</a>
+                </div>
+                <div>
+                    <a href="/your-account/home" id="youAccount-link">Your account</a>
+                </div>
             </div>
-            <div>
-                <a href="/your-account/home" id="youAccount-link">Your account</a>
+
+        }
+        else
+        {
+
+            <div class="dfc-composite-shell-account-info">
+                <div>
+                    <a class="account-link" href="/auth/signin" id="signIn-link">Sign in</a>
+                </div>
             </div>
-        </div>
 
-    }
-    else
-    {
-
-        <div class="dfc-composite-shell-account-info">
-            <div>
-                <a class="account-link" href="/auth/signin" id="signIn-link">Sign in</a>
-            </div>
-        </div>
-
-    }
-</div>
+        }
+    </div>
+}

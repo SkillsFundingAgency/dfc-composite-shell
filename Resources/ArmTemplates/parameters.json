@@ -67,6 +67,9 @@
         },
         "Neo4jPassword": {
             "value": "__Neo4jPassword__"
+        },
+        "ShowLoginBanner": {
+            "value": __ShowLoginBanner__
         }
     }
 }

@@ -52,6 +52,9 @@
         },
         "Neo4jPassword": {
             "value": "MyPassword"
+        },
+        "ShowLoginBanner": {
+            "value": false
         }
     }
 }
