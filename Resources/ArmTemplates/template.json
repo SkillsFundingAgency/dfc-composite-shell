@@ -73,6 +73,9 @@
         },
         "Neo4jPassword": {
             "type": "securestring"
+        },
+        "ShowLoginBanner": {
+            "type": "bool"
         }
     },
     "variables": {
@@ -350,6 +353,10 @@
                             {
                                 "name": "Configuration__ApplicationName",
                                 "value": "DFC-Composite-Shell"
+                            },
+                            {
+                                "name": "ShowLoginBanner",
+                                "value": "[parameters('ShowLoginBanner')]"
                             }
                         ]
                     }
