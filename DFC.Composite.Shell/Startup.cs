@@ -31,6 +31,7 @@ using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
+using DFC.Compui.Telemetry.ApplicationBuilderExtensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -82,6 +83,7 @@ namespace DFC.Composite.Shell
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseForwardedHeaders();
+            app.AddOperationIdToRequests();
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
 
