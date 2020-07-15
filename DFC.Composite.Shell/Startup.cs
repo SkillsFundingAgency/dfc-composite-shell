@@ -74,10 +74,8 @@ namespace DFC.Composite.Shell
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseHsts(options => options.MaxAge(days: 365).IncludeSubdomains());
             }
-
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
 
             app.UseStatusCodePagesWithReExecute("/" + ApplicationController.AlertPathName + "/{0}");
             app.UseHttpsRedirection();
@@ -111,6 +109,11 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
 
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opts => opts.NoReferrer());
+            app.UseXfo(options => options.SameOrigin());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
+
             app.Use(async (context, next) =>
             {
                 context.Response.Headers.Add("Feature-Policy", "vibrate 'self'; usermedia *; sync-xhr 'self'");
@@ -119,8 +122,6 @@ namespace DFC.Composite.Shell
                 await next().ConfigureAwait(false);
             });
 
-            app.UseXfo(options => options.SameOrigin());
-            app.UseXXssProtection(options => options.EnabledWithBlockMode());
             app.UseSession();
             app.UseCompositeSessionId();
             app.UseRouting();
