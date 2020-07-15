@@ -14,7 +14,13 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.Controllers
@@ -28,6 +34,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         private readonly IAuthenticationService defaultAuthService;
         private readonly IVersionedFiles defaultVersionedFiles;
         private readonly IConfiguration defaultConfiguration;
+        private readonly IOptions<OpenIDConnectSettings> defaultSettings;
+        private readonly SecurityTokenHandler tokenHandler;
+        private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
+        private const string refererUrl = "TestRefere.com";
 
         public AuthControllerTests()
         {
@@ -45,6 +55,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             {
                 RequestServices = requestServices,
                 Session = new MockHttpSession(),
+                Request = { Headers = { new KeyValuePair<string, StringValues>("Referer", refererUrl) } },
             };
 
             defaultsettings = Options.Create(new AuthSettings
@@ -55,12 +66,61 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 DefaultRedirectUrl = "test",
                 AuthDssEndpoint = "test/{url}",
             });
+
+            defaultSettings = Options.Create(new OpenIDConnectSettings
+            {
+                RedirectUrl = "test/",
+                SignOutRedirectUrl = "test/",
+                Issuer = "issuer",
+                AuthdUrl = "auth",
+                AuthorizeUrl = "AuthorizeUrl",
+                ClientId = "clientid",
+                EndSessionUrl = "Endsesison",
+                JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
+                Exponent = "AQAB",
+            });
+
+            tokenHandler = A.Fake<SecurityTokenHandler>();
+            configurationManager = A.Fake<IConfigurationManager<OpenIdConnectConfiguration>>();
+            A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).Returns(
+                new OpenIdConnectConfiguration
+                {
+                    AuthorizationEndpoint = "auth",
+                    EndSessionEndpoint = "end",
+                    Issuer = "issuer",
+                });
         }
 
         [Fact]
-        public async Task WhenSignInCalledWithOutRedirectUrlThenRedirectToLoginWithDefaultUrl()
+        public async Task WhenSignInCalledWithOutRedirectUrlThenDoNotSetSessionRedirect()
         {
             A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
+            var settings = Options.Create(new AuthSettings());
+            var session = new MockHttpSession();
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
+                        Session = session,
+                    },
+                },
+            };
+
+            var result = await controller.SignIn(string.Empty).ConfigureAwait(false) as RedirectResult;
+
+            A.CallTo(() => authClient.GetSignInUrl()).MustHaveHappened();
+            Assert.Null(session.GetString(AuthController.RedirectSessionKey));
+        }
+
+        [Fact]
+        public async Task WhenSignInCalledWithOutRedirectUrlAndRefererIsNotNullThenSetSessionToRefererUrl()
+        {
+            A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
+            var session = new MockHttpSession();
+            var redirectUrl = "test.com";
             var settings = Options.Create(new AuthSettings());
             using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
             {
@@ -69,21 +129,63 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     HttpContext = new DefaultHttpContext
                     {
                         User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
-                        Session = new MockHttpSession(),
+                        Session = session,
+                        Request = { Headers = { new KeyValuePair<string, StringValues>("Referer", redirectUrl) } },
                     },
                 },
             };
-
             var result = await controller.SignIn(string.Empty).ConfigureAwait(false) as RedirectResult;
 
-            A.CallTo(() => authClient.GetSignInUrl()).MustHaveHappened();
-            Assert.Equal("test", result.Url);
+            Assert.Equal(redirectUrl, session.GetString(AuthController.RedirectSessionKey));
         }
 
         [Fact]
-        public async Task WhenSignOutCalledWithOutRedirectUrlThenRedirectToLoginWithDefaultUrl()
+        public async Task WhenSignInCalledWithRedirectUrlThenSetToRredirctUrl()
         {
-            A.CallTo(() => authClient.GetSignOutUrl(string.Empty)).Returns("test");
+            A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
+            var session = new MockHttpSession();
+            var referer = "test.com";
+            var redirectUrl = "Redirect.com";
+            var settings = Options.Create(new AuthSettings());
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
+                        Session = session,
+                        Request = { Headers = { new KeyValuePair<string, StringValues>("Referer", redirectUrl) } },
+                    },
+                },
+            };
+            var result = await controller.SignIn(redirectUrl).ConfigureAwait(false) as RedirectResult;
+
+            Assert.Equal(redirectUrl, session.GetString(AuthController.RedirectSessionKey));
+        }
+
+        [Fact]
+        public async Task WhenSignOutCalledWithOutRedirectUrlThenRedirectToRedirectUrl()
+        {
+            A.CallTo(() => authClient.GetSignOutUrl(A<string>.Ignored)).Returns("test");
+            var settings = Options.Create(new AuthSettings());
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = defaultContext,
+                },
+            };
+            var redirecturl = "redirect.com";
+            var result = await controller.SignOut(redirecturl).ConfigureAwait(false) as RedirectResult;
+
+            A.CallTo(() => authClient.GetSignOutUrl(redirecturl)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task WhenSignOutCalledWithOutRedirectUrlAndRefererIsNotNullThenRedirectToRefererUrl()
+        {
+            A.CallTo(() => authClient.GetSignOutUrl(A<string>.Ignored)).Returns("test");
             var settings = Options.Create(new AuthSettings());
             using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
             {
@@ -94,21 +196,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             var result = await controller.SignOut(string.Empty).ConfigureAwait(false) as RedirectResult;
 
-            A.CallTo(() => authClient.GetSignOutUrl(string.Empty)).MustHaveHappened();
-            Assert.Equal("test", result.Url);
-        }
-
-        [Fact]
-        public async Task WhenRegisterCalledWithOutRedirectUrlThenRedirectToLoginWithDefaultUrl()
-        {
-            A.CallTo(() => authClient.GetRegisterUrl()).Returns("test");
-            var settings = Options.Create(new AuthSettings());
-            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration);
-
-            var result = await controller.Register(string.Empty).ConfigureAwait(false) as RedirectResult;
-
-            A.CallTo(() => authClient.GetRegisterUrl()).MustHaveHappened();
-            Assert.Equal("test", result.Url);
+            A.CallTo(() => authClient.GetSignOutUrl(refererUrl)).MustHaveHappened();
         }
 
         [Fact]
@@ -185,7 +273,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         [Fact]
         public async Task WhenSignOutCalledThenCookieIsRemoved()
         {
-            A.CallTo(() => authClient.GetSignOutUrl(string.Empty)).Returns("test");
+            A.CallTo(() => authClient.GetSignOutUrl(A<string>.Ignored)).Returns("test");
             using var controller = new AuthController(authClient, log, defaultsettings, defaultVersionedFiles, defaultConfiguration)
             {
                 ControllerContext = new ControllerContext
