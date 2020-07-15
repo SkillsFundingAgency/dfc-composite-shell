@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using DFC.Compui.Telemetry.HostExtensions;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
@@ -18,6 +19,7 @@ namespace DFC.Composite.Shell
                         loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Trace);
                     })
                     .Build()
+                    .AddApplicationTelemetryInitializer()
                     .Run();
         }
 
