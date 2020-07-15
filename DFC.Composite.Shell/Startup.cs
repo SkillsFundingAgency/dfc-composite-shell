@@ -111,6 +111,14 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
 
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("Feature-Policy", "vibrate 'self'; usermedia *; sync-xhr 'self'");
+                context.Response.Headers.Add("Expect-CT", "max-age=86400, enforce");
+                context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+                await next().ConfigureAwait(false);
+            });
+
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
             app.UseSession();
