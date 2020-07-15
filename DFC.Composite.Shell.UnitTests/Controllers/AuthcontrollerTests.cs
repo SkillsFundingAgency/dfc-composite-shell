@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading;
@@ -38,6 +39,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         private readonly SecurityTokenHandler tokenHandler;
         private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
         private const string refererUrl = "TestRefere.com";
+        private readonly MockHttpSession session;
 
         public AuthControllerTests()
         {
@@ -47,6 +49,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             defaultConfiguration = A.Fake<IConfiguration>();
             var requestServices = A.Fake<IServiceProvider>();
             defaultAuthService = A.Fake<IAuthenticationService>();
+            session = new MockHttpSession();
             A.CallTo(() => defaultAuthService.SignInAsync(A<HttpContext>.Ignored, A<string>.Ignored, A<ClaimsPrincipal>.Ignored, A<AuthenticationProperties>.Ignored)).Returns(Task.CompletedTask);
 
             A.CallTo(() => requestServices.GetService(typeof(IAuthenticationService))).Returns(defaultAuthService);
@@ -54,7 +57,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             defaultContext = new DefaultHttpContext
             {
                 RequestServices = requestServices,
-                Session = new MockHttpSession(),
+                Session = session,
                 Request = { Headers = { new KeyValuePair<string, StringValues>("Referer", refererUrl) } },
             };
 
@@ -313,6 +316,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
 
             Assert.Equal(result.Url, defaultsettings.Value.AuthDssEndpoint.Replace(AuthController.RedirectAttribute, AuthController.RedirectSessionKey, StringComparison.InvariantCultureIgnoreCase));
+            Assert.Null(session.GetString(AuthController.RedirectSessionKey));
         }
 
         [Fact]
