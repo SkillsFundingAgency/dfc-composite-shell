@@ -14,6 +14,8 @@ namespace DFC.Composite.Shell.Services.Auth
 {
     public class AzureB2CAuthClient : IOpenIdConnectClient
     {
+        public const string SignInRequestType = "B2C_1A_signin_invitation";
+        public const string PasswordResetRequestType = "B2C_1A_Password_Reset";
         private readonly OpenIDConnectSettings settings;
         private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
         private readonly SecurityTokenHandler tokenHandler;
@@ -48,19 +50,12 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public async Task<string> GetSignInUrl()
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
-            var queryParams = new Dictionary<string, string>();
-            queryParams.Add("p", "B2C_1A_signin_invitation");
-            queryParams.Add("client_id", settings.ClientId);
-            queryParams.Add("nonce", "defaultNonce");
-            queryParams.Add("redirect_uri", settings.RedirectUrl);
-            queryParams.Add("scope", "openid");
-            queryParams.Add("response_type", "id_token");
-            queryParams.Add("response_mode", "query");
-            queryParams.Add("prompt", "login");
-            string registerUrl = QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
+            return await GetAuthEndpoint(SignInRequestType).ConfigureAwait(false);
+        }
 
-            return registerUrl;
+        public async Task<string> GetResetPasswordUrl()
+        {
+            return await GetAuthEndpoint(PasswordResetRequestType).ConfigureAwait(false);
         }
 
         public async Task<string> GetSignOutUrl(string redirectUrl)
@@ -83,6 +78,23 @@ namespace DFC.Composite.Shell.Services.Auth
         private static string GetUrlWithoutParams(string url)
         {
             return new UriBuilder(url) { Query = string.Empty }.ToString();
+        }
+
+        private async Task<string> GetAuthEndpoint(string requestType)
+        {
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+            var queryParams = new Dictionary<string, string>();
+            queryParams.Add("p", requestType);
+            queryParams.Add("client_id", settings.ClientId);
+            queryParams.Add("nonce", "defaultNonce");
+            queryParams.Add("redirect_uri", settings.RedirectUrl);
+            queryParams.Add("scope", "openid");
+            queryParams.Add("response_type", "id_token");
+            queryParams.Add("response_mode", "query");
+            queryParams.Add("prompt", "login");
+            string registerUrl = QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
+
+            return registerUrl;
         }
 
         private JwtSecurityToken ValidateToken(

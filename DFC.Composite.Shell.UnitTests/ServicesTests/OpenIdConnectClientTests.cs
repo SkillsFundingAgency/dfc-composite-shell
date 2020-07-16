@@ -54,6 +54,18 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var url = await client.GetSignInUrl().ConfigureAwait(false);
 
             Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
+            Assert.Contains(AzureB2CAuthClient.SignInRequestType, url, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        [Fact]
+        public async Task WhenGetResetPasswordUrlCalledThenReturnUrlWithDefaultRedirect()
+        {
+            var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
+
+            var url = await client.GetResetPasswordUrl().ConfigureAwait(false);
+
+            Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
+            Assert.Contains(AzureB2CAuthClient.PasswordResetRequestType, url, StringComparison.InvariantCultureIgnoreCase);
         }
 
         [Fact]
