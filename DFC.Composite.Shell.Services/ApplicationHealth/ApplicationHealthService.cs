@@ -47,28 +47,30 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
             request.Headers.Accept.Clear();
             request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
 
-            var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            try
             {
-                try
+                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    var options = new JsonSerializerOptions
+                    try
                     {
-                        PropertyNameCaseInsensitive = true,
-                    };
-                    var result = JsonSerializer.Deserialize<List<HealthItemModel>>(responseString, options);
+                        var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                        };
+                        var result = JsonSerializer.Deserialize<List<HealthItemModel>>(responseString, options);
 
-                    logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
+                        logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
 
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {ex.Message}");
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {ex.Message}");
 
-                    var result = new List<HealthItemModel>
+                        var result = new List<HealthItemModel>
                     {
                         new HealthItemModel
                         {
@@ -77,19 +79,33 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         },
                     };
 
-                    return result;
+                        return result;
+                    }
                 }
-            }
-            else
-            {
-                logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {response.StatusCode}");
+                else
+                {
+                    logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {response.StatusCode}");
 
-                var result = new List<HealthItemModel>
+                    var result = new List<HealthItemModel>
                     {
                         new HealthItemModel
                         {
                             Service = model.Path,
                             Message = $"No health response from {model.HealthUrl} app",
+                        },
+                    };
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                var result = new List<HealthItemModel>
+                    {
+                        new HealthItemModel
+                        {
+                            Service = model.Path,
+                            Message = $"Exception response from {model.HealthUrl} app: {ex.Message}",
                         },
                     };
 
