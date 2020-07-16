@@ -119,6 +119,30 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         }
 
         [Fact]
+        public async Task WhenResetPasswordCalledWithThenDoNotSetSessionRedirect()
+        {
+            A.CallTo(() => authClient.GetResetPasswordUrl()).Returns("test");
+            var settings = Options.Create(new AuthSettings());
+            var session = new MockHttpSession();
+            using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>())),
+                        Session = session,
+                    },
+                },
+            };
+
+            var result = await controller.ResetPassword().ConfigureAwait(false) as RedirectResult;
+
+            A.CallTo(() => authClient.GetResetPasswordUrl()).MustHaveHappened();
+            Assert.Null(session.GetString(AuthController.RedirectSessionKey));
+        }
+
+        [Fact]
         public async Task WhenSignInCalledWithOutRedirectUrlAndRefererIsNotNullThenSetSessionToRefererUrl()
         {
             A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
