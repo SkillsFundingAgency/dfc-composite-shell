@@ -16,7 +16,7 @@
     "ExternalUrl": "__ExternalLiveSite__/skills-assessment"
   },
   {
-    "Path": "contact-us",
+    "Path": "contact-us-legacy",
     "TopNavigationText": "Contact us",
     "TopNavigationOrder": 700,
     "Layout": 0,
