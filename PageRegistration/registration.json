@@ -9,7 +9,7 @@
   },
   {
     "Path": "skills-assessment",
-    "TopNavigationText": null,
+    "TopNavigationText": "Skills assessment",
     "TopNavigationOrder": 500,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
@@ -32,7 +32,7 @@
   },
   {
     "Path": "get-a-job",
-    "TopNavigationText": null,
+    "TopNavigationText": "Help to get a job",
     "TopNavigationOrder": 900,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
