@@ -47,8 +47,14 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignIn(string redirectUrl)
         {
-            SetRedirectUrl(redirectUrl);
+            SetRedirectUrl(GetRedirectURl(redirectUrl));
             var signInUrl = await authClient.GetSignInUrl().ConfigureAwait(false);
+            return Redirect(signInUrl);
+        }
+
+        public async Task<IActionResult> ResetPassword()
+        {
+            var signInUrl = await authClient.GetResetPasswordUrl().ConfigureAwait(false);
             return Redirect(signInUrl);
         }
 
@@ -129,6 +135,18 @@ namespace DFC.Composite.Shell.Controllers
             {
                 HttpContext.Session.SetString(RedirectSessionKey, redirectUrl);
             }
+        }
+
+        private string GetRedirectURl(string redirectFromQuery)
+        {
+            var referer = Request.Headers["Referer"].ToString();
+
+            if (string.IsNullOrEmpty(referer) && string.IsNullOrEmpty(redirectFromQuery))
+            {
+                return settings.DefaultRedirectUrl;
+            }
+
+            return string.IsNullOrEmpty(redirectFromQuery) ? referer : redirectFromQuery;
         }
 
         private string GetAndResetRedirectUrl()
