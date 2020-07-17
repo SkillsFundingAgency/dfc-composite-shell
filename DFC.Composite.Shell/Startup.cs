@@ -112,7 +112,7 @@ namespace DFC.Composite.Shell
                     .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
 
             app.UseXContentTypeOptions();
-            app.UseReferrerPolicy(opts => opts.NoReferrer());
+            app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
 
