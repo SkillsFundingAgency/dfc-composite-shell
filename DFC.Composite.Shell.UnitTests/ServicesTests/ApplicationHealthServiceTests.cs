@@ -82,19 +82,5 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             // Assert
             Assert.Null(result);
         }
-
-        [Fact]
-        public async Task GetAsyncReturnsExceptionIfNoHealthsTextFound()
-        {
-            // Arrange
-            var healthService = new ApplicationHealthService(defaultHttpClient, logger);
-            var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken", Path = "aPath" };
-
-            // Act
-            var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await healthService.GetAsync(model).ConfigureAwait(false)).ConfigureAwait(false);
-
-            // Assert
-            Assert.StartsWith("An invalid request URI was provided.", exceptionResult.Message, StringComparison.OrdinalIgnoreCase);
-        }
     }
 }
