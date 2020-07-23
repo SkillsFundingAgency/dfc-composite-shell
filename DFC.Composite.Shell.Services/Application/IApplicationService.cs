@@ -35,6 +35,6 @@ namespace DFC.Composite.Shell.Services.Application
         /// </summary>
         /// <param name="path">The path or application name.</param>
         /// <returns>ApplicationModel.</returns>
-        Task<ApplicationModel> GetApplicationAsync(string path);
+        Task<ApplicationModel> GetApplicationAsync(string path, string data);
     }
 }

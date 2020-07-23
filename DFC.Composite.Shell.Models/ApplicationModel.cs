@@ -7,5 +7,7 @@ namespace DFC.Composite.Shell.Models
         public AppRegistrationModel AppRegistrationModel { get; set; }
 
         public string RootUrl { get; set; }
+
+        public string Article { get; set; }
     }
 }

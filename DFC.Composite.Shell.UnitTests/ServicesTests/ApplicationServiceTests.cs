@@ -18,7 +18,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
     public class ApplicationServiceTests
     {
         private const string RequestBaseUrl = "https://localhost";
-        private const string Path = "path1";
+        private const string ChildAppPath = "path1";
+        private const string ChildAppData = "data1";
         private const string HeadRegionContent = "headRegionContent";
         private const string BodyRegionContent = "bodyRegionContent";
         private const string BodyFooterRegionContent = "bodyfooterRegionContent";
@@ -62,7 +63,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyRegion,
                 defaultBodyFooterRegion,
             };
-            defaultAppRegistrationModel = new AppRegistrationModel { Path = Path, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
+            defaultAppRegistrationModel = new AppRegistrationModel { Path = ChildAppPath, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
 
             defaultPageViewModel = new PageViewModel
             {
@@ -78,7 +79,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             defaultApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
             offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
 
-            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(Path)).Returns(defaultAppRegistrationModel);
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(ChildAppPath)).Returns(defaultAppRegistrationModel);
             A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(HeadRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
@@ -242,7 +243,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             // Act
             var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper);
-            var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
+            var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result.RootUrl);
@@ -258,11 +259,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyRegion,
                 defaultBodyFooterRegion,
             };
-            appRegistryDataService.GetAppRegistrationModel(Path).Result.Regions = bodyAndFooterRegions;
+            appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = bodyAndFooterRegions;
 
             // Act
             var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
-            var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
+            var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(defaultAppRegistrationModel.Path, result.AppRegistrationModel.Path);
@@ -275,11 +276,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             // Arrange
             var fakeRegionModels = new List<RegionModel> { defaultBodyFooterRegion };
-            appRegistryDataService.GetAppRegistrationModel(Path).Result.Regions = fakeRegionModels;
+            appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = fakeRegionModels;
 
             // Act
             var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
-            var result = await service.GetApplicationAsync(Path).ConfigureAwait(false);
+            var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result.RootUrl);
