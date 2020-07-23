@@ -100,12 +100,9 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task<ApplicationModel> GetApplicationAsync(string path)
+        public async Task<ApplicationModel> GetApplicationAsync(string path, string data)
         {
-            var applicationModel = new ApplicationModel
-            {
-                AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false),
-            };
+            var applicationModel = await DetermineArticleLocation(path, data).ConfigureAwait(false);
 
             if (applicationModel.AppRegistrationModel == null)
             {
@@ -120,6 +117,28 @@ namespace DFC.Composite.Shell.Services.Application
                 var url = $"{uri.Scheme}://{uri.Authority}";
 
                 applicationModel.RootUrl = url;
+            }
+
+            return applicationModel;
+        }
+
+        private async Task<ApplicationModel> DetermineArticleLocation(string path, string data)
+        {
+            const string appRegistryPathNameForPagesApp = "pages";
+            var article = $"{path}" + (string.IsNullOrWhiteSpace(data) ? string.Empty : $"/{data}");
+            var applicationModel = new ApplicationModel();
+            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp).ConfigureAwait(false);
+
+            if (pagesAppRegistrationModel?.Locations != null && pagesAppRegistrationModel.Locations.Contains("/" + article))
+            {
+                applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
+                applicationModel.Article = article;
+            }
+
+            if (applicationModel.AppRegistrationModel == null)
+            {
+                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
+                applicationModel.Article = data;
             }
 
             return applicationModel;
