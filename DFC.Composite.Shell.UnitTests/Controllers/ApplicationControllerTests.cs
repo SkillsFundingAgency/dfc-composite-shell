@@ -24,10 +24,10 @@ namespace DFC.Composite.Shell.Test.Controllers
 {
     public class ApplicationControllerTests
     {
-        private const string ChildAppPath = "ChildAppPath";
-        private const string BadChildAppPath = "BadChildAppPath";
-        private const string ChildAppData = "ChildAppData";
-        private const string BadChildAppData = "BadChildAppData";
+        private const string ChildAppPath = "childapppath";
+        private const string BadChildAppPath = "badchildapppath";
+        private const string ChildAppData = "childappdata";
+        private const string BadChildAppData = "badchildappdata";
 
         private readonly ApplicationController defaultGetController;
         private readonly ApplicationController defaultPostController;
