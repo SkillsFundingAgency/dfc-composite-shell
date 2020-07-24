@@ -56,6 +56,9 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
+                requestViewModel.Path = requestViewModel.Path?.ToLowerInvariant();
+                requestViewModel.Data = requestViewModel.Data?.ToLowerInvariant();
+
                 var errorRequestViewModel = new ActionGetRequestModel
                 {
                     Path = AlertPathName,
@@ -145,6 +148,9 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
+                requestViewModel.Path = requestViewModel.Path?.ToLowerInvariant();
+                requestViewModel.Data = requestViewModel.Data?.ToLowerInvariant();
+
                 bool postFirstRequest = true;
                 var errorRequestViewModel = new ActionPostRequestModel
                 {
