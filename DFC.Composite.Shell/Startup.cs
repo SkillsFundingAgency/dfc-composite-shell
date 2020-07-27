@@ -93,7 +93,7 @@ namespace DFC.Composite.Shell
                 .ScriptSources(s => s
                     .Self()
                     .UnsafeEval()
-                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
