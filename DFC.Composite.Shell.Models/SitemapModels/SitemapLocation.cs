@@ -10,13 +10,13 @@ namespace DFC.Composite.Shell.Models.SitemapModels
         public string Url { get; set; }
 
         [XmlElement("changefreq")]
-        public ChangeFrequency? ChangeFrequency { get; set; }
+        public ChangeFrequency? ChangeFrequency { get; set; } = SitemapModels.ChangeFrequency.Monthly;
 
         [XmlElement("lastmod")]
         public DateTime? LastModified { get; set; }
 
         [XmlElement("priority")]
-        public double? Priority { get; set; }
+        public double? Priority { get; set; } = 0.5;
 
         [XmlElement("image", Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
         public List<SitemapImage> Images { get; set; }

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using DFC.Composite.Shell.ClientHandlers;
+﻿using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.DataProtectionProviders;
 using DFC.Composite.Shell.Services.PathLocator;
+using DFC.Composite.Shell.UnitTests.ClientHandlers;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
@@ -49,8 +50,10 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
-            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider);
-            handler.InnerHandler = new StatusOkDelegatingHandler();
+            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
+            {
+                InnerHandler = new StatusOkDelegatingHandler(),
+            };
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
@@ -93,8 +96,10 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
-            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider);
-            handler.InnerHandler = new StatusOkDelegatingHandler();
+            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
+            {
+                InnerHandler = new StatusOkDelegatingHandler(),
+            };
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
@@ -137,8 +142,10 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
-            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider);
-            handler.InnerHandler = new StatusOkDelegatingHandler();
+            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
+            {
+                InnerHandler = new StatusOkDelegatingHandler(),
+            };
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
@@ -157,7 +164,6 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
         [Fact]
         public async Task WhenShellAuthenticatedPassOnToken()
         {
-
             //Arrange
             var path1 = "path1";
             var path2 = "path2";
@@ -176,21 +182,24 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             //Set some headers on the incoming request
             httpContextAccessor.HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", "test") }, "mock")) };
             httpContextAccessor.HttpContext.Request.Headers.Add(HeaderNames.Cookie, $"{Constants.DfcSession}=sessionId1;{path1}v1=value1;{path1}v2=value2;{path2}v3=value3;{path2}v4=value4");
+            httpContextAccessor.HttpContext.Session = new MockHttpSession();
 
             //Create a get request that is used to send data to the child app
             var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
-            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider);
-            handler.InnerHandler = new StatusOkDelegatingHandler();
+            handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
+            {
+                InnerHandler = new StatusOkDelegatingHandler(),
+            };
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
             await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
-            
+
             //Check that the values that are sent back are correct
             var headerValue = httpRequestChildMessage.Headers.Authorization;
-            Assert.Equal(headerValue.Parameter, "test");
+            Assert.Equal("test", headerValue.Parameter);
             httpRequestChildMessage.Dispose();
             invoker.Dispose();
         }

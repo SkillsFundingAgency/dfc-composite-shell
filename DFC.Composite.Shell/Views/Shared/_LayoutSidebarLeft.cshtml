@@ -6,7 +6,6 @@
 
     @if (IsSectionDefined("Head"))
     {
-
         @RenderSection("Head", required: false)
     }
 
@@ -21,12 +20,16 @@
         <partial name="_PhaseBanner" />
 
         <partial name="_ErrorSummary" />
+
+        <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+
     </div>
 
     @if (IsSectionDefined("BodyTop"))
     {
         @RenderSection("BodyTop", required: false)
     }
+
 
     @if (IsSectionDefined("HeroBanner"))
     {

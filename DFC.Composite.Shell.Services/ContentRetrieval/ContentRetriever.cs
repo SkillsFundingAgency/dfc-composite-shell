@@ -1,8 +1,8 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
-using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
-using DFC.Composite.Shell.Services.Regions;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieval
@@ -19,18 +18,18 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
     {
         private readonly HttpClient httpClient;
         private readonly ILogger<ContentRetriever> logger;
-        private readonly IRegionService regionService;
+        private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IHttpResponseMessageHandler responseHandler;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IRegionService regionService, IHttpResponseMessageHandler responseHandler)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler)
         {
             this.httpClient = httpClient;
             this.logger = logger;
-            this.regionService = regionService;
+            this.appRegistryDataService = appRegistryDataService;
             this.responseHandler = responseHandler;
         }
 
-        public async Task<string> GetContent(string url, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
+        public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
             const int MaxRedirections = 10;
 
@@ -63,9 +62,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
                 }
-                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
+                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
                 {
-                    results = regionModel.OfflineHTML;
+                    results = regionModel.OfflineHtml;
                 }
             }
             catch (BrokenCircuitException ex)
@@ -74,16 +73,16 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (regionModel.HealthCheckRequired)
                 {
-                    await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                results = regionModel.OfflineHTML;
+                results = regionModel.OfflineHtml;
             }
 
             return results;
         }
 
-        public async Task<string> PostContent(string url, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
+        public async Task<string> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
             if (regionModel == null)
             {
@@ -127,9 +126,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
-                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHTML))
+                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
                 {
-                    results = regionModel.OfflineHTML;
+                    results = regionModel.OfflineHtml;
                 }
             }
             catch (BrokenCircuitException ex)
@@ -138,10 +137,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (regionModel.HealthCheckRequired)
                 {
-                    await regionService.SetRegionHealthState(regionModel.Path, regionModel.PageRegion, false).ConfigureAwait(false);
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                results = regionModel.OfflineHTML;
+                results = regionModel.OfflineHtml;
             }
 
             return results;

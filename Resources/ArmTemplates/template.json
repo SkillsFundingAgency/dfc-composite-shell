@@ -8,6 +8,9 @@
         "ApimKey": {
             "type": "string"
         },
+        "ApimVisitsKey": {
+            "type": "string"
+        },
         "AseHostingEnvironmentName": {
             "type": "string",
             "defaultValue": ""
@@ -61,6 +64,18 @@
         },
         "OIDCOIDCConfigMetaDataUrl": {
             "type": "string"
+        },
+        "Neo4jUrl": {
+            "type": "string"
+        },
+        "Neo4jUsername": {
+            "type": "string"
+        },
+        "Neo4jPassword": {
+            "type": "securestring"
+        },
+        "ShowLoginBanner": {
+            "type": "bool"
         }
     },
     "variables": {
@@ -73,6 +88,7 @@
         "IsDraftEnvironment": "[endsWith(toLower(parameters('Environment')), '-draft')]",
         "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
         "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
+        "ApimVisitsUrl": "[concat(parameters('ApimProxyAddress'), '/visits/AddVisit', '/')]",
         "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
     },
     "resources": [
@@ -195,18 +211,6 @@
                                 "value": "Error"
                             },
                             {
-                                "name": "PathClientOptions__BaseAddress",
-                                "value": "[variables('CompositePathUrl')]"
-                            },
-                            {
-                                "name": "PathClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "PathClientOptions__ApiKey",
-                                "value": "[parameters('ApimKey')]"
-                            },
-                            {
                                 "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
                                 "value": "00:01:00"
                             },
@@ -221,18 +225,6 @@
                             {
                                 "name": "Policies__HttpRetry__Count",
                                 "value": 3
-                            },
-                            {
-                                "name": "RegionClientOptions__BaseAddress",
-                                "value": "[variables('CompositeRegionUrl')]"
-                            },
-                            {
-                                "name": "RegionClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "RegionClientOptions__ApiKey",
-                                "value": "[parameters('ApimKey')]"
                             },
                             {
                                 "name": "RobotClientOptions__BaseAddress",
@@ -265,6 +257,10 @@
                             {
                                 "name": "AuthSettings__DefaultRedirectUrl",
                                 "value": "/your-account"
+                            },
+                            {
+                                "name": "AuthSettings__AuthDssEndpoint",
+                                "value": "/your-account/authsuccess?redirectUrl={Url}"
                             },
                             {
                                 "name": "OIDCSettings__OIDCConfigMetaDataUrl",
@@ -313,6 +309,54 @@
                             {
                                 "name": "OIDCSettings__Exponent",
                                 "value": "AQAB"
+                            },
+                            {
+                                "name": "Neo4j__Endpoints__0__Uri",
+                                "value": "[parameters('Neo4jUrl')]"
+                            },
+                            {
+                                "name": "Neo4j__Endpoints__0__Username",
+                                "value": "[parameters('Neo4jUsername')]"
+                            },
+                            {
+                                "name": "Neo4j__Endpoints__0__Password",
+                                "value": "[parameters('Neo4jPassword')]"
+                            },
+                            {
+                                "name": "Neo4j__Endpoints__0__Enabled",
+                                "value": true
+                            },
+                            {
+                                "name": "Neo4JSettings__SendData",
+                                "value": true
+                            },
+                            {
+                                "name": "VisitClientOptions__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "VisitClientOptions__ApiKey",
+                                "value": "[parameters('ApimVisitsKey')]"
+                            },
+                            {
+                                "name": "VisitClientOptions__BaseAddress",
+                                "value": "[variables('ApimVisitsUrl')]"
+                            },
+                            {
+                                "name": "AppRegistryClientOptions__BaseAddress",
+                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-appRegistry/appregistry/')]"
+                            },
+                            {
+                                "name": "AppRegistryClientOptions__ApiKey",
+                                "value": "[parameters('ApimKey')]"
+                            },
+                            {
+                                "name": "Configuration__ApplicationName",
+                                "value": "DFC-Composite-Shell"
+                            },
+                            {
+                                "name": "ShowLoginBanner",
+                                "value": "[parameters('ShowLoginBanner')]"
                             }
                         ]
                     }

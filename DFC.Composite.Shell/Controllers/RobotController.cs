@@ -1,8 +1,8 @@
-﻿using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
-using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Hosting;
@@ -18,7 +18,7 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class RobotController : Controller
     {
-        private readonly IPathDataService pathDataService;
+        private readonly IAppRegistryDataService appRegistryDataService;
         private readonly ILogger<RobotController> logger;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IApplicationRobotService applicationRobotService;
@@ -27,7 +27,7 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IBaseUrlService baseUrlService;
 
         public RobotController(
-            IPathDataService pathDataService,
+            IAppRegistryDataService appRegistryDataService,
             ILogger<RobotController> logger,
             IWebHostEnvironment webHostEnvironment,
             IBearerTokenRetriever bearerTokenRetriever,
@@ -35,7 +35,7 @@ namespace DFC.Composite.Shell.Controllers
             IShellRobotFileService shellRobotFileService,
             IBaseUrlService baseUrlService)
         {
-            this.pathDataService = pathDataService;
+            this.appRegistryDataService = appRegistryDataService;
             this.logger = logger;
             this.webHostEnvironment = webHostEnvironment;
             this.bearerTokenRetriever = bearerTokenRetriever;
@@ -124,10 +124,10 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task<IEnumerable<ApplicationRobotModel>> GetApplicationRobotsAsync()
         {
-            var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrWhiteSpace(w.RobotsURL)).ToList();
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.RobotsURL != null).ToList();
 
-            var applicationRobotModels = await CreateApplicationRobotModelTasksAsync(onlinePaths).ConfigureAwait(false);
+            var applicationRobotModels = await CreateApplicationRobotModelTasksAsync(onlineAppRegistrationModels).ConfigureAwait(false);
 
             var allRobotRetrievalTasks = (from a in applicationRobotModels select a.RetrievalTask).ToArray();
 
@@ -136,20 +136,20 @@ namespace DFC.Composite.Shell.Controllers
             return applicationRobotModels;
         }
 
-        private async Task<List<ApplicationRobotModel>> CreateApplicationRobotModelTasksAsync(IEnumerable<PathModel> paths)
+        private async Task<List<ApplicationRobotModel>> CreateApplicationRobotModelTasksAsync(IEnumerable<AppRegistrationModel> appRegistrationModel)
         {
             var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
 
             var applicationRobotModels = new List<ApplicationRobotModel>();
 
-            foreach (var path in paths)
+            foreach (var path in appRegistrationModel)
             {
                 logger.LogInformation($"{nameof(Action)}: Getting child robots.txt for: {path.Path}");
 
                 var applicationRobotModel = new ApplicationRobotModel
                 {
                     Path = path.Path,
-                    RobotsURL = path.RobotsURL,
+                    RobotsURL = path.RobotsURL.ToString(),
                     BearerToken = bearerToken,
                 };
 

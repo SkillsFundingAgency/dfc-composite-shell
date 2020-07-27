@@ -8,6 +8,9 @@
         "ApimKey": {
             "value": "0123456789"
         },
+        "ApimVisitsKey": {
+            "value": "0123456789"
+        },
         "CompositeUiCdnUrl": {
             "value": "https://foo-compui-cdn.nationalcareersservice.org.uk"
         },
@@ -40,6 +43,18 @@
         },
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "https://foo-compui-shell.azurewebsites.net"
+        },
+        "Neo4jUrl": {
+            "value": "https://endpoint"
+        },
+        "Neo4jUsername": {
+            "value": "MyUsername"
+        },
+        "Neo4jPassword": {
+            "value": "MyPassword"
+        },
+        "ShowLoginBanner": {
+            "value": false
         }
     }
 }

@@ -11,6 +11,7 @@ using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
@@ -23,14 +24,14 @@ using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
-using DFC.Composite.Shell.Services.Paths;
-using DFC.Composite.Shell.Services.Regions;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
+using DFC.Compui.Telemetry.ApplicationBuilderExtensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -74,16 +75,15 @@ namespace DFC.Composite.Shell
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseHsts(options => options.MaxAge(days: 365).IncludeSubdomains());
             }
-
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
 
             app.UseStatusCodePagesWithReExecute("/" + ApplicationController.AlertPathName + "/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseForwardedHeaders();
+            app.AddOperationIdToRequests();
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
 
@@ -93,7 +93,7 @@ namespace DFC.Composite.Shell
                 .ScriptSources(s => s
                     .Self()
                     .UnsafeEval()
-                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
@@ -111,8 +111,19 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
 
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("Feature-Policy", "vibrate 'self'; usermedia *; sync-xhr 'self'");
+                context.Response.Headers.Add("Expect-CT", "max-age=86400, enforce");
+                context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+                await next().ConfigureAwait(false);
+            });
+
             app.UseSession();
             app.UseCompositeSessionId();
             app.UseRouting();
@@ -136,6 +147,7 @@ namespace DFC.Composite.Shell
 
             services.AddDataProtection();
             services.AddHttpContextAccessor();
+            services.AddApplicationInsightsTelemetry();
 
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
@@ -155,9 +167,10 @@ namespace DFC.Composite.Shell
             services.AddTransient<CompositeRequestDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddTransient<INeo4JService, Neo4JService>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
-            services.AddScoped<IPathDataService, PathDataService>();
+            services.AddScoped<IAppRegistryDataService, AppRegistryDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
             services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
@@ -173,8 +186,9 @@ namespace DFC.Composite.Shell
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
-            services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl,
-                new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
+            services.Configure<Neo4JSettings>(Configuration.GetSection(nameof(Neo4JSettings)));
+
+            services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl, new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
 
             services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));
@@ -187,13 +201,12 @@ namespace DFC.Composite.Shell
             var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
             var policyRegistry = services.AddPolicyRegistry();
 
-            services
-                .AddPolicies(policyRegistry, nameof(PathClientOptions), policyOptions)
-                .AddHttpClient<IPathService, PathService, PathClientOptions>(Configuration, nameof(PathClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+            services.AddPolicies(policyRegistry, nameof(VisitClientOptions), policyOptions)
+                .AddHttpClient<INeo4JService, Neo4JService, VisitClientOptions>(Configuration, nameof(VisitClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
-                .AddPolicies(policyRegistry, nameof(RegionClientOptions), policyOptions)
-                .AddHttpClient<IRegionService, RegionService, RegionClientOptions>(Configuration, nameof(RegionClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+                .AddPolicies(policyRegistry, nameof(AppRegistryClientOptions), policyOptions)
+                .AddHttpClient<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(Configuration, nameof(AppRegistryClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)

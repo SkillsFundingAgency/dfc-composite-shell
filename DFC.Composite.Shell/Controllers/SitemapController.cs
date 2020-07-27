@@ -1,7 +1,8 @@
-﻿using DFC.Composite.Shell.Models.SitemapModels;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Models.SitemapModels;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
-using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Services.TokenRetriever;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,20 +16,20 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class SitemapController : Controller
     {
-        private readonly IPathDataService pathDataService;
+        private readonly IAppRegistryDataService aappRegistryDataService;
         private readonly ILogger<SitemapController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IBaseUrlService baseUrlService;
         private readonly IApplicationSitemapService sitemapService;
 
         public SitemapController(
-            IPathDataService pathDataService,
+            IAppRegistryDataService aappRegistryDataService,
             ILogger<SitemapController> logger,
             IBearerTokenRetriever bearerTokenRetriever,
             IBaseUrlService baseUrlService,
             IApplicationSitemapService sitemapService)
         {
-            this.pathDataService = pathDataService;
+            this.aappRegistryDataService = aappRegistryDataService;
             this.logger = logger;
             this.bearerTokenRetriever = bearerTokenRetriever;
             this.baseUrlService = baseUrlService;
@@ -59,7 +60,7 @@ namespace DFC.Composite.Shell.Controllers
             var sitemap = new Sitemap();
 
             // output the composite UI site maps
-            sitemap.Add(new SitemapLocation { Url = Url.Action(nameof(HomeController.Index), homeControllerName, null, Request.Scheme), Priority = 1 });
+            sitemap.Add(new SitemapLocation { Url = Url.Action(nameof(HomeController.Index), homeControllerName, null, Request.Scheme) });
 
             return sitemap;
         }
@@ -67,10 +68,10 @@ namespace DFC.Composite.Shell.Controllers
         private async Task<IEnumerable<ApplicationSitemapModel>> GetApplicationSitemapsAsync()
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
-            var paths = await pathDataService.GetPaths().ConfigureAwait(false);
-            var onlinePaths = paths.Where(w => w.IsOnline && !string.IsNullOrWhiteSpace(w.SitemapURL)).ToList();
+            var appRegistrationModels = await aappRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.SitemapURL != null).ToList();
 
-            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlinePaths).ConfigureAwait(false);
+            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels).ConfigureAwait(false);
 
             // await all application sitemap service tasks to complete
             var allTasks = (from a in applicationSitemapModels select a.RetrievalTask).ToArray();
@@ -80,13 +81,13 @@ namespace DFC.Composite.Shell.Controllers
             return applicationSitemapModels;
         }
 
-        private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(IList<Models.PathModel> paths)
+        private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(IList<AppRegistrationModel> appRegistrationModels)
         {
             var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
 
             var applicationSitemapModels = new List<ApplicationSitemapModel>();
 
-            foreach (var path in paths)
+            foreach (var path in appRegistrationModels)
             {
                 logger.LogInformation($"{nameof(Action)}: Getting child Sitemap for: {path.Path}");
 
@@ -94,7 +95,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     Path = path.Path,
                     BearerToken = bearerToken,
-                    SitemapUrl = path.SitemapURL,
+                    SitemapUrl = path.SitemapURL.ToString(),
                 };
 
                 applicationSitemapModel.RetrievalTask = sitemapService.GetAsync(applicationSitemapModel);
