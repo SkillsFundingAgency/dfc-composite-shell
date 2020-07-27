@@ -35,8 +35,4 @@
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="..\stylecop.json" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Regions\" />
-  </ItemGroup>
 </Project>
