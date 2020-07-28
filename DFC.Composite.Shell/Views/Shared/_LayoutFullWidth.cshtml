@@ -14,17 +14,16 @@
 
     <body class="govuk-template__body ">
     <partial name="_GovUkHeader"/>
-
-
+    
     <main class="govuk-!-padding-top-0 govuk-!-padding-bottom-0" id="main-content" role="main">
         <div class="govuk-width-container">
-            <partial name="_PhaseBanner" />
-            <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+            <partial name="_PhaseBanner"/>
+            <partial name="~/Views/Shared/Components/_AuthPartial.cshtml"/>
             @if (IsSectionDefined("Breadcrumb"))
             {
                 @RenderSection("Breadcrumb", required: false)
             }
-            <partial name="_ErrorSummary" />
+            <partial name="_ErrorSummary"/>
         </div>
         @if (IsSectionDefined("BodyTop"))
         {
@@ -67,7 +66,6 @@
     {
         @RenderSection("BodyFooter", required: false)
     }
-    
 
     <partial name="_GovUkFooter"/>
 
