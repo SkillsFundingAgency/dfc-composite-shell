@@ -129,7 +129,7 @@ namespace DFC.Composite.Shell.Services.Application
             var applicationModel = new ApplicationModel();
             var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp).ConfigureAwait(false);
 
-            if (pagesAppRegistrationModel?.Locations != null && pagesAppRegistrationModel.IsOnline && pagesAppRegistrationModel.Locations.Contains("/" + article))
+            if (pagesAppRegistrationModel?.PageLocations != null && pagesAppRegistrationModel.IsOnline && pagesAppRegistrationModel.PageLocations.Values.SelectMany(s => s.Locations).Contains("/" + article))
             {
                 applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
                 applicationModel.Article = article;
