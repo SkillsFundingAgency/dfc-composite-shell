@@ -25,7 +25,6 @@ namespace DFC.Composite.Shell.Integration.Test
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             Assert.Equal(MediaTypeNames.Application.Xml, response.Content.Headers.ContentType.MediaType);
-            Assert.True(responseHtml.Contains("<urlset", StringComparison.OrdinalIgnoreCase) && responseHtml.Contains("<url>", StringComparison.OrdinalIgnoreCase));
         }
     }
 }
