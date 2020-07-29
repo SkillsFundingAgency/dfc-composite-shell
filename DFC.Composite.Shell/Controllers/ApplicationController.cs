@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IVersionedFiles versionedFiles;
         private readonly IConfiguration configuration;
         private readonly IBaseUrlService baseUrlService;
+        private readonly INeo4JService neo4JService;
 
         public ApplicationController(
             IMapper<ApplicationModel, PageViewModel> mapper,
@@ -35,7 +37,8 @@ namespace DFC.Composite.Shell.Controllers
             IApplicationService applicationService,
             IVersionedFiles versionedFiles,
             IConfiguration configuration,
-            IBaseUrlService baseUrlService)
+            IBaseUrlService baseUrlService,
+            INeo4JService neo4JService)
         {
             this.mapper = mapper;
             this.logger = logger;
@@ -43,6 +46,7 @@ namespace DFC.Composite.Shell.Controllers
             this.versionedFiles = versionedFiles;
             this.configuration = configuration;
             this.baseUrlService = baseUrlService;
+            this.neo4JService = neo4JService;
         }
 
         [HttpGet]
@@ -52,6 +56,9 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
+                requestViewModel.Path = requestViewModel.Path?.ToLowerInvariant();
+                requestViewModel.Data = requestViewModel.Data?.ToLowerInvariant();
+
                 var errorRequestViewModel = new ActionGetRequestModel
                 {
                     Path = AlertPathName,
@@ -74,9 +81,11 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
 
-                        var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
+                        await neo4JService.InsertNewRequest(Request).ConfigureAwait(false);
 
-                        if (application?.Path == null)
+                        var application = await applicationService.GetApplicationAsync(requestItem.Path, requestItem.Data).ConfigureAwait(false);
+
+                        if (application?.AppRegistrationModel == null)
                         {
                             var errorString = $"The path '{requestItem.Path}' is not registered";
 
@@ -84,11 +93,11 @@ namespace DFC.Composite.Shell.Controllers
 
                             Response.StatusCode = (int)HttpStatusCode.NotFound;
                         }
-                        else if (!string.IsNullOrWhiteSpace(application.Path.ExternalURL))
+                        else if (application.AppRegistrationModel.ExternalURL != null)
                         {
                             logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestItem.Path}");
 
-                            return Redirect(application.Path.ExternalURL);
+                            return Redirect(application.AppRegistrationModel.ExternalURL.ToString());
                         }
                         else
                         {
@@ -96,7 +105,7 @@ namespace DFC.Composite.Shell.Controllers
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
-                            await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, Request.QueryString.Value).ConfigureAwait(false);
+                            await applicationService.GetMarkupAsync(application, application.Article, viewModel, Request.QueryString.Value).ConfigureAwait(false);
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
 
@@ -139,6 +148,9 @@ namespace DFC.Composite.Shell.Controllers
 
             if (requestViewModel != null)
             {
+                requestViewModel.Path = requestViewModel.Path?.ToLowerInvariant();
+                requestViewModel.Data = requestViewModel.Data?.ToLowerInvariant();
+
                 bool postFirstRequest = true;
                 var errorRequestViewModel = new ActionPostRequestModel
                 {
@@ -162,9 +174,9 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
 
-                        var application = await applicationService.GetApplicationAsync(requestItem.Path).ConfigureAwait(false);
+                        var application = await applicationService.GetApplicationAsync(requestItem.Path, requestItem.Data).ConfigureAwait(false);
 
-                        if (application?.Path == null)
+                        if (application?.AppRegistrationModel == null)
                         {
                             var errorString = $"The path '{requestItem.Path}' is not registered";
 

@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Services.Paths;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.ViewComponents;
 using DFC.Composite.Shell.Views.Test.Extensions;
 using Microsoft.Extensions.Logging;
@@ -13,40 +13,40 @@ namespace DFC.Composite.Shell.Views.Test.Tests
     {
         private readonly ShowHelpLinksViewComponent viewComponent;
         private readonly Mock<ILogger<ShowHelpLinksViewComponent>> logger;
-        private readonly Mock<IPathDataService> pathDataService;
+        private readonly Mock<IAppRegistryDataService> appRegistryDataService;
 
         public ShowHelpLinksViewComponentTests()
         {
             logger = new Mock<ILogger<ShowHelpLinksViewComponent>>();
-            pathDataService = new Mock<IPathDataService>();
+            appRegistryDataService = new Mock<IAppRegistryDataService>();
 
-            viewComponent = new ShowHelpLinksViewComponent(logger.Object, pathDataService.Object);
+            viewComponent = new ShowHelpLinksViewComponent(logger.Object, appRegistryDataService.Object);
         }
 
         [Fact]
         public async Task ReturnsPathModelDetailsWhenPathExists()
         {
-            var pathModel = new PathModel() { IsOnline = true, OfflineHtml = "OfflineHtml" };
-            pathDataService.Setup(x => x.GetPath(It.IsAny<string>())).ReturnsAsync(pathModel);
+            var appRegistrationModel = new AppRegistrationModel() { IsOnline = true, OfflineHtml = "OfflineHtml" };
+            appRegistryDataService.Setup(x => x.GetAppRegistrationModel(It.IsAny<string>())).ReturnsAsync(appRegistrationModel);
 
             var result = await viewComponent.InvokeAsync();
 
             var viewComponentModel = result.ViewDataModelAs<ShowHelpLinksViewModel>();
-            Assert.Equal(pathModel.IsOnline, viewComponentModel.IsOnline);
-            Assert.Equal(pathModel.OfflineHtml, viewComponentModel.OfflineHtml.Value);
+            Assert.Equal(appRegistrationModel.IsOnline, viewComponentModel.IsOnline);
+            Assert.Equal(appRegistrationModel.OfflineHtml, viewComponentModel.OfflineHtml.Value);
         }
 
         [Fact]
         public async Task ReturnsOfflineFalseWhenPathDoesNotExist()
         {
-            var pathModel = new PathModel() { IsOnline = false };
-            pathDataService.Setup(x => x.GetPath(It.IsAny<string>())).ReturnsAsync(pathModel);
+            var appRegistrationModel = new AppRegistrationModel() { IsOnline = false };
+            appRegistryDataService.Setup(x => x.GetAppRegistrationModel(It.IsAny<string>())).ReturnsAsync(appRegistrationModel);
 
             var result = await viewComponent.InvokeAsync();
 
             var viewComponentModel = result.ViewDataModelAs<ShowHelpLinksViewModel>();
-            Assert.Equal(pathModel.IsOnline, viewComponentModel.IsOnline);
-            Assert.Equal(pathModel.OfflineHtml, viewComponentModel.OfflineHtml.Value);
+            Assert.Equal(appRegistrationModel.IsOnline, viewComponentModel.IsOnline);
+            Assert.Equal(appRegistrationModel.OfflineHtml, viewComponentModel.OfflineHtml.Value);
         }
     }
 }

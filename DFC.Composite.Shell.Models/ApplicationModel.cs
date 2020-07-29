@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
 
 namespace DFC.Composite.Shell.Models
 {
     public class ApplicationModel
     {
-        public PathModel Path { get; set; }
-
-        public IEnumerable<RegionModel> Regions { get; set; }
+        public AppRegistrationModel AppRegistrationModel { get; set; }
 
         public string RootUrl { get; set; }
+
+        public string Article { get; set; }
     }
 }

@@ -1,13 +1,13 @@
 ﻿@model DFC.Composite.Shell.ViewComponents.ListPathsViewModel
 <nav>
     <ul id="navigation" class="govuk-header__navigation " aria-label="Top Level Navigation">
-        @if (Model?.Paths?.Count() > 0)
+        @if (Model?.AppRegistrationModels?.Count() > 0)
         {
-            @foreach (var path in Model.Paths.OrderBy(x => x.TopNavigationOrder))
+            @foreach (var appRegistrationModel in Model.AppRegistrationModels.OrderBy(x => x.TopNavigationOrder))
             {
-                var applyActiveClass = Context.Request.Path.Value.Contains(path.Path);
-                var pathclass = applyActiveClass ? "govuk-header__navigation-item--active" : string.Empty;
-                <li class="govuk-header__navigation-item @pathclass"><a href="~/@path.Path" class="govuk-header__link" target="_self">@path.TopNavigationText</a></li>
+                var applyActiveClass = Context.Request.Path.Value.Contains(appRegistrationModel.Path);
+                var menuClass = applyActiveClass ? "govuk-header__navigation-item--active" : string.Empty;
+                <li class="govuk-header__navigation-item @menuClass"><a href="~/@appRegistrationModel.Path" class="govuk-header__link" target="_self">@appRegistrationModel.TopNavigationText</a></li>
             }
         }
     </ul>

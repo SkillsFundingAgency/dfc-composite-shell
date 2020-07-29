@@ -8,6 +8,9 @@
         "ApimKey": {
             "value": "__ApimCompositeKey__"
         },
+        "ApimVisitsKey": {
+            "value": "__ApimVisitsKey__"
+        },
         "AseHostingEnvironmentName": {
             "value": "__AseHostingEnvironmentName__"
         },
@@ -55,6 +58,18 @@
         },
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "__OIDCOIDCConfigMetaDataUrl__"
+        },
+        "Neo4jUrl": {
+            "value": "__Neo4jUrl__"
+        },
+        "Neo4jUsername": {
+            "value": "__Neo4jUser__"
+        },
+        "Neo4jPassword": {
+            "value": "__Neo4jPassword__"
+        },
+        "ShowLoginBanner": {
+            "value": __ShowLoginBanner__
         }
     }
 }

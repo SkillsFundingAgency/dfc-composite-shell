@@ -2,7 +2,7 @@
   {
     "Path": "explore-careers",
     "TopNavigationText": null,
-    "TopNavigationOrder": 700,
+    "TopNavigationOrder": 400,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/explore-careers"
@@ -10,7 +10,7 @@
   {
     "Path": "skills-assessment",
     "TopNavigationText": "Skills assessment",
-    "TopNavigationOrder": 701,
+    "TopNavigationOrder": 500,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/skills-assessment"
@@ -18,15 +18,14 @@
   {
     "Path": "contact-us",
     "TopNavigationText": "Contact us",
-    "TopNavigationOrder": 703,
+    "TopNavigationOrder": 700,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/contact-us"
-  },
-  {
+  },{
     "Path": "about-us",
     "TopNavigationText": "About us",
-    "TopNavigationOrder": 704,
+    "TopNavigationOrder": 800,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/about-us"
@@ -34,7 +33,7 @@
   {
     "Path": "get-a-job",
     "TopNavigationText": "Help to get a job",
-    "TopNavigationOrder": 705,
+    "TopNavigationOrder": 900,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/get-a-job"

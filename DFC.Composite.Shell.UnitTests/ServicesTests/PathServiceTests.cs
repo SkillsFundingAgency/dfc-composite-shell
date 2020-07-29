@@ -1,8 +1,9 @@
-﻿using DFC.Composite.Shell.Models;
+﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.HttpClientService;
-using DFC.Composite.Shell.Services.Paths;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -18,9 +19,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetPathsReturnsPathModelResults()
         {
-            var responseContent = new List<PathModel>
+            var responseContent = new List<AppRegistrationModel>
             {
-                new PathModel
+                new AppRegistrationModel
                 {
                     IsOnline = true,
                     Path = "SomeFakePath",
@@ -30,20 +31,21 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var httpResponse = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new ObjectContent(typeof(List<PathModel>), responseContent, new JsonMediaTypeFormatter()),
+                Content = new ObjectContent(typeof(List<AppRegistrationModel>), responseContent, new JsonMediaTypeFormatter()),
             };
 
             var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
+            var logger = A.Fake<ILogger<AppRegistryService>>();
             var httpClient = new HttpClient(fakeHttpMessageHandler)
             {
                 BaseAddress = new Uri("http://SomePathBaseAddress"),
             };
 
-            var pathService = new PathService(httpClient);
-            var result = await pathService.GetPaths().ConfigureAwait(false);
+            var appRegistryService = new AppRegistryService(logger, httpClient);
+            var result = await appRegistryService.GetPaths().ConfigureAwait(false);
 
             Assert.Equal(responseContent, result);
 

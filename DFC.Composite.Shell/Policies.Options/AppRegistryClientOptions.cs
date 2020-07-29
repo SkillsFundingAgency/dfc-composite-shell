@@ -1,6 +1,6 @@
 ﻿namespace DFC.Composite.Shell.Policies.Options
 {
-    public class RegionClientOptions : HttpClientOptions
+    public class AppRegistryClientOptions : HttpClientOptions
     {
     }
 }

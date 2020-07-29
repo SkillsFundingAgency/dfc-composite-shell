@@ -1,9 +1,11 @@
 ﻿using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
+using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -15,39 +17,50 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace DFC.Composite.Shell.Controllers
 {
     public class AuthController : Controller
     {
         public const string RedirectSessionKey = "RedirectSession";
+        public const string RedirectAttribute = "{url}";
+
         private readonly IOpenIdConnectClient authClient;
         private readonly ILogger<AuthController> logger;
         private readonly AuthSettings settings;
+        private readonly IVersionedFiles versionedFiles;
+        private readonly IConfiguration configuration;
 
-        public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings)
+        public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings, IVersionedFiles versionedFiles, IConfiguration configuration)
         {
             if (settings == null)
             {
                 throw new ArgumentNullException(nameof(settings));
             }
+
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;
+            this.versionedFiles = versionedFiles;
+            this.configuration = configuration;
         }
 
         public async Task<IActionResult> SignIn(string redirectUrl)
         {
-            SetRedirectUrl(redirectUrl);
+            SetRedirectUrl(GetRedirectURl(redirectUrl));
             var signInUrl = await authClient.GetSignInUrl().ConfigureAwait(false);
+            return Redirect(signInUrl);
+        }
+
+        public async Task<IActionResult> ResetPassword()
+        {
+            var signInUrl = await authClient.GetResetPasswordUrl().ConfigureAwait(false);
             return Redirect(signInUrl);
         }
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
-            SetRedirectUrl(redirectUrl);
+            redirectUrl = string.IsNullOrEmpty(redirectUrl) ? Request.Headers["Referer"].ToString() : redirectUrl;
             var signInUrl = await authClient.GetSignOutUrl(redirectUrl).ConfigureAwait(false);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
             return Redirect(signInUrl);
@@ -55,7 +68,7 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> Auth(string id_token)
         {
-            JwtSecurityToken validatedToken ;//= new JwtSecurityToken("");
+            JwtSecurityToken validatedToken;
             try
             {
                 validatedToken = await authClient.ValidateToken(id_token).ConfigureAwait(false);
@@ -72,6 +85,7 @@ namespace DFC.Composite.Shell.Controllers
                 new Claim(ClaimTypes.Email, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value),
                 new Claim(ClaimTypes.GivenName, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value),
                 new Claim(ClaimTypes.Surname, validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value),
+                new Claim("DssToken", id_token),
             };
 
             var expiryTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -83,16 +97,17 @@ namespace DFC.Composite.Shell.Controllers
                 IsPersistent = true,
             };
 
-            await HttpContext.SignInAsync(new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { new Claim("bearer", CreateChildAppToken(claims, expiryTime)) }, CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
+            await HttpContext.SignInAsync(
+                new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    new List<Claim>
+                    {
+                        new Claim("bearer", CreateChildAppToken(claims, expiryTime)),
+                        new Claim(ClaimTypes.Name, $"{validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value} {validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value}"),
+                    },
+                    CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
 
-            return Redirect(GetRedirectUrl());
-        }
-
-        public async Task<IActionResult> Register(string redirectUrl)
-        {
-            SetRedirectUrl(redirectUrl);
-            var signInUrl = await authClient.GetRegisterUrl().ConfigureAwait(false);
-            return Redirect(signInUrl);
+            return Redirect(GetAndResetRedirectUrl());
         }
 
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)
@@ -115,16 +130,31 @@ namespace DFC.Composite.Shell.Controllers
 
         private void SetRedirectUrl(string redirectUrl)
         {
+            redirectUrl = string.IsNullOrEmpty(redirectUrl) ? Request.Headers["Referer"].ToString() : redirectUrl;
             if (!string.IsNullOrEmpty(redirectUrl))
             {
                 HttpContext.Session.SetString(RedirectSessionKey, redirectUrl);
             }
         }
 
-        private string GetRedirectUrl()
+        private string GetRedirectURl(string redirectFromQuery)
+        {
+            var referer = Request.Headers["Referer"].ToString();
+
+            if (string.IsNullOrEmpty(referer) && string.IsNullOrEmpty(redirectFromQuery))
+            {
+                return settings.DefaultRedirectUrl;
+            }
+
+            return string.IsNullOrEmpty(redirectFromQuery) ? referer : redirectFromQuery;
+        }
+
+        private string GetAndResetRedirectUrl()
         {
             var url = HttpContext.Session.GetString(RedirectSessionKey);
-            return string.IsNullOrEmpty(url) ? settings.DefaultRedirectUrl : url;
+            var redirectUrl = string.IsNullOrEmpty(url) ? settings.DefaultRedirectUrl : url;
+            HttpContext.Session.Remove(RedirectSessionKey);
+            return settings.AuthDssEndpoint.Replace(RedirectAttribute, redirectUrl, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

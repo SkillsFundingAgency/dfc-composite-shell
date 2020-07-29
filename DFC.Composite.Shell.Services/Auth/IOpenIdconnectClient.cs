@@ -9,6 +9,8 @@ namespace DFC.Composite.Shell.Services.Auth
 
         Task<string> GetSignInUrl();
 
+        Task<string> GetResetPasswordUrl();
+
         Task<JwtSecurityToken> ValidateToken(string token);
 
         Task<string> GetSignOutUrl(string redirectUrl);
