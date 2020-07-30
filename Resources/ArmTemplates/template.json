@@ -76,6 +76,9 @@
         },
         "ShowLoginBanner": {
             "type": "bool"
+        },
+        "Neo4JSettingsSendData": {
+            "type": "bool"
         }
     },
     "variables": {
@@ -328,7 +331,7 @@
                             },
                             {
                                 "name": "Neo4JSettings__SendData",
-                                "value": true
+                                "value": "[parameters('Neo4JSettingsSendData')]"
                             },
                             {
                                 "name": "VisitClientOptions__Timeout",
