@@ -55,6 +55,9 @@
         },
         "ShowLoginBanner": {
             "value": false
+        },
+        "Neo4JSettingsSendData": {
+            "value": false
         }
     }
 }
