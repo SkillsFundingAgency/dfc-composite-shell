@@ -1,0 +1,53 @@
+﻿@model PageViewModel
+
+@{
+    Layout = Model.LayoutName;
+    ViewBag.BrandingAssetsCdn = Model.BrandingAssetsCdn;
+    ViewBag.Title = Model.PageTitle;
+    ViewBag.PhaseBannerHtml = Model.PhaseBannerHtml;
+
+    ViewBag.VersionedPathForMainMinCss = Model.VersionedPathForMainMinCss;
+    ViewBag.VersionedPathForGovukMinCss = Model.VersionedPathForGovukMinCss;
+    ViewBag.VersionedPathForAllIe8Css = Model.VersionedPathForAllIe8Css;
+    ViewBag.VersionedPathForJQueryBundleMinJs = Model.VersionedPathForJQueryBundleMinJs;
+    ViewBag.VersionedPathForAllMinJs = Model.VersionedPathForAllMinJs;
+    ViewBag.VersionedPathForDfcDigitalMinJs = Model.VersionedPathForDfcDigitalMinJs;
+    ViewBag.VersionedPathForCompUiMinJs = Model.VersionedPathForCompUiMinJs;
+}
+
+@section Head
+{
+    @if (!string.IsNullOrWhiteSpace(Model.PageTitle))
+    {
+        <title>@Model.PageTitle</title>
+    }
+}
+
+@section Breadcrumb
+{
+    <div class="govuk-width-container">
+        <div class="govuk-breadcrumbs">
+            <ol class="govuk-breadcrumbs__list">
+                <li class="govuk-breadcrumbs__list-item">
+                    <a class="govuk-breadcrumbs__link" href="/">Home</a>
+                </li>
+                <li class="govuk-breadcrumbs__list-item" aria-current="page">Error</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Body
+{
+    <div class="govuk-width-container">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="content-container">
+                    <h1 class="heading-xlarge">Sorry, there is a problem with this service</h1>
+                    <p>Please try again later.</p>
+                    <p><a href="/contact-us">Contact us</a> if you want to speak to one of our careers advisers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
