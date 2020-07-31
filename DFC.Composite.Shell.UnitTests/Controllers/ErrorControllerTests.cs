@@ -1,8 +1,10 @@
 ﻿using DFC.Composite.Shell.Controllers;
+using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Utilities;
 using FakeItEasy;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -11,10 +13,14 @@ namespace DFC.Composite.Shell.Test.Controllers
     public class ErrorControllerTests
     {
         private readonly ILogger<ApplicationController> fakeLogger;
+        private readonly IVersionedFiles fakeVersionedFiles;
+        private readonly IConfiguration fakeConfiguration;
 
         public ErrorControllerTests()
         {
             fakeLogger = A.Fake<ILogger<ApplicationController>>();
+            fakeVersionedFiles = A.Fake<IVersionedFiles>();
+            fakeConfiguration = A.Fake<IConfiguration>();
         }
 
         [Fact]
@@ -22,7 +28,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             // Arrange
             string expectedUrl = $"/{ApplicationController.AlertPathName}/500";
-            var errorController = new ErrorController(fakeLogger)
+            using var errorController = new ErrorController(fakeLogger, fakeVersionedFiles, fakeConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -34,11 +40,9 @@ namespace DFC.Composite.Shell.Test.Controllers
             var result = errorController.Error();
 
             // Assert
-            var statusResult = Assert.IsType<RedirectResult>(result);
-
-            statusResult.Url.Should().Be(expectedUrl);
-            A.Equals(false, statusResult.Permanent);
-            errorController.Dispose();
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
+            Assert.Contains("Error", model.PageTitle, System.StringComparison.OrdinalIgnoreCase);
         }
     }
 }
