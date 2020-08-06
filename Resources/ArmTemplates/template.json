@@ -79,6 +79,9 @@
         },
         "Neo4JSettingsSendData": {
             "type": "bool"
+        },
+        "ExceptionCountThreshold": {
+            "type": "string"
         }
     },
     "variables": {
@@ -399,7 +402,7 @@
                         "value": "GreaterThan"
                     },
                     "threshold": {
-                        "value": "0"
+                        "value": "[parameters('ExceptionCountThreshold')]"
                     },
                     "aggregation": {
                         "value": "Count"
