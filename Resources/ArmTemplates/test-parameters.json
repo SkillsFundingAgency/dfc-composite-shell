@@ -58,6 +58,9 @@
         },
         "Neo4JSettingsSendData": {
             "value": false
+        },
+        "ExceptionCountThreshold":{
+            "value": "0"
         }
     }
 }

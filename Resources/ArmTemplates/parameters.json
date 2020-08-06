@@ -73,6 +73,9 @@
         },
         "Neo4JSettingsSendData": {
             "value": __Neo4JSettingsSendData__
+        },
+        "ExceptionCountThreshold":{
+            "value": "__ExceptionCountThreshold__"
         }
     }
 }
