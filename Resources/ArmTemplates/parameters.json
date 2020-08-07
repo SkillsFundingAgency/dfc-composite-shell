@@ -76,6 +76,9 @@
         },
         "ExceptionCountThreshold":{
             "value": "__ExceptionCountThreshold__"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "value": "__AppRegistryClientOptionsBaseAddress__"
         }
     }
 }

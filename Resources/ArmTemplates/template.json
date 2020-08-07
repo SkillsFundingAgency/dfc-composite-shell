@@ -82,6 +82,9 @@
         },
         "ExceptionCountThreshold": {
             "type": "string"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "type": "string"
         }
     },
     "variables": {
@@ -350,7 +353,7 @@
                             },
                             {
                                 "name": "AppRegistryClientOptions__BaseAddress",
-                                "value": "[concat(parameters('ApimProxyAddress'), '/composite-ui-appRegistry/appregistry/')]"
+                                "value": "[parameters('AppRegistryClientOptionsBaseAddress')]"
                             },
                             {
                                 "name": "AppRegistryClientOptions__ApiKey",

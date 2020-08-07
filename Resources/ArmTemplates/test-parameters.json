@@ -61,6 +61,9 @@
         },
         "ExceptionCountThreshold":{
             "value": "0"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "value": "dummyurl"
         }
     }
 }
