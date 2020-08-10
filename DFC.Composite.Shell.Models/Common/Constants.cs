@@ -11,6 +11,7 @@
         public const string ApplicationInsightsScriptResourceAddress = "ApplicationInsights:ScriptResourceAddress";
         public const string ApplicationInsightsConnectSources = "ApplicationInsights:ConnectSources";
         public const string ApplicationInsightsInstrumentationKey = "ApplicationInsights:InstrumentationKey";
+        public const string AzureAppServiceAppInsightsInstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
         public const string ApimProxyAddress = "ApimProxyAddress";
     }
 }
