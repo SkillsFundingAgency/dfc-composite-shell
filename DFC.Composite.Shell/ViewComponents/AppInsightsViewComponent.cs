@@ -16,7 +16,10 @@ namespace DFC.Composite.Shell.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var appInsightsKey = configuration.GetValue<string>(Constants.ApplicationInsightsInstrumentationKey);
+            // Azure hosted app service environment variables takes precedence over config
+            // see https://github.com/Microsoft/ApplicationInsights-aspnetcore/blob/v2.5.0/src/Microsoft.ApplicationInsights.AspNetCore/Extensions/ApplicationInsightsExtensions.cs#L286-L297
+            var appInsightsKey = configuration.GetSection(Constants.AzureAppServiceAppInsightsInstrumentationKeyForWebSites)?.Value;
+            appInsightsKey = string.IsNullOrEmpty(appInsightsKey) ? configuration.GetValue<string>(Constants.ApplicationInsightsInstrumentationKey) : appInsightsKey;
 
             var vm = new AppInsightsViewModel { InstrumentationKey = appInsightsKey };
             return await Task.FromResult(View(vm)).ConfigureAwait(true);
