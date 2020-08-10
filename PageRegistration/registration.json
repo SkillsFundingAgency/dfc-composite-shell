@@ -39,11 +39,11 @@
     "ExternalUrl": "__ExternalLiveSite__/about-us"
   },
   {
-    "Path": "get-a-job",
-    "TopNavigationText": "Help to get a job",
+    "Path": "careers-advice",
+    "TopNavigationText": "Careers advice",
     "TopNavigationOrder": 900,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
-    "ExternalUrl": "__ExternalLiveSite__/get-a-job"
+    "ExternalUrl": "__ExternalLiveSite__/careers-advice"
   }
 ]
