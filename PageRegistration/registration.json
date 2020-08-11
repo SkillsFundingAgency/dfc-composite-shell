@@ -30,7 +30,8 @@
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/contact-us"
-  },{
+  },
+  {
     "Path": "about-us",
     "TopNavigationText": "About us",
     "TopNavigationOrder": 800,
@@ -39,7 +40,7 @@
     "ExternalUrl": "__ExternalLiveSite__/about-us"
   },
   {
-    "Path": "careers-advice",
+    "Path": "get-a-job",
     "TopNavigationText": "Careers advice",
     "TopNavigationOrder": 900,
     "Layout": 0,
