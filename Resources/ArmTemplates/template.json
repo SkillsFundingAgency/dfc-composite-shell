@@ -54,6 +54,9 @@
                 "description": "Custom host name for the website"
             }
         },
+        "compuiResourceGroupName": {
+            "type": "string"
+        },
         "keyVaultName": {
             "type": "string",
             "defaultValue": "",
@@ -188,11 +191,9 @@
         {
             "name": "compositeshellCertificates",
             "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('compuiResourceGroupName')]",
             "apiVersion": "2017-05-10",
             "condition": "[greater(length(parameters('customHostName')),0)]",
-            "dependsOn": [
-                "[variables('AppServicePlanName')]"
-            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
