@@ -48,35 +48,19 @@
             "defaultValue": ""
         },
         "customHostName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Custom host name for the website"
-            }
+            "type": "string"
         },
         "compuiResourceGroupName": {
             "type": "string"
         },
         "keyVaultName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Key vault with the certificate in - only used if customHostName is specified"
-            }
+            "type": "string"
         },
         "keyVaultResourceGroup": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().name]",
-            "metadata": {
-                "description": "Resource group for the key vault - only used if customHostName is specified"
-            }
+            "type": "string"
         },
         "certificateName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Name of the secret (certificate) as it appears in key vault - only used if customHostName is specified"
-            }
+            "type": "string"
         },
         "EnvironmentName": {
             "type": "string"
@@ -223,7 +207,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-staging.json')]",
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
