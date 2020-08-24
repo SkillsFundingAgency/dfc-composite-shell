@@ -51,28 +51,28 @@
             "type": "string",
             "defaultValue": "",
             "metadata": {
-            "description": "Custom host name for the website"
+                "description": "Custom host name for the website"
             }
         },
         "keyVaultName": {
             "type": "string",
             "defaultValue": "",
             "metadata": {
-            "description": "Key vault with the certificate in - only used if customHostName is specified"
+                "description": "Key vault with the certificate in - only used if customHostName is specified"
             }
         },
         "keyVaultResourceGroup": {
             "type": "string",
             "defaultValue": "[resourceGroup().name]",
             "metadata": {
-            "description": "Resource group for the key vault - only used if customHostName is specified"
+                "description": "Resource group for the key vault - only used if customHostName is specified"
             }
         },
         "certificateName": {
             "type": "string",
             "defaultValue": "",
             "metadata": {
-            "description": "Name of the secret (certificate) as it appears in key vault - only used if customHostName is specified"
+                "description": "Name of the secret (certificate) as it appears in key vault - only used if customHostName is specified"
             }
         },
         "EnvironmentName": {
@@ -152,63 +152,63 @@
                 }
             }
         },
-            {
-                "apiVersion": "2017-05-10",
-                "name": "[variables('AppServicePlanName')]",
-                "type": "Microsoft.Resources/deployments",
-                "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
-                "properties": {
-                    "mode": "Incremental",
-                    "templateLink": {
-                        "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
-                        "contentVersion": "1.0.0.0"
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('AppServicePlanName')]",
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServicePlanName": {
+                        "value": "[variables('AppServicePlanName')]"
                     },
-                    "parameters": {
-                        "appServicePlanName": {
-                            "value": "[variables('AppServicePlanName')]"
-                        },
-                        "aseHostingEnvironmentName": {
-                            "value": "[parameters('AseHostingEnvironmentName')]"
-                        },
-                        "aseResourceGroup": {
-                            "value": "[parameters('AseResourceGroup')]"
-                        },
-                        "aspSize": {
-                            "value": "[parameters('AspSize')]"
-                        },
-                        "aspInstances": {
-                            "value": 1
-                        },
-                        "nonASETier": {
-                            "value": "[parameters('AspTier')]"
-                        }
+                    "aseHostingEnvironmentName": {
+                        "value": "[parameters('AseHostingEnvironmentName')]"
+                    },
+                    "aseResourceGroup": {
+                        "value": "[parameters('AseResourceGroup')]"
+                    },
+                    "aspSize": {
+                        "value": "[parameters('AspSize')]"
+                    },
+                    "aspInstances": {
+                        "value": 1
+                    },
+                    "nonASETier": {
+                        "value": "[parameters('AspTier')]"
                     }
                 }
-            },
-            {
-                "name": "compositeshellCertificates",
+            }
+        },
+        {
+            "name": "compositeshellCertificates",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
             "condition": "[greater(length(parameters('customHostName')),0)]",
             "properties": {
                 "mode": "Incremental",
-                 "templateLink": {
+                "templateLink": {
                     "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "keyVaultName": {
-                    "value": "[parameters('keyVaultName')]"
-                },
+                        "value": "[parameters('keyVaultName')]"
+                    },
                     "keyVaultCertificateName": {
-                    "value": "[parameters('certificateName')]"
-                },
+                        "value": "[parameters('certificateName')]"
+                    },
                     "keyVaultResourceGroup": {
-                    "value": "[parameters('keyVaultResourceGroup')]"
-                },
+                        "value": "[parameters('keyVaultResourceGroup')]"
+                    },
                     "serverFarmId": {
-                    "value": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]"
+                        "value": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]"
                     }
                 }
             }
