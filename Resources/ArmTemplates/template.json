@@ -141,11 +141,11 @@
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
             "apiVersion": "2017-05-10",
-            "condition": "[greater(length(parameters('customHostName')),0)]",
+            "condition": "[equals(parameters('environmentName'), 'dev-draft''sit-draft')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]",
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]", 
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
