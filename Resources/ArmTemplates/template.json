@@ -189,8 +189,10 @@
             "name": "compositeshellCertificates",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
-            "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
             "condition": "[greater(length(parameters('customHostName')),0)]",
+            "dependsOn": [
+                "[variables('AppServicePlanName')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
