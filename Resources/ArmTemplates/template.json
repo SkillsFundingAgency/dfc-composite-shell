@@ -136,63 +136,63 @@
                 }
             }
         },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "[variables('AppServicePlanName')]",
-            "type": "Microsoft.Resources/deployments",
-            "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServicePlanName": {
-                        "value": "[variables('AppServicePlanName')]"
+            {
+                "apiVersion": "2017-05-10",
+                "name": "[variables('AppServicePlanName')]",
+                "type": "Microsoft.Resources/deployments",
+                "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
+                "properties": {
+                    "mode": "Incremental",
+                    "templateLink": {
+                        "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
+                        "contentVersion": "1.0.0.0"
                     },
-                    "aseHostingEnvironmentName": {
-                        "value": "[parameters('AseHostingEnvironmentName')]"
-                    },
-                    "aseResourceGroup": {
-                        "value": "[parameters('AseResourceGroup')]"
-                    },
-                    "aspSize": {
-                        "value": "[parameters('AspSize')]"
-                    },
-                    "aspInstances": {
-                        "value": 1
-                    },
-                    "nonASETier": {
-                        "value": "[parameters('AspTier')]"
+                    "parameters": {
+                        "appServicePlanName": {
+                            "value": "[variables('AppServicePlanName')]"
+                        },
+                        "aseHostingEnvironmentName": {
+                            "value": "[parameters('AseHostingEnvironmentName')]"
+                        },
+                        "aseResourceGroup": {
+                            "value": "[parameters('AseResourceGroup')]"
+                        },
+                        "aspSize": {
+                            "value": "[parameters('AspSize')]"
+                        },
+                        "aspInstances": {
+                            "value": 1
+                        },
+                        "nonASETier": {
+                            "value": "[parameters('AspTier')]"
+                        }
                     }
                 }
-            }
-        },
-        {
-            "name": "compositeshell-certificate",
+            },
+            {
+                "name": "compositeshellCertificates",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
             "condition": "[greater(length(parameters('customHostName')),0)]",
             "properties": {
-              "mode": "Incremental",
-              "templateLink": {
-                "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]",
-                "contentVersion": "1.0.0.0"
+                "mode": "Incremental",
+                 "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]",
+                    "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
+                    "value": "[parameters('keyVaultName')]"
                 },
-                "keyVaultCertificateName": {
-                        "value": "[parameters('certificateName')]"
+                    "keyVaultCertificateName": {
+                    "value": "[parameters('certificateName')]"
                 },
-                "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
+                    "keyVaultResourceGroup": {
+                    "value": "[parameters('keyVaultResourceGroup')]"
                 },
-                "serverFarmId": {
-                        "value": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]"
+                    "serverFarmId": {
+                    "value": "[resourceId('Microsoft.Web/serverfarms', variables('AppServicePlanName'))]"
                     }
                 }
             }
