@@ -1,9 +1,4 @@
-﻿using DFC.Composite.Shell.Services.AppRegistry;
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Polly.CircuitBreaker;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace DFC.Composite.Shell.ViewComponents
 {
