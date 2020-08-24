@@ -170,11 +170,11 @@
             }
         },
         {
-            "apiVersion": "2017-05-10",
-            "name": "compositeshellCertificates",
+            "name": "compositeshell-certificate",
             "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
             "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
-            "condition": "[equals(parameters('environmentName'), 'dev-draft''sit-draft')]",
+            "condition": "[greater(length(parameters('customHostName')),0)]",
             "properties": {
               "mode": "Incremental",
               "templateLink": {
