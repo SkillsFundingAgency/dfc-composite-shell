@@ -1,10 +1,4 @@
-﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
-using DFC.Composite.Shell.Services.AppRegistry;
-using DFC.Composite.Shell.ViewComponents;
-using DFC.Composite.Shell.Views.Test.Extensions;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System.Threading.Tasks;
+﻿using DFC.Composite.Shell.ViewComponents;
 using Xunit;
 
 namespace DFC.Composite.Shell.Views.Test.Tests
@@ -21,7 +15,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
         [Fact]
         public void ReturnsPathModelDetailsWhenPathExists()
         {
-            var result =  viewComponent.Invoke();
+            var result = viewComponent.Invoke();
 
             Assert.NotNull(result);
         }
