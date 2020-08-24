@@ -43,7 +43,7 @@
         },
         "certificateName": {
             "value": "certificate-name"
-          },
+        },
         "enableAlerts": {
             "value": false
         },
@@ -74,7 +74,7 @@
         "Neo4JSettingsSendData": {
             "value": false
         },
-        "ExceptionCountThreshold":{
+        "ExceptionCountThreshold": {
             "value": "0"
         },
         "AppRegistryClientOptionsBaseAddress": {

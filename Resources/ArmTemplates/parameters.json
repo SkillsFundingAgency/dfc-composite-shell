@@ -89,7 +89,7 @@
         "Neo4JSettingsSendData": {
             "value": __Neo4JSettingsSendData__
         },
-        "ExceptionCountThreshold":{
+        "ExceptionCountThreshold": {
             "value": "__ExceptionCountThreshold__"
         },
         "AppRegistryClientOptionsBaseAddress": {
