@@ -50,9 +50,6 @@
         "customHostName": {
             "type": "string"
         },
-        "compuiResourceGroupName": {
-            "type": "string"
-        },
         "keyVaultName": {
             "type": "string"
         },
@@ -175,7 +172,7 @@
         {
             "name": "compositeshellCertificates",
             "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[parameters('compuiResourceGroupName')]",
+            "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
             "apiVersion": "2017-05-10",
             "condition": "[greater(length(parameters('customHostName')),0)]",
             "properties": {

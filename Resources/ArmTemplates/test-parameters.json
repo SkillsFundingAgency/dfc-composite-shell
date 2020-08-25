@@ -35,9 +35,6 @@
         "customHostName": {
             "value": "some.host.name"
         },
-        "compuiResourceGroupName": {
-            "value": "dfc-dev-draft-compui-shell-rg"
-        },
         "keyVaultName": {
             "value": "a-keyvault"
         },

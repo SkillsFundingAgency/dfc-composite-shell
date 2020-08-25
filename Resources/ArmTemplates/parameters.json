@@ -50,9 +50,6 @@
         "customHostName": {
             "value": "__customHostName__"
         },
-        "compuiResourceGroupName": {
-            "value": "__compuiResourceGroupName__"
-        },
         "keyVaultName": {
             "value": "__SharedKeyVaultName__"
         },
