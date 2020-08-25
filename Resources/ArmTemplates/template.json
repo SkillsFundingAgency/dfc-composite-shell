@@ -175,6 +175,9 @@
             "resourceGroup": "[parameters('CompositeUiSharedResourceGroup')]",
             "apiVersion": "2017-05-10",
             "condition": "[greater(length(parameters('customHostName')),0)]",
+            "dependsOn": [
+                "variables('AppServicePlanName')"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
