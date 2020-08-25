@@ -54,7 +54,7 @@
             "value": "__SharedKeyVaultName__"
         },
         "keyVaultResourceGroup": {
-            "value": "__CompositeUiSharedResourceGroup__"
+            "value": "__SharedResourceGroup__"
         },
         "certificateName": {
             "value": "__certificateName__"
