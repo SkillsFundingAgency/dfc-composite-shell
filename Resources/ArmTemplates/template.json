@@ -191,7 +191,7 @@
                         "value": "[parameters('keyVaultResourceGroup')]"
                     },
                     "serverFarmId": {
-                        "value": "[reference(resourceId('CompositeUiSharedResourceGroup', 'Microsoft.Web/serverfarms', 'AppServicePlanName'))]"
+                        "value": "[reference(resourceId('CompositeUiSharedResourceGroup', 'Microsoft.Web/serverfarms', 'AppServicePlanName'), '2017-06-01')]"
                     }
                 }
             }
