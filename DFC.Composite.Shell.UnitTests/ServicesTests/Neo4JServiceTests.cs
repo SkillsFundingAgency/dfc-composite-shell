@@ -1,8 +1,10 @@
 ﻿using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Test.ClientHandlers;
+using DFC.Composite.Shell.UnitTests.LogHandler;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
@@ -17,6 +19,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         private readonly HttpClient client;
         private readonly FakeHttpMessageHandler fakeHttpMessageHandler;
         private readonly IFakeHttpRequestSender fakeHttpRequestSender;
+        private readonly FakeLogger<Neo4JService> logger;
 
         public Neo4JServiceTests()
         {
@@ -26,6 +29,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             });
 
             fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
+            logger = A.Fake<FakeLogger<Neo4JService>>();
 
             fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             client = new HttpClient(fakeHttpMessageHandler)
@@ -37,20 +41,35 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         [Fact]
         public void WhenSettingsNullThrowError()
         {
-            Assert.Throws<ArgumentNullException>(() => new Neo4JService(null, client));
+            Assert.Throws<ArgumentNullException>(() => new Neo4JService(null, client, logger));
         }
 
         [Fact]
-        public async Task WhenRequestNullThrowError()
+        public async Task WhenRequestNullThenDoNotCallVisitService()
         {
-            var service = new Neo4JService(settings, client);
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => await service.InsertNewRequest(null).ConfigureAwait(false)).ConfigureAwait(false);
+            var service = new Neo4JService(settings, client, logger);
+            await service.InsertNewRequest(null).ConfigureAwait(false);
+            A.CallTo(() => logger.Log(LogLevel.Warning, A<Exception>.Ignored, A<string>.Ignored))
+                .MustHaveHappened(1, Times.Exactly);
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustNotHaveHappened();
+        }
+
+        [Fact]
+        public async Task WhenInsertNewRequestFailsThenLogError()
+        {
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Throws(new Exception());
+
+            var service = new Neo4JService(settings, client, logger);
+            await service.InsertNewRequest(A.Fake<HttpRequest>()).ConfigureAwait(false);
+            A.CallTo(() => logger.Log(LogLevel.Warning, A<Exception>.Ignored, A<string>.Ignored))
+                .MustHaveHappened(1, Times.Exactly);
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustHaveHappened();
         }
 
         [Fact]
         public async Task WhenInsertNewRequestThenPostToVisitApi()
         {
-            var service = new Neo4JService(settings, client);
+            var service = new Neo4JService(settings, client, logger);
             await service.InsertNewRequest(A.Fake<HttpRequest>()).ConfigureAwait(false);
 
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustHaveHappened();
@@ -64,7 +83,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 SendData = false,
             });
 
-            var service = new Neo4JService(options, client);
+            var service = new Neo4JService(options, client, logger);
 
             await service.InsertNewRequest(A.Fake<HttpRequest>()).ConfigureAwait(false);
 

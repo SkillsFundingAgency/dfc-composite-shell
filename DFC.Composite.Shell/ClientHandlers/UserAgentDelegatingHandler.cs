@@ -27,7 +27,13 @@ namespace DFC.Composite.Shell.ClientHandlers
                 foreach (var item in httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent])
                 {
                     logger.LogInformation($"Setting UserAgent to {item}");
-                    request.Headers.Add(HeaderNames.UserAgent, item);
+
+                    //Added without validation because external host headers with a ; after the product name were failing
+                    //+http://code.google.com/appengine; - would fail with a format exception, if the just the add method is used.
+                    if (!request.Headers.TryAddWithoutValidation(HeaderNames.UserAgent, item))
+                    {
+                        logger.LogWarning($"Cound not add {HeaderNames.UserAgent} - {item}");
+                    }
                 }
             }
 
