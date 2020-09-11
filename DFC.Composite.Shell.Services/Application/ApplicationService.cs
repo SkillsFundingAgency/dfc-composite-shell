@@ -125,10 +125,12 @@ namespace DFC.Composite.Shell.Services.Application
         private async Task<ApplicationModel> DetermineArticleLocation(string path, string data)
         {
             const string appRegistryPathNameForPagesApp = "pages";
-            var article = $"{path}" + (string.IsNullOrWhiteSpace(data) ? string.Empty : $"/{data}");
+            var pageLocation = string.Join("/", new[] { path, data });
+            var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
+            var article = string.Join("/", pageLocations);
             var applicationModel = new ApplicationModel();
             var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp).ConfigureAwait(false);
-         
+
             if (pagesAppRegistrationModel?.PageLocations != null && pagesAppRegistrationModel.IsOnline && pagesAppRegistrationModel.PageLocations.Values.SelectMany(s => s.Locations).Contains("/" + article))
             {
                 applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
