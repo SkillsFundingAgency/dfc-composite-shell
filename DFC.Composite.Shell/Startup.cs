@@ -118,9 +118,9 @@ namespace DFC.Composite.Shell
 
             app.Use(async (context, next) =>
             {
-                context.Response.Headers.Add("Feature-Policy", "sync-xhr 'self'");
-                context.Response.Headers.Add("Expect-CT", "max-age=86400, enforce");
-                context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+                context.Response.Headers["Feature-Policy"] = "sync-xhr 'self'";
+                context.Response.Headers["Expect-CT"] = "max-age=86400, enforce";
+                context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
                 await next().ConfigureAwait(false);
             });
 
