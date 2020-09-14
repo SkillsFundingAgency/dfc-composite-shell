@@ -31,6 +31,6 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
 
         public List<RegionModel> Regions { get; set; }
 
-        public List<string> Locations { get; set; }
+        public Dictionary<Guid, PageLocationModel>? PageLocations { get; set; }
     }
 }
