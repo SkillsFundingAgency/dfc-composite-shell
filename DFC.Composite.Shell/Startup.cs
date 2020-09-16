@@ -249,7 +249,7 @@ namespace DFC.Composite.Shell
                 endpoints.MapRazorPages();
 
                 // add the default route
-                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("default", "{controller=Application}/{action=Action}/");
 
                 // add the site map route
                 endpoints.MapControllerRoute("Sitemap", "Sitemap.xml", new { controller = "Sitemap", action = "Sitemap" });

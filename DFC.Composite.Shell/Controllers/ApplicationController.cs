@@ -79,7 +79,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     try
                     {
-                        logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
+                        logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}/{requestItem.Data}");
 
                         await neo4JService.InsertNewRequest(Request).ConfigureAwait(false);
 
@@ -95,7 +95,7 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else if (application.AppRegistrationModel.ExternalURL != null)
                         {
-                            logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestItem.Path}");
+                            logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestItem.Path}/{requestItem.Data}");
 
                             return Redirect(application.AppRegistrationModel.ExternalURL.ToString());
                         }
@@ -107,7 +107,7 @@ namespace DFC.Composite.Shell.Controllers
 
                             await applicationService.GetMarkupAsync(application, application.Article, viewModel, Request.QueryString.Value).ConfigureAwait(false);
 
-                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
+                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}/{requestItem.Data}");
 
                             if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0 && int.TryParse(requestItem.Data, out var statusCode))
                             {
@@ -172,7 +172,7 @@ namespace DFC.Composite.Shell.Controllers
                 {
                     try
                     {
-                        logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}");
+                        logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}/{requestItem.Data}");
 
                         var application = await applicationService.GetApplicationAsync(requestItem.Path, requestItem.Data).ConfigureAwait(false);
 
@@ -208,7 +208,7 @@ namespace DFC.Composite.Shell.Controllers
                                 await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, string.Empty).ConfigureAwait(false);
                             }
 
-                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}");
+                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}/{requestItem.Data}");
 
                             if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
                             {

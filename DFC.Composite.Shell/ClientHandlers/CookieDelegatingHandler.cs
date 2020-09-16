@@ -33,6 +33,11 @@ namespace DFC.Composite.Shell.ClientHandlers
         {
             var prefix = pathLocator.GetPath();
 
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                prefix = "pages";
+            }
+
             CopyHeaders(prefix, httpContextAccessor.HttpContext.Request.Headers, request?.Headers);
             CopyHeaders(prefix, httpContextAccessor.HttpContext.Items, request?.Headers);
             AddTokenHeaderFromCookie(httpContextAccessor.HttpContext, request);

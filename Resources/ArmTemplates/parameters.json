@@ -44,6 +44,21 @@
         "SharedAppServicePlanResourceGroup": {
             "value": "__CompositeUiSharedResourceGroup__"
         },
+        "EnvironmentName": {
+            "value": "__EnvironmentNameAppSetting__"
+        },
+        "customHostName": {
+            "value": "__customHostName__"
+        },
+        "keyVaultName": {
+            "value": "__SharedKeyVaultName__"
+        },
+        "keyVaultResourceGroup": {
+            "value": "__SharedResourceGroup__"
+        },
+        "certificateName": {
+            "value": "__certificateName__"
+        },
         "enableAlerts": {
             "value": __EnableAzureMonitorAlerting__
         },
@@ -74,8 +89,11 @@
         "Neo4JSettingsSendData": {
             "value": __Neo4JSettingsSendData__
         },
-        "ExceptionCountThreshold":{
+        "ExceptionCountThreshold": {
             "value": "__ExceptionCountThreshold__"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "value": "__AppRegistryClientOptionsBaseAddress__"
         }
     }
 }
