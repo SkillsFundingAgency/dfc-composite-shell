@@ -27,7 +27,6 @@ namespace DFC.Composite.Shell.Test.Controllers
         public void ErrorControllerErrorActionReturnsSuccess()
         {
             // Arrange
-            string expectedUrl = $"/{ApplicationController.AlertPathName}/500";
             using var errorController = new ErrorController(fakeLogger, fakeVersionedFiles, fakeConfiguration)
             {
                 ControllerContext = new ControllerContext()

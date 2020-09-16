@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
@@ -13,8 +14,9 @@ namespace DFC.Composite.Shell.Services.Neo4J
         public const string CreateEndpoint = "api/CreateVisit";
         private readonly bool sendData;
         private readonly HttpClient httpClient;
+        private readonly ILogger<Neo4JService> logger;
 
-        public Neo4JService(IOptions<Neo4JSettings> settings, HttpClient client)
+        public Neo4JService(IOptions<Neo4JSettings> settings, HttpClient client, ILogger<Neo4JService> logger)
         {
             if (settings == null)
             {
@@ -25,6 +27,7 @@ namespace DFC.Composite.Shell.Services.Neo4J
 
             httpClient = client;
             sendData = settings.Value.SendData;
+            this.logger = logger;
         }
 
         public Task InsertNewRequest(HttpRequest request)
@@ -34,12 +37,13 @@ namespace DFC.Composite.Shell.Services.Neo4J
                 return Task.CompletedTask;
             }
 
-            if (request == null)
+            if (request != null)
             {
-                throw new ArgumentNullException(nameof(request));
+                return InsertNewRequestInternal(request);
             }
 
-            return InsertNewRequestInternal(request);
+            logger.LogWarning($"{nameof(Action)}: Visit API request failed Request parameter null");
+            return Task.CompletedTask;
         }
 
         private static Guid GetSessionId(HttpRequest request)
@@ -78,8 +82,15 @@ namespace DFC.Composite.Shell.Services.Neo4J
                 RequestUri = new Uri($"{httpClient.BaseAddress}{CreateEndpoint}"),
                 Content = new ObjectContent(typeof(VisitRequestModel), model, new JsonMediaTypeFormatter(), MediaTypeNames.Application.Json),
             };
-            var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning($"{nameof(Action)}: Visit API request failed with error {e.Message}");
+            }
         }
     }
 }

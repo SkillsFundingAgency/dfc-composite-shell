@@ -24,7 +24,6 @@ namespace DFC.Composite.Shell.Test.Controllers
     {
         private const string DummyScheme = "dummyScheme";
         private const string DummyHost = "dummyHost";
-        private const string DummyHomeIndex = "/DummyHomeIndex";
 
         private readonly SitemapController defaultController;
         private readonly ILogger<SitemapController> defaultLogger;
@@ -65,7 +64,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => defaultHttpContext.User).Returns(principal);
 
             defaultUrlHelper = A.Fake<IUrlHelper>();
-            A.CallTo(() => defaultUrlHelper.Action(A<UrlActionContext>.Ignored)).Returns(DummyHomeIndex);
 
             defaultTokenRetriever = A.Fake<IBearerTokenRetriever>();
             A.CallTo(() => defaultTokenRetriever.GetToken(A<HttpContext>.Ignored)).Returns("SomeToken");
@@ -98,14 +96,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             var result = await defaultController.Sitemap().ConfigureAwait(false);
 
             Assert.True(!string.IsNullOrWhiteSpace(result.Content) && result.ContentType == MediaTypeNames.Application.Xml);
-        }
-
-        [Fact]
-        public async Task SitemapControllerWritesShellSitemapPathsText()
-        {
-            var result = await defaultController.Sitemap().ConfigureAwait(false);
-
-            Assert.Contains(DummyHomeIndex, result.Content, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
