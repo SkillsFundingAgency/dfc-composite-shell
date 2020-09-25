@@ -98,6 +98,20 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
+        public async Task GetContentWhenRegionIsNotHealthyReturnMarkupMessageOfflineHtml()
+        {
+            var model = new RegionModel
+            {
+                IsHealthy = false,
+                OfflineHtml = null,
+            };
+
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
+
+            Assert.Equal(markupMessages.RegionOfflineHtml, result);
+        }
+
+        [Fact]
         public async Task GetContentWhenRegionReturnsRedirectResponseThenFollowRedirect()
         {
             var redirectHttpResponse = new HttpResponseMessage
@@ -311,6 +325,20 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
             Assert.Equal(OfflineHtml, result);
+        }
+
+        [Fact]
+        public async Task PostContentWhenRegionIsNotHealthyReturnMarkupMessagesOfflineHtml()
+        {
+            var model = new RegionModel
+            {
+                IsHealthy = false,
+                OfflineHtml = null,
+            };
+
+            var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+
+            Assert.Equal(markupMessages.RegionOfflineHtml, result);
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]

@@ -20,6 +20,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private const string RequestBaseUrl = "https://localhost";
         private const string ChildAppPath = "path1";
         private const string ChildAppData = "data1";
+        private const string AppRegistryPathNameForPagesApp = "pages";
         private const string HeadRegionContent = "headRegionContent";
         private const string BodyRegionContent = "bodyRegionContent";
         private const string BodyFooterRegionContent = "bodyfooterRegionContent";
@@ -33,12 +34,15 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly IContentProcessorService contentProcessor;
         private readonly MarkupMessages markupMessages;
         private readonly AppRegistrationModel defaultAppRegistrationModel;
+        private readonly AppRegistrationModel pagesAppRegistrationModel;
         private readonly RegionModel defaultHeadRegion;
         private readonly RegionModel defaultBodyRegion;
         private readonly RegionModel defaultBodyFooterRegion;
         private readonly List<RegionModel> defaultRegions;
         private readonly ApplicationModel defaultApplicationModel;
+        private readonly ApplicationModel pagesApplicationModel;
         private readonly ApplicationModel offlineApplicationModel;
+        private readonly ApplicationModel offlineApplicationModelWithoutMarkup;
         private readonly PageViewModel defaultPageViewModel;
         private readonly List<KeyValuePair<string, string>> defaultFormPostParams;
         private readonly ITaskHelper taskHelper;
@@ -67,6 +71,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyFooterRegion,
             };
             defaultAppRegistrationModel = new AppRegistrationModel { Path = ChildAppPath, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
+            pagesAppRegistrationModel = new AppRegistrationModel { Path = AppRegistryPathNameForPagesApp, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
 
             defaultPageViewModel = new PageViewModel
             {
@@ -80,9 +85,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             defaultApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
+            pagesApplicationModel = new ApplicationModel { AppRegistrationModel = pagesAppRegistrationModel };
             offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
+            offlineApplicationModelWithoutMarkup = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = null } };
 
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(ChildAppPath)).Returns(defaultAppRegistrationModel);
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp)).Returns(pagesAppRegistrationModel);
             A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(HeadRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
@@ -165,6 +173,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
+        public async Task GetMarkupAsyncWhenApplicationIsOfflineThenMarkupMessagesOfflineHtmlIsReturned()
+        {
+            await applicationService.GetMarkupAsync(offlineApplicationModelWithoutMarkup, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false);
+
+            Assert.Equal(markupMessages.AppOfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
+        }
+
+        [Fact]
         public async Task GetMarkupAsyncWhenApplicationModelIsNullThenArgumentNullExceptionThrown()
         {
             await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(null, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false)).ConfigureAwait(false);
@@ -182,6 +198,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             await applicationService.PostMarkupAsync(offlineApplicationModel, "index", "article", defaultFormPostParams, defaultPageViewModel).ConfigureAwait(false);
 
             Assert.Equal(OfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
+        }
+
+        [Fact]
+        public async Task PostMarkupAsyncWhenApplicationPathIsOfflineThenMarkupMessagesOfflineHtmlIsReturned()
+        {
+            await applicationService.PostMarkupAsync(offlineApplicationModelWithoutMarkup, "index", "article", defaultFormPostParams, defaultPageViewModel).ConfigureAwait(false);
+
+            Assert.Equal(markupMessages.AppOfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
         }
 
         [Fact]
@@ -251,6 +275,29 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             // Assert
             Assert.Null(result.RootUrl);
             Assert.Null(result.AppRegistrationModel);
+        }
+
+        [Fact]
+        public async Task GetApplicationAsyncReturnsPathsAndRegionsAndRootUriPagesApp()
+        {
+            // Arrange
+            var bodyAndFooterRegions = new List<RegionModel>
+            {
+                defaultBodyRegion,
+                defaultBodyFooterRegion,
+            };
+            var appRegistryModel = appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp).Result;
+            appRegistryModel.Regions = bodyAndFooterRegions;
+            appRegistryModel.PageLocations = new Dictionary<Guid, PageLocationModel> { { Guid.NewGuid(), new PageLocationModel { Locations = new List<string> { "/help-me" } } } };
+
+            // Act
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
+            var result = await service.GetApplicationAsync("help-me", string.Empty).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(AppRegistryPathNameForPagesApp, result.AppRegistrationModel.Path);
+            Assert.Equal(bodyAndFooterRegions.Count, result.AppRegistrationModel.Regions.Count);
+            Assert.Equal(RequestBaseUrl, result.RootUrl);
         }
 
         [Fact]
