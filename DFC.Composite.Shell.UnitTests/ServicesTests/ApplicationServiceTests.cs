@@ -31,6 +31,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessor;
+        private readonly MarkupMessages markupMessages;
         private readonly AppRegistrationModel defaultAppRegistrationModel;
         private readonly RegionModel defaultHeadRegion;
         private readonly RegionModel defaultBodyRegion;
@@ -49,6 +50,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService = A.Fake<IAppRegistryDataService>();
             contentRetriever = A.Fake<IContentRetriever>();
             contentProcessor = A.Fake<IContentProcessorService>();
+
+            markupMessages = new MarkupMessages { AppOfflineHtml = "<h3>App offline</h3>", RegionOfflineHtml = "<h3>Region offline</h3>" };
 
             var headRegionEndPoint = $"{RequestBaseUrl}/headRegionEndpoint";
             var bodyRegionEndPoint = $"{RequestBaseUrl}/bodyRegionEndpoint";
@@ -94,7 +97,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             taskHelper = A.Fake<ITaskHelper>();
             A.CallTo(() => taskHelper.TaskCompletedSuccessfully(A<Task>.Ignored)).Returns(true);
 
-            applicationService = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            applicationService = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages) { RequestBaseUrl = RequestBaseUrl };
         }
 
         public static IEnumerable<object[]> QueryStringParams => new List<object[]>
@@ -242,7 +245,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => localAppRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns((AppRegistrationModel)null);
 
             // Act
-            var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
             var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
@@ -262,7 +265,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = bodyAndFooterRegions;
 
             // Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
             var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
@@ -279,7 +282,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = fakeRegionModels;
 
             // Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
             var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
@@ -299,7 +302,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => incompleteTask.TaskCompletedSuccessfully(A<Task>.Ignored)).Returns(false);
 
             //Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, incompleteTask) { RequestBaseUrl = RequestBaseUrl };
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, incompleteTask, markupMessages) { RequestBaseUrl = RequestBaseUrl };
             await service.GetMarkupAsync(defaultApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
 
             // Assert
@@ -316,7 +319,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             mapper.Map(defaultApplicationModel, pageModel);
 
             //Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages) { RequestBaseUrl = RequestBaseUrl };
             await service.GetMarkupAsync(defaultApplicationModel, Article, pageModel, queryString).ConfigureAwait(false);
 
             A.CallTo(() => contentRetriever.GetContent(expectedResult, defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();

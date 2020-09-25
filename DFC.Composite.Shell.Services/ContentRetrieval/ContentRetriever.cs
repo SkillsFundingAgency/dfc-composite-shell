@@ -65,16 +65,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
                 }
+                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
+                {
+                    results = regionModel.OfflineHtml;
+                }
                 else if (regionModel.PageRegion != PageRegion.Head)
                 {
-                    if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
-                    {
-                        results = regionModel.OfflineHtml;
-                    }
-                    else
-                    {
-                        results = markupMessages.RegionOfflineHtml;
-                    }
+                    results = markupMessages.RegionOfflineHtml;
                 }
             }
             catch (BrokenCircuitException ex)
@@ -86,16 +83,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (regionModel.PageRegion != PageRegion.Head)
+                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
                 {
-                    if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
-                    {
-                        results = regionModel.OfflineHtml;
-                    }
-                    else
-                    {
-                        results = markupMessages.RegionOfflineHtml;
-                    }
+                    results = regionModel.OfflineHtml;
+                }
+                else if (regionModel.PageRegion != PageRegion.Head)
+                {
+                    results = markupMessages.RegionOfflineHtml;
                 }
             }
 
@@ -146,16 +140,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
+                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
+                {
+                    results = regionModel.OfflineHtml;
+                }
                 else if (regionModel.PageRegion != PageRegion.Head)
                 {
-                    if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
-                    {
-                        results = regionModel.OfflineHtml;
-                    }
-                    else
-                    {
-                        results = markupMessages.RegionOfflineHtml;
-                    }
+                    results = markupMessages.RegionOfflineHtml;
                 }
             }
             catch (BrokenCircuitException ex)
@@ -167,16 +158,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (regionModel.PageRegion != PageRegion.Head)
+                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
                 {
-                    if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
-                    {
-                        results = regionModel.OfflineHtml;
-                    }
-                    else
-                    {
-                        results = markupMessages.RegionOfflineHtml;
-                    }
+                    results = regionModel.OfflineHtml;
+                }
+                else if (regionModel.PageRegion != PageRegion.Head)
+                {
+                    results = markupMessages.RegionOfflineHtml;
                 }
             }
 

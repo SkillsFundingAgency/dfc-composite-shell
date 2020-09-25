@@ -261,13 +261,13 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult<string>(null);
             }
 
-            if (!pageRegionModel.IsHealthy && pageRegionModel.PageRegion != PageRegion.Head)
+            if (!pageRegionModel.IsHealthy)
             {
                 if (!string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml))
                 {
                     return Task.FromResult(pageRegionModel.OfflineHtml);
                 }
-                else
+                else if (pageRegionModel.PageRegion != PageRegion.Head)
                 {
                     return Task.FromResult(markupMessages.RegionOfflineHtml);
                 }
@@ -300,16 +300,13 @@ namespace DFC.Composite.Shell.Services.Application
             else
             {
                 var pageRegionModel = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == regionType);
-                if (pageRegionModel != null && pageRegionModel.PageRegion != PageRegion.Head)
+                if (!string.IsNullOrWhiteSpace(pageRegionModel?.OfflineHtml))
                 {
-                    if (!string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml))
-                    {
-                        outputHtmlMarkup = pageRegionModel.OfflineHtml;
-                    }
-                    else
-                    {
-                        outputHtmlMarkup = markupMessages.RegionOfflineHtml;
-                    }
+                    outputHtmlMarkup = pageRegionModel.OfflineHtml;
+                }
+                else if (pageRegionModel?.PageRegion != PageRegion.Head)
+                {
+                    outputHtmlMarkup = markupMessages.RegionOfflineHtml;
                 }
             }
 
