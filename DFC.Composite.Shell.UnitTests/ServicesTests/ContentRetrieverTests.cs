@@ -7,7 +7,6 @@ using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
-using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using RichardSzalay.MockHttp;
@@ -132,7 +131,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var model = new RegionModel
             {
-                PageRegion= PageRegion.BodyTop,
+                PageRegion = PageRegion.BodyTop,
                 IsHealthy = false,
                 OfflineHtml = null,
             };

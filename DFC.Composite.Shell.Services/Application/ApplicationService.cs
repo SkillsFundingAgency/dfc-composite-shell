@@ -98,7 +98,7 @@ namespace DFC.Composite.Shell.Services.Application
 
                 if (pageRegionContentModel != null)
                 {
-                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
+                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application?.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
                 }
             }
         }

@@ -36,10 +36,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         {
             const int MaxRedirections = 10;
 
-            if (regionModel == null)
-            {
-                throw new ArgumentNullException(nameof(regionModel));
-            }
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
 
             string results = null;
 
@@ -87,10 +84,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
         public async Task<string> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
-            if (regionModel == null)
-            {
-                throw new ArgumentNullException(nameof(regionModel));
-            }
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
 
             string results = null;
 
