@@ -19,17 +19,20 @@ namespace DFC.Composite.Shell.Services.Application
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessorService;
         private readonly ITaskHelper taskHelper;
+        private readonly MarkupMessages markupMessages;
 
         public ApplicationService(
             IAppRegistryDataService appRegistryDataService,
             IContentRetriever contentRetriever,
             IContentProcessorService contentProcessorService,
-            ITaskHelper taskHelper)
+            ITaskHelper taskHelper,
+            MarkupMessages markupMessages)
         {
             this.appRegistryDataService = appRegistryDataService;
             this.contentRetriever = contentRetriever;
             this.contentProcessorService = contentProcessorService;
             this.taskHelper = taskHelper;
+            this.markupMessages = markupMessages;
         }
 
         public string RequestBaseUrl { get; set; }
@@ -68,7 +71,7 @@ namespace DFC.Composite.Shell.Services.Application
 
                 if (pageRegionContentModel != null)
                 {
-                    pageRegionContentModel.Content = new HtmlString(application.AppRegistrationModel.OfflineHtml);
+                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
                 }
             }
         }
@@ -95,7 +98,7 @@ namespace DFC.Composite.Shell.Services.Application
 
                 if (pageRegionContentModel != null)
                 {
-                    pageRegionContentModel.Content = new HtmlString(application?.AppRegistrationModel.OfflineHtml);
+                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application?.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
                 }
             }
         }
@@ -246,7 +249,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (!pageRegionModel.IsHealthy)
             {
-                return Task.FromResult(pageRegionModel.OfflineHtml);
+                return Task.FromResult(!string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml) ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion));
             }
 
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, queryString);
@@ -278,7 +281,7 @@ namespace DFC.Composite.Shell.Services.Application
                 var pageRegionModel = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == regionType);
                 if (pageRegionModel != null)
                 {
-                    outputHtmlMarkup = pageRegionModel.OfflineHtml;
+                    outputHtmlMarkup = !string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml) ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion);
                 }
             }
 
