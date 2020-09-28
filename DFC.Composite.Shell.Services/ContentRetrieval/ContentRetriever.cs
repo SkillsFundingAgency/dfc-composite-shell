@@ -65,13 +65,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
                 }
-                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
+                else
                 {
-                    results = regionModel.OfflineHtml;
-                }
-                else if (regionModel.PageRegion != PageRegion.Head)
-                {
-                    results = markupMessages.RegionOfflineHtml;
+                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
                 }
             }
             catch (BrokenCircuitException ex)
@@ -83,14 +79,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
-                {
-                    results = regionModel.OfflineHtml;
-                }
-                else if (regionModel.PageRegion != PageRegion.Head)
-                {
-                    results = markupMessages.RegionOfflineHtml;
-                }
+                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
             }
 
             return results;
@@ -140,13 +129,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
-                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
+                else
                 {
-                    results = regionModel.OfflineHtml;
-                }
-                else if (regionModel.PageRegion != PageRegion.Head)
-                {
-                    results = markupMessages.RegionOfflineHtml;
+                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
                 }
             }
             catch (BrokenCircuitException ex)
@@ -158,14 +143,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
-                {
-                    results = regionModel.OfflineHtml;
-                }
-                else if (regionModel.PageRegion != PageRegion.Head)
-                {
-                    results = markupMessages.RegionOfflineHtml;
-                }
+                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
             }
 
             return results;

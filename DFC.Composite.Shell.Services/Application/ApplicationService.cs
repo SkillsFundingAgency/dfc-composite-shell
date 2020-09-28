@@ -71,14 +71,7 @@ namespace DFC.Composite.Shell.Services.Application
 
                 if (pageRegionContentModel != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml))
-                    {
-                        pageRegionContentModel.Content = new HtmlString(application.AppRegistrationModel.OfflineHtml);
-                    }
-                    else
-                    {
-                        pageRegionContentModel.Content = new HtmlString(markupMessages.AppOfflineHtml);
-                    }
+                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
                 }
             }
         }
@@ -105,14 +98,7 @@ namespace DFC.Composite.Shell.Services.Application
 
                 if (pageRegionContentModel != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(application?.AppRegistrationModel.OfflineHtml))
-                    {
-                        pageRegionContentModel.Content = new HtmlString(application.AppRegistrationModel.OfflineHtml);
-                    }
-                    else
-                    {
-                        pageRegionContentModel.Content = new HtmlString(markupMessages.AppOfflineHtml);
-                    }
+                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
                 }
             }
         }
@@ -263,14 +249,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (!pageRegionModel.IsHealthy)
             {
-                if (!string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml))
-                {
-                    return Task.FromResult(pageRegionModel.OfflineHtml);
-                }
-                else if (pageRegionModel.PageRegion != PageRegion.Head)
-                {
-                    return Task.FromResult(markupMessages.RegionOfflineHtml);
-                }
+                return Task.FromResult(!string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml) ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion));
             }
 
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, queryString);
@@ -300,13 +279,9 @@ namespace DFC.Composite.Shell.Services.Application
             else
             {
                 var pageRegionModel = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == regionType);
-                if (!string.IsNullOrWhiteSpace(pageRegionModel?.OfflineHtml))
+                if (pageRegionModel != null)
                 {
-                    outputHtmlMarkup = pageRegionModel.OfflineHtml;
-                }
-                else if (pageRegionModel?.PageRegion != PageRegion.Head)
-                {
-                    outputHtmlMarkup = markupMessages.RegionOfflineHtml;
+                    outputHtmlMarkup = !string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml) ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion);
                 }
             }
 

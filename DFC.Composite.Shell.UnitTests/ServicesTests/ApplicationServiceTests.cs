@@ -55,7 +55,36 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             contentRetriever = A.Fake<IContentRetriever>();
             contentProcessor = A.Fake<IContentProcessorService>();
 
-            markupMessages = new MarkupMessages { AppOfflineHtml = "<h3>App offline</h3>", RegionOfflineHtml = "<h3>Region offline</h3>" };
+            markupMessages = new MarkupMessages
+            {
+                AppOfflineHtml = "<h3>App offline</h3>",
+                RegionOfflineHtml = new Dictionary<PageRegion, string> {
+                    {
+                        PageRegion.Head, "<h3>Head Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.Breadcrumb, "<h3>Breadcrumb Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.BodyTop, "<h3>BodyTop Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.Body,"<h3>Body Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.SidebarRight, "<h3>SidebarRight Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.SidebarLeft,"<h3>SidebarLeft Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.BodyFooter, "<h3>BodyFooter Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.HeroBanner, "<h3>HeroBanner Region is offline</h3>"
+                    },
+               },
+            };
 
             var headRegionEndPoint = $"{RequestBaseUrl}/headRegionEndpoint";
             var bodyRegionEndPoint = $"{RequestBaseUrl}/bodyRegionEndpoint";

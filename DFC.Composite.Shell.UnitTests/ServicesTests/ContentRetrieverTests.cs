@@ -7,6 +7,7 @@ using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
+using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using RichardSzalay.MockHttp;
@@ -55,7 +56,36 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService = A.Fake<IAppRegistryDataService>();
             httpResponseMessageHandler = A.Fake<IHttpResponseMessageHandler>();
 
-            markupMessages = new MarkupMessages { AppOfflineHtml = "<h3>App offline</h3>", RegionOfflineHtml = "<h3>Region offline</h3>" };
+            markupMessages = new MarkupMessages
+            {
+                AppOfflineHtml = "<h3>App offline</h3>",
+                RegionOfflineHtml = new Dictionary<PageRegion, string> {
+                    {
+                        PageRegion.Head, "<h3>Head Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.Breadcrumb, "<h3>Breadcrumb Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.BodyTop, "<h3>BodyTop Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.Body,"<h3>Body Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.SidebarRight, "<h3>SidebarRight Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.SidebarLeft,"<h3>SidebarLeft Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.BodyFooter, "<h3>BodyFooter Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.HeroBanner, "<h3>HeroBanner Region is offline</h3>"
+                    },
+               },
+            };
 
             defaultService = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
         }
@@ -102,13 +132,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var model = new RegionModel
             {
+                PageRegion= PageRegion.BodyTop,
                 IsHealthy = false,
                 OfflineHtml = null,
             };
 
             var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
-            Assert.Equal(markupMessages.RegionOfflineHtml, result);
+            Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result);
         }
 
         [Fact]
@@ -332,13 +363,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var model = new RegionModel
             {
+                PageRegion = PageRegion.BodyTop,
                 IsHealthy = false,
                 OfflineHtml = null,
             };
 
             var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
-            Assert.Equal(markupMessages.RegionOfflineHtml, result);
+            Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result);
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
