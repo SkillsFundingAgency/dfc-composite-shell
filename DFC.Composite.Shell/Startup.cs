@@ -182,6 +182,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
+            services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);

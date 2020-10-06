@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
+using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
@@ -20,23 +21,22 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly ILogger<ContentRetriever> logger;
         private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IHttpResponseMessageHandler responseHandler;
+        private readonly MarkupMessages markupMessages;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages)
         {
             this.httpClient = httpClient;
             this.logger = logger;
             this.appRegistryDataService = appRegistryDataService;
             this.responseHandler = responseHandler;
+            this.markupMessages = markupMessages;
         }
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
             const int MaxRedirections = 10;
 
-            if (regionModel == null)
-            {
-                throw new ArgumentNullException(nameof(regionModel));
-            }
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
 
             string results = null;
 
@@ -62,9 +62,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
                 }
-                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
+                else
                 {
-                    results = regionModel.OfflineHtml;
+                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
                 }
             }
             catch (BrokenCircuitException ex)
@@ -76,7 +76,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                results = regionModel.OfflineHtml;
+                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
             }
 
             return results;
@@ -84,10 +84,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
         public async Task<string> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
-            if (regionModel == null)
-            {
-                throw new ArgumentNullException(nameof(regionModel));
-            }
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
 
             string results = null;
 
@@ -126,9 +123,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
-                else if (!string.IsNullOrWhiteSpace(regionModel.OfflineHtml))
+                else
                 {
-                    results = regionModel.OfflineHtml;
+                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
                 }
             }
             catch (BrokenCircuitException ex)
@@ -140,7 +137,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
                 }
 
-                results = regionModel.OfflineHtml;
+                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
             }
 
             return results;
