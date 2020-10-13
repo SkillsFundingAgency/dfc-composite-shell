@@ -1,5 +1,4 @@
-﻿using CorrelationId;
-using DFC.Common.Standard.Logging;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Extensions;
@@ -61,13 +60,6 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCorrelationId(new CorrelationIdOptions
-            {
-                Header = Constants.CorrelationIdHeaderName,
-                UseGuidForCorrelationId = true,
-                UpdateTraceIdentifier = false,
-            });
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -136,8 +128,6 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCorrelationId();
-
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -161,7 +151,6 @@ namespace DFC.Composite.Shell
 
             services.AddTransient<CompositeSessionIdDelegatingHandler>();
             services.AddTransient<CookieDelegatingHandler>();
-            services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
             services.AddTransient<OriginalHostDelegatingHandler>();
             services.AddTransient<CompositeRequestDelegatingHandler>();
