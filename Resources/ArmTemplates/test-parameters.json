@@ -29,6 +29,21 @@
         "SharedAppServicePlanResourceGroup": {
             "value": "dfc-dev-compui-shared-rg"
         },
+        "EnvironmentName": {
+            "value": "Development"
+        },
+        "customHostName": {
+            "value": "some.host.name"
+        },
+        "keyVaultName": {
+            "value": "a-keyvault"
+        },
+        "keyVaultResourceGroup": {
+            "value": "keyvault-rg"
+        },
+        "certificateName": {
+            "value": "certificate-name"
+        },
         "enableAlerts": {
             "value": false
         },
@@ -59,8 +74,11 @@
         "Neo4JSettingsSendData": {
             "value": false
         },
-        "ExceptionCountThreshold":{
+        "ExceptionCountThreshold": {
             "value": "0"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "value": "dummyurl"
         }
     }
 }
