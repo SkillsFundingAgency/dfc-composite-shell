@@ -18,7 +18,6 @@ namespace DFC.Composite.Shell.Utilities
             VersionedPathForJQueryBundleMinJs = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/js/jquerybundle.min.js");
             VersionedPathForAllMinJs = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/js/all.min.js");
             VersionedPathForDfcDigitalMinJs = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/js/dfcdigital.min.js");
-            VersionedPathForCompUiMinJs = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/js/compui.min.js");
         }
 
         public string VersionedPathForMainMinCss { get; }
