@@ -7,7 +7,6 @@
     string VersionedPathForJQueryBundleMinJs = ViewData["VersionedPathForJQueryBundleMinJs"].ToString();
     string VersionedPathForAllMinJs = ViewData["VersionedPathForAllMinJs"].ToString();
     string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString();
-    string VersionedPathForCompUiMinJs = ViewData["VersionedPathForCompUiMinJs"].ToString();
 }
 
 <script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
@@ -16,5 +15,3 @@
 <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
 
 <script src="@(VersionedPathForDfcDigitalMinJs)" nws-csp-add-nonce="true"></script>
-
-<script src="@(VersionedPathForCompUiMinJs)" nws-csp-add-nonce="true"></script>
