@@ -29,6 +29,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         private const string ChildAppData = "childappdata";
         private const string BadChildAppData = "badchildappdata";
 
+        private readonly ActionGetRequestModel childAppActionGetRequestModel = new ActionGetRequestModel { Path = ChildAppPath, Data = ChildAppData };
         private readonly ApplicationController defaultGetController;
         private readonly ApplicationController defaultPostController;
         private readonly ApplicationController bearerTokenController;
@@ -69,7 +70,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                     },
                 },
             };
-            A.CallTo(() => defaultApplicationService.GetApplicationAsync(ChildAppPath, ChildAppData)).Returns(defaultApplicationModel);
+            A.CallTo(() => defaultApplicationService.GetApplicationAsync(childAppActionGetRequestModel)).Returns(defaultApplicationModel);
 
             var fakeHttpContext = new DefaultHttpContext { Request = { QueryString = QueryString.Create("test", "testvalue") } };
 
@@ -136,8 +137,8 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             var requestModel = new ActionGetRequestModel { Path = ChildAppPath, Data = ChildAppData };
             var fakeApplicationService = A.Fake<IApplicationService>();
-            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
-            A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath, ChildAppData)).Returns(defaultApplicationModel);
+            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(childAppActionGetRequestModel)).Returns(defaultApplicationModel);
 
             var context = new DefaultHttpContext();
 
@@ -158,8 +159,8 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             var requestModel = new ActionGetRequestModel { Path = BadChildAppPath, Data = BadChildAppData };
             var fakeApplicationService = A.Fake<IApplicationService>();
-            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
-            A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath, ChildAppData)).Returns(defaultApplicationModel);
+            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(childAppActionGetRequestModel)).Returns(defaultApplicationModel);
 
             using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
@@ -179,8 +180,8 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             var requestModel = new ActionGetRequestModel { Path = ChildAppPath, Data = ChildAppData };
             var fakeApplicationService = A.Fake<IApplicationService>();
-            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
-            A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath, ChildAppData)).Returns(defaultApplicationModel);
+            A.CallTo(() => fakeApplicationService.GetMarkupAsync(A<ApplicationModel>.Ignored, A<PageViewModel>.Ignored, A<string>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(childAppActionGetRequestModel)).Returns(defaultApplicationModel);
 
             using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
@@ -209,8 +210,9 @@ namespace DFC.Composite.Shell.Test.Controllers
         public async Task ApplicationControllerPostActionAddsModelStateErrorWhenPathIsNull()
         {
             var fakeApplicationService = A.Fake<IApplicationService>();
-            A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
-            A.CallTo(() => fakeApplicationService.GetApplicationAsync(BadChildAppPath, BadChildAppData)).Returns(null as ApplicationModel);
+            var childAppActionGetRequestModel = new ActionGetRequestModel { Path = BadChildAppPath, Data = BadChildAppData };
+            A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(childAppActionGetRequestModel)).Returns(null as ApplicationModel);
 
             using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
@@ -229,8 +231,8 @@ namespace DFC.Composite.Shell.Test.Controllers
         public async Task ApplicationControllerPostActionThrowsAndLogsRedirectExceptionWhenExceptionOccurs()
         {
             var fakeApplicationService = A.Fake<IApplicationService>();
-            A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<string>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
-            A.CallTo(() => fakeApplicationService.GetApplicationAsync(ChildAppPath, ChildAppData)).Returns(defaultApplicationModel);
+            A.CallTo(() => fakeApplicationService.PostMarkupAsync(A<ApplicationModel>.Ignored, A<IEnumerable<KeyValuePair<string, string>>>.Ignored, A<PageViewModel>.Ignored)).Throws<RedirectException>();
+            A.CallTo(() => fakeApplicationService.GetApplicationAsync(childAppActionGetRequestModel)).Returns(defaultApplicationModel);
 
             using var applicationController = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
             {
