@@ -35,6 +35,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly IContentProcessorService contentProcessor;
         private readonly MarkupMessages markupMessages;
         private readonly AppRegistrationModel defaultAppRegistrationModel;
+        private readonly AppRegistrationModel? nullAppRegistrationModel = null;
         private readonly AppRegistrationModel pagesAppRegistrationModel;
         private readonly RegionModel defaultHeadRegion;
         private readonly RegionModel defaultBodyRegion;
@@ -119,6 +120,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
             offlineApplicationModelWithoutMarkup = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = null } };
 
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel($"{ChildAppPath}/{ChildAppData}")).Returns(nullAppRegistrationModel);
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(ChildAppPath)).Returns(defaultAppRegistrationModel);
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp)).Returns(pagesAppRegistrationModel);
             A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(HeadRegionContent);
@@ -316,14 +318,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyRegion,
                 defaultBodyFooterRegion,
             };
-            var childAppActionGetRequestModel = new ActionGetRequestModel { Path = "help-me", Data = string.Empty };
+            var thisChildAppActionGetRequestModel = new ActionGetRequestModel { Path = "help-me", Data = string.Empty };
             var appRegistryModel = appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp).Result;
             appRegistryModel.Regions = bodyAndFooterRegions;
             appRegistryModel.PageLocations = new Dictionary<Guid, PageLocationModel> { { Guid.NewGuid(), new PageLocationModel { Locations = new List<string> { "/help-me" } } } };
 
             // Act
             var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
-            var result = await service.GetApplicationAsync(childAppActionGetRequestModel).ConfigureAwait(false);
+            var result = await service.GetApplicationAsync(thisChildAppActionGetRequestModel).ConfigureAwait(false);
 
             // Assert
             Assert.Equal(AppRegistryPathNameForPagesApp, result.AppRegistrationModel.Path);
