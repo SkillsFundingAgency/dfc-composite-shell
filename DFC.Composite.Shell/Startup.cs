@@ -6,6 +6,7 @@ using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Policies.Options;
+using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
@@ -205,6 +206,10 @@ namespace DFC.Composite.Shell
                 .AddHttpMessageHandler<CookieDelegatingHandler>()
                 .Services
                 .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(AjaxRequestClientOptions), policyOptions)
+                .AddHttpClient<IAjaxRequestService, AjaxRequestService, AjaxRequestClientOptions>(Configuration, nameof(AjaxRequestClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions);
