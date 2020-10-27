@@ -10,11 +10,11 @@ namespace DFC.Composite.Shell.ClientHandlers
     public class UserAgentDelegatingHandler : DelegatingHandler
     {
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly ILogger<CorrelationIdDelegatingHandler> logger;
+        private readonly ILogger<UserAgentDelegatingHandler> logger;
 
         public UserAgentDelegatingHandler(
             IHttpContextAccessor httpContextAccessor,
-            ILogger<CorrelationIdDelegatingHandler> logger)
+            ILogger<UserAgentDelegatingHandler> logger)
         {
             this.logger = logger;
             this.httpContextAccessor = httpContextAccessor;
@@ -32,7 +32,7 @@ namespace DFC.Composite.Shell.ClientHandlers
                     //+http://code.google.com/appengine; - would fail with a format exception, if the just the add method is used.
                     if (!request.Headers.TryAddWithoutValidation(HeaderNames.UserAgent, item))
                     {
-                        logger.LogWarning($"Cound not add {HeaderNames.UserAgent} - {item}");
+                        logger.LogWarning($"Could not add {HeaderNames.UserAgent} - {item}");
                     }
                 }
             }

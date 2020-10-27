@@ -2,12 +2,8 @@
 
 namespace DFC.Composite.Shell.Models
 {
-    public class ActionPostRequestModel
+    public class ActionPostRequestModel : ActionGetRequestModel
     {
-        public string Path { get; set; }
-
-        public string Data { get; set; }
-
         public IFormCollection FormCollection { get; set; }
     }
 }

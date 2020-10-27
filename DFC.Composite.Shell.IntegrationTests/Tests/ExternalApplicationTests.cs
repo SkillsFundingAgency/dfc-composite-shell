@@ -29,7 +29,7 @@ namespace DFC.Composite.Shell.Integration.Test
         }
 
         [Theory]
-        [InlineData ("product; (product with ;)")]
+        [InlineData("product; (product with ;)")]
         [InlineData("product (product with out ;)")]
         public async Task CanRedirectToExternalUrlWithUserAgent(string userAgent)
         {

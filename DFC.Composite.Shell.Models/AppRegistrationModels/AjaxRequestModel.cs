@@ -2,13 +2,13 @@
 
 namespace DFC.Composite.Shell.Models.AppRegistrationModels
 {
-    public class RegionModel
+    public class AjaxRequestModel
     {
-        public PageRegion PageRegion { get; set; }
+        public string Name { get; set; }
 
         public bool IsHealthy { get; set; } = true;
 
-        public string RegionEndpoint { get; set; }
+        public string AjaxEndpoint { get; set; }
 
         public bool HealthCheckRequired { get; set; }
 

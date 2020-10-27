@@ -1,5 +1,4 @@
-﻿using CorrelationId;
-using DFC.Common.Standard.Logging;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Extensions;
@@ -7,6 +6,7 @@ using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Policies.Options;
+using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
@@ -61,13 +61,6 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCorrelationId(new CorrelationIdOptions
-            {
-                Header = Constants.CorrelationIdHeaderName,
-                UseGuidForCorrelationId = true,
-                UpdateTraceIdentifier = false,
-            });
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -109,7 +102,7 @@ namespace DFC.Composite.Shell
                     .CustomSources("https://*.serco.com/"))
                 .ConnectSources(s => s
                     .Self()
-                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
+                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress), "https://www.google-analytics.com", "https://www.googletagmanager.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
@@ -136,8 +129,6 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCorrelationId();
-
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -161,7 +152,6 @@ namespace DFC.Composite.Shell
 
             services.AddTransient<CompositeSessionIdDelegatingHandler>();
             services.AddTransient<CookieDelegatingHandler>();
-            services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
             services.AddTransient<OriginalHostDelegatingHandler>();
             services.AddTransient<CompositeRequestDelegatingHandler>();
@@ -182,6 +172,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
+            services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
@@ -215,6 +206,10 @@ namespace DFC.Composite.Shell
                 .AddHttpMessageHandler<CookieDelegatingHandler>()
                 .Services
                 .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(AjaxRequestClientOptions), policyOptions)
+                .AddHttpClient<IAjaxRequestService, AjaxRequestService, AjaxRequestClientOptions>(Configuration, nameof(AjaxRequestClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions);
