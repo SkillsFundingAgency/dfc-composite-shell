@@ -1,5 +1,4 @@
-﻿using CorrelationId;
-using DFC.Common.Standard.Logging;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Extensions;
@@ -109,7 +108,7 @@ namespace DFC.Composite.Shell
                     .CustomSources("https://*.serco.com/"))
                 .ConnectSources(s => s
                     .Self()
-                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress))));
+                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress), "https://www.google-analytics.com", "https://www.googletagmanager.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
@@ -136,8 +135,6 @@ namespace DFC.Composite.Shell
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCorrelationId();
-
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -161,7 +158,6 @@ namespace DFC.Composite.Shell
 
             services.AddTransient<CompositeSessionIdDelegatingHandler>();
             services.AddTransient<CookieDelegatingHandler>();
-            services.AddTransient<CorrelationIdDelegatingHandler>();
             services.AddTransient<UserAgentDelegatingHandler>();
             services.AddTransient<OriginalHostDelegatingHandler>();
             services.AddTransient<CompositeRequestDelegatingHandler>();
@@ -182,6 +178,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
+            services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
