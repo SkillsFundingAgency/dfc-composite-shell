@@ -1,6 +1,4 @@
-﻿using DFC.Composite.Shell.ClientHandlers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 
@@ -17,29 +15,24 @@ namespace DFC.Composite.Shell.Middleware
             this.next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext, ITempDataDictionaryFactory tempDataDictionaryFactory)
+        public async Task Invoke(HttpContext httpContext)
         {
-            string compositeSessionId = httpContext?.Request.Cookies[NcsSessionCookieName];
+            var sessionIdString = httpContext?.Request.Cookies[NcsSessionCookieName];
 
-            if (string.IsNullOrWhiteSpace(compositeSessionId))
+            if (string.IsNullOrWhiteSpace(sessionIdString))
             {
-                compositeSessionId = Guid.NewGuid().ToString();
+                sessionIdString = Guid.NewGuid().ToString();
             }
 
             var cookieOptions = new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(28),
                 Secure = true,
+                HttpOnly = true,
                 SameSite = SameSiteMode.None,
             };
 
-            httpContext?.Response.Cookies.Append(NcsSessionCookieName, compositeSessionId, cookieOptions);
-
-            var tempData = tempDataDictionaryFactory?.GetTempData(httpContext);
-            if (tempData != null)
-            {
-                tempData[CompositeSessionIdDelegatingHandler.HeaderName] = compositeSessionId;
-            }
+            httpContext?.Response.Cookies.Append(NcsSessionCookieName, sessionIdString, cookieOptions);
 
             await next(httpContext).ConfigureAwait(false);
         }

@@ -41,7 +41,7 @@ namespace DFC.Composite.Shell.Controllers
         {
             logger.LogInformation("Generating Sitemap.xml");
 
-            var sitemap = AppendShellSitemap();
+            var sitemap = new Sitemap();
 
             // get all the registered application site maps
             var applicationSitemapModels = await GetApplicationSitemapsAsync().ConfigureAwait(false);
@@ -52,17 +52,6 @@ namespace DFC.Composite.Shell.Controllers
             logger.LogInformation("Generated Sitemap.xml");
 
             return Content(xmlString, MediaTypeNames.Application.Xml);
-        }
-
-        private Sitemap AppendShellSitemap()
-        {
-            const string homeControllerName = "Home";
-            var sitemap = new Sitemap();
-
-            // output the composite UI site maps
-            sitemap.Add(new SitemapLocation { Url = Url.Action(nameof(HomeController.Index), homeControllerName, null, Request.Scheme) });
-
-            return sitemap;
         }
 
         private async Task<IEnumerable<ApplicationSitemapModel>> GetApplicationSitemapsAsync()
