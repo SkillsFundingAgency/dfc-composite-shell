@@ -15,5 +15,9 @@
         string VersionedPathForDfcDigitalMinJs { get; }
 
         string VersionedPathForCompUiMinJs { get; }
+
+        string VersionedPathForWebChatJs { get; }
+
+        public bool WebchatEnabled { get; }
     }
 }

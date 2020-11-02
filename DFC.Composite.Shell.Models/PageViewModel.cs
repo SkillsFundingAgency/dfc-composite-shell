@@ -24,6 +24,10 @@ namespace DFC.Composite.Shell.Models
 
         public string VersionedPathForCompUiMinJs { get; set; }
 
+        public string VersionedPathForWebChatJs { get; set; }
+
+        public bool WebchatEnabled { get; set; }
+
         public string Path { get; set; }
 
         public string LayoutName { get; set; } = "_LayoutFullWidth";

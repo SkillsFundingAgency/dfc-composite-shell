@@ -263,6 +263,9 @@ namespace DFC.Composite.Shell.Controllers
                 VersionedPathForAllMinJs = source.VersionedPathForAllMinJs,
                 VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs,
                 VersionedPathForCompUiMinJs = source.VersionedPathForCompUiMinJs,
+                VersionedPathForWebChatJs = source.VersionedPathForWebChatJs,
+
+                WebchatEnabled = source.WebchatEnabled,
 
                 ContentBody = GetContent(source, PageRegion.Body),
                 ContentBodyFooter = GetContent(source, PageRegion.BodyFooter),
