@@ -79,6 +79,7 @@ namespace DFC.Composite.Shell
             app.AddOperationIdToRequests();
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
+            var webchatOptionsCspDomain = Configuration.GetValue<string>("WebchatOptions:CspDomain") ?? "https://webchat.nationalcareersservice.org.uk";
 
             // Configure security headers
             app.UseCsp(options => options
@@ -99,13 +100,13 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(Configuration.GetValue<string>("WebchatOptions:CspDomain") + ":8082"))
+                    .CustomSources(webchatOptionsCspDomain + ":8082"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
-                        Configuration.GetValue<string>("WebchatOptions:CspDomain") + ":8080",
+                        webchatOptionsCspDomain + ":8080",
                         "https://www.google-analytics.com",
                         "https://www.googletagmanager.com")));
 
