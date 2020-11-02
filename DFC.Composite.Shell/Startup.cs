@@ -99,10 +99,15 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources("https://*.serco.com/"))
+                    .CustomSources(Configuration.GetValue<string>("WebchatOptions:CspDomain") + ":8082"))
                 .ConnectSources(s => s
                     .Self()
-                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress), "https://www.google-analytics.com", "https://www.googletagmanager.com")));
+                    .CustomSources(
+                        $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
+                        "https://dc.services.visualstudio.com/",
+                        Configuration.GetValue<string>("WebchatOptions:CspDomain") + ":8080",
+                        "https://www.google-analytics.com",
+                        "https://www.googletagmanager.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
@@ -173,6 +178,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
+            services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);

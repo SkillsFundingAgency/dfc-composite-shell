@@ -8,6 +8,17 @@
     string VersionedPathForAllMinJs = ViewData["VersionedPathForAllMinJs"].ToString();
     string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString();
     string VersionedPathForCompUiMinJs = ViewData["VersionedPathForCompUiMinJs"].ToString();
+    bool WebchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+
+    string VersionedPathForWebChatJs = string.Empty;
+    string ShellWebchatDomain = string.Empty;
+
+    if (WebchatEnabled)
+    {
+        VersionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"].ToString();
+        var WebChatUri = new Uri(VersionedPathForWebChatJs, UriKind.Absolute);
+        ShellWebchatDomain = WebChatUri.Scheme + "://" + WebChatUri.Host + ":" + WebChatUri.Port;
+    }
 }
 
 <script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
@@ -17,4 +28,17 @@
 
 <script src="@(VersionedPathForDfcDigitalMinJs)" nws-csp-add-nonce="true"></script>
 
-<script src="@(VersionedPathForCompUiMinJs)" nws-csp-add-nonce="true"></script>
+@*<script src="@(VersionedPathForCompUiMinJs)" nws-csp-add-nonce="true"></script>*@
+
+<script src="~/js/compui-utilities.js" nws-csp-add-nonce="true"></script>
+<script src="~/js/compui-validation.js" nws-csp-add-nonce="true"></script>
+<script src="~/js/apps/dfc-app-contactus.js" nws-csp-add-nonce="true"></script>
+<script src="~/js/apps/dfc-app-webchat.js" nws-csp-add-nonce="true"></script>
+<script src="~/js/compui-shell.js" nws-csp-add-nonce="true"></script>
+
+@if (WebchatEnabled)
+{
+    <script src="@(VersionedPathForWebChatJs)" nws-csp-add-nonce="true"></script>
+
+    <script nws-csp-add-nonce="true">window.compUiShell.activateWebChat("@ShellWebchatDomain")</script>
+}
