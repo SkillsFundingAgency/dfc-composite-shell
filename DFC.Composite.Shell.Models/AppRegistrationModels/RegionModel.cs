@@ -14,8 +14,8 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
 
         public string OfflineHtml { get; set; }
 
-        public DateTime DateOfRegistration { get; set; }
+        public DateTime? DateOfRegistration { get; set; }
 
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
     }
 }

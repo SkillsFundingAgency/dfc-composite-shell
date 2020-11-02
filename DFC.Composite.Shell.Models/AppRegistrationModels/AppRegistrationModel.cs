@@ -25,9 +25,9 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
 
         public Uri RobotsURL { get; set; }
 
-        public DateTime DateOfRegistration { get; set; }
+        public DateTime? DateOfRegistration { get; set; }
 
-        public DateTime LastModifiedDate { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
 
         public List<RegionModel> Regions { get; set; }
 

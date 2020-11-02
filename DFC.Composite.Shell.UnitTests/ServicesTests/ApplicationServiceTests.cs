@@ -20,6 +20,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private const string RequestBaseUrl = "https://localhost";
         private const string ChildAppPath = "path1";
         private const string ChildAppData = "data1";
+        private const string AppRegistryPathNameForPagesApp = "pages";
         private const string HeadRegionContent = "headRegionContent";
         private const string BodyRegionContent = "bodyRegionContent";
         private const string BodyFooterRegionContent = "bodyfooterRegionContent";
@@ -31,13 +32,17 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessor;
+        private readonly MarkupMessages markupMessages;
         private readonly AppRegistrationModel defaultAppRegistrationModel;
+        private readonly AppRegistrationModel pagesAppRegistrationModel;
         private readonly RegionModel defaultHeadRegion;
         private readonly RegionModel defaultBodyRegion;
         private readonly RegionModel defaultBodyFooterRegion;
         private readonly List<RegionModel> defaultRegions;
         private readonly ApplicationModel defaultApplicationModel;
+        private readonly ApplicationModel pagesApplicationModel;
         private readonly ApplicationModel offlineApplicationModel;
+        private readonly ApplicationModel offlineApplicationModelWithoutMarkup;
         private readonly PageViewModel defaultPageViewModel;
         private readonly List<KeyValuePair<string, string>> defaultFormPostParams;
         private readonly ITaskHelper taskHelper;
@@ -49,6 +54,37 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService = A.Fake<IAppRegistryDataService>();
             contentRetriever = A.Fake<IContentRetriever>();
             contentProcessor = A.Fake<IContentProcessorService>();
+
+            markupMessages = new MarkupMessages
+            {
+                AppOfflineHtml = "<h3>App offline</h3>",
+                RegionOfflineHtml = new Dictionary<PageRegion, string> {
+                    {
+                        PageRegion.Head, "<h3>Head Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.Breadcrumb, "<h3>Breadcrumb Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.BodyTop, "<h3>BodyTop Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.Body,"<h3>Body Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.SidebarRight, "<h3>SidebarRight Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.SidebarLeft,"<h3>SidebarLeft Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.BodyFooter, "<h3>BodyFooter Region is offline</h3>"
+                    },
+                    {
+                        PageRegion.HeroBanner, "<h3>HeroBanner Region is offline</h3>"
+                    },
+               },
+            };
 
             var headRegionEndPoint = $"{RequestBaseUrl}/headRegionEndpoint";
             var bodyRegionEndPoint = $"{RequestBaseUrl}/bodyRegionEndpoint";
@@ -64,6 +100,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyFooterRegion,
             };
             defaultAppRegistrationModel = new AppRegistrationModel { Path = ChildAppPath, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
+            pagesAppRegistrationModel = new AppRegistrationModel { Path = AppRegistryPathNameForPagesApp, TopNavigationOrder = 1, IsOnline = true, Regions = defaultRegions };
 
             defaultPageViewModel = new PageViewModel
             {
@@ -77,9 +114,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             defaultApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel };
+            pagesApplicationModel = new ApplicationModel { AppRegistrationModel = pagesAppRegistrationModel };
             offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
+            offlineApplicationModelWithoutMarkup = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = null } };
 
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(ChildAppPath)).Returns(defaultAppRegistrationModel);
+            A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp)).Returns(pagesAppRegistrationModel);
             A.CallTo(() => contentRetriever.GetContent($"{defaultHeadRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(HeadRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyRegion.RegionEndpoint}/index", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyRegionContent);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}", defaultApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl)).Returns(BodyFooterRegionContent);
@@ -94,7 +134,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             taskHelper = A.Fake<ITaskHelper>();
             A.CallTo(() => taskHelper.TaskCompletedSuccessfully(A<Task>.Ignored)).Returns(true);
 
-            applicationService = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            applicationService = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages) { RequestBaseUrl = RequestBaseUrl };
         }
 
         public static IEnumerable<object[]> QueryStringParams => new List<object[]>
@@ -162,6 +202,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
+        public async Task GetMarkupAsyncWhenApplicationIsOfflineThenMarkupMessagesOfflineHtmlIsReturned()
+        {
+            await applicationService.GetMarkupAsync(offlineApplicationModelWithoutMarkup, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false);
+
+            Assert.Equal(markupMessages.AppOfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
+        }
+
+        [Fact]
         public async Task GetMarkupAsyncWhenApplicationModelIsNullThenArgumentNullExceptionThrown()
         {
             await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(null, "index", defaultPageViewModel, string.Empty).ConfigureAwait(false)).ConfigureAwait(false);
@@ -179,6 +227,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             await applicationService.PostMarkupAsync(offlineApplicationModel, "index", "article", defaultFormPostParams, defaultPageViewModel).ConfigureAwait(false);
 
             Assert.Equal(OfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
+        }
+
+        [Fact]
+        public async Task PostMarkupAsyncWhenApplicationPathIsOfflineThenMarkupMessagesOfflineHtmlIsReturned()
+        {
+            await applicationService.PostMarkupAsync(offlineApplicationModelWithoutMarkup, "index", "article", defaultFormPostParams, defaultPageViewModel).ConfigureAwait(false);
+
+            Assert.Equal(markupMessages.AppOfflineHtml, defaultPageViewModel.PageRegionContentModels.First().Content.ToString());
         }
 
         [Fact]
@@ -242,12 +298,35 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => localAppRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns((AppRegistrationModel)null);
 
             // Act
-            var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(localAppRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
             var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
             Assert.Null(result.RootUrl);
             Assert.Null(result.AppRegistrationModel);
+        }
+
+        [Fact]
+        public async Task GetApplicationAsyncReturnsPathsAndRegionsAndRootUriPagesApp()
+        {
+            // Arrange
+            var bodyAndFooterRegions = new List<RegionModel>
+            {
+                defaultBodyRegion,
+                defaultBodyFooterRegion,
+            };
+            var appRegistryModel = appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp).Result;
+            appRegistryModel.Regions = bodyAndFooterRegions;
+            appRegistryModel.PageLocations = new Dictionary<Guid, PageLocationModel> { { Guid.NewGuid(), new PageLocationModel { Locations = new List<string> { "/help-me" } } } };
+
+            // Act
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
+            var result = await service.GetApplicationAsync("help-me", string.Empty).ConfigureAwait(false);
+
+            // Assert
+            Assert.Equal(AppRegistryPathNameForPagesApp, result.AppRegistrationModel.Path);
+            Assert.Equal(bodyAndFooterRegions.Count, result.AppRegistrationModel.Regions.Count);
+            Assert.Equal(RequestBaseUrl, result.RootUrl);
         }
 
         [Fact]
@@ -262,7 +341,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = bodyAndFooterRegions;
 
             // Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
             var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
@@ -279,7 +358,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = fakeRegionModels;
 
             // Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper);
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages);
             var result = await service.GetApplicationAsync(ChildAppPath, ChildAppData).ConfigureAwait(false);
 
             // Assert
@@ -299,7 +378,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => incompleteTask.TaskCompletedSuccessfully(A<Task>.Ignored)).Returns(false);
 
             //Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, incompleteTask) { RequestBaseUrl = RequestBaseUrl };
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, incompleteTask, markupMessages) { RequestBaseUrl = RequestBaseUrl };
             await service.GetMarkupAsync(defaultApplicationModel, "index", pageModel, string.Empty).ConfigureAwait(false);
 
             // Assert
@@ -316,7 +395,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             mapper.Map(defaultApplicationModel, pageModel);
 
             //Act
-            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper) { RequestBaseUrl = RequestBaseUrl };
+            var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, markupMessages) { RequestBaseUrl = RequestBaseUrl };
             await service.GetMarkupAsync(defaultApplicationModel, Article, pageModel, queryString).ConfigureAwait(false);
 
             A.CallTo(() => contentRetriever.GetContent(expectedResult, defaultApplicationModel.AppRegistrationModel.Path, defaultHeadRegion, A<bool>.Ignored, RequestBaseUrl)).MustHaveHappenedOnceExactly();
