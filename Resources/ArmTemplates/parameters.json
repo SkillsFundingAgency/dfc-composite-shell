@@ -94,6 +94,12 @@
         },
         "AppRegistryClientOptionsBaseAddress": {
             "value": "__AppRegistryClientOptionsBaseAddress__"
+        },
+        "enableWebChatOptions": {
+            "value": __EnableWebChatOptions__
+        },
+        "WebChatBaseUrl": {
+            "value": "__WebChatBaseUrl__"
         }
     }
 }
