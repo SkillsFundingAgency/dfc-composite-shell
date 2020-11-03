@@ -68,6 +68,12 @@
                 "description": "Enable or disable alerting"
             }
         },
+        "AuthSettingsIssuer": {
+            "type": "string"
+        },
+        "OIDCAuthdUrl": {
+            "type": "string"
+        },
         "AuthClientSecret": {
             "type": "string"
         },
@@ -315,7 +321,7 @@
                             },
                             {
                                 "name": "AuthSettings__Issuer",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net')]"
+                                "value": "[parameters('AuthSettingsIssuer')]"
                             },
                             {
                                 "name": "AuthSettings__Audience",
@@ -359,15 +365,15 @@
                             },
                             {
                                 "name": "OIDCSettings__RedirectUrl",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net/auth/auth')]"
+                                "value": "[concat(parameters('AuthSettingsIssuer'), '/auth/auth')]"
                             },
                             {
                                 "name": "OIDCSettings__SignOutRedirectUrl",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net')]"
+                                "value": "[parameters('AuthSettingsIssuer')]"
                             },
                             {
                                 "name": "OIDCSettings__AuthdUrl",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net/your-account')]"
+                                "value": "[concat(parameters('AuthSettingsIssuer'), '/your-account')]"
                             },
                             {
                                 "name": "OIDCSettings__LogPersonalInfo",
