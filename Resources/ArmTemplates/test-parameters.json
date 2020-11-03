@@ -54,10 +54,10 @@
             "value": "https://foo.nationalcareers.service.gov.uk"
         },
         "OIDCRedirectUrl": {
-            "value": "https://foo.nationalcareers.service.gov.uk"
+            "value": "https://foo.nationalcareers.service.gov.uk/auth/auth"
         },
         "OIDCSignOutRedirectUrl": {
-            "value": "https://foo.nationalcareers.service.gov.uk"
+            "value": "https://foo.nationalcareers.service.gov.uk/your-account"
         },
         "AuthClientSecret": {
             "value": "12345678"
