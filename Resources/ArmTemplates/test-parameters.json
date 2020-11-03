@@ -79,6 +79,12 @@
         },
         "AppRegistryClientOptionsBaseAddress": {
             "value": "dummyurl"
+        },
+        "enableWebChatOptions": {
+            "value": true
+        },
+        "WebChatBaseUrl": {
+            "value": "https://webcaht-endpoint"
         }
     }
 }
