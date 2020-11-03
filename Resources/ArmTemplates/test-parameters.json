@@ -47,6 +47,18 @@
         "enableAlerts": {
             "value": false
         },
+        "AuthSettingsIssuer": {
+            "value": "IAmAnIssuer"
+        },
+        "OIDCAuthdUrl": {
+            "value": "https://foo.nationalcareers.service.gov.uk"
+        },
+        "OIDCRedirectUrl": {
+            "value": "https://foo.nationalcareers.service.gov.uk"
+        },
+        "OIDCSignOutRedirectUrl": {
+            "value": "https://foo.nationalcareers.service.gov.uk"
+        },
         "AuthClientSecret": {
             "value": "12345678"
         },

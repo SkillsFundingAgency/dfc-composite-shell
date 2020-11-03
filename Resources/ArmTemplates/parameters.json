@@ -62,6 +62,18 @@
         "enableAlerts": {
             "value": __EnableAzureMonitorAlerting__
         },
+        "AuthSettingsIssuer": {
+            "value": "__AuthSettingsIssuer__"
+        },
+        "OIDCAuthdUrl": {
+            "value": "__OIDCAuthdUrl__"
+        },
+        "OIDCRedirectUrl": {
+            "value": "__OIDCRedirectUrl__"
+        },
+        "OIDCSignOutRedirectUrl": {
+            "value": "__OIDCSignOutRedirectUrl__"
+        },
         "AuthClientSecret": {
             "value": "__AuthClientSecret__"
         },
