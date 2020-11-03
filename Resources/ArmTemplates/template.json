@@ -74,12 +74,6 @@
         "OIDCAuthdUrl": {
             "type": "string"
         },
-        "OIDCRediectUrl": {
-            "type": "string"
-        },
-        "OIDCSignOutRediectUrl": {
-            "type": "string"
-        },
         "AuthClientSecret": {
             "type": "string"
         },

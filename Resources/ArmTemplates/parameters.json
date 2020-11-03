@@ -68,12 +68,6 @@
         "OIDCAuthdUrl": {
             "value": "__OIDCAuthdUrl__"
         },
-        "OIDCRedirectUrl": {
-            "value": "__OIDCRedirectUrl__"
-        },
-        "OIDCSignOutRedirectUrl": {
-            "value": "__OIDCSignOutRedirectUrl__"
-        },
         "AuthClientSecret": {
             "value": "__AuthClientSecret__"
         },
