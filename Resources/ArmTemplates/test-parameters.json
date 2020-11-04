@@ -8,9 +8,6 @@
         "ApimKey": {
             "value": "0123456789"
         },
-        "ApimVisitsKey": {
-            "value": "0123456789"
-        },
         "CompositeUiCdnUrl": {
             "value": "https://foo-compui-cdn.nationalcareersservice.org.uk"
         },
@@ -50,9 +47,6 @@
         "AuthSettingsIssuer": {
             "value": "IAmAnIssuer"
         },
-        "OIDCAuthdUrl": {
-            "value": "https://foo.nationalcareers.service.gov.uk"
-        },
         "AuthClientSecret": {
             "value": "12345678"
         },
@@ -91,6 +85,9 @@
         },
         "WebChatBaseUrl": {
             "value": "https://webcaht-endpoint"
+        },
+        "VisitsUrl": {
+            "value": "https://foo"
         }
     }
 }

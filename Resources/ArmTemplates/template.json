@@ -8,9 +8,6 @@
         "ApimKey": {
             "type": "string"
         },
-        "ApimVisitsKey": {
-            "type": "string"
-        },
         "AseHostingEnvironmentName": {
             "type": "string",
             "defaultValue": ""
@@ -71,9 +68,6 @@
         "AuthSettingsIssuer": {
             "type": "string"
         },
-        "OIDCAuthdUrl": {
-            "type": "string"
-        },
         "AuthClientSecret": {
             "type": "string"
         },
@@ -112,6 +106,9 @@
         },
         "WebChatBaseUrl": {
             "type": "string"
+        },
+        "VisitsUrl": {
+            "type": "string"
         }
     },
     "variables": {
@@ -121,10 +118,6 @@
         "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
         "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
         "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]",
-        "IsDraftEnvironment": "[endsWith(toLower(parameters('Environment')), '-draft')]",
-        "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
-        "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
-        "ApimVisitsUrl": "[concat(parameters('ApimProxyAddress'), '/visits/AddVisit', '/')]",
         "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
     },
     "resources": [
@@ -408,12 +401,8 @@
                                 "value": "00:00:30"
                             },
                             {
-                                "name": "VisitClientOptions__ApiKey",
-                                "value": "[parameters('ApimVisitsKey')]"
-                            },
-                            {
                                 "name": "VisitClientOptions__BaseAddress",
-                                "value": "[variables('ApimVisitsUrl')]"
+                                "value": "[parameters('VisitsUrl')]"
                             },
                             {
                                 "name": "AppRegistryClientOptions__BaseAddress",
