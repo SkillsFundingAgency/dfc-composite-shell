@@ -65,9 +65,6 @@
         "AuthSettingsIssuer": {
             "value": "__AuthSettingsIssuer__"
         },
-        "OIDCAuthdUrl": {
-            "value": "__OIDCAuthdUrl__"
-        },
         "AuthClientSecret": {
             "value": "__AuthClientSecret__"
         },

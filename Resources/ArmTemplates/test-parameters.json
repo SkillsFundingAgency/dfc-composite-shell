@@ -50,9 +50,6 @@
         "AuthSettingsIssuer": {
             "value": "IAmAnIssuer"
         },
-        "OIDCAuthdUrl": {
-            "value": "https://foo.nationalcareers.service.gov.uk"
-        },
         "AuthClientSecret": {
             "value": "12345678"
         },
