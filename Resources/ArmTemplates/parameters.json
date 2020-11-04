@@ -8,9 +8,6 @@
         "ApimKey": {
             "value": "__ApimCompositeKey__"
         },
-        "ApimVisitsKey": {
-            "value": "__ApimVisitsKey__"
-        },
         "AseHostingEnvironmentName": {
             "value": "__AseHostingEnvironmentName__"
         },
@@ -103,6 +100,9 @@
         },
         "WebChatBaseUrl": {
             "value": "__WebChatBaseUrl__"
+        },
+        "VisitsUrl": {
+            "value": "__VisitsUrl__"
         }
     }
 }
