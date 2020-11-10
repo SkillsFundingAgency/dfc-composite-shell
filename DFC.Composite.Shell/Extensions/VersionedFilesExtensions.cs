@@ -17,10 +17,7 @@ namespace DFC.Composite.Shell.Extensions
                 VersionedPathForMainMinCss = versionedFiles.VersionedPathForMainMinCss,
                 VersionedPathForGovukMinCss = versionedFiles.VersionedPathForGovukMinCss,
                 VersionedPathForAllIe8Css = versionedFiles.VersionedPathForAllIe8Css,
-                VersionedPathForJQueryBundleMinJs = versionedFiles.VersionedPathForJQueryBundleMinJs,
-                VersionedPathForAllMinJs = versionedFiles.VersionedPathForAllMinJs,
-                VersionedPathForDfcDigitalMinJs = versionedFiles.VersionedPathForDfcDigitalMinJs,
-                VersionedPathForCompUiMinJs = versionedFiles.VersionedPathForCompUiMinJs,
+                VersionedPathForJavaScripts = versionedFiles.VersionedPathForJavaScripts,
                 VersionedPathForWebChatJs = versionedFiles.VersionedPathForWebChatJs,
                 WebchatEnabled = versionedFiles.WebchatEnabled,
             };

@@ -16,13 +16,7 @@ namespace DFC.Composite.Shell.Models
 
         public string VersionedPathForAllIe8Css { get; set; }
 
-        public string VersionedPathForJQueryBundleMinJs { get; set; }
-
-        public string VersionedPathForAllMinJs { get; set; }
-
-        public string VersionedPathForDfcDigitalMinJs { get; set; }
-
-        public string VersionedPathForCompUiMinJs { get; set; }
+        public IList<string> VersionedPathForJavaScripts { get; set; }
 
         public string VersionedPathForWebChatJs { get; set; }
 

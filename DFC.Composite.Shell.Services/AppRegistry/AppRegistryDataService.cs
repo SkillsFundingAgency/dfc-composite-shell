@@ -29,6 +29,11 @@ namespace DFC.Composite.Shell.Services.AppRegistry
             return models?.FirstOrDefault(f => f.Path.ToUpperInvariant() == path.ToUpperInvariant());
         }
 
+        public async Task<AppRegistrationModel> GetShellAppRegistrationModel()
+        {
+            return await GetAppRegistrationModel("shell").ConfigureAwait(false);
+        }
+
         public async Task SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
         {
             var appRegistrationModel = await GetAppRegistrationModel(path).ConfigureAwait(false);

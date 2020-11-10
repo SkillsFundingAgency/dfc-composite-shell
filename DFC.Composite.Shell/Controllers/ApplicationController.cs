@@ -259,10 +259,7 @@ namespace DFC.Composite.Shell.Controllers
                 VersionedPathForMainMinCss = source.VersionedPathForMainMinCss,
                 VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss,
                 VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css,
-                VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs,
-                VersionedPathForAllMinJs = source.VersionedPathForAllMinJs,
-                VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs,
-                VersionedPathForCompUiMinJs = source.VersionedPathForCompUiMinJs,
+                VersionedPathForJavaScripts = source.VersionedPathForJavaScripts,
                 VersionedPathForWebChatJs = source.VersionedPathForWebChatJs,
 
                 WebchatEnabled = source.WebchatEnabled,
