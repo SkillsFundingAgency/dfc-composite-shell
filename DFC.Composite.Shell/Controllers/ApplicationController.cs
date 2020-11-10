@@ -101,7 +101,7 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else
                         {
-                            mapper.Map(application, viewModel);
+                            await mapper.Map(application, viewModel).ConfigureAwait(false);
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
@@ -186,7 +186,7 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else
                         {
-                            mapper.Map(application, viewModel);
+                            await mapper.Map(application, viewModel).ConfigureAwait(false);
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
