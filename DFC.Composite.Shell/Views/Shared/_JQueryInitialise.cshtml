@@ -1,43 +1,24 @@
 ﻿@using DFC.Composite.Shell.Models.Common;
 @{
-    string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
+    var versionedPathForJavaScripts = ViewData["VersionedPathForJavaScripts"] as List<string>;
 
-    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
-
-    var VersionedPathForJavaScripts = ViewData["VersionedPathForJavaScripts"] as List<string>;
-
-    foreach (var script in VersionedPathForJavaScripts)
+    foreach (var script in versionedPathForJavaScripts)
     {
         <script src="@script" type="text/javascript" nws-csp-add-nonce="true"></script>
     }
 
-    bool WebchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+    bool webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
 
-    string VersionedPathForWebChatJs = string.Empty;
-    string ShellWebchatDomain = string.Empty;
-
-    if (WebchatEnabled)
+    if (webchatEnabled)
     {
-        VersionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"].ToString();
-        var WebChatUri = new Uri(VersionedPathForWebChatJs, UriKind.Absolute);
-        ShellWebchatDomain = WebChatUri.Scheme + "://" + WebChatUri.Host + ":" + WebChatUri.Port;
+        var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"].ToString();
+        var webChatUri = new Uri(versionedPathForWebChatJs, UriKind.Absolute);
+        var shellWebchatDomain = webChatUri.Scheme + "://" + webChatUri.Host + ":" + webChatUri.Port;
+
+        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
+
+        <script nws-csp-add-nonce="true">window.compUiShell.activateWebChat("@shellWebchatDomain")</script>
     }
 }
 
-@*<script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
-    <script src="@(VersionedPathForAllMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
-
-    <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
-
-    <script src="@(VersionedPathForDfcDigitalMinJs)" nws-csp-add-nonce="true"></script>
-
-    <script src="@(VersionedPathForCompUiMinJs)" nws-csp-add-nonce="true"></script>*@
-
 <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
-
-@if (WebchatEnabled)
-{
-    <script src="@(VersionedPathForWebChatJs)" nws-csp-add-nonce="true"></script>
-
-    <script nws-csp-add-nonce="true">window.compUiShell.activateWebChat("@ShellWebchatDomain")</script>
-}
