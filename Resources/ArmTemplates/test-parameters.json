@@ -45,7 +45,7 @@
             "value": false
         },
         "clientAffinity": {
-            "value": true
+            "value": false
         },
         "AuthSettingsIssuer": {
             "value": "IAmAnIssuer"
