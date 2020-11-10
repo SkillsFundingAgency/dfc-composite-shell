@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
+using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.Neo4J;
@@ -39,6 +40,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         private readonly IVersionedFiles defaultVersionedFiles;
         private readonly IApplicationService defaultApplicationService;
         private readonly ILogger<ApplicationController> defaultLogger;
+        private readonly IAppRegistryDataService defaultAppRegistryDataService;
         private readonly ApplicationToPageModelMapper defaultMapper;
         private readonly ActionPostRequestModel defaultPostRequestViewModel;
         private readonly ApplicationModel defaultApplicationModel;
@@ -46,7 +48,8 @@ namespace DFC.Composite.Shell.Test.Controllers
 
         public ApplicationControllerTests()
         {
-            defaultMapper = new ApplicationToPageModelMapper();
+            defaultAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            defaultMapper = new ApplicationToPageModelMapper(defaultAppRegistryDataService);
             defaultLogger = A.Fake<ILogger<ApplicationController>>();
             defaultApplicationService = A.Fake<IApplicationService>();
             defaultVersionedFiles = A.Fake<IVersionedFiles>();

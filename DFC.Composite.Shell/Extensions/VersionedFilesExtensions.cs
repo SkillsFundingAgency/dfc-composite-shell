@@ -2,6 +2,7 @@
 using DFC.Composite.Shell.Utilities;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
 
 namespace DFC.Composite.Shell.Extensions
 {
@@ -17,10 +18,7 @@ namespace DFC.Composite.Shell.Extensions
                 VersionedPathForMainMinCss = versionedFiles.VersionedPathForMainMinCss,
                 VersionedPathForGovukMinCss = versionedFiles.VersionedPathForGovukMinCss,
                 VersionedPathForAllIe8Css = versionedFiles.VersionedPathForAllIe8Css,
-                VersionedPathForJQueryBundleMinJs = versionedFiles.VersionedPathForJQueryBundleMinJs,
-                VersionedPathForAllMinJs = versionedFiles.VersionedPathForAllMinJs,
-                VersionedPathForDfcDigitalMinJs = versionedFiles.VersionedPathForDfcDigitalMinJs,
-                VersionedPathForCompUiMinJs = versionedFiles.VersionedPathForCompUiMinJs,
+                VersionedPathForJavaScripts = versionedFiles.VersionedPathForJavaScripts.ToList(),
                 VersionedPathForWebChatJs = versionedFiles.VersionedPathForWebChatJs,
                 WebchatEnabled = versionedFiles.WebchatEnabled,
             };

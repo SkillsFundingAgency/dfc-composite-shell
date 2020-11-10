@@ -51,9 +51,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
         public ApplicationServiceTests()
         {
-            mapper = new ApplicationToPageModelMapper();
-
             appRegistryDataService = A.Fake<IAppRegistryDataService>();
+            mapper = new ApplicationToPageModelMapper(appRegistryDataService);
             contentRetriever = A.Fake<IContentRetriever>();
             contentProcessor = A.Fake<IContentProcessorService>();
 

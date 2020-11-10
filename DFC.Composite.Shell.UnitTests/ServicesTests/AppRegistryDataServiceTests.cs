@@ -48,6 +48,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                     IsOnline = true,
                     Path = "ThirdFakePath",
                 },
+                new AppRegistrationModel
+                {
+                    IsOnline = true,
+                    Path = "shell",
+                },
             };
         }
 
@@ -73,6 +78,18 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var result = await appRegistryDataService.GetAppRegistrationModel("SecondFakePath").ConfigureAwait(false);
 
             Assert.Equal(appRegistrationModels[1], result);
+        }
+
+        [Fact]
+        public async Task GetShellAppRegistrationModelReturnsSuccess()
+        {
+            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
+
+            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
+            var result = await appRegistryDataService.GetShellAppRegistrationModel().ConfigureAwait(false);
+
+            Assert.Equal("shell", result.Path);
         }
 
         [Fact]

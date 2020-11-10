@@ -11,6 +11,8 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
 
         public int TopNavigationOrder { get; set; }
 
+        public string? CdnLocation { get; set; }
+
         public PageLayout Layout { get; set; }
 
         public bool IsOnline { get; set; }
@@ -34,5 +36,7 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
         public List<AjaxRequestModel> AjaxRequests { get; set; }
 
         public Dictionary<Guid, PageLocationModel>? PageLocations { get; set; }
+
+        public Dictionary<string, string?>? JavaScriptNames { get; set; }
     }
 }
