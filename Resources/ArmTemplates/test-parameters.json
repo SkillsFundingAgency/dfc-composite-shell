@@ -44,6 +44,9 @@
         "enableAlerts": {
             "value": false
         },
+        "clientAffinity": {
+            "value": false
+        },
         "AuthSettingsIssuer": {
             "value": "IAmAnIssuer"
         },
