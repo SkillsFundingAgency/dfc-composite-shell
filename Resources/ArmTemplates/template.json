@@ -24,6 +24,9 @@
             "type": "string",
             "defaultValue": ""
         },
+        "clientAffinity": {
+            "type": "bool"
+        },
         "CompositeUiCdnUrl": {
             "type": "string"
         },
@@ -223,6 +226,9 @@
                     },
                     "appServiceType": {
                         "value": "app"
+                    },
+                    "clientAffinity": {
+                        "value": "[parameters('clientAffinity')]"
                     },
                     "customHostName": {
                         "value": "[parameters('customHostName')]"
