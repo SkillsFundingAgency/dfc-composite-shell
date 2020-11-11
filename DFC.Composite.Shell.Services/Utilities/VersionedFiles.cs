@@ -1,7 +1,5 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Services.AppRegistry;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +8,7 @@ namespace DFC.Composite.Shell.Utilities
 {
     public class VersionedFiles : IVersionedFiles
     {
-        public VersionedFiles(IConfiguration configuration, IAssetLocationAndVersionService assetLocationAndVersionService, WebchatOptions webchatOptions, IAppRegistryDataService appRegistryDataService)
+        public VersionedFiles(WebchatOptions webchatOptions, IAppRegistryDataService appRegistryDataService)
         {
             _ = webchatOptions ?? throw new ArgumentNullException(nameof(webchatOptions));
             _ = appRegistryDataService ?? throw new ArgumentNullException(nameof(appRegistryDataService));
