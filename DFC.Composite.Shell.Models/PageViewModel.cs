@@ -10,11 +10,7 @@ namespace DFC.Composite.Shell.Models
             PageRegionContentModels = new List<PageRegionContentModel>();
         }
 
-        public string VersionedPathForMainMinCss { get; set; }
-
-        public string VersionedPathForGovukMinCss { get; set; }
-
-        public string VersionedPathForAllIe8Css { get; set; }
+        public IList<string> VersionedPathForCssScripts { get; set; }
 
         public IList<string> VersionedPathForJavaScripts { get; set; }
 

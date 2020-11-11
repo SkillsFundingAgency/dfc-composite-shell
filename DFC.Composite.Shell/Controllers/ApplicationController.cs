@@ -256,9 +256,7 @@ namespace DFC.Composite.Shell.Controllers
                 Path = source.Path,
                 PhaseBannerHtml = source.PhaseBannerHtml,
 
-                VersionedPathForMainMinCss = source.VersionedPathForMainMinCss,
-                VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss,
-                VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css,
+                VersionedPathForCssScripts = source.VersionedPathForCssScripts,
                 VersionedPathForJavaScripts = source.VersionedPathForJavaScripts,
                 VersionedPathForWebChatJs = source.VersionedPathForWebChatJs,
 

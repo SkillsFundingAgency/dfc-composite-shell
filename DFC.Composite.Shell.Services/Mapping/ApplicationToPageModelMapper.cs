@@ -36,15 +36,29 @@ namespace DFC.Composite.Shell.Services.Mapping
 
             var shellAppRegistrationModel = await appRegistryDataService.GetShellAppRegistrationModel().ConfigureAwait(false);
 
-            if (shellAppRegistrationModel != null && source?.AppRegistrationModel?.JavaScriptNames != null && source.AppRegistrationModel.JavaScriptNames.Any())
+            if (shellAppRegistrationModel != null)
             {
-                foreach (var key in source.AppRegistrationModel.JavaScriptNames.Keys)
+                if (source?.AppRegistrationModel?.CssScriptNames != null && source.AppRegistrationModel.CssScriptNames.Any())
                 {
-                    var value = source.AppRegistrationModel.JavaScriptNames[key];
+                    foreach (var key in source.AppRegistrationModel.CssScriptNames.Keys)
+                    {
+                        var value = source.AppRegistrationModel.CssScriptNames[key];
 
-                    var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
+                        var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
 
-                    destination.VersionedPathForJavaScripts.Add($"{fullPathname}?{value}");
+                        destination.VersionedPathForCssScripts.Add($"{fullPathname}?{value}");
+                    }
+                }
+                if (source?.AppRegistrationModel?.JavaScriptNames != null && source.AppRegistrationModel.JavaScriptNames.Any())
+                {
+                    foreach (var key in source.AppRegistrationModel.JavaScriptNames.Keys)
+                    {
+                        var value = source.AppRegistrationModel.JavaScriptNames[key];
+
+                        var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
+
+                        destination.VersionedPathForJavaScripts.Add($"{fullPathname}?{value}");
+                    }
                 }
             }
         }

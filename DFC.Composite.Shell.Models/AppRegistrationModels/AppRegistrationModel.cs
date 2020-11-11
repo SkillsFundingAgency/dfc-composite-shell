@@ -37,6 +37,8 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
 
         public Dictionary<Guid, PageLocationModel>? PageLocations { get; set; }
 
+        public Dictionary<string, string?>? CssScriptNames { get; set; }
+
         public Dictionary<string, string?>? JavaScriptNames { get; set; }
     }
 }

@@ -4,11 +4,7 @@ namespace DFC.Composite.Shell.Utilities
 {
     public interface IVersionedFiles
     {
-        string VersionedPathForAllIe8Css { get; }
-
-        string VersionedPathForGovukMinCss { get; }
-
-        string VersionedPathForMainMinCss { get; }
+        IList<string> VersionedPathForCssScripts { get; }
 
         IList<string> VersionedPathForJavaScripts { get; }
 

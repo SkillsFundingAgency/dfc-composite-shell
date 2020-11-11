@@ -164,15 +164,15 @@ namespace DFC.Composite.Shell
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
             services.AddTransient<INeo4JService, Neo4JService>();
+            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IAppRegistryDataService, AppRegistryDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
             services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
-            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddScoped<IVersionedFiles, VersionedFiles>();
 
-            services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
             services.AddSingleton<IShellRobotFileService, ShellRobotFileService>();
             services.AddSingleton<IBaseUrlService, BaseUrlService>();

@@ -1,5 +1,4 @@
 ﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using Microsoft.Extensions.Configuration;
@@ -16,14 +15,18 @@ namespace DFC.Composite.Shell.Utilities
             _ = webchatOptions ?? throw new ArgumentNullException(nameof(webchatOptions));
             _ = appRegistryDataService ?? throw new ArgumentNullException(nameof(appRegistryDataService));
 
-            var brandingAssetsCdn = configuration.GetValue<string>("BrandingAssetsCdn");
-            var brandingAssetsFolder = $"{brandingAssetsCdn}/{Constants.NationalCareersToolkit}";
-
-            VersionedPathForMainMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/all.min.css");
-            VersionedPathForGovukMinCss = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/govuk.min.css");
-            VersionedPathForAllIe8Css = assetLocationAndVersionService?.GetCdnAssetFileAndVersion($"{brandingAssetsFolder}/css/all-ie8.css");
-
             var shellAppRegistrationModel = appRegistryDataService.GetShellAppRegistrationModel().Result;
+
+            if (shellAppRegistrationModel.CssScriptNames != null && shellAppRegistrationModel.CssScriptNames.Any())
+            {
+                foreach (var key in shellAppRegistrationModel.CssScriptNames.Keys)
+                {
+                    var value = shellAppRegistrationModel.CssScriptNames[key];
+                    var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
+
+                    VersionedPathForCssScripts.Add($"{fullPathname}?{value}");
+                }
+            }
 
             if (shellAppRegistrationModel.JavaScriptNames != null && shellAppRegistrationModel.JavaScriptNames.Any())
             {
@@ -50,11 +53,7 @@ namespace DFC.Composite.Shell.Utilities
             }
         }
 
-        public string VersionedPathForMainMinCss { get; }
-
-        public string VersionedPathForGovukMinCss { get; }
-
-        public string VersionedPathForAllIe8Css { get; }
+        public IList<string> VersionedPathForCssScripts { get; } = new List<string>();
 
         public IList<string> VersionedPathForJavaScripts { get; } = new List<string>();
 
