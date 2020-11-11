@@ -110,6 +110,9 @@
         "WebChatBaseUrl": {
             "type": "string"
         },
+        "WebChatPort": {
+            "type": "string"
+        },
         "VisitsUrl": {
             "type": "string"
         }
@@ -432,7 +435,7 @@
                             },
                             {
                                 "name": "WebchatOptions__ScriptUrl",
-                                "value": "[concat(parameters('WebChatBaseUrl'),':8080/js/chatRed.js')]" 
+                                "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
                             },
                             {
                                 "name": "WebchatOptions__CspDomain",
