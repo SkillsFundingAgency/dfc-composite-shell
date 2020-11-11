@@ -104,6 +104,9 @@
         "WebChatBaseUrl": {
             "value": "__WebChatBaseUrl__"
         },
+        "WebChatPort": {
+            "value": "__WebChatPort__"
+        },
         "VisitsUrl": {
             "value": "__VisitsUrl__"
         }

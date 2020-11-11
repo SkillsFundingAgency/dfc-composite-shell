@@ -89,6 +89,9 @@
         "WebChatBaseUrl": {
             "value": "https://webcaht-endpoint"
         },
+        "WebChatPort": {
+            "value": "8092"
+        },
         "VisitsUrl": {
             "value": "https://foo"
         }
