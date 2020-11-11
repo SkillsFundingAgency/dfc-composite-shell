@@ -12,7 +12,6 @@ using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
 using DFC.Composite.Shell.Services.BaseUrl;
@@ -164,15 +163,15 @@ namespace DFC.Composite.Shell
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
             services.AddTransient<INeo4JService, Neo4JService>();
+            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IAppRegistryDataService, AppRegistryDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
             services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
-            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddScoped<IVersionedFiles, VersionedFiles>();
 
-            services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
             services.AddSingleton<IShellRobotFileService, ShellRobotFileService>();
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
@@ -210,9 +209,7 @@ namespace DFC.Composite.Shell
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
                 .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
-                .AddHttpMessageHandler<CookieDelegatingHandler>()
-                .Services
-                .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+                .AddHttpMessageHandler<CookieDelegatingHandler>();
 
             services
                 .AddPolicies(policyRegistry, nameof(AjaxRequestClientOptions), policyOptions)

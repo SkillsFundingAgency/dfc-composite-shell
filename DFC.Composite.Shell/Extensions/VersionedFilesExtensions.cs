@@ -15,9 +15,7 @@ namespace DFC.Composite.Shell.Extensions
             return new PageViewModel
             {
                 BrandingAssetsCdn = configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn)),
-                VersionedPathForMainMinCss = versionedFiles.VersionedPathForMainMinCss,
-                VersionedPathForGovukMinCss = versionedFiles.VersionedPathForGovukMinCss,
-                VersionedPathForAllIe8Css = versionedFiles.VersionedPathForAllIe8Css,
+                VersionedPathForCssScripts = versionedFiles.VersionedPathForCssScripts.ToList(),
                 VersionedPathForJavaScripts = versionedFiles.VersionedPathForJavaScripts.ToList(),
                 VersionedPathForWebChatJs = versionedFiles.VersionedPathForWebChatJs,
                 WebchatEnabled = versionedFiles.WebchatEnabled,
