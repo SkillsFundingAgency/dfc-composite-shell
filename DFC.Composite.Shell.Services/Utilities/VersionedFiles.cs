@@ -32,7 +32,7 @@ namespace DFC.Composite.Shell.Utilities
                 {
                     var value = shellAppRegistrationModel.JavaScriptNames[key];
 
-                    if (key.EndsWith("/js/chatRed.js", StringComparison.OrdinalIgnoreCase))
+                    if (key.Equals(webchatOptions.ScriptUrl, StringComparison.OrdinalIgnoreCase))
                     {
                         VersionedPathForWebChatJs = $"{key}?{value}";
                     }

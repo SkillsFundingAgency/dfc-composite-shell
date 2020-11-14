@@ -8,10 +8,10 @@
     }
 
     bool webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+    var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"]?.ToString();
 
-    if (webchatEnabled)
+    if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
     {
-        var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"].ToString();
         var webChatUri = new Uri(versionedPathForWebChatJs, UriKind.Absolute);
         var shellWebchatDomain = webChatUri.Scheme + "://" + webChatUri.Host + ":" + webChatUri.Port;
 
