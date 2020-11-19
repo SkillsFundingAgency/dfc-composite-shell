@@ -85,21 +85,35 @@ namespace DFC.Composite.Shell
                 .DefaultSources(s => s.Self())
                 .ScriptSources(s => s
                     .Self()
-                    .UnsafeEval()
-                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                    .CustomSources(
+                        "https://az416426.vo.msecnd.net/scripts/",
+                        "www.google-analytics.com",
+                        "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=",
+                        "www.googletagmanager.com",
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
+                        webchatOptionsCspDomain + ":8080/js/",
+                        $"{ Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
                 .StyleSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
+                        webchatOptionsCspDomain + ":8080/css/"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
                 .ImageSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net"))
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/",
+                        webchatOptionsCspDomain + ":8080/images/",
+                        "www.google-analytics.com",
+                        "*.doubleclick.net"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatOptionsCspDomain + ":8082"))
+                    .CustomSources(
+                        webchatOptionsCspDomain + ":8080",
+                        webchatOptionsCspDomain + ":8082"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(

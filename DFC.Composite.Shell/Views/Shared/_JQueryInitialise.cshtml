@@ -15,10 +15,19 @@
         var webChatUri = new Uri(versionedPathForWebChatJs, UriKind.Absolute);
         var shellWebchatDomain = webChatUri.Scheme + "://" + webChatUri.Host + ":" + webChatUri.Port;
 
-        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
+        @*<script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
 
-        <script nws-csp-add-nonce="true">window.compUiShell.activateWebChat("@shellWebchatDomain")</script>
+        <script nws-csp-add-nonce="true">window.compUiShell.activateWebChat("@shellWebchatDomain")</script>*@
     }
 }
 
 <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
+
+
+
+
+
+
+<script src="https://webchat.nationalcareers.service.gov.uk:8080/js/chatRed.js" nws-csp-add-nonce="true" data-project="NCS-Live"></script>
+
+<script src="~/js/xxx.js" nws-csp-add-nonce="true"></script>
