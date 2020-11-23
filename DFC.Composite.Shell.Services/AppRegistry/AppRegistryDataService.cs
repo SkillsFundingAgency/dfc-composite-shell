@@ -26,7 +26,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
         {
             var models = await GetAppRegistrationModels().ConfigureAwait(false);
 
-            return models?.FirstOrDefault(f => f.Path.ToUpperInvariant() == path.ToUpperInvariant());
+            return models?.FirstOrDefault(f => f.Path.ToUpperInvariant() == path?.ToUpperInvariant());
         }
 
         public async Task<AppRegistrationModel> GetShellAppRegistrationModel()
