@@ -42,6 +42,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -78,7 +79,9 @@ namespace DFC.Composite.Shell
             app.AddOperationIdToRequests();
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
-            var webchatOptionsCspDomain = Configuration.GetValue<string>("WebchatOptions:CspDomain") ?? "https://webchat.nationalcareersservice.org.uk";
+            var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
+            var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
+            var webchatIframeCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:8082";
 
             // Configure security headers
             app.UseCsp(options => options
@@ -91,13 +94,13 @@ namespace DFC.Composite.Shell
                         "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=",
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
-                        webchatOptionsCspDomain + ":8080/js/",
+                        webchatCspDomain + "/js/",
                         $"{ Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
-                        webchatOptionsCspDomain + ":8080/css/"))
+                        webchatCspDomain + "/css/"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
@@ -105,21 +108,22 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/",
-                        webchatOptionsCspDomain + ":8080/images/",
+                        webchatCspDomain + "/images/",
+                        webchatCspDomain + "/var/",
                         "www.google-analytics.com",
                         "*.doubleclick.net"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
                     .CustomSources(
-                        webchatOptionsCspDomain + ":8080",
-                        webchatOptionsCspDomain + ":8082"))
+                        webchatCspDomain,
+                        webchatIframeCspDomain))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
+                        webchatCspDomain,
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
-                        webchatOptionsCspDomain + ":8080",
                         "https://www.google-analytics.com",
                         "https://www.googletagmanager.com")));
 

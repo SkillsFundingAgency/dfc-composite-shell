@@ -1,5 +1,4 @@
-﻿@using DFC.Composite.Shell.Models.Common;
-@{
+﻿@{
     var versionedPathForJavaScripts = ViewData["VersionedPathForJavaScripts"] as List<string>;
 
     foreach (var script in versionedPathForJavaScripts)
@@ -12,22 +11,8 @@
 
     if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
     {
-        var webChatUri = new Uri(versionedPathForWebChatJs, UriKind.Absolute);
-        var shellWebchatDomain = webChatUri.Scheme + "://" + webChatUri.Host + ":" + webChatUri.Port;
-
-        @*<script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
-
-        <script nws-csp-add-nonce="true">window.compUiShell.activateWebChat("@shellWebchatDomain")</script>*@
+        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
     }
 }
 
 <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
-
-
-
-
-
-
-<script src="https://webchat.nationalcareers.service.gov.uk:8080/js/chatRed.js" nws-csp-add-nonce="true" data-project="NCS-Live"></script>
-
-<script src="~/js/xxx.js" nws-csp-add-nonce="true"></script>
