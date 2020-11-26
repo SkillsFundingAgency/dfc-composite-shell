@@ -15,7 +15,7 @@ namespace DFC.Composite.Shell.Utilities
 
             var shellAppRegistrationModel = appRegistryDataService.GetShellAppRegistrationModel().Result;
 
-            if (shellAppRegistrationModel.CssScriptNames != null && shellAppRegistrationModel.CssScriptNames.Any())
+            if (shellAppRegistrationModel?.CssScriptNames != null && shellAppRegistrationModel.CssScriptNames.Any())
             {
                 foreach (var key in shellAppRegistrationModel.CssScriptNames.Keys)
                 {
@@ -26,7 +26,7 @@ namespace DFC.Composite.Shell.Utilities
                 }
             }
 
-            if (shellAppRegistrationModel.JavaScriptNames != null && shellAppRegistrationModel.JavaScriptNames.Any())
+            if (shellAppRegistrationModel?.JavaScriptNames != null && shellAppRegistrationModel.JavaScriptNames.Any())
             {
                 foreach (var key in shellAppRegistrationModel.JavaScriptNames.Keys)
                 {
