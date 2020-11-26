@@ -81,7 +81,6 @@ namespace DFC.Composite.Shell
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
             var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
-            var webchatIframeCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:8082";
 
             // Configure security headers
             app.UseCsp(options => options
@@ -115,9 +114,7 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(
-                        webchatCspDomain,
-                        webchatIframeCspDomain))
+                    .CustomSources(webchatCspDomain))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
