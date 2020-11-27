@@ -10,5 +10,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
         Task<IEnumerable<AppRegistrationModel>> GetPaths();
 
         Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy);
+
+        Task<bool> SetAjaxRequestHealthState(string path, string name, bool isHealthy);
     }
 }

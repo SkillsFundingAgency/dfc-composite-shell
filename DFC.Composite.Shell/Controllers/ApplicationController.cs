@@ -83,7 +83,7 @@ namespace DFC.Composite.Shell.Controllers
 
                         await neo4JService.InsertNewRequest(Request).ConfigureAwait(false);
 
-                        var application = await applicationService.GetApplicationAsync(requestItem.Path, requestItem.Data).ConfigureAwait(false);
+                        var application = await applicationService.GetApplicationAsync(requestItem).ConfigureAwait(false);
 
                         if (application?.AppRegistrationModel == null)
                         {
@@ -95,21 +95,21 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else if (application.AppRegistrationModel.ExternalURL != null)
                         {
-                            logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {requestItem.Path}/{requestItem.Data}");
+                            logger.LogInformation($"{nameof(Action)}: Redirecting to external for: {application.AppRegistrationModel.Path}/{application.Article}");
 
                             return Redirect(application.AppRegistrationModel.ExternalURL.ToString());
                         }
                         else
                         {
-                            mapper.Map(application, viewModel);
+                            await mapper.Map(application, viewModel).ConfigureAwait(false);
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
-                            await applicationService.GetMarkupAsync(application, application.Article, viewModel, Request.QueryString.Value).ConfigureAwait(false);
+                            await applicationService.GetMarkupAsync(application, viewModel, Request.QueryString.Value).ConfigureAwait(false);
 
-                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}/{requestItem.Data}");
+                            logger.LogInformation($"{nameof(Action)}: Received child response for: {application.AppRegistrationModel.Path}/{application.Article}");
 
-                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0 && int.TryParse(requestItem.Data, out var statusCode))
+                            if (string.Compare(application.AppRegistrationModel.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0 && int.TryParse(application.Article, out var statusCode))
                             {
                                 Response.StatusCode = statusCode;
                             }
@@ -174,7 +174,7 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}/{requestItem.Data}");
 
-                        var application = await applicationService.GetApplicationAsync(requestItem.Path, requestItem.Data).ConfigureAwait(false);
+                        var application = await applicationService.GetApplicationAsync(requestItem).ConfigureAwait(false);
 
                         if (application?.AppRegistrationModel == null)
                         {
@@ -186,7 +186,7 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else
                         {
-                            mapper.Map(application, viewModel);
+                            await mapper.Map(application, viewModel).ConfigureAwait(false);
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
@@ -201,18 +201,18 @@ namespace DFC.Composite.Shell.Controllers
                             if (postFirstRequest)
                             {
                                 postFirstRequest = false;
-                                await applicationService.PostMarkupAsync(application, requestItem.Path, requestItem.Data, formParameters, viewModel).ConfigureAwait(false);
+                                await applicationService.PostMarkupAsync(application, formParameters, viewModel).ConfigureAwait(false);
                             }
                             else
                             {
-                                await applicationService.GetMarkupAsync(application, requestItem.Data, viewModel, string.Empty).ConfigureAwait(false);
+                                await applicationService.GetMarkupAsync(application, viewModel, string.Empty).ConfigureAwait(false);
                             }
 
-                            logger.LogInformation($"{nameof(Action)}: Received child response for: {requestItem.Path}/{requestItem.Data}");
+                            logger.LogInformation($"{nameof(Action)}: Received child response for: {application.AppRegistrationModel.Path}/{application.Article}");
 
-                            if (string.Compare(requestItem.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
+                            if (string.Compare(application.AppRegistrationModel.Path, AlertPathName, true, CultureInfo.InvariantCulture) == 0)
                             {
-                                if (int.TryParse(requestItem.Data, out var statusCode))
+                                if (int.TryParse(application.Article, out var statusCode))
                                 {
                                     Response.StatusCode = statusCode;
                                 }
@@ -256,13 +256,11 @@ namespace DFC.Composite.Shell.Controllers
                 Path = source.Path,
                 PhaseBannerHtml = source.PhaseBannerHtml,
 
-                VersionedPathForMainMinCss = source.VersionedPathForMainMinCss,
-                VersionedPathForGovukMinCss = source.VersionedPathForGovukMinCss,
-                VersionedPathForAllIe8Css = source.VersionedPathForAllIe8Css,
-                VersionedPathForJQueryBundleMinJs = source.VersionedPathForJQueryBundleMinJs,
-                VersionedPathForAllMinJs = source.VersionedPathForAllMinJs,
-                VersionedPathForDfcDigitalMinJs = source.VersionedPathForDfcDigitalMinJs,
-                VersionedPathForCompUiMinJs = source.VersionedPathForCompUiMinJs,
+                VersionedPathForCssScripts = source.VersionedPathForCssScripts,
+                VersionedPathForJavaScripts = source.VersionedPathForJavaScripts,
+                VersionedPathForWebChatJs = source.VersionedPathForWebChatJs,
+
+                WebchatEnabled = source.WebchatEnabled,
 
                 ContentBody = GetContent(source, PageRegion.Body),
                 ContentBodyFooter = GetContent(source, PageRegion.BodyFooter),

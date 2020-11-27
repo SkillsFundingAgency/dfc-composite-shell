@@ -67,5 +67,10 @@ namespace DFC.Composite.Shell.Integration.Test.Services
         {
             return await Task.FromResult(true).ConfigureAwait(false);
         }
+
+        public async Task<bool> SetAjaxRequestHealthState(string path, string name, bool isHealthy)
+        {
+            return await Task.FromResult(true).ConfigureAwait(false);
+        }
     }
 }

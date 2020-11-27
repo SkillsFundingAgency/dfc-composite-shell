@@ -58,7 +58,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             markupMessages = new MarkupMessages
             {
                 AppOfflineHtml = "<h3>App offline</h3>",
-                RegionOfflineHtml = new Dictionary<PageRegion, string> {
+                RegionOfflineHtml = new Dictionary<PageRegion, string>
+                {
                     {
                         PageRegion.Head, "<h3>Head Region is offline</h3>"
                     },
@@ -69,13 +70,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                         PageRegion.BodyTop, "<h3>BodyTop Region is offline</h3>"
                     },
                     {
-                        PageRegion.Body,"<h3>Body Region is offline</h3>"
+                        PageRegion.Body, "<h3>Body Region is offline</h3>"
                     },
                     {
                         PageRegion.SidebarRight, "<h3>SidebarRight Region is offline</h3>"
                     },
                     {
-                        PageRegion.SidebarLeft,"<h3>SidebarLeft Region is offline</h3>"
+                        PageRegion.SidebarLeft, "<h3>SidebarLeft Region is offline</h3>"
                     },
                     {
                         PageRegion.BodyFooter, "<h3>BodyFooter Region is offline</h3>"
@@ -83,7 +84,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                     {
                         PageRegion.HeroBanner, "<h3>HeroBanner Region is offline</h3>"
                     },
-               },
+                },
             };
 
             defaultService = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
@@ -440,9 +441,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 IsHealthy = true,
             };
             var httpHandler = new MockHttpMessageHandler();
-            var httpClient = httpHandler.ToHttpClient();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
-            var contentRetriever = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            var contentRetriever = new ContentRetriever(httpHandler.ToHttpClient(), logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
 
             await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
 
@@ -469,9 +469,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 IsHealthy = true,
             };
             var httpHandler = new MockHttpMessageHandler();
-            var httpClient = httpHandler.ToHttpClient();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
-            var contentRetriever = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            var contentRetriever = new ContentRetriever(httpHandler.ToHttpClient(), logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
 
             var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
             Assert.Equal("https://base/baseurl/redirecturl", ex.Location.AbsoluteUri);

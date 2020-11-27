@@ -8,9 +8,6 @@
         "ApimKey": {
             "value": "__ApimCompositeKey__"
         },
-        "ApimVisitsKey": {
-            "value": "__ApimVisitsKey__"
-        },
         "AseHostingEnvironmentName": {
             "value": "__AseHostingEnvironmentName__"
         },
@@ -62,6 +59,12 @@
         "enableAlerts": {
             "value": __EnableAzureMonitorAlerting__
         },
+        "clientAffinity": {
+            "value": __clientAffinity__
+        },
+        "AuthSettingsIssuer": {
+            "value": "__AuthSettingsIssuer__"
+        },
         "AuthClientSecret": {
             "value": "__AuthClientSecret__"
         },
@@ -94,6 +97,18 @@
         },
         "AppRegistryClientOptionsBaseAddress": {
             "value": "__AppRegistryClientOptionsBaseAddress__"
+        },
+        "enableWebChatOptions": {
+            "value": __EnableWebChatOptions__
+        },
+        "WebChatBaseUrl": {
+            "value": "__WebChatBaseUrl__"
+        },
+        "WebChatPort": {
+            "value": "__WebChatPort__"
+        },
+        "VisitsUrl": {
+            "value": "__VisitsUrl__"
         }
     }
 }

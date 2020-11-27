@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +26,12 @@ namespace DFC.Composite.Shell.Services.AppRegistry
         {
             var models = await GetAppRegistrationModels().ConfigureAwait(false);
 
-            return models?.FirstOrDefault(f => f.Path.ToUpperInvariant() == path.ToUpperInvariant());
+            return models?.FirstOrDefault(f => f.Path.ToUpperInvariant() == path?.ToUpperInvariant());
+        }
+
+        public async Task<AppRegistrationModel> GetShellAppRegistrationModel()
+        {
+            return await GetAppRegistrationModel("shell").ConfigureAwait(false);
         }
 
         public async Task SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
@@ -38,6 +44,19 @@ namespace DFC.Composite.Shell.Services.AppRegistry
                 regionModel.IsHealthy = isHealthy;
 
                 await appRegistryService.SetRegionHealthState(path, pageRegion, isHealthy).ConfigureAwait(false);
+            }
+        }
+
+        public async Task SetAjaxRequestHealthState(string path, string name, bool isHealthy)
+        {
+            var appRegistrationModel = await GetAppRegistrationModel(path).ConfigureAwait(false);
+            var ajaxRequestModel = appRegistrationModel?.AjaxRequests?.FirstOrDefault(f => string.Compare(f.Name, name, StringComparison.OrdinalIgnoreCase) == 0);
+
+            if (ajaxRequestModel != null)
+            {
+                ajaxRequestModel.IsHealthy = isHealthy;
+
+                await appRegistryService.SetAjaxRequestHealthState(path, name, isHealthy).ConfigureAwait(false);
             }
         }
     }
