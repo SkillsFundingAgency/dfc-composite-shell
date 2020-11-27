@@ -56,5 +56,28 @@ namespace DFC.Composite.Shell.Services.AppRegistry
                 return false;
             }
         }
+
+        public async Task<bool> SetAjaxRequestHealthState(string path, string name, bool isHealthy)
+        {
+            var patchUrl = new Uri($"{httpClient.BaseAddress}{path}/ajaxrequests/{name}", UriKind.Absolute);
+            var ajaxRequestPatchModel = new JsonPatchDocument<AjaxRequestModel>().Add(x => x.IsHealthy, isHealthy);
+            var jsonRequest = JsonConvert.SerializeObject(ajaxRequestPatchModel);
+            using var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
+
+            try
+            {
+                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (BrokenCircuitException ex)
+            {
+                logger.LogError(ex, $"{nameof(SetAjaxRequestHealthState)}: BrokenCircuit: {patchUrl} - {ex.Message}, marking AppRegistration: {path}.{name} IsHealthy = {isHealthy}");
+
+                return false;
+            }
+        }
     }
 }

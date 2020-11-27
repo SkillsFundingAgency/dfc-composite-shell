@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Html;
+using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.Models
 {
@@ -8,19 +9,13 @@ namespace DFC.Composite.Shell.Models
         {
         }
 
-        public string VersionedPathForMainMinCss { get; set; }
+        public IList<string> VersionedPathForCssScripts { get; set; }
 
-        public string VersionedPathForGovukMinCss { get; set; }
+        public IList<string> VersionedPathForJavaScripts { get; set; }
 
-        public string VersionedPathForAllIe8Css { get; set; }
+        public string VersionedPathForWebChatJs { get; set; }
 
-        public string VersionedPathForJQueryBundleMinJs { get; set; }
-
-        public string VersionedPathForAllMinJs { get; set; }
-
-        public string VersionedPathForDfcDigitalMinJs { get; set; }
-
-        public string VersionedPathForCompUiMinJs { get; set; }
+        public bool WebchatEnabled { get; set; }
 
         public string Path { get; set; }
 

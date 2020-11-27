@@ -6,12 +6,12 @@ using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Policies.Options;
+using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
-using DFC.Composite.Shell.Services.AssetLocationAndVersion;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
 using DFC.Composite.Shell.Services.BaseUrl;
@@ -42,6 +42,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -78,30 +79,50 @@ namespace DFC.Composite.Shell
             app.AddOperationIdToRequests();
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
+            var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
+            var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
 
             // Configure security headers
             app.UseCsp(options => options
                 .DefaultSources(s => s.Self())
                 .ScriptSources(s => s
                     .Self()
-                    .UnsafeEval()
-                    .CustomSources("https://az416426.vo.msecnd.net/scripts/", "www.google-analytics.com", "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=", "www.googletagmanager.com", $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/", $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                    .CustomSources(
+                        "https://az416426.vo.msecnd.net/scripts/",
+                        "www.google-analytics.com",
+                        "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=",
+                        "www.googletagmanager.com",
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
+                        webchatCspDomain + "/js/",
+                        $"{ Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
                 .StyleSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/css/"))
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
+                        webchatCspDomain + "/css/"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
                 .ImageSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/images/", "www.google-analytics.com", "*.doubleclick.net"))
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/",
+                        webchatCspDomain + "/images/",
+                        webchatCspDomain + "/var/",
+                        "www.google-analytics.com",
+                        "*.doubleclick.net"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources("https://*.serco.com/"))
+                    .CustomSources(webchatCspDomain))
                 .ConnectSources(s => s
                     .Self()
-                    .CustomSources($"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}", "https://dc.services.visualstudio.com/", Configuration.GetValue<string>(Constants.ApimProxyAddress), "https://www.google-analytics.com", "https://www.googletagmanager.com")));
+                    .CustomSources(
+                        webchatCspDomain,
+                        $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
+                        "https://dc.services.visualstudio.com/",
+                        "https://www.google-analytics.com",
+                        "https://www.googletagmanager.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
@@ -157,21 +178,22 @@ namespace DFC.Composite.Shell
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
             services.AddTransient<INeo4JService, Neo4JService>();
+            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IAppRegistryDataService, AppRegistryDataService>();
             services.AddScoped<IHeaderRenamerService, HeaderRenamerService>();
             services.AddScoped<IHeaderCountService, HeaderCountService>();
             services.AddScoped<IOpenIdConnectClient, AzureB2CAuthClient>();
-            services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddScoped<IVersionedFiles, VersionedFiles>();
 
-            services.AddSingleton<IVersionedFiles, VersionedFiles>();
             services.AddSingleton<IBearerTokenRetriever, BearerTokenRetriever>();
             services.AddSingleton<IShellRobotFileService, ShellRobotFileService>();
             services.AddSingleton<IBaseUrlService, BaseUrlService>();
             services.AddSingleton<IFileInfoHelper, FileInfoHelper>();
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
+            services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
@@ -202,9 +224,11 @@ namespace DFC.Composite.Shell
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
                 .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
-                .AddHttpMessageHandler<CookieDelegatingHandler>()
-                .Services
-                .AddHttpClient<IAssetLocationAndVersionService, AssetLocationAndVersionService, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+                .AddHttpMessageHandler<CookieDelegatingHandler>();
+
+            services
+                .AddPolicies(policyRegistry, nameof(AjaxRequestClientOptions), policyOptions)
+                .AddHttpClient<IAjaxRequestService, AjaxRequestService, AjaxRequestClientOptions>(Configuration, nameof(AjaxRequestClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services
                 .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions);

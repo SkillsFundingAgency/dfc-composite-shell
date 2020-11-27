@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Services.Application
 
         public string RequestBaseUrl { get; set; }
 
-        public async Task GetMarkupAsync(ApplicationModel application, string article, PageViewModel pageModel, string queryString)
+        public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string queryString)
         {
             if (application == null)
             {
@@ -52,13 +52,13 @@ namespace DFC.Composite.Shell.Services.Application
             if (application.AppRegistrationModel.IsOnline)
             {
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article, queryString);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString);
 
                 //Wait until everything is done
                 await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
 
                 //Get the markup at this url
-                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, article, queryString);
+                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, queryString);
 
                 await Task.WhenAll(applicationBodyRegionTask).ConfigureAwait(false);
 
@@ -76,15 +76,15 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task PostMarkupAsync(ApplicationModel application, string path, string article, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
+        public async Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
         {
             if (application != null && application.AppRegistrationModel.IsOnline)
             {
                 //Get the markup at the post back url
-                var applicationBodyRegionTask = GetPostMarkUpAsync(application, article, formParameters);
+                var applicationBodyRegionTask = GetPostMarkUpAsync(application, formParameters);
 
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, article, string.Empty);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
 
                 //Wait until everything is done
                 await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
@@ -103,9 +103,9 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task<ApplicationModel> GetApplicationAsync(string path, string data)
+        public async Task<ApplicationModel> GetApplicationAsync(ActionGetRequestModel data)
         {
-            var applicationModel = await DetermineArticleLocation(path, data).ConfigureAwait(false);
+            var applicationModel = await DetermineArticleLocation(data).ConfigureAwait(false);
 
             if (applicationModel.AppRegistrationModel == null)
             {
@@ -125,10 +125,10 @@ namespace DFC.Composite.Shell.Services.Application
             return applicationModel;
         }
 
-        private async Task<ApplicationModel> DetermineArticleLocation(string path, string data)
+        private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
         {
             const string appRegistryPathNameForPagesApp = "pages";
-            var pageLocation = string.Join("/", new[] { path, data });
+            var pageLocation = string.Join("/", new[] { data.Path, data.Data });
             var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
             var article = string.Join("/", pageLocations);
             var applicationModel = new ApplicationModel();
@@ -142,8 +142,13 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (applicationModel.AppRegistrationModel == null)
             {
-                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
-                applicationModel.Article = data;
+                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article).ConfigureAwait(false) ??
+                                                        await appRegistryDataService.GetAppRegistrationModel(data.Path).ConfigureAwait(false);
+
+                if (applicationModel.AppRegistrationModel != null)
+                {
+                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length ? article.Substring(applicationModel.AppRegistrationModel.Path.Length + 1) : null;
+                }
             }
 
             return applicationModel;
@@ -174,7 +179,7 @@ namespace DFC.Composite.Shell.Services.Application
                     .Replace(QueryStringPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string article, string queryString)
+        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString)
         {
             //Get the body region
             var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
@@ -184,7 +189,7 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(string.Empty);
             }
 
-            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article, queryString);
+            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, application.Article, queryString);
 
             return contentRetriever.GetContent(url, application.AppRegistrationModel.Path, bodyRegion, false, RequestBaseUrl);
         }
@@ -198,7 +203,7 @@ namespace DFC.Composite.Shell.Services.Application
             return contentProcessorService.Process(result, RequestBaseUrl, application.RootUrl);
         }
 
-        private Task<string> GetPostMarkUpAsync(ApplicationModel application, string article, IEnumerable<KeyValuePair<string, string>> formParameters)
+        private Task<string> GetPostMarkUpAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters)
         {
             //Get the body region
             var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
@@ -208,25 +213,25 @@ namespace DFC.Composite.Shell.Services.Application
                 return Task.FromResult(string.Empty);
             }
 
-            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, article, string.Empty);
+            var url = FormatArticleUrl(bodyRegion.RegionEndpoint, application.Article, string.Empty);
 
             return contentRetriever.PostContent(url, application.AppRegistrationModel.Path, bodyRegion, formParameters, RequestBaseUrl);
         }
 
-        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string article, string queryString)
+        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string queryString)
         {
             //Get the markup at the head url first. This will create the session if it doesn't already exist
-            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), article, queryString).ConfigureAwait(false);
+            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), application.Article, queryString).ConfigureAwait(false);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
             var tasks = new List<Task<string>>();
 
-            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.AppRegistrationModel.Regions, article, queryString);
-            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.AppRegistrationModel.Regions, article, queryString);
-            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.AppRegistrationModel.Regions, article, queryString);
-            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.AppRegistrationModel.Regions, article, queryString);
-            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, article, queryString);
-            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, article, queryString);
+            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.AppRegistrationModel.Regions, application.Article, queryString);
+            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.AppRegistrationModel.Regions, application.Article, queryString);
+            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.AppRegistrationModel.Regions, application.Article, queryString);
+            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.AppRegistrationModel.Regions, application.Article, queryString);
+            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, application.Article, queryString);
+            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, application.Article, queryString);
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 

@@ -8,9 +8,6 @@
         "ApimKey": {
             "type": "string"
         },
-        "ApimVisitsKey": {
-            "type": "string"
-        },
         "AseHostingEnvironmentName": {
             "type": "string",
             "defaultValue": ""
@@ -26,6 +23,9 @@
         "AspTier": {
             "type": "string",
             "defaultValue": ""
+        },
+        "clientAffinity": {
+            "type": "bool"
         },
         "CompositeUiCdnUrl": {
             "type": "string"
@@ -68,6 +68,9 @@
                 "description": "Enable or disable alerting"
             }
         },
+        "AuthSettingsIssuer": {
+            "type": "string"
+        },
         "AuthClientSecret": {
             "type": "string"
         },
@@ -100,6 +103,18 @@
         },
         "AppRegistryClientOptionsBaseAddress": {
             "type": "string"
+        },
+        "enableWebChatOptions": {
+            "type": "bool"
+        },
+        "WebChatBaseUrl": {
+            "type": "string"
+        },
+        "WebChatPort": {
+            "type": "string"
+        },
+        "VisitsUrl": {
+            "type": "string"
         }
     },
     "variables": {
@@ -109,10 +124,6 @@
         "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
         "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
         "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]",
-        "IsDraftEnvironment": "[endsWith(toLower(parameters('Environment')), '-draft')]",
-        "CompositePathUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-paths', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
-        "CompositeRegionUrl": "[concat(parameters('ApimProxyAddress'), '/composite-ui-regions', if(variables('IsDraftEnvironment'), '-draft', ''), '/')]",
-        "ApimVisitsUrl": "[concat(parameters('ApimProxyAddress'), '/visits/AddVisit', '/')]",
         "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
     },
     "resources": [
@@ -219,6 +230,9 @@
                     "appServiceType": {
                         "value": "app"
                     },
+                    "clientAffinity": {
+                        "value": "[parameters('clientAffinity')]"
+                    },
                     "customHostName": {
                         "value": "[parameters('customHostName')]"
                     },
@@ -309,7 +323,7 @@
                             },
                             {
                                 "name": "AuthSettings__Issuer",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net')]"
+                                "value": "[parameters('AuthSettingsIssuer')]"
                             },
                             {
                                 "name": "AuthSettings__Audience",
@@ -353,15 +367,15 @@
                             },
                             {
                                 "name": "OIDCSettings__RedirectUrl",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net/auth/auth')]"
+                                "value": "[concat(parameters('AuthSettingsIssuer'), '/auth/auth')]"
                             },
                             {
                                 "name": "OIDCSettings__SignOutRedirectUrl",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net')]"
+                                "value": "[parameters('AuthSettingsIssuer')]"
                             },
                             {
                                 "name": "OIDCSettings__AuthdUrl",
-                                "value": "[concat('https://', variables('WebAppName'), '.azurewebsites.net/your-account')]"
+                                "value": "[concat(parameters('AuthSettingsIssuer'), '/your-account')]"
                             },
                             {
                                 "name": "OIDCSettings__LogPersonalInfo",
@@ -396,12 +410,8 @@
                                 "value": "00:00:30"
                             },
                             {
-                                "name": "VisitClientOptions__ApiKey",
-                                "value": "[parameters('ApimVisitsKey')]"
-                            },
-                            {
                                 "name": "VisitClientOptions__BaseAddress",
-                                "value": "[variables('ApimVisitsUrl')]"
+                                "value": "[parameters('VisitsUrl')]"
                             },
                             {
                                 "name": "AppRegistryClientOptions__BaseAddress",
@@ -418,6 +428,14 @@
                             {
                                 "name": "ShowLoginBanner",
                                 "value": "[parameters('ShowLoginBanner')]"
+                            },
+                            {
+                                "name": "WebchatOptions__Enabled",
+                                "value": "[parameters('enableWebChatOptions')]"
+                            },
+                            {
+                                "name": "WebchatOptions__ScriptUrl",
+                                "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
                             }
                         ]
                     }
@@ -435,51 +453,51 @@
                 "[variables('AppServiceAppInsightsName')]"
             ],
             "properties": {
-            "mode": "Incremental",
-            "templateLink": {
-                "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/metric-alerts.json')]",
-                "contentVersion": "1.0.0.0"
-            },
-            "parameters": {
-                "enabled": {
-                    "value": "[parameters('enableAlerts')]"
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/metric-alerts.json')]",
+                    "contentVersion": "1.0.0.0"
                 },
-                "alertName": {
-                    "value": "[concat(variables('AppServiceAppInsightsName'), '-metric-exceptions')]"
-                },
-                "alertSeverity": {
-                    "value": 3
-                },
-                "metricName": {
-                    "value": "exceptions/count"
-                },
-                "operator": {
-                    "value": "GreaterThan"
-                },
-                "threshold": {
-                    "value": "[parameters('ExceptionCountThreshold')]"
-                },
-                "aggregation": {
-                    "value": "Count"
-                },
-                "windowSize": {
-                    "value": "PT5M"
-                },
-                "evaluationFrequency": {
-                    "value": "PT1M"
-                },
-                "actionGroupName": {
-                    "value": "[variables('ActionGroupName')]"
-                },
-                "actionGroupResourceGroup": {
-                    "value": "[parameters('CompositeUiSharedResourceGroup')]"
-                },
-                "resourceId": {
-                    "value": "[resourceId('Microsoft.Insights/Components', variables('AppServiceAppInsightsName'))]"
+                "parameters": {
+                    "enabled": {
+                        "value": "[parameters('enableAlerts')]"
+                    },
+                    "alertName": {
+                        "value": "[concat(variables('AppServiceAppInsightsName'), '-metric-exceptions')]"
+                    },
+                    "alertSeverity": {
+                        "value": 3
+                    },
+                    "metricName": {
+                        "value": "exceptions/count"
+                    },
+                    "operator": {
+                        "value": "GreaterThan"
+                    },
+                    "threshold": {
+                        "value": "[parameters('ExceptionCountThreshold')]"
+                    },
+                    "aggregation": {
+                        "value": "Count"
+                    },
+                    "windowSize": {
+                        "value": "PT5M"
+                    },
+                    "evaluationFrequency": {
+                        "value": "PT1M"
+                    },
+                    "actionGroupName": {
+                        "value": "[variables('ActionGroupName')]"
+                    },
+                    "actionGroupResourceGroup": {
+                        "value": "[parameters('CompositeUiSharedResourceGroup')]"
+                    },
+                    "resourceId": {
+                        "value": "[resourceId('Microsoft.Insights/Components', variables('AppServiceAppInsightsName'))]"
+                    }
                 }
             }
-        }
-        }, 
+        },
         {
             "apiVersion": "2019-05-01",
             "name": "[concat(variables('AppServiceAppInsightsName'), '-failure-anomaly-v2')]",
@@ -509,7 +527,7 @@
                 }
             }
         }
-    ], 
+    ],
     "outputs": {
-    } 
+    }
 }

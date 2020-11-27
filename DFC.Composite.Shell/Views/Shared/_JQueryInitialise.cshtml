@@ -1,17 +1,18 @@
-﻿@using DFC.Composite.Shell.Models.Common;
-@{
-    string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
+﻿@{
+    var versionedPathForJavaScripts = ViewData["VersionedPathForJavaScripts"] as List<string>;
 
-    string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
+    foreach (var script in versionedPathForJavaScripts)
+    {
+        <script src="@script" type="text/javascript" nws-csp-add-nonce="true"></script>
+    }
 
-    string VersionedPathForJQueryBundleMinJs = ViewData["VersionedPathForJQueryBundleMinJs"].ToString();
-    string VersionedPathForAllMinJs = ViewData["VersionedPathForAllMinJs"].ToString();
-    string VersionedPathForDfcDigitalMinJs = ViewData["VersionedPathForDfcDigitalMinJs"].ToString();
+    bool webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+    var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"]?.ToString();
+
+    if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
+    {
+        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
+    }
 }
 
-<script src="@(VersionedPathForJQueryBundleMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
-<script src="@(VersionedPathForAllMinJs)" type="text/javascript" nws-csp-add-nonce="true"></script>
-
 <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
-
-<script src="@(VersionedPathForDfcDigitalMinJs)" nws-csp-add-nonce="true"></script>

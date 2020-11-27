@@ -1,5 +1,29 @@
 [
   {
+    "Path": "shell",
+    "TopNavigationText": null,
+    "TopNavigationOrder": 0,
+    "Layout": 1,
+    "IsOnline": true,
+    "OfflineHtml": null,
+    "PhaseBannerHtml": null,
+    "SitemapURL": null,
+    "ExternalURL": null,
+    "RobotsURL": null,
+    "Regions": null,
+    "AjaxRequests": null,
+    "PageLocations": null,
+    "JavaScriptNames": {
+      "/js/jquerybundle.min.js": null,
+      "/js/all.min.js": null,
+      "/js/dfcdigital.min.js": null,
+      "__WebChatUrl__/js/chatRed.js": null
+    },
+    "CssScriptNames": {
+        "/css/all.min.css": "O4eGYKNw9U2zOFK55FeqoQ=="
+    }
+  },
+  {
     "Path": "explore-careers",
     "TopNavigationText": null,
     "TopNavigationOrder": 400,
@@ -15,13 +39,13 @@
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/skills-assessment"
   },
-  {	
-    "Path": "find-a-course",	
-    "TopNavigationText": "Find a course",	
-    "TopNavigationOrder": 600,	
-    "Layout": 0,	
-    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",	
-    "ExternalUrl": "__ExternalLiveSite__/find-a-course"	
+  {
+    "Path": "find-a-course",
+    "TopNavigationText": "Find a course",
+    "TopNavigationOrder": 600,
+    "Layout": 0,
+    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+    "ExternalUrl": "__ExternalLiveSite__/find-a-course"
   },
   {
     "Path": "contact-us",
