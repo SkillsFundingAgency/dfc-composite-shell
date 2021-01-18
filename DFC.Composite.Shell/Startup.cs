@@ -100,6 +100,8 @@ namespace DFC.Composite.Shell
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/"))
+                .FormActions(s => s
+                    .Self())
                 .FontSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
