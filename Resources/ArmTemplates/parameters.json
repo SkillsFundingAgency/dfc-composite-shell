@@ -95,6 +95,12 @@
         "ExceptionCountThreshold": {
             "value": "__ExceptionCountThreshold__"
         },
+        "MemoryPercentageThreshold": {
+            "value": "__MemoryPercentageThreshold__"
+        },
+        "CPUPercentageThreshold": {
+            "value": "__CPUPercentageThreshold__"
+        },
         "AppRegistryClientOptionsBaseAddress": {
             "value": "__AppRegistryClientOptionsBaseAddress__"
         },
