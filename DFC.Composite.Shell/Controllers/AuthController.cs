@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -30,8 +31,9 @@ namespace DFC.Composite.Shell.Controllers
         private readonly AuthSettings settings;
         private readonly IVersionedFiles versionedFiles;
         private readonly IConfiguration configuration;
+        private readonly IBaseUrlService baseUrlService;
 
-        public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings, IVersionedFiles versionedFiles, IConfiguration configuration)
+        public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings, IVersionedFiles versionedFiles, IConfiguration configuration, IBaseUrlService baseUrlService)
         {
             if (settings == null)
             {
@@ -43,6 +45,7 @@ namespace DFC.Composite.Shell.Controllers
             this.settings = settings.Value;
             this.versionedFiles = versionedFiles;
             this.configuration = configuration;
+            this.baseUrlService = baseUrlService;
         }
 
         public async Task<IActionResult> SignIn(string redirectUrl)
@@ -118,7 +121,7 @@ namespace DFC.Composite.Shell.Controllers
             var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
             var jwt = new JwtSecurityToken(
-                issuer: settings.Issuer,
+                issuer: baseUrlService.GetBaseUrl(Request, Url),
                 audience: settings.Audience,
                 claims: claims,
                 notBefore: now,
