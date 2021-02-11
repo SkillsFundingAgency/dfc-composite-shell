@@ -121,7 +121,7 @@ namespace DFC.Composite.Shell.Controllers
             var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
             var jwt = new JwtSecurityToken(
-                issuer: baseUrlService.GetBaseUrl(Request, Url),
+                issuer: settings.Issuer,
                 audience: settings.Audience,
                 claims: claims,
                 notBefore: now,
