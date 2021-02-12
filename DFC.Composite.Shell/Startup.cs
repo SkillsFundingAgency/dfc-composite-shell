@@ -116,7 +116,7 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
@@ -124,8 +124,7 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
-                        "https://www.googletagmanager.com",
-                        "https://www.youtube-nocookie.com")));
+                        "https://www.googletagmanager.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
