@@ -124,7 +124,8 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
-                        "https://www.googletagmanager.com")));
+                        "https://www.googletagmanager.com",
+                        "https://www.youtube-nocookie.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
