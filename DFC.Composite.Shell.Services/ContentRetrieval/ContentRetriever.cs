@@ -160,10 +160,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (!followRedirects)
                 {
-                    var relativeUrl = response.Headers.Location.IsAbsoluteUri
-                        ? response.Headers.Location.PathAndQuery
-                        : response.Headers.Location.ToString();
-                    var redirectUrl = $"{requestBaseUrl}{relativeUrl}";
+                    var redirectUrl = response.Headers.Location.IsAbsoluteUri
+                        ? response.Headers.Location.ToString()
+                        : $"{requestBaseUrl}{response.Headers.Location.ToString()}";
 
                     throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                 }
