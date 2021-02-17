@@ -116,7 +116,7 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
