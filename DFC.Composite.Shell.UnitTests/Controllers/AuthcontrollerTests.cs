@@ -42,10 +42,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         private readonly IOptions<OpenIDConnectSettings> defaultSettings;
         private readonly SecurityTokenHandler tokenHandler;
         private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
-        private const string refererUrl = "TestRefere.com";
+        private const string refererUrl = "https://www.TestRefere.com";
+        private const string baseAddress = "www.test.com";
         private readonly MockHttpSession session;
         private readonly IBaseUrlService baseUrlService;
         private readonly IUrlHelper _urlHelper;
+        private readonly IUrlHelper defaultUrlHelper;
 
         public AuthControllerTests()
         {
@@ -57,12 +59,13 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             defaultAuthService = A.Fake<IAuthenticationService>();
             session = new MockHttpSession();
             baseUrlService = A.Fake<IBaseUrlService>();
+            defaultUrlHelper = A.Fake<IUrlHelper>();
             A.CallTo(() => defaultAuthService.SignInAsync(A<HttpContext>.Ignored, A<string>.Ignored, A<ClaimsPrincipal>.Ignored, A<AuthenticationProperties>.Ignored)).Returns(Task.CompletedTask);
 
             A.CallTo(() => requestServices.GetService(typeof(IAuthenticationService))).Returns(defaultAuthService);
 
             A.CallTo(() => baseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
-                .Returns("test.com");
+                .Returns(baseAddress);
 
             defaultContext = new DefaultHttpContext
             {
@@ -215,11 +218,12 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 {
                     HttpContext = defaultContext,
                 },
+                Url = defaultUrlHelper,
             };
-            var redirecturl = "redirect.com";
+            var redirecturl = "/redirect";
             var result = await controller.SignOut(redirecturl).ConfigureAwait(false) as RedirectResult;
 
-            A.CallTo(() => authClient.GetSignOutUrl(redirecturl)).MustHaveHappened();
+            A.CallTo(() => authClient.GetSignOutUrl(baseAddress+redirecturl)).MustHaveHappened();
         }
 
         [Fact]
@@ -233,6 +237,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 {
                     HttpContext = defaultContext,
                 },
+                Url = defaultUrlHelper,
             };
             var result = await controller.SignOut(string.Empty).ConfigureAwait(false) as RedirectResult;
 
@@ -330,6 +335,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 {
                     HttpContext = defaultContext,
                 },
+                Url = defaultUrlHelper,
             };
 
             await controller.SignOut(string.Empty).ConfigureAwait(false);

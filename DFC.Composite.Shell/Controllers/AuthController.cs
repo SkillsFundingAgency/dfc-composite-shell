@@ -63,8 +63,8 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
-            redirectUrl = string.IsNullOrEmpty(redirectUrl) ? Request.Headers["Referer"].ToString() : redirectUrl;
-            var signInUrl = await authClient.GetSignOutUrl(redirectUrl).ConfigureAwait(false);
+            var Url = GenerateSignOutUrl(redirectUrl);
+            var signInUrl = await authClient.GetSignOutUrl(Url).ConfigureAwait(false);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
             return Redirect(signInUrl);
         }
@@ -158,6 +158,24 @@ namespace DFC.Composite.Shell.Controllers
             var redirectUrl = string.IsNullOrEmpty(url) ? settings.DefaultRedirectUrl : url;
             HttpContext.Session.Remove(RedirectSessionKey);
             return settings.AuthDssEndpoint.Replace(RedirectAttribute, redirectUrl, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        private string GenerateSignOutUrl(string redirectUrl)
+        {
+            redirectUrl = string.IsNullOrEmpty(redirectUrl) ? Request.Headers["Referer"].ToString() : redirectUrl;
+
+            if (IsAbsoluteUrl(redirectUrl))
+            {
+                return redirectUrl;
+            }
+
+            return baseUrlService.GetBaseUrl(Request, Url) + redirectUrl;
+        }
+
+        private bool IsAbsoluteUrl(string url)
+        {
+            Uri result;
+            return Uri.TryCreate(url, UriKind.Absolute, out result);
         }
     }
 }
