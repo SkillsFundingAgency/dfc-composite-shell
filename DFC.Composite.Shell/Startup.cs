@@ -81,6 +81,7 @@ namespace DFC.Composite.Shell
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
             var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
+            var OidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
 
             // Configure security headers
             app.UseCsp(options => options
@@ -101,7 +102,7 @@ namespace DFC.Composite.Shell
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/"))
                 .FormActions(s => s
-                    .Self())
+                    .Self().CustomSources($"{OidcPath.Scheme}://{OidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
