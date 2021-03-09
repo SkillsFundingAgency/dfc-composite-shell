@@ -41,7 +41,7 @@
   },
   {
     "Path": "about-us",
-    "TopNavigationText": null,
+    "TopNavigationText": "About us",
     "TopNavigationOrder": 800,
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
