@@ -12,5 +12,6 @@
         public const string ApplicationInsightsInstrumentationKey = "ApplicationInsights:InstrumentationKey";
         public const string AzureAppServiceAppInsightsInstrumentationKeyForWebSites = "APPINSIGHTS_INSTRUMENTATIONKEY";
         public const string ApimProxyAddress = "ApimProxyAddress";
+        public const string Media = "media";
     }
 }
