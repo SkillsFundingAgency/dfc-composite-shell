@@ -109,6 +109,7 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/",
+                        $"{cdnLocation}/{Constants.Media}/",
                         webchatCspDomain + "/images/",
                         webchatCspDomain + "/var/",
                         "www.google-analytics.com",
