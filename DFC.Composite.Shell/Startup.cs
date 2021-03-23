@@ -95,7 +95,8 @@ namespace DFC.Composite.Shell
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
-                        $"{ Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                        $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
+                        "https://www.youtube.com/iframe_api"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources(
