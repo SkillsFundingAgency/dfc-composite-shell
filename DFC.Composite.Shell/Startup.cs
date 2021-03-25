@@ -96,7 +96,9 @@ namespace DFC.Composite.Shell
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
-                        "https://www.youtube.com"))
+                        "https://www.youtube.com",
+                        "https://www.google-analytics.com",
+                        "https://optimize.google.com"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources(
