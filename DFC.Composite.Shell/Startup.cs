@@ -103,12 +103,15 @@ namespace DFC.Composite.Shell
                     .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
-                        webchatCspDomain + "/css/"))
+                        webchatCspDomain + "/css/",
+                        "https://optimize.google.com",
+                        "https://fonts.googleapis.com"))
                 .FormActions(s => s
                     .Self().CustomSources($"{OidcPath.Scheme}://{OidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
+                        "https://fonts.gstatic.com"))
                 .ImageSources(s => s
                     .Self()
                     .CustomSources(
@@ -117,11 +120,12 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/images/",
                         webchatCspDomain + "/var/",
                         "www.google-analytics.com",
-                        "*.doubleclick.net"))
+                        "*.doubleclick.net",
+                        "https://optimize.google.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com"))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
