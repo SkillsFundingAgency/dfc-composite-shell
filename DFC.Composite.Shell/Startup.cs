@@ -121,6 +121,7 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/var/",
                         "www.google-analytics.com",
                         "*.doubleclick.net",
+                        "https://i.ytimg.com",
                         "https://optimize.google.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
