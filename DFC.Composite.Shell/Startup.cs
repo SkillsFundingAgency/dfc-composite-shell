@@ -100,14 +100,17 @@ namespace DFC.Composite.Shell
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com"))
-                .StyleSources(s => s
-                    .Self()
-                    .CustomSources(
+                .StyleSources(s =>
+                {
+                    s
+                        .Self().UnsafeInlineSrc = true;
+                    s.CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
                         "https://fonts.googleapis.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com");
+                })
                 .FormActions(s => s
                     .Self().CustomSources($"{OidcPath.Scheme}://{OidcPath.Host}"))
                 .FontSources(s => s
