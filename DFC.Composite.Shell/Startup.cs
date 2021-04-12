@@ -98,7 +98,8 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources(
@@ -122,7 +123,8 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
