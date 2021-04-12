@@ -106,7 +106,8 @@ namespace DFC.Composite.Shell
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
-                        "https://fonts.googleapis.com"))
+                        "https://fonts.googleapis.com",
+                        "https://www.googleoptimize.com"))
                 .FormActions(s => s
                     .Self().CustomSources($"{OidcPath.Scheme}://{OidcPath.Host}"))
                 .FontSources(s => s
@@ -124,7 +125,8 @@ namespace DFC.Composite.Shell
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://www.googletagmanager.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
