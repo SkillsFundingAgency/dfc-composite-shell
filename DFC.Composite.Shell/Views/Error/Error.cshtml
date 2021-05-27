@@ -1,50 +1,60 @@
-﻿@model PageViewModel
+﻿@model PageViewModelResponse
 
 @{
     Layout = Model.LayoutName;
-    ViewBag.BrandingAssetsCdn = Model.BrandingAssetsCdn;
-    ViewBag.Title = Model.PageTitle;
-    ViewBag.PhaseBannerHtml = Model.PhaseBannerHtml;
-
-    ViewBag.VersionedPathForCssScripts = Model.VersionedPathForCssScripts;
-    ViewBag.VersionedPathForJavaScripts = Model.VersionedPathForJavaScripts;
-    ViewBag.VersionedPathForWebChatJs = Model.VersionedPathForWebChatJs;
-    ViewBag.WebchatEnabled = Model.WebchatEnabled;
+    @using DFC.Composite.Shell.Models.Common;
+    string BrandingAssetsFolder = $"{Model.BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
 }
 
-@section Head
-{
-    @if (!string.IsNullOrWhiteSpace(Model.PageTitle))
-    {
-        <title>@Model.PageTitle</title>
-    }
-}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <partial name="_GoogleTagManagerScripts" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta property="og:image" content="@(BrandingAssetsFolder)/images/govuk-opengraph-image.png">
+    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="@(BrandingAssetsFolder)/images/favicon.ico" type="image/x-icon" />
+    <link rel="mask-icon" href="@(BrandingAssetsFolder)/images/govuk-mask-icon.svg" color="blue">
+    <link rel="apple-touch-icon" sizes="180x180" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon.png">
+    <link href="@(BrandingAssetsFolder)/css/all.min.css" rel="stylesheet" type="text/css" />
+    <title>@Model.PageTitle</title>
+</head>
 
-@section Breadcrumb
-{
-    <div class="govuk-width-container">
-        <div class="govuk-breadcrumbs">
-            <ol class="govuk-breadcrumbs__list">
-                <li class="govuk-breadcrumbs__list-item">
-                    <a class="govuk-breadcrumbs__link" href="/">Home</a>
-                </li>
-                <li class="govuk-breadcrumbs__list-item" aria-current="page">Error</li>
-            </ol>
+<body class="govuk-template__body ">
+    <header class="govuk-header " role="banner" data-module="govuk-header">
+        <div class="govuk-header__container govuk-width-container">
+            <a href="/" class="govuk-header__link govuk-header__link--service-name">
+                National Careers Service
+            </a>
         </div>
-    </div>
-}
+    </header>
 
-@section Body
-{
-    <div class="govuk-width-container">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="content-container">
-                    <h1 class="heading-xlarge">Sorry, there is a problem with this service</h1>
-                    <p>Please try again later.</p>
-                    <p><a href="/contact-us">Contact us</a> if you want to speak to one of our careers advisers.</p>
-                </div>
+    <section aria-label="PhaseBanner">
+        <div class="govuk-width-container">
+            <div class="govuk-breadcrumbs">
+                <ol class="govuk-breadcrumbs__list">
+                    <li class="govuk-breadcrumbs__list-item">
+                        <a class="govuk-breadcrumbs__link" href="/">Home</a>
+                    </li>
+                    <li class="govuk-breadcrumbs__list-item" aria-current="page">Error</li>
+                </ol>
             </div>
         </div>
-    </div>
-}
+    </section>
+
+    <main class="govuk-!-padding-top-0 govuk-!-padding-bottom-0" id="main-content" role="main">
+        <div class="govuk-width-container">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    <div class="content-container">
+                        <h2 class="govuk-heading-l">Sorry, there is a problem with this service</h2>
+                        <p>Please try again later.</p>
+                    </div>
+               </div>
+            </div>
+        </div>
+    </main>
+</body>
+
