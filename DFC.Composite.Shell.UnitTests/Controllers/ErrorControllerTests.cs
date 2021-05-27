@@ -13,7 +13,6 @@ namespace DFC.Composite.Shell.Test.Controllers
     public class ErrorControllerTests
     {
         private readonly ILogger<ApplicationController> fakeLogger;
-        private readonly IVersionedFiles fakeVersionedFiles;
         private readonly IConfiguration fakeConfiguration;
 
         public ErrorControllerTests()
