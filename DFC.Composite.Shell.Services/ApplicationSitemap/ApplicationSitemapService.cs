@@ -1,5 +1,7 @@
 ﻿using DFC.Composite.Shell.Models.SitemapModels;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -13,10 +15,12 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 {
     public class ApplicationSitemapService : IApplicationSitemapService
     {
+        private readonly ILogger<ApplicationSitemapService> logger;
         private readonly HttpClient httpClient;
 
-        public ApplicationSitemapService(HttpClient httpClient)
+        public ApplicationSitemapService(ILogger<ApplicationSitemapService> logger, HttpClient httpClient)
         {
+            this.logger = logger;
             this.httpClient = httpClient;
         }
 
@@ -27,8 +31,19 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
                 return null;
             }
 
-            var responseTask = await CallHttpClientXmlAsync<Sitemap>(model).ConfigureAwait(false);
-            return responseTask?.Locations;
+            try
+            {
+                logger.LogInformation($"Getting Sitemap for: {model.Path}");
+
+                var responseTask = await CallHttpClientXmlAsync<Sitemap>(model).ConfigureAwait(false);
+                return responseTask?.Locations;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Exception getting Sitemap for: {model.Path}");
+
+                return null;
+            }
         }
 
         private async Task<T> CallHttpClientXmlAsync<T>(ApplicationSitemapModel model)

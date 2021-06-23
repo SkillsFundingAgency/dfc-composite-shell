@@ -14,13 +14,11 @@ namespace DFC.Composite.Shell.Controllers
     public class ErrorController : Controller
     {
         private readonly ILogger<ApplicationController> logger;
-        private readonly IVersionedFiles versionedFiles;
         private readonly IConfiguration configuration;
 
-        public ErrorController(ILogger<ApplicationController> logger, IVersionedFiles versionedFiles, IConfiguration configuration)
+        public ErrorController(ILogger<ApplicationController> logger, IConfiguration configuration)
         {
             this.logger = logger;
-            this.versionedFiles = versionedFiles;
             this.configuration = configuration;
         }
 
@@ -38,9 +36,16 @@ namespace DFC.Composite.Shell.Controllers
 
             Response.StatusCode = (int)statusCode;
 
-            var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
-            viewModel.LayoutName = $"{Constants.LayoutPrefix}{PageLayout.FullWidth}";
-            viewModel.PageTitle = "Error | National Careers Service";
+            var viewModel = new PageViewModelResponse()
+            {
+                LayoutName = null,
+                PageTitle = "Error | National Careers Service",
+                BrandingAssetsCdn = configuration.GetValue<string>(nameof(PageViewModelResponse.BrandingAssetsCdn)),
+                ScriptIds = new GoogleScripts(),
+            };
+
+            configuration?.GetSection(nameof(GoogleScripts)).Bind(viewModel.ScriptIds);
+
             return View(viewModel);
         }
     }
