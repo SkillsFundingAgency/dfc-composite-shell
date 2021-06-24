@@ -95,17 +95,23 @@ namespace DFC.Composite.Shell
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
-                        $"{ Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}"))
+                        $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
+                        "https://www.youtube.com",
+                        "https://www.google-analytics.com",
+                        "https://optimize.google.com"))
                 .StyleSources(s => s
                     .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
-                        webchatCspDomain + "/css/"))
+                        webchatCspDomain + "/css/",
+                        "https://optimize.google.com",
+                        "https://fonts.googleapis.com"))
                 .FormActions(s => s
                     .Self().CustomSources($"{OidcPath.Scheme}://{OidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/"))
+                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
+                        "https://fonts.gstatic.com"))
                 .ImageSources(s => s
                     .Self()
                     .CustomSources(
@@ -114,11 +120,13 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/images/",
                         webchatCspDomain + "/var/",
                         "www.google-analytics.com",
-                        "*.doubleclick.net"))
+                        "*.doubleclick.net",
+                        "https://i.ytimg.com",
+                        "https://optimize.google.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com"))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
