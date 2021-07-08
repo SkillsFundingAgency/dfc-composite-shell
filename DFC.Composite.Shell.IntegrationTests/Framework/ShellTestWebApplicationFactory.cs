@@ -1,7 +1,9 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Extensions;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+
 using System.Net.Http;
 
 namespace DFC.Composite.Shell.Integration.Test.Framework
@@ -23,10 +25,7 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
 
             builder?.ConfigureServices(services =>
             {
-                var serviceProvider = new ServiceCollection()
-                    .BuildServiceProvider();
-
-                var sp = services.BuildServiceProvider();
+                var serviceProvider = services.BuildServiceProvider();
             });
         }
     }
