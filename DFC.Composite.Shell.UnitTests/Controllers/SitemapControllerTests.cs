@@ -123,7 +123,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => applicationSitemapService.EnrichAsync(A<ApplicationSitemapModel>.Ignored))
                 .Returns(new ApplicationSitemapModel
                 {
-                    SitemapUrl = "http://example.org",
+                    SitemapUrl = appBaseUrl,
                     Data = new List<SitemapLocation>
                     {
                         new SitemapLocation
