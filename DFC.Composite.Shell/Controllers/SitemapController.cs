@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
-using DFC.Composite.Shell.Models.SitemapModels;
+﻿using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Sitemap;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
@@ -16,20 +16,20 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class SitemapController : Controller
     {
-        private readonly IAppRegistryDataService aappRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly ILogger<SitemapController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IBaseUrlService baseUrlService;
         private readonly IApplicationSitemapService sitemapService;
 
         public SitemapController(
-            IAppRegistryDataService aappRegistryDataService,
+            IAppRegistryService appRegistryDataService,
             ILogger<SitemapController> logger,
             IBearerTokenRetriever bearerTokenRetriever,
             IBaseUrlService baseUrlService,
             IApplicationSitemapService sitemapService)
         {
-            this.aappRegistryDataService = aappRegistryDataService;
+            this.appRegistryDataService = appRegistryDataService;
             this.logger = logger;
             this.bearerTokenRetriever = bearerTokenRetriever;
             this.baseUrlService = baseUrlService;
@@ -41,98 +41,86 @@ namespace DFC.Composite.Shell.Controllers
         {
             logger.LogInformation("Generating Sitemap.xml");
 
-            var sitemap = new Sitemap();
-
-            // get all the registered application site maps
-            var applicationSitemapModels = await GetApplicationSitemapsAsync().ConfigureAwait(false);
-            AppendApplicationsSitemaps(sitemap, applicationSitemapModels);
+            var applicationSitemapModels = await GetAllRegisteredApplicationSitemapsAsync();
+            var sitemap = CreateApplicationsSitemap(applicationSitemapModels);
 
             var xmlString = sitemap.WriteSitemapToString();
-
             logger.LogInformation("Generated Sitemap.xml");
 
             return Content(xmlString, MediaTypeNames.Application.Xml);
         }
 
-        private async Task<IEnumerable<ApplicationSitemapModel>> GetApplicationSitemapsAsync()
+        private async Task<IEnumerable<ApplicationSitemapModel>> GetAllRegisteredApplicationSitemapsAsync()
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
-            var appRegistrationModels = await aappRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
-            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.SitemapURL != null).ToList();
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
+            var onlineAppRegistrationModels = appRegistrationModels.Where(model => model.IsOnline && model.SitemapURL != null).ToList();
 
-            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels).ConfigureAwait(false);
-
-            // await all application sitemap service tasks to complete
-            var allTasks = (from a in applicationSitemapModels select a.RetrievalTask).ToArray();
-
-            await Task.WhenAll(allTasks).ConfigureAwait(false);
-
-            return applicationSitemapModels;
+            return await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels);
         }
 
-        private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(IList<AppRegistrationModel> appRegistrationModels)
+        private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(
+            IList<AppRegistrationModel> appRegistrationModels)
         {
-            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
+            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext) : null;
+            var modelsTasks = appRegistrationModels.Select(path => GetModelForPath(path, bearerToken)).ToList();
 
             var applicationSitemapModels = new List<ApplicationSitemapModel>();
 
-            foreach (var path in appRegistrationModels)
+            foreach (var modelsTask in modelsTasks)
             {
-                logger.LogInformation($"{nameof(Action)}: Getting child Sitemap for: {path.Path}");
-
-                var applicationSitemapModel = new ApplicationSitemapModel
-                {
-                    Path = path.Path,
-                    BearerToken = bearerToken,
-                    SitemapUrl = path.SitemapURL.ToString(),
-                };
-
-                applicationSitemapModel.RetrievalTask = sitemapService.GetAsync(applicationSitemapModel);
-
-                applicationSitemapModels.Add(applicationSitemapModel);
+                applicationSitemapModels.Add(await modelsTask);
             }
 
             return applicationSitemapModels;
         }
 
-        private void AppendApplicationsSitemaps(Sitemap sitemap, IEnumerable<ApplicationSitemapModel> applicationSitemapModels)
+        private async Task<ApplicationSitemapModel> GetModelForPath(AppRegistrationModel path, string bearerToken)
         {
+            logger.LogInformation("{action}: Getting child Sitemap for: {path}", nameof(Action), path.Path);
+
+            var applicationSitemapModel = new ApplicationSitemapModel
+            {
+                Path = path.Path,
+                BearerToken = bearerToken,
+                SitemapUrl = path.SitemapURL.ToString(),
+            };
+
+            return await sitemapService.EnrichAsync(applicationSitemapModel);
+        }
+
+        private Sitemap CreateApplicationsSitemap(IEnumerable<ApplicationSitemapModel> applicationSitemapModels)
+        {
+            var returnObject = new Sitemap();
             var baseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
             // get the task results as individual sitemaps and merge into one
             foreach (var applicationSitemapModel in applicationSitemapModels)
             {
-                if (applicationSitemapModel.RetrievalTask.IsCompletedSuccessfully)
+                logger.LogInformation("{action}: Received child Sitemap for: {path}", nameof(Action), applicationSitemapModel.Path);
+                var sitemapLocations = applicationSitemapModel.Data?.ToList();
+
+                if (sitemapLocations.Any() != true)
                 {
-                    logger.LogInformation($"{nameof(Action)}: Received child Sitemap for: {applicationSitemapModel.Path}");
-
-                    var mappings = applicationSitemapModel.RetrievalTask.Result;
-
-                    var sitemapLocations = mappings?.ToList();
-                    if (sitemapLocations == null || !sitemapLocations.Any())
-                    {
-                        continue;
-                    }
-
-                    foreach (var mapping in sitemapLocations)
-                    {
-                        // rewrite the URL to swap any child application address prefix for the composite UI address prefix
-                        var pathRootUri = new Uri(applicationSitemapModel.SitemapUrl);
-                        var appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
-
-                        if (mapping.Url.StartsWith(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            mapping.Url = mapping.Url.Replace(appBaseUrl, baseUrl, StringComparison.InvariantCultureIgnoreCase);
-                        }
-                    }
-
-                    sitemap.AddRange(sitemapLocations);
+                    continue;
                 }
-                else
+
+                foreach (var mapping in sitemapLocations)
                 {
-                    logger.LogError($"{nameof(Action)}: Error getting child Sitemap for: {applicationSitemapModel.Path}");
+                    // rewrite the URL to swap any child application address prefix for the composite UI address prefix
+                    var pathRootUri = new Uri(applicationSitemapModel.SitemapUrl);
+                    var appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
+
+                    if (mapping.Url.StartsWith(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        mapping.Url = mapping.Url.Replace(appBaseUrl, baseUrl.ToString(), StringComparison.InvariantCultureIgnoreCase);
+                    }
                 }
+
+                returnObject.AddRange(sitemapLocations);
             }
+
+            return returnObject;
         }
     }
 }

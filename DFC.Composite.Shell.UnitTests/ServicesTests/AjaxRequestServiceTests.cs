@@ -1,9 +1,9 @@
-﻿using DFC.Composite.Shell.Models.AjaxApiModels;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AjaxApi;
+using DFC.Composite.Shell.Models.AppRegistration;
 using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.AppRegistry;
-using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+using DFC.Composite.Shell.UnitTests.HttpClientService;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
@@ -22,7 +22,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         private const string ValidMethodName = "a-method";
 
         private readonly ILogger<AjaxRequestService> fakeLogger = A.Fake<ILogger<AjaxRequestService>>();
-        private readonly IAppRegistryDataService fakeAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+        private readonly IAppRegistryService fakeAppRegistryDataService = A.Fake<IAppRegistryService>();
 
         [Fact]
         public async Task AjaxRequestServiceGetResponseReturnsSuccess()
@@ -50,7 +50,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustNotHaveHappened();
@@ -85,7 +85,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustNotHaveHappened();
@@ -115,7 +115,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustHaveHappenedOnceExactly();
@@ -137,7 +137,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustNotHaveHappened();
@@ -158,7 +158,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest));
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest));
         }
 
         private RequestModel ValidRequestModel()

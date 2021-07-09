@@ -19,7 +19,7 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
                 throw new ArgumentNullException(nameof(dataProtectionProvider));
             }
 
-            this.dataProtector = dataProtectionProvider.CreateProtector(nameof(CompositeDataProtectionDataProvider));
+            dataProtector = dataProtectionProvider.CreateProtector(nameof(CompositeDataProtectionDataProvider));
             this.logger = logger;
         }
 
@@ -31,6 +31,7 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
         public string Unprotect(string value)
         {
             var result = string.Empty;
+
             try
             {
                 if (!string.IsNullOrWhiteSpace(value))
@@ -40,7 +41,7 @@ namespace DFC.Composite.Shell.Services.DataProtectionProviders
             }
             catch (CryptographicException ex)
             {
-                logger.LogWarning($"{nameof(CompositeDataProtectionDataProvider)} Unprotect. Error occured {ex.ToString()}");
+                logger.LogWarning("{dataProvider} Unprotect. Error occured {ex}", nameof(CompositeDataProtectionDataProvider), ex);
             }
 
             return result;

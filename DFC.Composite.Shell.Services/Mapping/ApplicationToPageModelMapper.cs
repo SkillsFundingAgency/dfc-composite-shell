@@ -10,9 +10,9 @@ namespace DFC.Composite.Shell.Services.Mapping
 {
     public class ApplicationToPageModelMapper : IMapper<ApplicationModel, PageViewModel>
     {
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
 
-        public ApplicationToPageModelMapper(IAppRegistryDataService appRegistryDataService)
+        public ApplicationToPageModelMapper(IAppRegistryService appRegistryDataService)
         {
             this.appRegistryDataService = appRegistryDataService;
         }
@@ -29,36 +29,39 @@ namespace DFC.Composite.Shell.Services.Mapping
             destination.PageTitle = source?.AppRegistrationModel.TopNavigationText;
             destination.PhaseBannerHtml = new HtmlString(source?.AppRegistrationModel.PhaseBannerHtml);
 
-            var pageRegionContentModels = source?.AppRegistrationModel?.Regions
+            var pageRegionContentModels = source?.AppRegistrationModel?.Regions?
                 .Select(region => new PageRegionContentModel { PageRegionType = region.PageRegion }).ToList();
 
             destination.PageRegionContentModels = pageRegionContentModels;
 
-            var shellAppRegistrationModel = await appRegistryDataService.GetShellAppRegistrationModel().ConfigureAwait(false);
+            var shellAppRegistrationModel = await appRegistryDataService.GetShellAppRegistrationModel();
 
-            if (shellAppRegistrationModel != null)
+            if (shellAppRegistrationModel == null)
             {
-                if (source?.AppRegistrationModel?.CssScriptNames != null && source.AppRegistrationModel.CssScriptNames.Any())
+                return;
+            }
+
+            if (source?.AppRegistrationModel?.CssScriptNames?.Any() == true)
+            {
+                foreach (var key in source.AppRegistrationModel.CssScriptNames.Keys)
                 {
-                    foreach (var key in source.AppRegistrationModel.CssScriptNames.Keys)
-                    {
-                        var value = source.AppRegistrationModel.CssScriptNames[key];
+                    var value = source.AppRegistrationModel.CssScriptNames[key];
+                    var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ?
+                        shellAppRegistrationModel.CdnLocation + key : key;
 
-                        var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
-
-                        destination.VersionedPathForCssScripts.Add($"{fullPathname}?{value}");
-                    }
+                    destination.VersionedPathForCssScripts.Add($"{fullPathname}?{value}");
                 }
-                if (source?.AppRegistrationModel?.JavaScriptNames != null && source.AppRegistrationModel.JavaScriptNames.Any())
+            }
+
+            if (source?.AppRegistrationModel.JavaScriptNames?.Any() == true)
+            {
+                foreach (var key in source.AppRegistrationModel.JavaScriptNames.Keys)
                 {
-                    foreach (var key in source.AppRegistrationModel.JavaScriptNames.Keys)
-                    {
-                        var value = source.AppRegistrationModel.JavaScriptNames[key];
+                    var value = source.AppRegistrationModel.JavaScriptNames[key];
+                    var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ?
+                        shellAppRegistrationModel.CdnLocation + key : key;
 
-                        var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
-
-                        destination.VersionedPathForJavaScripts.Add($"{fullPathname}?{value}");
-                    }
+                    destination.VersionedPathForJavaScripts.Add($"{fullPathname}?{value}");
                 }
             }
         }

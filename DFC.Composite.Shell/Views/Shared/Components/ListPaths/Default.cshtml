@@ -3,7 +3,7 @@
     <ul id="navigation" class="govuk-header__navigation " aria-label="Top Level Navigation">
         @if (Model?.AppRegistrationModels?.Count() > 0)
         {
-            @foreach (var appRegistrationModel in Model.AppRegistrationModels.OrderBy(x => x.TopNavigationOrder))
+            @foreach (var appRegistrationModel in Model.AppRegistrationModels.OrderBy(model => model.TopNavigationOrder))
             {
                 var applyActiveClass = Context.Request.Path.Value.Contains(appRegistrationModel.Path);
                 var menuClass = applyActiveClass ? "govuk-header__navigation-item--active" : string.Empty;

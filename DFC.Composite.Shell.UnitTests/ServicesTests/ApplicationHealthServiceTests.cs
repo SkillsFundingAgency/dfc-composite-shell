@@ -1,7 +1,7 @@
-﻿using DFC.Composite.Shell.Models.HealthModels;
+﻿using DFC.Composite.Shell.Models.Health;
 using DFC.Composite.Shell.Services.ApplicationHealth;
-using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+using DFC.Composite.Shell.UnitTests.HttpClientService;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -29,7 +29,25 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task GetAsyncReturnsHealthTextWhenApiReturnsHealthText()
         {
             // Arrange
-            var expectedResponse = new List<HealthItemModel>
+            var expectedResponse = new ApplicationHealthModel
+            {
+                BearerToken = "SomeBearerToken",
+                Data = new List<HealthItemModel>
+                {
+                    new HealthItemModel
+                    {
+                        Service = "A service 1",
+                        Message = "A message 1",
+                    },
+                    new HealthItemModel
+                    {
+                        Service = "A service 2",
+                        Message = "A message 2",
+                    },
+                },
+            };
+
+            var httpResponseBody = new List<HealthItemModel>
             {
                 new HealthItemModel
                 {
@@ -42,32 +60,31 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                     Message = "A message 2",
                 },
             };
-            string expectedResponseString = JsonConvert.SerializeObject(expectedResponse);
-            var httpResponse = new HttpResponseMessage
+
+            var httpResponseString = JsonConvert.SerializeObject(httpResponseBody);
+            var expectedResponseString = JsonConvert.SerializeObject(expectedResponse);
+
+            using var httpResponse = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(expectedResponseString),
+                Content = new StringContent(httpResponseString),
             };
 
             var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
-            var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
-            var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyUrl") };
+            using var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
+            using var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyUrl") };
 
             var healthService = new ApplicationHealthService(httpClient, logger);
             var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken" };
 
             // Act
-            var result = await healthService.GetAsync(model).ConfigureAwait(false);
+            var result = await healthService.EnrichAsync(model);
 
             // Assert
-            string resultString = JsonConvert.SerializeObject(result);
+            var resultString = JsonConvert.SerializeObject(result);
             Assert.Equal(expectedResponseString, resultString);
-
-            httpResponse.Dispose();
-            httpClient.Dispose();
-            fakeHttpMessageHandler.Dispose();
         }
 
         [Fact]
@@ -77,7 +94,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var healthService = new ApplicationHealthService(defaultHttpClient, logger);
 
             // Act
-            var result = await healthService.GetAsync(null).ConfigureAwait(false);
+            var result = await healthService.EnrichAsync(null);
 
             // Assert
             Assert.Null(result);

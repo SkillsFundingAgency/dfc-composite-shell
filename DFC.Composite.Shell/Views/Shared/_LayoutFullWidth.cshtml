@@ -1,79 +1,78 @@
-﻿    <!DOCTYPE html>
-    <html lang="en-gb" class="govuk-template ">
+﻿<!DOCTYPE html>
+<html lang="en-gb" class="govuk-template ">
 
-    <head>
-        <partial name="_Head"/>
+<head>
+    <partial name="_Head"/>
 
-        @if (IsSectionDefined("Head"))
-        {
-            @RenderSection("Head", required: false)
-        }
-
-        @await Component.InvokeAsync("AppInsights", null)
-    </head>
-
-    <body class="govuk-template__body ">
-    <partial name="_GovUkHeader"/>
-
-    <section aria-label="PhaseBanner">
-        <div class="govuk-width-container">
-            <partial name="_PhaseBanner" />
-            <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
-            @if (IsSectionDefined("Breadcrumb"))
-            {
-                @RenderSection("Breadcrumb", required: false)
-            }
-            <partial name="_ErrorSummary" />
-        </div>
-    </section>
-
-    <main class="govuk-!-padding-top-0 govuk-!-padding-bottom-0" id="main-content" role="main">
-        @if (IsSectionDefined("BodyTop"))
-        {
-            @RenderSection("BodyTop", required: false)
-        }
-
-
-        @if (IsSectionDefined("HeroBanner"))
-        {
-            @RenderSection("HeroBanner", required: false)
-        }
-        <div class="govuk-main-wrapper">
-            <div class="govuk-width-container">
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-full">
-                        @if (IsSectionDefined("Body"))
-                        {
-                            @RenderSection("Body", required: false)
-                        }
-                    </div>
-                </div>
-
-                @RenderBody()
-
-                @{
-                    if (IsSectionDefined("SideBarLeft"))
-                    {
-                        IgnoreSection("SideBarLeft");
-                    }
-                    if (IsSectionDefined("SideBarRight"))
-                    {
-                        IgnoreSection("SideBarRight");
-                    }
-                }
-            </div>
-        </div>
-    </main>
-
-    @if (IsSectionDefined("BodyFooter"))
+    @if (IsSectionDefined("Head"))
     {
-        @RenderSection("BodyFooter", required: false)
+        @RenderSection("Head", required: false)
     }
 
-    <partial name="_GovUkFooter"/>
+    @await Component.InvokeAsync("AppInsights", null)
+</head>
 
-    <partial name="_JQueryInitialise"/>
+<body class="govuk-template__body ">
+<partial name="_GovUkHeader"/>
 
-    @RenderSection("Scripts", required: false)
-    </body>
-    </html>
+<section aria-label="PhaseBanner">
+    <div class="govuk-width-container">
+        <partial name="_PhaseBanner" />
+        <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
+        @if (IsSectionDefined("Breadcrumb"))
+        {
+            @RenderSection("Breadcrumb", required: false)
+        }
+        <partial name="_ErrorSummary" />
+    </div>
+</section>
+
+<main class="govuk-!-padding-top-0 govuk-!-padding-bottom-0" id="main-content" role="main">
+    @if (IsSectionDefined("BodyTop"))
+    {
+        @RenderSection("BodyTop", required: false)
+    }
+
+    @if (IsSectionDefined("HeroBanner"))
+    {
+        @RenderSection("HeroBanner", required: false)
+    }
+    <div class="govuk-main-wrapper">
+        <div class="govuk-width-container">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-full">
+                    @if (IsSectionDefined("Body"))
+                    {
+                        @RenderSection("Body", required: false)
+                    }
+                </div>
+            </div>
+
+            @RenderBody()
+
+            @{
+                if (IsSectionDefined("SideBarLeft"))
+                {
+                    IgnoreSection("SideBarLeft");
+                }
+                if (IsSectionDefined("SideBarRight"))
+                {
+                    IgnoreSection("SideBarRight");
+                }
+            }
+        </div>
+    </div>
+</main>
+
+@if (IsSectionDefined("BodyFooter"))
+{
+    @RenderSection("BodyFooter", required: false)
+}
+
+<partial name="_GovUkFooter"/>
+
+<partial name="_JQueryInitialise"/>
+
+@RenderSection("Scripts", required: false)
+</body>
+</html>

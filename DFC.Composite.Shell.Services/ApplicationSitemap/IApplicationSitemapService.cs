@@ -1,11 +1,10 @@
-﻿using DFC.Composite.Shell.Models.SitemapModels;
-using System.Collections.Generic;
+﻿using DFC.Composite.Shell.Models.Sitemap;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.ApplicationSitemap
 {
     public interface IApplicationSitemapService
     {
-        Task<IEnumerable<SitemapLocation>> GetAsync(ApplicationSitemapModel model);
+        Task<ApplicationSitemapModel> EnrichAsync(ApplicationSitemapModel model);
     }
 }

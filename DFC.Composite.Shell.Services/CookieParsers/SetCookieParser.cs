@@ -22,22 +22,27 @@ namespace DFC.Composite.Shell.Services.CookieParsers
             if (!string.IsNullOrWhiteSpace(value))
             {
                 var firstEqualPosition = value.IndexOf("=", StringComparison.OrdinalIgnoreCase);
-                if (firstEqualPosition != -1)
-                {
-                    var cookieDataWithoutName = value.Substring(firstEqualPosition + 1);
-                    if (!string.IsNullOrWhiteSpace(cookieDataWithoutName))
-                    {
-                        var dataSegments = cookieDataWithoutName.Split(';');
 
-                        TrimSegments(dataSegments);
-                        ParseKeyValue(result, value);
-                        ParsePath(result.CookieOptions, dataSegments);
-                        ParseSameSiteMode(result.CookieOptions, dataSegments);
-                        ParseHttpOnly(result.CookieOptions, dataSegments);
-                        ParseSecure(result.CookieOptions, dataSegments);
-                        ParseMaxAge(result.CookieOptions, dataSegments);
-                    }
+                if (firstEqualPosition == -1)
+                {
+                    return result;
                 }
+
+                var cookieDataWithoutName = value[(firstEqualPosition + 1) ..];
+                if (!string.IsNullOrWhiteSpace(cookieDataWithoutName))
+                {
+                    var dataSegments = cookieDataWithoutName.Split(';');
+
+                    TrimSegments(dataSegments);
+                    ParseKeyValue(result, value);
+                    ParsePath(result.CookieOptions, dataSegments);
+                    ParseSameSiteMode(result.CookieOptions, dataSegments);
+                    ParseHttpOnly(result.CookieOptions, dataSegments);
+                    ParseSecure(result.CookieOptions, dataSegments);
+                    ParseMaxAge(result.CookieOptions, dataSegments);
+                }
+
+                return result;
             }
 
             return result;
@@ -45,15 +50,16 @@ namespace DFC.Composite.Shell.Services.CookieParsers
 
         private static string ParseValue(string[] segments, string segmentName)
         {
-            var result = string.Empty;
-            var matchingSegment = segments.FirstOrDefault(x => x.StartsWith(segmentName, StringComparison.OrdinalIgnoreCase));
-            if (matchingSegment != null)
+            var matchingSegment = segments
+                .FirstOrDefault(segment => segment.StartsWith(segmentName, StringComparison.OrdinalIgnoreCase));
+
+            if (matchingSegment == null)
             {
-                var keyValuePair = matchingSegment.Split('=');
-                result = keyValuePair.Last();
+                return string.Empty;
             }
 
-            return result;
+            var keyValuePair = matchingSegment.Split('=');
+            return keyValuePair.Last();
         }
 
         private void TrimSegments(string[] dataSegments)
@@ -71,12 +77,15 @@ namespace DFC.Composite.Shell.Services.CookieParsers
         private void ParseKeyValue(CookieSettings cookieSettings, string value)
         {
             var segments = value.Split(';');
-            if (segments.Any())
+
+            if (!segments.Any())
             {
-                var keyValue = segments.First().Split("=");
-                cookieSettings.Key = keyValue.FirstOrDefault();
-                cookieSettings.Value = keyValue.LastOrDefault();
+                return;
             }
+
+            var keyValue = segments.First().Split("=");
+            cookieSettings.Key = keyValue.FirstOrDefault();
+            cookieSettings.Value = keyValue.LastOrDefault();
         }
 
         private void ParsePath(CookieOptions cookieOptions, string[] dataSegments)
@@ -94,11 +103,9 @@ namespace DFC.Composite.Shell.Services.CookieParsers
                 case Lax:
                     result = SameSiteMode.Lax;
                     break;
-
                 case None:
                     result = SameSiteMode.None;
                     break;
-
                 case Strict:
                     result = SameSiteMode.Strict;
                     break;
@@ -109,17 +116,17 @@ namespace DFC.Composite.Shell.Services.CookieParsers
 
         private void ParseHttpOnly(CookieOptions cookieOptions, string[] dataSegments)
         {
-            cookieOptions.HttpOnly = dataSegments.Any(x => x == HttpOnly);
+            cookieOptions.HttpOnly = dataSegments.Any(segment => segment == HttpOnly);
         }
 
         private void ParseSecure(CookieOptions cookieOptions, string[] dataSegments)
         {
-            cookieOptions.Secure = dataSegments.Any(x => x == Secure);
+            cookieOptions.Secure = dataSegments.Any(segment => segment == Secure);
         }
 
         private void ParseMaxAge(CookieOptions cookieOptions, string[] dataSegments)
         {
-            if (double.TryParse(ParseValue(dataSegments, MaxAge), out double maxAge))
+            if (double.TryParse(ParseValue(dataSegments, MaxAge), out var maxAge))
             {
                 cookieOptions.MaxAge = TimeSpan.FromSeconds(maxAge);
             }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using DFC.Composite.Shell.Models.Enums;
+using Microsoft.AspNetCore.Html;
 
 namespace DFC.Composite.Shell.Models
 {

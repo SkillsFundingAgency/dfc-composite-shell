@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AppRegistration;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.AppRegistry;
@@ -18,7 +18,7 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class RobotController : Controller
     {
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly ILogger<RobotController> logger;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IApplicationRobotService applicationRobotService;
@@ -27,7 +27,7 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IBaseUrlService baseUrlService;
 
         public RobotController(
-            IAppRegistryDataService appRegistryDataService,
+            IAppRegistryService appRegistryDataService,
             ILogger<RobotController> logger,
             IWebHostEnvironment webHostEnvironment,
             IBearerTokenRetriever bearerTokenRetriever,
@@ -50,11 +50,10 @@ namespace DFC.Composite.Shell.Controllers
             logger.LogInformation("Generating Robots.txt");
 
             var robot = new Robot();
-
-            await AppendShellRobot(robot).ConfigureAwait(false);
+            await AppendShellRobot(robot);
 
             // get all the registered application robots.txt
-            var applicationRobotModels = await GetApplicationRobotsAsync().ConfigureAwait(false);
+            var applicationRobotModels = await GetApplicationRobotsAsync();
             AppendApplicationsRobots(robot, applicationRobotModels);
 
             // add the Shell sitemap route to the bottom
@@ -70,39 +69,44 @@ namespace DFC.Composite.Shell.Controllers
             return Content(robot.Data, MediaTypeNames.Text.Plain);
         }
 
-        private static IEnumerable<string> ProcessRobotsLines(ApplicationRobotModel applicationRobotModel, string baseUrl, string[] robotsLines)
+        private static IEnumerable<string> ProcessRobotsLines(ApplicationRobotModel applicationRobotModel, Uri baseUrl, string[] robotsLines)
         {
             for (var i = 0; i < robotsLines.Length; i++)
             {
-                if (!string.IsNullOrWhiteSpace(robotsLines[i]))
+                if (string.IsNullOrWhiteSpace(robotsLines[i]))
                 {
-                    // remove any user-agent and sitemap lines
-                    var lineSegments = robotsLines[i].Split(new[] { ':' }, 2);
-                    var skipLinesWithSegment = new[] { "User-agent", "Sitemap" };
+                    continue;
+                }
 
-                    if (lineSegments.Length > 0 && skipLinesWithSegment.Contains(lineSegments[0], StringComparer.OrdinalIgnoreCase))
-                    {
-                        robotsLines[i] = string.Empty;
-                    }
+                // remove any user-agent and sitemap lines
+                var lineSegments = robotsLines[i].Split(new[] { ':' }, 2);
+                var skipLinesWithSegment = new[] { "User-agent", "Sitemap" };
 
-                    // rewrite the URL to swap any child application address prefix for the composite UI address prefix
-                    var pathRootUri = new Uri(applicationRobotModel.RobotsURL);
-                    var appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
+                if (lineSegments.Length > 0 && skipLinesWithSegment.Contains(lineSegments[0], StringComparer.OrdinalIgnoreCase))
+                {
+                    robotsLines[i] = string.Empty;
+                }
 
-                    if (robotsLines[i].Contains(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        robotsLines[i] = robotsLines[i].Replace(appBaseUrl, baseUrl, StringComparison.InvariantCultureIgnoreCase);
-                    }
+                // rewrite the URL to swap any child application address prefix for the composite UI address prefix
+                var pathRootUri = new Uri(applicationRobotModel.RobotsURL);
+                var appBaseUrl = $"{pathRootUri.Scheme}://{pathRootUri.Authority}";
+
+                if (robotsLines[i].Contains(appBaseUrl, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    robotsLines[i] = robotsLines[i].Replace(appBaseUrl, baseUrl.ToString(), StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 
-            return robotsLines.Where(w => !string.IsNullOrWhiteSpace(w));
+            return robotsLines.Where(line => !string.IsNullOrWhiteSpace(line));
         }
 
-        private static void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
+        private static void AppendApplicationRobotData(
+            ApplicationRobotModel applicationRobotModel,
+            string applicationRobotsText,
+            Uri baseUrl,
+            Robot robot)
         {
             var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
             var robotResults = ProcessRobotsLines(applicationRobotModel, baseUrl, robotsLines);
 
             foreach (var robotResult in robotResults)
@@ -116,7 +120,7 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task AppendShellRobot(Robot robot)
         {
-            var shellRobotsText = await shellRobotFileService.GetFileText(webHostEnvironment.WebRootPath).ConfigureAwait(false);
+            var shellRobotsText = await shellRobotFileService.GetFileText(webHostEnvironment.WebRootPath);
             robot.Append(shellRobotsText);
 
             // add any dynamic robots data from the Shell app
@@ -124,41 +128,40 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task<IEnumerable<ApplicationRobotModel>> GetApplicationRobotsAsync()
         {
-            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
-            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.RobotsURL != null).ToList();
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
+            var onlineAppRegistrationModels = appRegistrationModels.Where(model => model.IsOnline && model.RobotsURL != null).ToList();
 
-            var applicationRobotModels = await CreateApplicationRobotModelTasksAsync(onlineAppRegistrationModels).ConfigureAwait(false);
+            return await CreateApplicationRobotModelTasksAsync(onlineAppRegistrationModels);
+        }
 
-            var allRobotRetrievalTasks = (from a in applicationRobotModels select a.RetrievalTask).ToArray();
+        private async Task<List<ApplicationRobotModel>> CreateApplicationRobotModelTasksAsync(
+            IEnumerable<AppRegistrationModel> appRegistrationModel)
+        {
+            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext) : null;
+            var modelsTasks = appRegistrationModel.Select(path => GetModelForPath(path, bearerToken)).ToList();
 
-            await Task.WhenAll(allRobotRetrievalTasks).ConfigureAwait(false);
+            var applicationRobotModels = new List<ApplicationRobotModel>();
+
+            foreach (var modelsTask in modelsTasks)
+            {
+                applicationRobotModels.Add(await modelsTask);
+            }
 
             return applicationRobotModels;
         }
 
-        private async Task<List<ApplicationRobotModel>> CreateApplicationRobotModelTasksAsync(IEnumerable<AppRegistrationModel> appRegistrationModel)
+        private async Task<ApplicationRobotModel> GetModelForPath(AppRegistrationModel path, string bearerToken)
         {
-            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
+            logger.LogInformation("{action}: Getting child robots.txt for: {path}", nameof(Action), path.Path);
 
-            var applicationRobotModels = new List<ApplicationRobotModel>();
-
-            foreach (var path in appRegistrationModel)
+            var applicationRobotModel = new ApplicationRobotModel
             {
-                logger.LogInformation($"{nameof(Action)}: Getting child robots.txt for: {path.Path}");
+                Path = path.Path,
+                RobotsURL = path.RobotsURL.ToString(),
+                BearerToken = bearerToken,
+            };
 
-                var applicationRobotModel = new ApplicationRobotModel
-                {
-                    Path = path.Path,
-                    RobotsURL = path.RobotsURL.ToString(),
-                    BearerToken = bearerToken,
-                };
-
-                applicationRobotModel.RetrievalTask = applicationRobotService.GetAsync(applicationRobotModel);
-
-                applicationRobotModels.Add(applicationRobotModel);
-            }
-
-            return applicationRobotModels;
+            return await applicationRobotService.EnrichAsync(applicationRobotModel);
         }
 
         private void AppendApplicationsRobots(Robot robot, IEnumerable<ApplicationRobotModel> applicationRobotModels)
@@ -168,20 +171,12 @@ namespace DFC.Composite.Shell.Controllers
             // get the task results as individual robots and merge into one
             foreach (var applicationRobotModel in applicationRobotModels)
             {
-                if (applicationRobotModel.RetrievalTask.IsCompletedSuccessfully)
-                {
-                    logger.LogInformation($"{nameof(Action)}: Received child robots.txt for: {applicationRobotModel.Path}");
+                logger.LogInformation("{action}: Received child robots.txt for: {path}", nameof(Action), applicationRobotModel.Path);
+                var applicationRobotsText = applicationRobotModel.Data;
 
-                    var applicationRobotsText = applicationRobotModel.RetrievalTask.Result;
-
-                    if (!string.IsNullOrWhiteSpace(applicationRobotsText))
-                    {
-                        AppendApplicationRobotData(applicationRobotModel, applicationRobotsText, baseUrl, robot);
-                    }
-                }
-                else
+                if (!string.IsNullOrWhiteSpace(applicationRobotsText))
                 {
-                    logger.LogError($"{nameof(Action)}: Error getting child robots.txt for: {applicationRobotModel.Path}");
+                    AppendApplicationRobotData(applicationRobotModel, applicationRobotsText, baseUrl, robot);
                 }
             }
         }

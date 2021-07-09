@@ -22,18 +22,20 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (request != null && (!request.Headers.Contains(HeaderNames.UserAgent) && httpContextAccessor.HttpContext != null))
+            if (request?.Headers.Contains(HeaderNames.UserAgent) != false || httpContextAccessor?.HttpContext == null)
             {
-                foreach (var item in httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent])
-                {
-                    logger.LogInformation($"Setting UserAgent to {item}");
+                return base.SendAsync(request, cancellationToken);
+            }
 
-                    //Added without validation because external host headers with a ; after the product name were failing
-                    //+http://code.google.com/appengine; - would fail with a format exception, if the just the add method is used.
-                    if (!request.Headers.TryAddWithoutValidation(HeaderNames.UserAgent, item))
-                    {
-                        logger.LogWarning($"Could not add {HeaderNames.UserAgent} - {item}");
-                    }
+            foreach (var item in httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent])
+            {
+                logger.LogInformation("Setting UserAgent to {item}", item);
+
+                //Added without validation because external host headers with a ; after the product name were failing
+                //+http://code.google.com/appengine; - would fail with a format exception, if the just the add method is used.
+                if (!request.Headers.TryAddWithoutValidation(HeaderNames.UserAgent, item))
+                {
+                    logger.LogWarning("Could not add {userAgent} - {item}", HeaderNames.UserAgent, item);
                 }
             }
 

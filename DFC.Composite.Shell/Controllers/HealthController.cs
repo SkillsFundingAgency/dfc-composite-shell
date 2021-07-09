@@ -1,7 +1,8 @@
 ﻿using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
-using DFC.Composite.Shell.Models.HealthModels;
+using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Enums;
+using DFC.Composite.Shell.Models.Health;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.TokenRetriever;
@@ -16,13 +17,13 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class HealthController : Controller
     {
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly ILogger<HealthController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IApplicationHealthService applicationHealthService;
 
         public HealthController(
-            IAppRegistryDataService appRegistryDataService,
+            IAppRegistryService appRegistryDataService,
             ILogger<HealthController> logger,
             IBearerTokenRetriever bearerTokenRetriever,
             IApplicationHealthService applicationHealthService)
@@ -37,32 +38,29 @@ namespace DFC.Composite.Shell.Controllers
         [Route("health")]
         public async Task<IActionResult> Health()
         {
-            string resourceName = typeof(Program).Namespace;
-            string message;
+            var resourceName = typeof(Program).Namespace;
 
-            logger.LogInformation($"{nameof(Health)} has been called");
+            logger.LogInformation("{health} has been called", nameof(Health));
 
-            message = "Composite Shell is available";
-            logger.LogInformation($"{nameof(Health)} responded with: {resourceName} - {message}");
+            var message = "Composite Shell is available";
+            logger.LogInformation("{health} responded with: {resourceName} - {message}", nameof(Health), resourceName, message);
 
             var viewModel = CreateHealthViewModel(resourceName, message);
 
-            // loop through the registered applications and create some tasks - one per application for their health
-            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
-            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
-            var offlineAppRegistrationModels = appRegistrationModels.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
+            var onlineAppRegistrationModels = appRegistrationModels.Where(model => model.IsOnline && model.ExternalURL == null).ToList();
 
-            if (onlineAppRegistrationModels != null && onlineAppRegistrationModels.Any())
+            if (onlineAppRegistrationModels?.Any() == true)
             {
-                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlineAppRegistrationModels).ConfigureAwait(false);
-
+                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlineAppRegistrationModels);
                 AppendApplicationsHealths(viewModel.HealthItems, applicationOnlineHealthModels);
             }
 
-            if (offlineAppRegistrationModels != null && offlineAppRegistrationModels.Any())
-            {
-                var applicationOfflineHealthItemModels = CreateOfflineApplicationHealthModels(offlineAppRegistrationModels.ToList());
+            var offlineAppRegistrationModels = appRegistrationModels.Where(model => !model.IsOnline && model.ExternalURL == null).ToList();
 
+            if (offlineAppRegistrationModels?.Any() == true)
+            {
+                var applicationOfflineHealthItemModels = GetApplicationOfflineHealth(offlineAppRegistrationModels);
                 viewModel.HealthItems.AddRange(applicationOfflineHealthItemModels);
             }
 
@@ -73,8 +71,7 @@ namespace DFC.Composite.Shell.Controllers
         [Route("health/ping")]
         public IActionResult Ping()
         {
-            logger.LogInformation($"{nameof(Ping)} has been called");
-
+            logger.LogInformation("{ping} has been called", nameof(Ping));
             return Ok();
         }
 
@@ -93,52 +90,42 @@ namespace DFC.Composite.Shell.Controllers
             };
         }
 
-        private async Task<IEnumerable<ApplicationHealthModel>> GetApplicationOnlineHealthAsync(IList<AppRegistrationModel> paths)
+        private async Task<List<ApplicationHealthModel>> GetApplicationOnlineHealthAsync(IList<AppRegistrationModel> paths)
         {
-            var applicationHealthModels = await CreateApplicationHealthModelTasksAsync(paths).ConfigureAwait(false);
-
-            // await all application sitemap service tasks to complete
-            var allTasks = (from a in applicationHealthModels select a.RetrievalTask).ToArray();
-
-            await Task.WhenAll(allTasks).ConfigureAwait(false);
-
-            return applicationHealthModels;
-        }
-
-        private async Task<List<ApplicationHealthModel>> CreateApplicationHealthModelTasksAsync(IList<AppRegistrationModel> paths)
-        {
-            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
+            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext) : null;
+            var modelsTasks = paths.Select(path => GetModelForPath(path, bearerToken)).ToList();
 
             var applicationHealthModels = new List<ApplicationHealthModel>();
 
-            foreach (var path in paths)
+            foreach (var modelsTask in modelsTasks)
             {
-                logger.LogInformation($"{nameof(Action)}: Getting child Health for: {path.Path}");
-
-                var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path).ConfigureAwait(false);
-
-                var applicationHealthModel = new ApplicationHealthModel
-                {
-                    Path = path.Path,
-                    BearerToken = bearerToken,
-                    HealthUrl = $"{applicationBaseUrl}/health",
-                };
-
-                applicationHealthModel.RetrievalTask = applicationHealthService.GetAsync(applicationHealthModel);
-
-                applicationHealthModels.Add(applicationHealthModel);
+                applicationHealthModels.Add(await modelsTask);
             }
 
             return applicationHealthModels;
         }
 
+        private async Task<ApplicationHealthModel> GetModelForPath(AppRegistrationModel path, string bearerToken)
+        {
+            logger.LogInformation("{action}: Getting child Health for: {path}", nameof(Action), path.Path);
+            var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path);
+
+            var applicationHealthModel = new ApplicationHealthModel
+            {
+                Path = path.Path,
+                BearerToken = bearerToken,
+                HealthUrl = $"{applicationBaseUrl}/health",
+            };
+
+            return await applicationHealthService.EnrichAsync(applicationHealthModel);
+        }
+
         private async Task<string> GetPathBaseUrlFromBodyRegionAsync(string path)
         {
-            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
+            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path);
+            var bodyRegion = appRegistrationModel?.Regions?.FirstOrDefault(region => region.PageRegion == PageRegion.Body);
 
-            var bodyRegion = appRegistrationModel?.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
-
-            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            if (!string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
             {
                 var uri = new Uri(bodyRegion.RegionEndpoint);
                 var url = $"{uri.Scheme}://{uri.Authority}";
@@ -149,55 +136,44 @@ namespace DFC.Composite.Shell.Controllers
             return null;
         }
 
-        private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
+        private void AppendApplicationsHealths(
+            List<HealthItemViewModel> healthItemModels,
+            IEnumerable<ApplicationHealthModel> applicationHealthModels)
         {
-            // get the task results as individual health and merge into one
             foreach (var applicationHealthModel in applicationHealthModels)
             {
-                if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
+                logger.LogInformation("{action}: Received child Health for: {path}", nameof(Action), applicationHealthModel.Path);
+                var healthItems = applicationHealthModel.Data;
+
+                if (healthItems?.Any() != true)
                 {
-                    logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}");
-
-                    var healthItems = applicationHealthModel.RetrievalTask.Result;
-
-                    if (healthItems?.Count() > 0)
+                    var healthItemViewModel = new HealthItemViewModel
                     {
-                        var healthItemViewModels = (from a in healthItems
-                                                    select new HealthItemViewModel
-                                                    {
-                                                        Service = a.Service,
-                                                        Message = a.Message,
-                                                    }).ToList();
+                        Service = applicationHealthModel.Path,
+                        Message = $"No health response from {applicationHealthModel.Path} app",
+                    };
 
-                        healthItemModels.AddRange(healthItemViewModels);
-                    }
-                    else
-                    {
-                        var healthItemViewModel = new HealthItemViewModel
-                        {
-                            Service = applicationHealthModel.Path,
-                            Message = $"No health response from {applicationHealthModel.Path} app",
-                        };
+                    healthItemModels.Add(healthItemViewModel);
+                    continue;
+                }
 
-                        healthItemModels.Add(healthItemViewModel);
-                    }
-                }
-                else
-                {
-                    logger.LogError($"{nameof(Action)}: Error getting child Health for: {applicationHealthModel.Path}");
-                }
+                var healthItemViewModels = healthItems
+                    .Select(healthItem => new HealthItemViewModel { Service = healthItem.Service, Message = healthItem.Message })
+                    .ToList();
+
+                healthItemModels.AddRange(healthItemViewModels);
             }
         }
 
-        private List<HealthItemViewModel> CreateOfflineApplicationHealthModels(IList<AppRegistrationModel> paths)
+        private List<HealthItemViewModel> GetApplicationOfflineHealth(IList<AppRegistrationModel> paths)
         {
             var healthItemViewModels = new List<HealthItemViewModel>();
 
             foreach (var path in paths)
             {
-                logger.LogInformation($"{nameof(Action)}: Skipping health check for: {path.Path}, because it is offline");
+                logger.LogInformation("{action}: Skipping health check for: {path}, because it is offline", nameof(Action), path.Path);
 
-                var healthItemViewModel = new HealthItemViewModel()
+                var healthItemViewModel = new HealthItemViewModel
                 {
                     Service = path.Path,
                     Message = $"Skipped health check for: {path.Path}, because it is offline",

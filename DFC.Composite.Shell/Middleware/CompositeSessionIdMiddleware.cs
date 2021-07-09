@@ -32,9 +32,9 @@ namespace DFC.Composite.Shell.Middleware
                 SameSite = SameSiteMode.None,
             };
 
-            httpContext?.Response.Cookies.Append(NcsSessionCookieName, sessionIdString, cookieOptions);
+            httpContext.Response.Cookies.Append(NcsSessionCookieName, sessionIdString, cookieOptions);
 
-            await next(httpContext).ConfigureAwait(false);
+            await next(httpContext);
         }
     }
 }

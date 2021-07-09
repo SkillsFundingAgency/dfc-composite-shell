@@ -1,9 +1,10 @@
 ﻿using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Models.AppRegistration;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -17,141 +18,165 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
     public class ContentRetriever : IContentRetriever
     {
-        private readonly HttpClient httpClient;
+        private readonly IUriSpecifcHttpClientFactory httpClientFactory;
         private readonly ILogger<ContentRetriever> logger;
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly IHttpResponseMessageHandler responseHandler;
         private readonly MarkupMessages markupMessages;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages)
+        public ContentRetriever(
+            IUriSpecifcHttpClientFactory httpClientFactory,
+            ILogger<ContentRetriever> logger,
+            IAppRegistryService appRegistryDataService,
+            IHttpResponseMessageHandler responseHandler,
+            MarkupMessages markupMessages)
         {
-            this.httpClient = httpClient;
+            this.httpClientFactory = httpClientFactory;
             this.logger = logger;
             this.appRegistryDataService = appRegistryDataService;
             this.responseHandler = responseHandler;
             this.markupMessages = markupMessages;
         }
 
-        public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
+        public async Task<string> GetContentAsync(
+            string url,
+            string path,
+            RegionModel regionModel,
+            bool followRedirects,
+            Uri requestBaseUrl)
         {
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
+            var results = default(string);
             const int MaxRedirections = 10;
 
-            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
+            try
+            {
+                if (!regionModel.IsHealthy)
+                {
+                    return !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                        ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                }
 
-            string results = null;
+                logger.LogInformation("{methodName}: Getting child response from: {url}", nameof(GetContentAsync), url);
+
+                var response = await GetContentHonouringRedirectionsAsync(requestBaseUrl, url, followRedirects, MaxRedirections, regionModel);
+
+                if (response?.IsSuccessStatusCode == false)
+                {
+                    throw new HttpException(response.StatusCode, response.ReasonPhrase, url);
+                }
+
+                responseHandler.Process(response);
+
+                if (response != null)
+                {
+                    results = await response.Content.ReadAsStringAsync();
+                }
+
+                logger.LogInformation("{methodName}: Received child response from: {url}", nameof(GetContentAsync), url);
+            }
+            catch (BrokenCircuitException ex)
+            {
+                logger.LogError(ex, "{controllerName}: BrokenCircuit: {url} - {exMessage}", nameof(ContentRetriever), url, ex.Message);
+
+                if (regionModel.HealthCheckRequired)
+                {
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
+                }
+
+                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ?
+                    regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+            }
+
+            return results;
+        }
+
+        public async Task<string> PostContentAsync(
+            string url,
+            string path,
+            RegionModel regionModel,
+            IEnumerable<KeyValuePair<string, string>> formParameters,
+            Uri requestBaseUrl)
+        {
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
+            var results = default(string);
 
             try
             {
-                if (regionModel.IsHealthy)
+                if (!regionModel.IsHealthy)
                 {
-                    logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
+                    return !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                        ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                }
 
-                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
+                logger.LogInformation(
+                    "{content}: Posting child response from: {url}",
+                    nameof(PostContentAsync),
+                    url);
 
-                    if (response != null && !response.IsSuccessStatusCode)
-                    {
-                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
-                    }
+                var request = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
+                };
 
+                var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
+                var response = await httpClient.SendAsync(request);
+
+                if (response.IsRedirectionStatus())
+                {
                     responseHandler.Process(response);
 
-                    if (response != null)
-                    {
-                        results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    }
+                    var redirectUrl = requestBaseUrl?.ToString();
+                    redirectUrl += response.Headers.Location.IsAbsoluteUri
+                        ? response.Headers.Location.PathAndQuery.ToString(CultureInfo.InvariantCulture)
+                        : response.Headers.Location.ToString();
 
-                    logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
+                    throw new RedirectRequest(
+                        new Uri(url),
+                        new Uri(redirectUrl),
+                        response.StatusCode == HttpStatusCode.PermanentRedirect);
                 }
-                else
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                    throw new HttpException(response.StatusCode, response.ReasonPhrase, url);
                 }
+
+                results = await response.Content.ReadAsStringAsync();
+
+                logger.LogInformation("{content}: Received child response from: {url}", nameof(GetContentAsync), url);
             }
             catch (BrokenCircuitException ex)
             {
-                logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
+                logger.LogError(ex, "{content}: BrokenCircuit: {url} - {message}", nameof(ContentRetriever), url, ex.Message);
 
                 if (regionModel.HealthCheckRequired)
                 {
-                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
                 }
 
-                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ?
+                    regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
             }
 
             return results;
         }
 
-        public async Task<string> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
+        private async Task<HttpResponseMessage> GetContentHonouringRedirectionsAsync(
+            Uri requestBaseUrl,
+            string url,
+            bool followRedirects,
+            int maxRedirections,
+            RegionModel regionModel)
         {
-            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
+            var attempt = 0;
 
-            string results = null;
-
-            try
-            {
-                if (regionModel.IsHealthy)
-                {
-                    logger.LogInformation($"{nameof(PostContent)}: Posting child response from: {url}");
-
-                    var request = new HttpRequestMessage(HttpMethod.Post, url)
-                    {
-                        Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
-                    };
-
-                    var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-                    if (response.IsRedirectionStatus())
-                    {
-                        responseHandler.Process(response);
-
-                        var redirectUrl = requestBaseUrl;
-
-                        redirectUrl += response.Headers.Location.IsAbsoluteUri
-                            ? response.Headers.Location.PathAndQuery.ToString(CultureInfo.InvariantCulture)
-                            : response.Headers.Location.ToString();
-
-                        throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
-                    }
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
-                    }
-
-                    results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                    logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
-                }
-                else
-                {
-                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
-                }
-            }
-            catch (BrokenCircuitException ex)
-            {
-                logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
-
-                if (regionModel.HealthCheckRequired)
-                {
-                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
-                }
-
-                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
-            }
-
-            return results;
-        }
-
-        private async Task<HttpResponseMessage> GetContentIfRedirectedAsync(string requestBaseUrl, string url, bool followRedirects, int maxRedirections)
-        {
-            HttpResponseMessage response = null;
-
-            for (int i = 0; i < maxRedirections; i++)
+            do
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-                response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
+                var response = await httpClient.SendAsync(request);
 
                 if (!response.IsRedirectionStatus())
                 {
@@ -162,17 +187,21 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     var redirectUrl = response.Headers.Location.IsAbsoluteUri
                         ? response.Headers.Location.ToString()
-                        : $"{requestBaseUrl}{response.Headers.Location.ToString()}";
+                        : $"{requestBaseUrl}{response.Headers.Location}";
 
-                    throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
+                    throw new RedirectRequest(
+                        new Uri(url),
+                        new Uri(redirectUrl),
+                        response.StatusCode == HttpStatusCode.PermanentRedirect);
                 }
 
                 url = response.Headers.Location.IsAbsoluteUri
                     ? response.Headers.Location.ToString()
                     : $"{requestBaseUrl}/{response.Headers.Location.ToString().TrimStart('/')}";
 
-                logger.LogWarning($"{nameof(GetContent)}: Redirecting get of child response from: {url}");
+                logger.LogWarning("{content}: Redirecting get of child response from: {url}", nameof(GetContentAsync), url);
             }
+            while (attempt++ > maxRedirections);
 
             return null;
         }

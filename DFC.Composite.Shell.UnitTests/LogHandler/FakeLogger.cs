@@ -11,7 +11,14 @@ namespace DFC.Composite.Shell.UnitTests.LogHandler
         public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            => Log(logLevel, exception, formatter(state, exception));
+        {
+            if (formatter == null)
+            {
+                throw new ArgumentNullException(nameof(formatter));
+            }
+
+            Log(logLevel, exception, formatter(state, exception));
+        }
 
         public abstract void Log(LogLevel logLevel, Exception ex, string information);
     }

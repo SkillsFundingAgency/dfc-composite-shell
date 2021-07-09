@@ -22,22 +22,20 @@ namespace DFC.Composite.Shell.UnitTests.ClientHandlers
             var headerValue1 = requestUrl;
             httpContextAccessor.HttpContext.Request.Headers.Add(headerName, headerValue1);
 
-            var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-            using (var handler = new CompositeRequestDelegatingHandler())
+            using var handler = new CompositeRequestDelegatingHandler
             {
-                handler.InnerHandler = new StatusOkDelegatingHandler();
+                InnerHandler = new StatusOkDelegatingHandler(),
+            };
 
-                //Act
-                var invoker = new HttpMessageInvoker(handler);
-                await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            //Act
+            using var invoker = new HttpMessageInvoker(handler);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
-                //Assert
-                Assert.Single(httpRequestChildMessage.Headers);
-                Assert.True(httpRequestChildMessage.Headers.Contains(headerName));
-                httpRequestChildMessage.Dispose();
-                invoker.Dispose();
-            }
+            //Assert
+            Assert.Single(httpRequestChildMessage.Headers);
+            Assert.True(httpRequestChildMessage.Headers.Contains(headerName));
         }
     }
 }

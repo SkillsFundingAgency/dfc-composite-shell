@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models.AjaxApiModels;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AjaxApi;
+using DFC.Composite.Shell.Models.AppRegistration;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.AjaxRequest

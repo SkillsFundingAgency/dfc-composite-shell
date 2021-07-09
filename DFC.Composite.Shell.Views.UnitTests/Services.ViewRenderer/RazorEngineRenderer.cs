@@ -7,7 +7,7 @@ namespace DFC.Composite.Shell.Views.Test.Services.ViewRenderer
 {
     public class RazorEngineRenderer : IViewRenderer
     {
-        private string _viewRootPath;
+        private readonly string _viewRootPath;
 
         public RazorEngineRenderer(string viewRootPath)
         {
@@ -16,9 +16,11 @@ namespace DFC.Composite.Shell.Views.Test.Services.ViewRenderer
 
         public string Render(string viewName, object model, IDictionary<string, object> viewBag)
         {
-            var razorConfig = new TemplateServiceConfiguration();
-            razorConfig.TemplateManager = CreateTemplateManager();
-            razorConfig.BaseTemplateType = typeof(HtmlSupportTemplateBase<>);
+            var razorConfig = new TemplateServiceConfiguration
+            {
+                TemplateManager = CreateTemplateManager(),
+                BaseTemplateType = typeof(HtmlSupportTemplateBase<>)
+            };
 
             var razorEngine = RazorEngineService.Create(razorConfig);
 

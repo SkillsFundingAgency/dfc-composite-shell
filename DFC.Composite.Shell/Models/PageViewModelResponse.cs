@@ -5,10 +5,6 @@ namespace DFC.Composite.Shell.Models
 {
     public class PageViewModelResponse
     {
-        public PageViewModelResponse()
-        {
-        }
-
         public IList<string> VersionedPathForCssScripts { get; set; }
 
         public IList<string> VersionedPathForJavaScripts { get; set; }

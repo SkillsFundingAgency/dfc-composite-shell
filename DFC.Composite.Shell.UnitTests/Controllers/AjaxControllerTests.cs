@@ -1,6 +1,6 @@
 ﻿using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Models.AjaxApiModels;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Models.AjaxApi;
+using DFC.Composite.Shell.Models.AppRegistration;
 using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.AppRegistry;
 using FakeItEasy;
@@ -20,7 +20,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         private const string ValidMethodName2 = "a-method2";
 
         private readonly IAjaxRequestService fakeAjaxRequestService = A.Fake<IAjaxRequestService>();
-        private readonly IAppRegistryDataService fakeAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+        private readonly IAppRegistryService fakeAppRegistryDataService = A.Fake<IAppRegistryService>();
 
         [Fact]
         public async Task AjaxControllerActionActionReturnsSuccess()
@@ -38,7 +38,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as ObjectResult;
@@ -62,7 +62,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as BadRequestResult;
@@ -86,7 +86,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as BadRequestResult;
@@ -110,7 +110,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as NotFoundResult;

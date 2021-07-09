@@ -2,6 +2,7 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -20,7 +21,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var result = service.GetBaseUrl(null, null);
 
-            Assert.True(string.IsNullOrWhiteSpace(result));
+            Assert.True(result == null);
         }
 
         [Fact]
@@ -36,7 +37,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var urlHelper = A.Fake<IUrlHelper>();
             A.CallTo(() => urlHelper.Content(A<string>.Ignored)).Returns(fakeUrlHelperContent);
 
-            var expected = $"{httpRequest.Scheme}://{fakeHostName}{fakeUrlHelperContent}";
+            var expected = new Uri($"{httpRequest.Scheme}://{fakeHostName}{fakeUrlHelperContent}");
             var result = service.GetBaseUrl(httpRequest, urlHelper);
 
             Assert.Equal(expected, result);

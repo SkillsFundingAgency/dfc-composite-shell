@@ -15,12 +15,13 @@ namespace DFC.Composite.Shell.Services.PathLocator
             this.logger = logger;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Existing functionality is to lowercase - dont wish to make incompatible")]
         public string GetPath()
         {
             var result = httpContextAccessor.HttpContext.Request.Path.Value.Trim();
             if (result.StartsWith("/", StringComparison.OrdinalIgnoreCase))
             {
-                result = result.Substring(1);
+                result = result[1..];
             }
 
             var forwardSlashPosition = result.IndexOf("/", StringComparison.OrdinalIgnoreCase);
@@ -34,7 +35,11 @@ namespace DFC.Composite.Shell.Services.PathLocator
                 result = result.ToLowerInvariant();
             }
 
-            logger.LogDebug($"PathLocator. Request.Path is {httpContextAccessor.HttpContext.Request.Path.Value} and located path is {result}");
+            logger.LogDebug(
+                "PathLocator. Request.Path is {path} and located path is {result}",
+                httpContextAccessor.HttpContext.Request.Path.Value,
+                result);
+
             return result;
         }
     }

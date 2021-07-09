@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Services.UrlRewriter;
+using System;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -15,14 +16,17 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public void ShouldRewriteChildApplicationUrls()
         {
-            const string shellAppUrl = "ShellAppUrl";
-            const string childAppUrl = "ChildApplicationRootUrl";
+            // Arrange
+            var shellAppUrl = new Uri("http://ShellAppUrl");
+            var childAppUrl = new Uri("http://ChildApplicationRootUrl");
 
             var content = $"<a href='{childAppUrl}/edit/1'></a>";
             var processedContentExpected = $"<a href='{shellAppUrl}/edit/1'></a>";
 
-            var result = urlRewriterService.Rewrite(content, shellAppUrl, childAppUrl);
+            // Act
+            var result = urlRewriterService.RewriteAttributes(content, shellAppUrl, childAppUrl);
 
+            // Assert
             Assert.Equal(result, processedContentExpected);
         }
     }

@@ -1,18 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace DFC.Composite.Shell.Services.BaseUrl
 {
     public class BaseUrlService : IBaseUrlService
     {
-        public string GetBaseUrl(HttpRequest request, IUrlHelper urlHelper)
+        public Uri GetBaseUrl(HttpRequest request, IUrlHelper urlHelper)
         {
-            if (request != null && urlHelper != null)
-            {
-                return $"{request.Scheme}://{request.Host}{urlHelper.Content("~")}";
-            }
+            var anyElementNull = request == null || urlHelper == null;
 
-            return string.Empty;
+            return anyElementNull ?
+                null : new Uri($"{request?.Scheme}://{request.Host}{urlHelper?.Content("~")}");
         }
     }
 }

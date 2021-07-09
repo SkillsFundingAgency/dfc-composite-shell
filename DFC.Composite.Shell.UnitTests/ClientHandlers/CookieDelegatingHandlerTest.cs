@@ -47,7 +47,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             httpContextAccessor.HttpContext.Request.Headers.Add(HeaderNames.Cookie, $"{path1}v1=value1;{path1}v2=value2;{path2}v3=value3;{path2}v4=value4");
 
             //Create a get request that is used to send data to the child app
-            var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
             handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
@@ -56,8 +56,8 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             };
 
             //Act
-            var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            using var invoker = new HttpMessageInvoker(handler);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -66,8 +66,6 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             var headerValue = httpRequestChildMessage.Headers.First().Value.ToList();
             Assert.Equal("v1=value1", headerValue.First());
             Assert.Equal("v2=value2", headerValue.Last());
-            httpRequestChildMessage.Dispose();
-            invoker.Dispose();
         }
 
         [Fact]
@@ -93,7 +91,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             httpContextAccessor.HttpContext.Request.Headers.Add(HeaderNames.Cookie, $"{Constants.DfcSession}=sessionId1;{path1}v1=value1;{path1}v2=value2;{path2}v3=value3;{path2}v4=value4");
 
             //Create a get request that is used to send data to the child app
-            var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
             handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
@@ -102,8 +100,8 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             };
 
             //Act
-            var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            using var invoker = new HttpMessageInvoker(handler);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -111,8 +109,6 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             //Check that the values that are sent back are correct
             var headerValue = httpRequestChildMessage.Headers.First().Value.ToList();
             Assert.Equal($"{Constants.DfcSession}=sessionId1", headerValue.First());
-            httpRequestChildMessage.Dispose();
-            invoker.Dispose();
         }
 
         [Fact]
@@ -139,7 +135,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             httpContextAccessor.HttpContext.Request.Headers.Add(HeaderNames.Cookie, $"{Constants.DfcSession}=sessionId1{suffix};{path1}v1=value1;{path1}v2=value2;{path2}v3=value3;{path2}v4=value4");
 
             //Create a get request that is used to send data to the child app
-            var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
             handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
@@ -148,8 +144,8 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             };
 
             //Act
-            var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            using var invoker = new HttpMessageInvoker(handler);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -157,8 +153,6 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             //Check that the values that are sent back are correct
             var headerValue = httpRequestChildMessage.Headers.First().Value.ToList();
             Assert.Equal($"{Constants.DfcSession}=sessionId1", headerValue.First());
-            httpRequestChildMessage.Dispose();
-            invoker.Dispose();
         }
 
         [Fact]
@@ -185,7 +179,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             httpContextAccessor.HttpContext.Session = new MockHttpSession();
 
             //Create a get request that is used to send data to the child app
-            var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            using var httpRequestChildMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             //Create handlers and set the inner handler
             handler = new CookieDelegatingHandler(httpContextAccessor, pathLocator, compositeDataProtectionDataProvider)
@@ -194,14 +188,12 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
             };
 
             //Act
-            var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            using var invoker = new HttpMessageInvoker(handler);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the values that are sent back are correct
             var headerValue = httpRequestChildMessage.Headers.Authorization;
             Assert.Equal("test", headerValue.Parameter);
-            httpRequestChildMessage.Dispose();
-            invoker.Dispose();
         }
     }
 }

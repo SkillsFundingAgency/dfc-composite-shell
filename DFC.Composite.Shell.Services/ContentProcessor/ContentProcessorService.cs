@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Services.UrlRewriter;
+using System;
 
 namespace DFC.Composite.Shell.Services.ContentProcessor
 {
@@ -11,9 +12,10 @@ namespace DFC.Composite.Shell.Services.ContentProcessor
             this.urlRewriterService = urlRewriterService;
         }
 
-        public string Process(string content, string requestBaseUrl, string applicationRootUrl)
+        public string Process(string content, Uri requestBaseUrl, Uri applicationRootUrl)
         {
-            return !string.IsNullOrWhiteSpace(content) ? urlRewriterService.Rewrite(content, requestBaseUrl, applicationRootUrl) : string.Empty;
+            return !string.IsNullOrWhiteSpace(content) ?
+                urlRewriterService.RewriteAttributes(content, requestBaseUrl, applicationRootUrl) : string.Empty;
         }
     }
 }

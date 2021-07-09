@@ -8,7 +8,7 @@ namespace DFC.Composite.Shell.Utilities
 {
     public class VersionedFiles : IVersionedFiles
     {
-        public VersionedFiles(WebchatOptions webchatOptions, IAppRegistryDataService appRegistryDataService)
+        public VersionedFiles(WebchatOptions webchatOptions, IAppRegistryService appRegistryDataService)
         {
             _ = webchatOptions ?? throw new ArgumentNullException(nameof(webchatOptions));
             _ = appRegistryDataService ?? throw new ArgumentNullException(nameof(appRegistryDataService));

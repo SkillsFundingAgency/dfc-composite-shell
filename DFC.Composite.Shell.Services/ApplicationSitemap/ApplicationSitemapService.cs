@@ -1,8 +1,7 @@
-﻿using DFC.Composite.Shell.Models.SitemapModels;
+﻿using DFC.Composite.Shell.Models.Sitemap;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,7 +23,11 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
             this.httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<SitemapLocation>> GetAsync(ApplicationSitemapModel model)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Design",
+            "CA1031:Do not catch general exception types",
+            Justification = "Existing swallow pattern")]
+        public async Task<ApplicationSitemapModel> EnrichAsync(ApplicationSitemapModel model)
         {
             if (model == null)
             {
@@ -33,51 +36,47 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
             try
             {
-                logger.LogInformation($"Getting Sitemap for: {model.Path}");
+                logger.LogInformation("Getting Sitemap for: {path}", model.Path);
 
-                var responseTask = await CallHttpClientXmlAsync<Sitemap>(model).ConfigureAwait(false);
-                return responseTask?.Locations;
+                var responseTask = await CallHttpClientXmlAsync<Sitemap>(model);
+                model.Data = responseTask?.Locations;
+
+                return model;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Exception getting Sitemap for: {model.Path}");
-
-                return null;
+                logger.LogError(ex, "Exception getting Sitemap for: {path}", model.Path);
+                return model;
             }
         }
 
         private async Task<T> CallHttpClientXmlAsync<T>(ApplicationSitemapModel model)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl))
+            using var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl);
+            if (!string.IsNullOrWhiteSpace(model.BearerToken))
             {
-                if (!string.IsNullOrWhiteSpace(model.BearerToken))
-                {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
-                }
-
-                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
-
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-                response.EnsureSuccessStatusCode();
-
-                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                if (string.IsNullOrWhiteSpace(responseString))
-                {
-                    return default;
-                }
-
-                var serializer = new XmlSerializer(typeof(T));
-                using (var reader = new StringReader(responseString))
-                {
-                    using (var xmlReader = XmlReader.Create(reader))
-                    {
-                        xmlReader.Read();
-                        return (T)serializer.Deserialize(xmlReader);
-                    }
-                }
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
             }
+
+            request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
+
+            var response = await httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(responseString))
+            {
+                return default;
+            }
+
+            using var reader = new StringReader(responseString);
+            using var xmlReader = XmlReader.Create(reader);
+
+            xmlReader.Read();
+
+            var serializer = new XmlSerializer(typeof(T));
+            return (T)serializer.Deserialize(xmlReader);
         }
     }
 }

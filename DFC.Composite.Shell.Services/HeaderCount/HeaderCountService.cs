@@ -6,14 +6,8 @@ namespace DFC.Composite.Shell.Services.HeaderCount
     {
         public int Count(string headerName)
         {
-            var result = int.MaxValue;
-
-            if (!string.IsNullOrWhiteSpace(headerName) && headerName == Constants.DfcSession)
-            {
-                result = 1;
-            }
-
-            return result;
+            var isDfcSession = headerName == Constants.DfcSession;
+            return isDfcSession ? 1 : int.MaxValue;
         }
     }
 }

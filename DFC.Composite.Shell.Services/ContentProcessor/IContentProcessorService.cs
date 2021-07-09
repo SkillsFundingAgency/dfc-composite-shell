@@ -1,7 +1,9 @@
-﻿namespace DFC.Composite.Shell.Services.ContentProcessor
+﻿using System;
+
+namespace DFC.Composite.Shell.Services.ContentProcessor
 {
     public interface IContentProcessorService
     {
-        string Process(string content, string requestBaseUrl, string applicationRootUrl);
+        string Process(string content, Uri requestBaseUrl, Uri applicationRootUrl);
     }
 }

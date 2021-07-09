@@ -16,23 +16,25 @@ namespace DFC.Composite.Shell.Extensions
                 throw new ArgumentNullException(nameof(controller));
             }
 
-            if (controller.Request.Headers.Keys.Contains(HeaderNames.Accept))
+            if (!controller.Request.Headers.Keys.Contains(HeaderNames.Accept))
             {
-                var acceptHeaders = controller.Request.Headers[HeaderNames.Accept].ToString().ToLowerInvariant().Split(';');
+                return controller.StatusCode((int)HttpStatusCode.NotAcceptable);
+            }
 
-                foreach (var acceptHeader in acceptHeaders)
+            var acceptHeaders = controller.Request.Headers[HeaderNames.Accept].ToString().Split(';');
+
+            foreach (var acceptHeader in acceptHeaders)
+            {
+                var items = acceptHeader.Split(',');
+
+                if (items.Contains(MediaTypeNames.Application.Json, StringComparer.OrdinalIgnoreCase))
                 {
-                    var items = acceptHeader.Split(',');
+                    return controller.Ok(dataModel ?? viewModel);
+                }
 
-                    if (items.Contains(MediaTypeNames.Application.Json))
-                    {
-                        return controller.Ok(dataModel ?? viewModel);
-                    }
-
-                    if (items.Contains(MediaTypeNames.Text.Html) || items.Contains("*/*"))
-                    {
-                        return controller.View(viewModel);
-                    }
+                if (items.Contains(MediaTypeNames.Text.Html, StringComparer.OrdinalIgnoreCase) || items.Contains("*/*"))
+                {
+                    return controller.View(viewModel);
                 }
             }
 

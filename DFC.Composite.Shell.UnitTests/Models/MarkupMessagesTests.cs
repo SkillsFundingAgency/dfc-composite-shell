@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.Enums;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.Models

@@ -15,8 +15,6 @@ namespace DFC.Composite.Shell.Views.Test.Services.ViewRenderer
         public RazorHtmlHelper Html { get; set; }
         public IViewComponentHelper Component { get; set; }
 
-        public void IgnoreSection(string sectionName)
-        {
-        }
+        public void IgnoreSection(string _) { }
     }
 }

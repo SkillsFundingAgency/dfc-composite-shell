@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models.AjaxApiModels;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AjaxApi;
+using DFC.Composite.Shell.Models.AppRegistration;
 using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -15,10 +15,13 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
     public class AjaxRequestService : IAjaxRequestService
     {
         private readonly ILogger<AjaxRequestService> logger;
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly HttpClient httpClient;
 
-        public AjaxRequestService(ILogger<AjaxRequestService> logger, IAppRegistryDataService appRegistryDataService, HttpClient httpClient)
+        public AjaxRequestService(
+            ILogger<AjaxRequestService> logger,
+            IAppRegistryService appRegistryDataService,
+            HttpClient httpClient)
         {
             this.logger = logger;
             this.appRegistryDataService = appRegistryDataService;
@@ -30,8 +33,11 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
             _ = requestModel ?? throw new ArgumentNullException(nameof(requestModel));
             _ = ajaxRequest ?? throw new ArgumentNullException(nameof(ajaxRequest));
 
-            var appData = string.IsNullOrWhiteSpace(requestModel.AppData) ? string.Empty : "/" + Uri.EscapeDataString(requestModel.AppData);
+            var appData = string.IsNullOrWhiteSpace(requestModel.AppData) ?
+                string.Empty : $"/{Uri.EscapeDataString(requestModel.AppData)}";
+
             var url = ajaxRequest.AjaxEndpoint.Replace("/{0}", $"{appData}", StringComparison.OrdinalIgnoreCase);
+
             var responseModel = new ResponseModel
             {
                 Status = HttpStatusCode.OK,
@@ -40,40 +46,46 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
                 OfflineHtml = ajaxRequest.OfflineHtml,
             };
 
-            logger.LogInformation($"Ajax request using: {url}");
+            logger.LogInformation("Ajax request using: {url}", url);
 
-            if (ajaxRequest.IsHealthy)
+            if (!ajaxRequest.IsHealthy)
             {
-                try
+                return responseModel;
+            }
+
+            try
+            {
+                httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Application.Json);
+
+                var response = await httpClient.GetAsync(new Uri(url, UriKind.Absolute));
+
+                responseModel.Status = response.StatusCode;
+                responseModel.StatusMessage = response.ReasonPhrase;
+
+                if (response.IsSuccessStatusCode)
                 {
-                    httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Application.Json);
-
-                    var response = await httpClient.GetAsync(new Uri(url, UriKind.Absolute)).ConfigureAwait(false);
-
-                    responseModel.Status = response.StatusCode;
-                    responseModel.StatusMessage = response.ReasonPhrase;
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        logger.LogInformation($"Ajax request successful: {url}");
-                        responseModel.Payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        responseModel.OfflineHtml = null;
-                    }
-                    else
-                    {
-                        logger.LogError($"Ajax request error: {responseModel.Status}: {responseModel.StatusMessage}, using: {url}");
-                    }
+                    logger.LogInformation("Ajax request successful: {url}", url);
+                    responseModel.Payload = await response.Content.ReadAsStringAsync();
+                    responseModel.OfflineHtml = null;
                 }
-                catch (BrokenCircuitException ex)
+                else
                 {
-                    logger.LogError(ex, $"BrokenCircuit: {url} - {ex.Message}");
+                    logger.LogError(
+                        "Ajax request error: {status}: {statusMessage}, using: {url}",
+                        responseModel.Status,
+                        responseModel.StatusMessage,
+                        url);
+                }
+            }
+            catch (BrokenCircuitException ex)
+            {
+                logger.LogError(ex, "BrokenCircuit: {url} - {message}", url, ex.Message);
 
-                    responseModel.IsHealthy = false;
+                responseModel.IsHealthy = false;
 
-                    if (ajaxRequest.HealthCheckRequired)
-                    {
-                        await appRegistryDataService.SetAjaxRequestHealthState(requestModel.Path, ajaxRequest.Name, false).ConfigureAwait(false);
-                    }
+                if (ajaxRequest.HealthCheckRequired)
+                {
+                    await appRegistryDataService.SetAjaxRequestHealthState(requestModel.Path, ajaxRequest.Name, false);
                 }
             }
 

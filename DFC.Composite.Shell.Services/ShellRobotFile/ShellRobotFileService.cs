@@ -15,12 +15,13 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
         public async Task<string> GetFileText(string webRootPath)
         {
             var shellRobotsFile = System.IO.Path.Combine(webRootPath, "StaticRobots.txt");
+
             if (!fileInfoHelper.FileExists(shellRobotsFile))
             {
                 return string.Empty;
             }
 
-            var shellRobotsText = await fileInfoHelper.ReadAllTextAsync(shellRobotsFile).ConfigureAwait(false);
+            var shellRobotsText = await fileInfoHelper.ReadAllTextAsync(shellRobotsFile);
             return !string.IsNullOrWhiteSpace(shellRobotsText) ? shellRobotsText : string.Empty;
         }
     }

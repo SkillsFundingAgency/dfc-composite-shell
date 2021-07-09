@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Enums;
 using DFC.Composite.Shell.Services.AppRegistry;
 using FakeItEasy;
 using System.Collections.Generic;
@@ -59,11 +59,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetPathsReturnsPathModelResults()
         {
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
-            var result = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
+            var result = await appRegistryDataService.GetAppRegistrationModels();
 
             Assert.Equal(appRegistrationModels, result);
         }
@@ -71,11 +71,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetPathReturnsFirstMatchingPathModelResult()
         {
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
-            var result = await appRegistryDataService.GetAppRegistrationModel("SecondFakePath").ConfigureAwait(false);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
+            var result = await appRegistryDataService.GetAppRegistrationModel("SecondFakePath");
 
             Assert.Equal(appRegistrationModels[1], result);
         }
@@ -83,11 +83,11 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetShellAppRegistrationModelReturnsSuccess()
         {
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
-            var result = await appRegistryDataService.GetShellAppRegistrationModel().ConfigureAwait(false);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
+            var result = await appRegistryDataService.GetShellAppRegistrationModel();
 
             Assert.Equal("shell", result.Path);
         }
@@ -96,14 +96,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task SetRegionHealthStateForValidRegionSuccess()
         {
             // Arrange
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
             A.CallTo(() => fakeAppRegistryService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, A<bool>.Ignored)).Returns(true);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
 
             // Act
-            await appRegistryDataService.SetRegionHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().Regions.First().PageRegion, true).ConfigureAwait(false);
+            await appRegistryDataService.SetRegionHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().Regions.First().PageRegion, true);
 
             // Assert
             A.CallTo(() => fakeAppRegistryService.GetPaths()).MustHaveHappenedOnceExactly();
@@ -114,13 +114,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task SetRegionHealthStateForInvalidRegionSuccess()
         {
             // Arrange
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
 
             // Act
-            await appRegistryDataService.SetRegionHealthState(appRegistrationModels.First().Path, PageRegion.Head, true).ConfigureAwait(false);
+            await appRegistryDataService.SetRegionHealthState(appRegistrationModels.First().Path, PageRegion.Head, true);
 
             // Assert
             A.CallTo(() => fakeAppRegistryService.GetPaths()).MustHaveHappenedOnceExactly();
@@ -131,14 +131,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task SetAjaxRequestHealthStateForValidAjaxRequestSuccess()
         {
             // Arrange
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
             A.CallTo(() => fakeAppRegistryService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).Returns(true);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
 
             // Act
-            await appRegistryDataService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().AjaxRequests.First().Name, true).ConfigureAwait(false);
+            await appRegistryDataService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().AjaxRequests.First().Name, true);
 
             // Assert
             A.CallTo(() => fakeAppRegistryService.GetPaths()).MustHaveHappenedOnceExactly();
@@ -149,13 +149,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task SetAjaxRequestHealthStateForInvalidAjaxRequestSuccess()
         {
             // Arrange
-            var fakeAppRegistryService = A.Fake<IAppRegistryService>();
+            var fakeAppRegistryService = A.Fake<IAppRegistryRequestService>();
             A.CallTo(() => fakeAppRegistryService.GetPaths()).Returns(appRegistrationModels);
 
-            var appRegistryDataService = new AppRegistryDataService(fakeAppRegistryService);
+            var appRegistryDataService = new AppRegistryService(fakeAppRegistryService);
 
             // Act
-            await appRegistryDataService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, "unknown", true).ConfigureAwait(false);
+            await appRegistryDataService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, "unknown", true);
 
             // Assert
             A.CallTo(() => fakeAppRegistryService.GetPaths()).MustHaveHappenedOnceExactly();

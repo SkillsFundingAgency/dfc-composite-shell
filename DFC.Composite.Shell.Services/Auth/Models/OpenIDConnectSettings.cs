@@ -1,5 +1,6 @@
 ﻿namespace DFC.Composite.Shell.Services.Auth.Models
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1056:Uri properties should not be strings", Justification = "External contract")]
     public class OpenIDConnectSettings
     {
         public string OIDCConfigMetaDataUrl { get; set; }

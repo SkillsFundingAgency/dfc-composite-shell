@@ -8,11 +8,12 @@ namespace DFC.Composite.Shell.ClientHandlers
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var headerName = "X-Dfc-Composite-Request";
+            const string CompositeRequestHeaderName = "X-Dfc-Composite-Request";
             var headerValue = request?.RequestUri?.AbsoluteUri;
-            if (request != null && !request.Headers.Contains(headerName) && !string.IsNullOrWhiteSpace(headerValue))
+
+            if (request?.Headers.Contains(CompositeRequestHeaderName) == false && !string.IsNullOrWhiteSpace(headerValue))
             {
-                request.Headers.Add(headerName, headerValue);
+                request.Headers.Add(CompositeRequestHeaderName, headerValue);
             }
 
             return base.SendAsync(request, cancellationToken);

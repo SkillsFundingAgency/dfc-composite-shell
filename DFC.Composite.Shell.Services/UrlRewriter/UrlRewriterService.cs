@@ -4,25 +4,24 @@ namespace DFC.Composite.Shell.Services.UrlRewriter
 {
     public class UrlRewriterService : IUrlRewriterService
     {
-        public string Rewrite(string content, string requestBaseUrl, string applicationRootUrl)
+        public string RewriteAttributes(string content, Uri requestBaseUrl, Uri applicationRootUrl)
         {
-            var attributeNames = new string[] { "href", "action" };
-            var quoteChars = new char[] { '"', '\'' };
+            var attributesThatCanBeRewritten = new string[] { "href", "action" };
+            var quoteCharacters = new char[] { '"', '\'' };
 
-            foreach (var attributeName in attributeNames)
+            foreach (var attribute in attributesThatCanBeRewritten)
             {
-                foreach (var quoteChar in quoteChars)
+                foreach (var quoteCharacter in quoteCharacters)
                 {
-                    var fromUrlPrefixes = new string[] { $@"{attributeName}={quoteChar}{applicationRootUrl}/" };
-                    var toUrlPrefix = $@"{attributeName}={quoteChar}{requestBaseUrl}/";
+                    var fromUrlPrefix = $"{attribute}={quoteCharacter}{applicationRootUrl}/";
+                    var toUrlPrefix = $"{attribute}={quoteCharacter}{requestBaseUrl}/";
 
-                    foreach (var fromUrlPrefix in fromUrlPrefixes)
+                    if (!content.Contains(fromUrlPrefix, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if (content.Contains(fromUrlPrefix, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            content = content.Replace(fromUrlPrefix, toUrlPrefix, StringComparison.InvariantCultureIgnoreCase);
-                        }
+                        continue;
                     }
+
+                    content = content.Replace(fromUrlPrefix, toUrlPrefix, StringComparison.InvariantCultureIgnoreCase);
                 }
             }
 

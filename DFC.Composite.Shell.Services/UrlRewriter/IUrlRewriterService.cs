@@ -1,7 +1,9 @@
-﻿namespace DFC.Composite.Shell.Services.UrlRewriter
+﻿using System;
+
+namespace DFC.Composite.Shell.Services.UrlRewriter
 {
     public interface IUrlRewriterService
     {
-        string Rewrite(string content, string requestBaseUrl, string applicationRootUrl);
+        string RewriteAttributes(string content, Uri requestBaseUrl, Uri applicationRootUrl);
     }
 }

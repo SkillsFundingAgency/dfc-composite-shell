@@ -5,6 +5,6 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 {
     public interface IApplicationRobotService
     {
-        Task<string> GetAsync(ApplicationRobotModel model);
+        Task<ApplicationRobotModel> EnrichAsync(ApplicationRobotModel model);
     }
 }

@@ -1,0 +1,36 @@
+﻿@{
+    if (IsSectionDefined("Head"))
+    {
+        RenderSection("Head", required: false);
+    }
+    if (IsSectionDefined("Breadcrumb"))
+    {
+        RenderSection("Breadcrumb", required: false);
+    }
+    if (IsSectionDefined("BodyTop"))
+    {
+        RenderSection("BodyTop", required: false);
+    }
+    if (IsSectionDefined("HeroBanner"))
+    {
+        RenderSection("HeroBanner", required: false);
+    }
+    if (IsSectionDefined("Body"))
+    {
+        RenderSection("Body", required: false);
+    }
+    if (IsSectionDefined("SideBarLeft"))
+    {
+        IgnoreSection("SideBarLeft");
+    }
+    if (IsSectionDefined("SideBarRight"))
+    {
+        IgnoreSection("SideBarRight");
+    }
+    if (IsSectionDefined("BodyFooter"))
+    {
+        RenderSection("BodyFooter", required: false);
+    }
+
+    RenderSection("Scripts", required: false);
+}

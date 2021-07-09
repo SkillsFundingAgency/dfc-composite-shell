@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace DFC.Composite.Shell.Services.Application
         /// <summary>
         /// Gets or sets the base url of the request.
         /// </summary>
-        string RequestBaseUrl { get; set; }
+        Uri RequestBaseUrl { get; set; }
 
         /// <summary>
         /// Gets the markup at the specified url and loads other related regions for the specified path.

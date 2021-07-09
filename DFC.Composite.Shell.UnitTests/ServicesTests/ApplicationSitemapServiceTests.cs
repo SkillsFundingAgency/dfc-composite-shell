@@ -1,7 +1,7 @@
-﻿using DFC.Composite.Shell.Models.SitemapModels;
+﻿using DFC.Composite.Shell.Models.Sitemap;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
-using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+using DFC.Composite.Shell.UnitTests.HttpClientService;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using System;
@@ -29,7 +29,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             const string DummySitemapLocation = "http://SomeSitemapLocation";
             var responseText = $"<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>{DummySitemapLocation}</loc><priority>1</priority></url></urlset>";
 
-            var httpResponse = new HttpResponseMessage
+            using var httpResponse = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(responseText),
@@ -38,21 +38,17 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
-            var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
+            using var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var logger = A.Fake<ILogger<ApplicationSitemapService>>();
-            var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyCDNUrl") };
+            using var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyCDNUrl") };
 
             var sitemapService = new ApplicationSitemapService(logger, httpClient);
             var model = new ApplicationSitemapModel { BearerToken = "SomeBearerToken" };
 
-            var result = await sitemapService.GetAsync(model).ConfigureAwait(false);
-            var resultLocations = result.Select(r => r.Url);
+            var result = await sitemapService.EnrichAsync(model);
+            var resultLocations = result.Data.Select(location => location.Url);
 
             Assert.Contains(DummySitemapLocation, resultLocations);
-
-            httpResponse.Dispose();
-            httpClient.Dispose();
-            fakeHttpMessageHandler.Dispose();
         }
 
         [Fact]
@@ -60,7 +56,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var sitemapService = new ApplicationSitemapService(defaultLogger, defaultHttpClient);
 
-            var result = await sitemapService.GetAsync(null).ConfigureAwait(false);
+            var result = await sitemapService.EnrichAsync(null);
 
             Assert.Null(result);
         }

@@ -1,6 +1,6 @@
 ﻿using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
-using DFC.Composite.Shell.Models.SitemapModels;
+using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Sitemap;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
@@ -8,7 +8,6 @@ using DFC.Composite.Shell.Services.TokenRetriever;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -32,11 +31,11 @@ namespace DFC.Composite.Shell.Test.Controllers
         private readonly IBearerTokenRetriever defaultTokenRetriever;
         private readonly IApplicationSitemapService defaultSitemapService;
         private readonly IBaseUrlService defaultBaseUrlService;
-        private readonly IAppRegistryDataService defaultAppRegistryDataService;
+        private readonly IAppRegistryService defaultAppRegistryDataService;
 
         public SitemapControllerTests()
         {
-            defaultAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            defaultAppRegistryDataService = A.Fake<IAppRegistryService>();
             defaultLogger = A.Fake<ILogger<SitemapController>>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
 
@@ -68,17 +67,21 @@ namespace DFC.Composite.Shell.Test.Controllers
             defaultTokenRetriever = A.Fake<IBearerTokenRetriever>();
             A.CallTo(() => defaultTokenRetriever.GetToken(A<HttpContext>.Ignored)).Returns("SomeToken");
 
-            A.CallTo(() => defaultBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored)).Returns("http://SomeBaseUrl");
+            A.CallTo(() => defaultBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored)).Returns(new Uri("http://SomeBaseUrl"));
 
             defaultSitemapService = A.Fake<IApplicationSitemapService>();
-            A.CallTo(() => defaultSitemapService.GetAsync(A<ApplicationSitemapModel>.Ignored))
-                .Returns(Task.FromResult<IEnumerable<SitemapLocation>>(new List<SitemapLocation>()
+            A.CallTo(() => defaultSitemapService.EnrichAsync(A<ApplicationSitemapModel>.Ignored))
+                .Returns(new ApplicationSitemapModel
                 {
-                    new SitemapLocation
+                    SitemapUrl = "http://example.org",
+                    Data = new List<SitemapLocation>()
                     {
-                        Url = "http://Sitemap.xml",
+                        new SitemapLocation
+                        {
+                            Url = "http://Sitemap.xml",
+                        },
                     },
-                }));
+                });
 
             defaultController = new SitemapController(defaultAppRegistryDataService, defaultLogger, defaultTokenRetriever, defaultBaseUrlService, defaultSitemapService)
             {
@@ -93,7 +96,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task SitemapControllerReturnsSuccess()
         {
-            var result = await defaultController.Sitemap().ConfigureAwait(false);
+            var result = await defaultController.Sitemap();
 
             Assert.True(!string.IsNullOrWhiteSpace(result.Content) && result.ContentType == MediaTypeNames.Application.Xml);
         }
@@ -112,26 +115,30 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            var shellAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            var shellAppRegistryDataService = A.Fake<IAppRegistryService>();
 
             A.CallTo(() => shellAppRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
 
             var applicationSitemapService = A.Fake<IApplicationSitemapService>();
-            A.CallTo(() => applicationSitemapService.GetAsync(A<ApplicationSitemapModel>.Ignored))
-                .Returns(Task.FromResult<IEnumerable<SitemapLocation>>(new List<SitemapLocation>()
+            A.CallTo(() => applicationSitemapService.EnrichAsync(A<ApplicationSitemapModel>.Ignored))
+                .Returns(new ApplicationSitemapModel
                 {
-                    new SitemapLocation
+                    SitemapUrl = "http://example.org",
+                    Data = new List<SitemapLocation>
                     {
-                        Url = $"{appBaseUrl}/test",
-                        Priority = 1,
+                        new SitemapLocation
+                        {
+                            Url = $"{appBaseUrl}/test",
+                            Priority = 1,
+                        },
                     },
-                }));
+                });
 
             var fakeBaseUrlService = A.Fake<IBaseUrlService>();
             A.CallTo(() => fakeBaseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
-                .Returns("http://SomeBaseUrl");
+                .Returns(new Uri("http://SomeBaseUrl"));
 
-            var sitemapController = new SitemapController(shellAppRegistryDataService, defaultLogger, defaultTokenRetriever, fakeBaseUrlService, applicationSitemapService)
+            using var sitemapController = new SitemapController(shellAppRegistryDataService, defaultLogger, defaultTokenRetriever, fakeBaseUrlService, applicationSitemapService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -140,11 +147,9 @@ namespace DFC.Composite.Shell.Test.Controllers
                 Url = defaultUrlHelper,
             };
 
-            var result = await sitemapController.Sitemap().ConfigureAwait(false);
+            var result = await sitemapController.Sitemap();
             Assert.DoesNotContain(appBaseUrl, result.Content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("http://SomeBaseUrl", result.Content, StringComparison.OrdinalIgnoreCase);
-
-            sitemapController.Dispose();
         }
     }
 }

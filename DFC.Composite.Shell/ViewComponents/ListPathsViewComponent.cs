@@ -7,22 +7,21 @@ namespace DFC.Composite.Shell.ViewComponents
 {
     public class ListPathsViewComponent : ViewComponent
     {
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
 
-        public ListPathsViewComponent(IAppRegistryDataService appRegistryDataService)
+        public ListPathsViewComponent(IAppRegistryService appRegistryDataService)
         {
             this.appRegistryDataService = appRegistryDataService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var vm = new ListPathsViewModel();
+            var viewMdel = new ListPathsViewModel();
 
-            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
+            viewMdel.AppRegistrationModels = appRegistrationModels.Where(model => !string.IsNullOrWhiteSpace(model.TopNavigationText));
 
-            vm.AppRegistrationModels = appRegistrationModels.Where(w => !string.IsNullOrWhiteSpace(w.TopNavigationText));
-
-            return View(vm);
+            return View(viewMdel);
         }
     }
 }

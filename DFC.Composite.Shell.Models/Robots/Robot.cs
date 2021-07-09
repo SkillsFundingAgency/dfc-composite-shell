@@ -5,14 +5,9 @@ namespace DFC.Composite.Shell.Models.Robots
 {
     public class Robot
     {
-        public Robot()
-        {
-            Lines = new List<string>();
-        }
-
         public string Data => string.Join(Environment.NewLine, Lines);
 
-        public List<string> Lines { get; }
+        public List<string> Lines { get; } = new List<string>();
 
         public void Add(string text)
         {

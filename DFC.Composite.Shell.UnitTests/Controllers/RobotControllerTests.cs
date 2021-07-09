@@ -1,5 +1,5 @@
 ﻿using DFC.Composite.Shell.Controllers;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Models.AppRegistration;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.AppRegistry;
@@ -31,7 +31,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
         private readonly RobotController defaultController;
         private readonly IShellRobotFileService defaultShellRobotFileService;
-        private readonly IAppRegistryDataService defaultAppRegistryDataService;
+        private readonly IAppRegistryService defaultAppRegistryDataService;
         private readonly ILogger<RobotController> defaultLogger;
         private readonly IWebHostEnvironment defaultWebHostEnvironment;
         private readonly HttpContext defaultHttpContext;
@@ -42,7 +42,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
         public RobotControllerTests()
         {
-            defaultAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            defaultAppRegistryDataService = A.Fake<IAppRegistryService>();
             defaultLogger = A.Fake<ILogger<RobotController>>();
             defaultWebHostEnvironment = A.Fake<IWebHostEnvironment>();
             defaultBaseUrlService = A.Fake<IBaseUrlService>();
@@ -78,7 +78,8 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => defaultTokenRetriever.GetToken(A<HttpContext>.Ignored)).Returns("SomeToken");
 
             defaultApplicationRobotService = A.Fake<IApplicationRobotService>();
-            A.CallTo(() => defaultApplicationRobotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns("RetrievedValue: SomeValue");
+            A.CallTo(() => defaultApplicationRobotService.EnrichAsync(A<ApplicationRobotModel>.Ignored))
+                .Returns(new ApplicationRobotModel { RobotsURL = "http://example.org", Data = "RetrievedValue: SomeValue" });
 
             defaultShellRobotFileService = A.Fake<IShellRobotFileService>();
 
@@ -101,7 +102,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task RobotsControllerReturnsSuccess()
         {
-            var result = await defaultController.Robot().ConfigureAwait(false);
+            var result = await defaultController.Robot();
 
             Assert.True(!string.IsNullOrWhiteSpace(result.Content) && result.ContentType == MediaTypeNames.Text.Plain);
         }
@@ -113,7 +114,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             A.CallTo(() => defaultShellRobotFileService.GetFileText(A<string>.Ignored)).Returns(SomeShellFileText);
 
-            var result = await defaultController.Robot().ConfigureAwait(false);
+            var result = await defaultController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.Equal(resultLines[0], SomeShellFileText);
@@ -124,7 +125,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             var expectedResult = $"Sitemap: {DummyScheme}://{DummyHost}{DummySitemapUrl}";
 
-            var result = await defaultController.Robot().ConfigureAwait(false);
+            var result = await defaultController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.Equal(resultLines[1], expectedResult);
@@ -135,9 +136,10 @@ namespace DFC.Composite.Shell.Test.Controllers
         public async Task RobotsControllerRemovesUserAgentSegmentFromRobotText(string segmentToSkip)
         {
             var applicationRobotService = A.Fake<IApplicationRobotService>();
-            A.CallTo(() => applicationRobotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"{segmentToSkip}: Dummy text value");
+            A.CallTo(() => applicationRobotService.EnrichAsync(A<ApplicationRobotModel>.Ignored))
+                .Returns(new ApplicationRobotModel { RobotsURL = "http://example.org", Data = $"{segmentToSkip}: Dummy text value" });
 
-            var robotController = new RobotController(defaultAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, applicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
+            using var robotController = new RobotController(defaultAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, applicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -146,11 +148,10 @@ namespace DFC.Composite.Shell.Test.Controllers
                 Url = defaultUrlHelper,
             };
 
-            var result = await robotController.Robot().ConfigureAwait(false);
+            var result = await robotController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.DoesNotContain(segmentToSkip, resultLines.ToList());
-            robotController.Dispose();
         }
 
         [Fact]
@@ -167,14 +168,15 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            var shellAppRegistryDataService = A.Fake<IAppRegistryDataService>();
+            var shellAppRegistryDataService = A.Fake<IAppRegistryService>();
 
             A.CallTo(() => shellAppRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
 
             var robotService = A.Fake<IApplicationRobotService>();
-            A.CallTo(() => robotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns($"RetrievedValue: {appBaseUrl}/test");
+            A.CallTo(() => robotService.EnrichAsync(A<ApplicationRobotModel>.Ignored))
+                .Returns(new ApplicationRobotModel { RobotsURL = "http://example.org", Data = $"RetrievedValue: {appBaseUrl}/test" });
 
-            var robotController = new RobotController(shellAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, robotService, defaultShellRobotFileService, defaultBaseUrlService)
+            using var robotController = new RobotController(shellAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, robotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -183,11 +185,10 @@ namespace DFC.Composite.Shell.Test.Controllers
                 Url = defaultUrlHelper,
             };
 
-            var result = await robotController.Robot().ConfigureAwait(false);
+            var result = await robotController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.DoesNotContain("http://appBaseUrl", resultLines.ToList());
-            robotController.Dispose();
         }
     }
 }

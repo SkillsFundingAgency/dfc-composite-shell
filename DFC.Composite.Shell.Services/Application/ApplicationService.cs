@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Enums;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
-using DFC.Composite.Shell.Services.Utilities;
 using Microsoft.AspNetCore.Html;
 using System;
 using System.Collections.Generic;
@@ -15,140 +15,99 @@ namespace DFC.Composite.Shell.Services.Application
 {
     public class ApplicationService : IApplicationService
     {
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessorService;
-        private readonly ITaskHelper taskHelper;
         private readonly MarkupMessages markupMessages;
 
         public ApplicationService(
-            IAppRegistryDataService appRegistryDataService,
+            IAppRegistryService appRegistryDataService,
             IContentRetriever contentRetriever,
             IContentProcessorService contentProcessorService,
-            ITaskHelper taskHelper,
             MarkupMessages markupMessages)
         {
             this.appRegistryDataService = appRegistryDataService;
             this.contentRetriever = contentRetriever;
             this.contentProcessorService = contentProcessorService;
-            this.taskHelper = taskHelper;
             this.markupMessages = markupMessages;
         }
 
-        public string RequestBaseUrl { get; set; }
+        /// <inheritdoc/>
+        public Uri RequestBaseUrl { get; set; }
 
+        /// <inheritdoc/>
         public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string queryString)
         {
-            if (application == null)
+            _ = application ?? throw new ArgumentNullException(nameof(application));
+            _ = pageModel ?? throw new ArgumentNullException(nameof(pageModel));
+
+            try
             {
-                throw new ArgumentNullException(nameof(application));
-            }
-
-            if (pageModel == null)
-            {
-                throw new ArgumentNullException(nameof(pageModel));
-            }
-
-            if (application.AppRegistrationModel.IsOnline)
-            {
-                //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString);
-
-                //Wait until everything is done
-                await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
-
-                //Get the markup at this url
-                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, queryString);
-
-                await Task.WhenAll(applicationBodyRegionTask).ConfigureAwait(false);
-
-                //Ensure that the application body markup is attached to the model
-                PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
-            }
-            else
-            {
-                var pageRegionContentModel = pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
-
-                if (pageRegionContentModel != null)
+                if (!application.AppRegistrationModel.IsOnline)
                 {
-                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
+                    SetBodyOffline(application, pageModel);
+                    return;
                 }
+
+                var bodyRegion = GetBodyMarkupAsync(application, queryString);
+                await GetAndPopulateAdditionalMarkupAsync(application, pageModel, queryString);
+
+                PopulatePageRegionContent(application, pageModel, PageRegion.Body, await bodyRegion);
+            }
+            catch
+            {
+                SetBodyOffline(application, pageModel);
+                throw;
             }
         }
 
-        public async Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
+        /// <inheritdoc/>
+        public async Task PostMarkupAsync(
+            ApplicationModel application,
+            IEnumerable<KeyValuePair<string, string>> formParameters,
+            PageViewModel pageModel)
         {
-            if (application != null && application.AppRegistrationModel.IsOnline)
+            _ = pageModel ?? throw new ArgumentNullException(nameof(pageModel));
+
+            if (application?.AppRegistrationModel.IsOnline != true)
             {
-                //Get the markup at the post back url
-                var applicationBodyRegionTask = GetPostMarkUpAsync(application, formParameters);
-
-                //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
-
-                //Wait until everything is done
-                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
-
-                //Ensure that the application body markup is attached to the model
-                PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
-            }
-            else
-            {
-                var pageRegionContentModel = pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Body);
+                var pageRegionContentModel = pageModel.PageRegionContentModels
+                    .First(region => region.PageRegionType == PageRegion.Body);
 
                 if (pageRegionContentModel != null)
                 {
-                    pageRegionContentModel.Content = new HtmlString(!string.IsNullOrWhiteSpace(application?.AppRegistrationModel.OfflineHtml) ? application.AppRegistrationModel.OfflineHtml : markupMessages.AppOfflineHtml);
+                    pageRegionContentModel.Content = GetOfflineHtml(application);
                 }
+
+                return;
             }
+
+            var bodyHtml = GetPostedBodyMarkupAsync(application, formParameters);
+            await GetAndPopulateAdditionalMarkupAsync(application, pageModel);
+
+            PopulatePageRegionContent(application, pageModel, PageRegion.Body, await bodyHtml);
         }
 
+        /// <inheritdoc/>
         public async Task<ApplicationModel> GetApplicationAsync(ActionGetRequestModel data)
         {
-            var applicationModel = await DetermineArticleLocation(data).ConfigureAwait(false);
+            _ = data ?? throw new ArgumentNullException(nameof(data));
+            var applicationModel = await DetermineArticleLocation(data);
 
-            if (applicationModel.AppRegistrationModel == null)
+            if (applicationModel?.AppRegistrationModel == null)
             {
                 return applicationModel;
             }
 
-            var bodyRegion = applicationModel.AppRegistrationModel.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = applicationModel.AppRegistrationModel.Regions?
+                .FirstOrDefault(region => region.PageRegion == PageRegion.Body);
 
-            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            if (string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint) == false)
             {
                 var uri = new Uri(bodyRegion.RegionEndpoint);
-                var url = $"{uri.Scheme}://{uri.Authority}";
+                var url = new Uri($"{uri.Scheme}://{uri.Authority}");
 
                 applicationModel.RootUrl = url;
-            }
-
-            return applicationModel;
-        }
-
-        private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
-        {
-            const string appRegistryPathNameForPagesApp = "pages";
-            var pageLocation = string.Join("/", new[] { data.Path, data.Data });
-            var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
-            var article = string.Join("/", pageLocations);
-            var applicationModel = new ApplicationModel();
-            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp).ConfigureAwait(false);
-
-            if (pagesAppRegistrationModel?.PageLocations != null && pagesAppRegistrationModel.PageLocations.Values.SelectMany(s => s.Locations).Contains("/" + article))
-            {
-                applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
-                applicationModel.Article = article;
-            }
-
-            if (applicationModel.AppRegistrationModel == null)
-            {
-                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article).ConfigureAwait(false) ??
-                                                        await appRegistryDataService.GetAppRegistrationModel(data.Path).ConfigureAwait(false);
-
-                if (applicationModel.AppRegistrationModel != null)
-                {
-                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length ? article.Substring(applicationModel.AppRegistrationModel.Path.Length + 1) : null;
-                }
             }
 
             return applicationModel;
@@ -167,7 +126,7 @@ namespace DFC.Composite.Shell.Services.Application
                 urlFormatString += SlashedPlaceholder;
             }
 
-            if (!string.IsNullOrWhiteSpace(queryString) && queryString.TrimStart().StartsWith('?'))
+            if (queryString?.TrimStart().StartsWith('?') == true)
             {
                 urlFormatString += QueryStringPlaceholder;
             }
@@ -179,123 +138,184 @@ namespace DFC.Composite.Shell.Services.Application
                     .Replace(QueryStringPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString)
+        private void SetBodyOffline(ApplicationModel application, PageViewModel pageModel)
         {
-            //Get the body region
-            var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var pageRegionContentModel = pageModel.PageRegionContentModels?
+                .SingleOrDefault(regionContent => regionContent.PageRegionType == PageRegion.Body);
 
-            if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            if (pageRegionContentModel == null)
+            {
+                return;
+            }
+
+            pageRegionContentModel.Content = GetOfflineHtml(application);
+        }
+
+        private HtmlString GetOfflineHtml(ApplicationModel application)
+        {
+            return new HtmlString(!string.IsNullOrWhiteSpace(application.AppRegistrationModel.OfflineHtml)
+                ? application.AppRegistrationModel.OfflineHtml
+                    : markupMessages.AppOfflineHtml);
+        }
+
+        private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
+        {
+            const string appRegistryPathNameForPagesApp = "pages";
+
+            var pageLocation = string.Join("/", new[] { data.Path, data.Data });
+            var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
+            var article = string.Join("/", pageLocations);
+            var applicationModel = new ApplicationModel();
+
+            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp);
+            var locationsContainsArticle = pagesAppRegistrationModel?.PageLocations?.Values
+                .SelectMany(pageLocation => pageLocation.Locations)
+                .Contains($"/{article}") == true;
+
+            if (locationsContainsArticle)
+            {
+                applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
+                applicationModel.Article = article;
+            }
+
+            if (applicationModel.AppRegistrationModel == null)
+            {
+                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article) ??
+                    await appRegistryDataService.GetAppRegistrationModel(data.Path);
+
+                if (applicationModel.AppRegistrationModel != null)
+                {
+                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length
+                        ? article[(applicationModel.AppRegistrationModel.Path.Length + 1) ..] : null;
+                }
+            }
+
+            return applicationModel;
+        }
+
+        private Task<string> GetBodyMarkupAsync(ApplicationModel application, string queryString)
+        {
+            var bodyRegion = application.AppRegistrationModel.Regions?.FirstOrDefault(region => region.PageRegion == PageRegion.Body);
+
+            if (string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
             {
                 return Task.FromResult(string.Empty);
             }
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, application.Article, queryString);
-
-            return contentRetriever.GetContent(url, application.AppRegistrationModel.Path, bodyRegion, false, RequestBaseUrl);
+            return contentRetriever.GetContentAsync(url, application.AppRegistrationModel.Path, bodyRegion, false, RequestBaseUrl);
         }
 
-        private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article, string queryString)
+        private async Task<string> GetMarkupAsync(
+            ApplicationModel application,
+            RegionModel regionModel,
+            string article,
+            string queryString)
         {
+            if (string.IsNullOrEmpty(regionModel?.RegionEndpoint))
+            {
+                return null;
+            }
+
             var url = FormatArticleUrl(regionModel.RegionEndpoint, article, queryString);
+            var html = await contentRetriever.GetContentAsync(
+                url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl);
 
-            var result = await contentRetriever.GetContent(url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
-
-            return contentProcessorService.Process(result, RequestBaseUrl, application.RootUrl);
+            return contentProcessorService.Process(html, RequestBaseUrl, application.RootUrl);
         }
 
-        private Task<string> GetPostMarkUpAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters)
+        private Task<string> GetPostedBodyMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters)
         {
-            //Get the body region
-            var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = application.AppRegistrationModel.Regions?.FirstOrDefault(region => region.PageRegion == PageRegion.Body);
 
-            if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            if (string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
             {
                 return Task.FromResult(string.Empty);
             }
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, application.Article, string.Empty);
-
-            return contentRetriever.PostContent(url, application.AppRegistrationModel.Path, bodyRegion, formParameters, RequestBaseUrl);
+            return contentRetriever.PostContentAsync(url, application.AppRegistrationModel.Path, bodyRegion, formParameters, RequestBaseUrl);
         }
 
-        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string queryString)
+        private async Task GetAndPopulateAdditionalMarkupAsync(ApplicationModel application, PageViewModel pageModel, string queryString = "")
         {
-            //Get the markup at the head url first. This will create the session if it doesn't already exist
-            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), application.Article, queryString).ConfigureAwait(false);
-            pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
+            // This will create the session if it doesn't already exist
+            var headMarkup = await GetMarkupAsync(
+                application,
+                application.AppRegistrationModel?.Regions?.SingleOrDefault(region => region.PageRegion == PageRegion.Head),
+                application.Article,
+                queryString);
 
-            var tasks = new List<Task<string>>();
+            var outputModelHead = pageModel.PageRegionContentModels?
+                .SingleOrDefault(regionContent => regionContent.PageRegionType == PageRegion.Head);
 
-            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, application.Article, queryString);
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            PopulatePageRegionContent(application, pageModel, PageRegion.HeroBanner, heroBannerRegionTask);
-            PopulatePageRegionContent(application, pageModel, PageRegion.Breadcrumb, breadcrumbRegionTask);
-            PopulatePageRegionContent(application, pageModel, PageRegion.BodyTop, bodyTopRegionTask);
-            PopulatePageRegionContent(application, pageModel, PageRegion.SidebarLeft, sidebarLeftRegionTask);
-            PopulatePageRegionContent(application, pageModel, PageRegion.SidebarRight, sidebarRightRegionTask);
-            PopulatePageRegionContent(application, pageModel, PageRegion.BodyFooter, bodyFooterRegionTask);
-        }
-
-        private Task<string> GetMarkup(List<Task<string>> tasks, string path, PageRegion regionType, IEnumerable<RegionModel> regions, string article, string queryString)
-        {
-            var pageRegionModel = regions.FirstOrDefault(x => x.PageRegion == regionType);
-
-            if (pageRegionModel == null || string.IsNullOrWhiteSpace(pageRegionModel.RegionEndpoint))
-            {
-                return Task.FromResult<string>(null);
-            }
-
-            if (!pageRegionModel.IsHealthy)
-            {
-                return Task.FromResult(!string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml) ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion));
-            }
-
-            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, queryString);
-
-            var task = contentRetriever.GetContent(url, path, pageRegionModel, true, RequestBaseUrl);
-
-            tasks.Add(task);
-
-            return task;
-        }
-
-        private void PopulatePageRegionContent(ApplicationModel application, PageViewModel pageModel, PageRegion regionType, Task<string> task)
-        {
-            if (task == null)
+            if (outputModelHead == null)
             {
                 return;
             }
 
-            string outputHtmlMarkup = string.Empty;
+            outputModelHead.Content = new HtmlString(headMarkup);
 
-            if (taskHelper.TaskCompletedSuccessfully(task))
+            var path = application.AppRegistrationModel.Path;
+            var regions = application.AppRegistrationModel.Regions;
+
+            if (regions?.Any() != true)
             {
-                var taskResult = task.Result;
-                var result = contentProcessorService.Process(taskResult, RequestBaseUrl, application.RootUrl);
-                outputHtmlMarkup = result;
-            }
-            else
-            {
-                var pageRegionModel = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == regionType);
-                if (pageRegionModel != null)
-                {
-                    outputHtmlMarkup = !string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml) ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion);
-                }
+                return;
             }
 
-            var pageRegionContentModel = pageModel.PageRegionContentModels.FirstOrDefault(x => x.PageRegionType == regionType);
+            var getMarkupTasks = Enum.GetValues(typeof(PageRegion))
+                .Cast<PageRegion>()
+                .Where(regionType => regionType != PageRegion.Head && regionType != PageRegion.Body)
+                .Select(regionType => GetMarkupAsync(path, regionType, regions, application.Article, queryString));
 
-            if (pageRegionContentModel != null)
+            foreach (var getMarkupTask in getMarkupTasks)
             {
-                pageRegionContentModel.Content = new HtmlString(outputHtmlMarkup);
+                var (regionType, markup) = await getMarkupTask;
+                PopulatePageRegionContent(application, pageModel, regionType, markup);
             }
+        }
+
+        private async Task<(PageRegion regionType, string markup)> GetMarkupAsync(
+            string path,
+            PageRegion regionType,
+            IEnumerable<RegionModel> regions,
+            string article,
+            string queryString)
+        {
+            var pageRegionModel = regions.FirstOrDefault(region => region.PageRegion == regionType);
+
+            if (string.IsNullOrWhiteSpace(pageRegionModel?.RegionEndpoint))
+            {
+                return (regionType, null);
+            }
+
+            if (!pageRegionModel.IsHealthy)
+            {
+                var offlineMarkup = !string.IsNullOrWhiteSpace(pageRegionModel.OfflineHtml)
+                    ? pageRegionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(pageRegionModel.PageRegion);
+
+                return (regionType, offlineMarkup);
+            }
+
+            var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, queryString);
+            var html = await contentRetriever.GetContentAsync(url, path, pageRegionModel, true, RequestBaseUrl);
+
+            return (regionType, html);
+        }
+
+        private void PopulatePageRegionContent(ApplicationModel application, PageViewModel pageModel, PageRegion regionType, string markup)
+        {
+            var pageRegionContentModel = pageModel.PageRegionContentModels?
+                .FirstOrDefault(region => region.PageRegionType == regionType);
+
+            if (pageRegionContentModel == null)
+            {
+                return;
+            }
+
+            var outputHtmlMarkup = contentProcessorService.Process(markup, RequestBaseUrl, application.RootUrl);
+            pageRegionContentModel.Content ??= new HtmlString(outputHtmlMarkup);
         }
     }
 }

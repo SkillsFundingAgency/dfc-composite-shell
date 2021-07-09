@@ -20,7 +20,10 @@ namespace DFC.Composite.Shell.Services.Auth
         private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
         private readonly SecurityTokenHandler tokenHandler;
 
-        public AzureB2CAuthClient(IOptions<OpenIDConnectSettings> settings, SecurityTokenHandler securityTokenHandler, IConfigurationManager<OpenIdConnectConfiguration> configurationManager)
+        public AzureB2CAuthClient(
+            IOptions<OpenIDConnectSettings> settings,
+            SecurityTokenHandler securityTokenHandler,
+            IConfigurationManager<OpenIdConnectConfiguration> configurationManager)
         {
             if (settings == null)
             {
@@ -34,44 +37,48 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public async Task<string> GetRegisterUrl()
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
-            var queryParams = new Dictionary<string, string>();
-            queryParams.Add("p", "B2C_1A_account_signup");
-            queryParams.Add("client_id", settings.ClientId);
-            queryParams.Add("nonce", "defaultNonce");
-            queryParams.Add("redirect_uri", settings.RedirectUrl);
-            queryParams.Add("scope", "openid");
-            queryParams.Add("response_type", "id_token");
-            queryParams.Add("prompt", "login");
-            string registerUrl = QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
+            var queryParams = new Dictionary<string, string>
+            {
+                { "p", "B2C_1A_account_signup" },
+                { "client_id", settings.ClientId },
+                { "nonce", "defaultNonce" },
+                { "redirect_uri", settings.RedirectUrl },
+                { "scope", "openid" },
+                { "response_type", "id_token" },
+                { "prompt", "login" },
+            };
 
-            return registerUrl;
+            return QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
         }
 
-        public async Task<string> GetSignInUrl()
+        public Task<string> GetSignInUrl()
         {
-            return await GetAuthEndpoint(SignInRequestType).ConfigureAwait(false);
+            return GetAuthEndpoint(SignInRequestType);
         }
 
-        public async Task<string> GetResetPasswordUrl()
+        public Task<string> GetResetPasswordUrl()
         {
-            return await GetAuthEndpoint(PasswordResetRequestType).ConfigureAwait(false);
+            return GetAuthEndpoint(PasswordResetRequestType);
         }
 
         public async Task<string> GetSignOutUrl(string redirectUrl)
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
-            var queryParams = new Dictionary<string, string>();
-            queryParams.Add("client_id", settings.ClientId);
-            queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl);
-            string registerUrl = QueryHelpers.AddQueryString(configDoc.EndSessionEndpoint, queryParams);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
+            var queryParams = new Dictionary<string, string>
+            {
+                { "client_id", settings.ClientId },
+                { "post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl },
+            };
+
+            var registerUrl = QueryHelpers.AddQueryString(configDoc.EndSessionEndpoint, queryParams);
 
             return registerUrl;
         }
 
         public async Task<JwtSecurityToken> ValidateToken(string token)
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
             return ValidateToken(token, configDoc);
         }
 
@@ -82,25 +89,23 @@ namespace DFC.Composite.Shell.Services.Auth
 
         private async Task<string> GetAuthEndpoint(string requestType)
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
-            var queryParams = new Dictionary<string, string>();
-            queryParams.Add("p", requestType);
-            queryParams.Add("client_id", settings.ClientId);
-            queryParams.Add("nonce", "defaultNonce");
-            queryParams.Add("redirect_uri", settings.RedirectUrl);
-            queryParams.Add("scope", "openid");
-            queryParams.Add("response_type", "id_token");
-            queryParams.Add("response_mode", "query");
-            queryParams.Add("prompt", "login");
-            string registerUrl = QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
+            var queryParams = new Dictionary<string, string>
+            {
+                { "p", requestType },
+                { "client_id", settings.ClientId },
+                { "nonce", "defaultNonce" },
+                { "redirect_uri", settings.RedirectUrl },
+                { "scope", "openid" },
+                { "response_type", "id_token" },
+                { "response_mode", "query" },
+                { "prompt", "login" },
+            };
 
-            return registerUrl;
+            return QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
         }
 
-        private JwtSecurityToken ValidateToken(
-            string token,
-            OpenIdConnectConfiguration discoveryDocument,
-            CancellationToken ct = default(CancellationToken))
+        private JwtSecurityToken ValidateToken(string token, OpenIdConnectConfiguration discoveryDocument)
         {
             var signingKeys = discoveryDocument.SigningKeys;
 
@@ -118,7 +123,6 @@ namespace DFC.Composite.Shell.Services.Auth
             };
 
             tokenHandler.ValidateToken(token, validationParameters, out var rawValidatedToken);
-
             return (JwtSecurityToken)rawValidatedToken;
         }
     }

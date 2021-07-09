@@ -21,31 +21,46 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            const string xForwardedProto = "X-Forwarded-Proto";
-            const string xOriginalHost = "X-Original-Host";
+            const string xForwardedProtoHeader = "X-Forwarded-Proto";
+            const string xOriginalHostHeader = "X-Original-Host";
 
-            if (request != null)
+            if (request == null)
             {
-                httpContextAccessor.HttpContext.Request.Headers.TryGetValue(xForwardedProto, out var xForwardedProtoValue);
-
-                if (string.IsNullOrWhiteSpace(xForwardedProtoValue))
-                {
-                    xForwardedProtoValue = httpContextAccessor.HttpContext.Request.Scheme;
-                }
-
-                request.Headers.Add(xForwardedProto, xForwardedProtoValue.ToString());
-                logger.Log(LogLevel.Information, $"Added Forwarded Proto header with name {xForwardedProto} and value {xForwardedProtoValue}");
-
-                httpContextAccessor.HttpContext.Request.Headers.TryGetValue(xOriginalHost, out var xOriginalHostValue);
-
-                if (string.IsNullOrWhiteSpace(xOriginalHostValue))
-                {
-                    xOriginalHostValue = httpContextAccessor.HttpContext.Request.Host.Value;
-                }
-
-                request.Headers.Add(xOriginalHost, xOriginalHostValue.ToString());
-                logger.Log(LogLevel.Information, $"Added Original Host header with name {xOriginalHost} and value {xOriginalHostValue}");
+                return base.SendAsync(request, cancellationToken);
             }
+
+            var httpContext = httpContextAccessor.HttpContext;
+
+            if (httpContext == null)
+            {
+                return base.SendAsync(request, cancellationToken);
+            }
+
+            httpContext.Request.Headers.TryGetValue(xForwardedProtoHeader, out var xForwardedProtoValue);
+
+            if (string.IsNullOrWhiteSpace(xForwardedProtoValue))
+            {
+                xForwardedProtoValue = httpContext.Request.Scheme;
+            }
+
+            request.Headers.Add(xForwardedProtoHeader, xForwardedProtoValue.ToString());
+            logger.LogInformation(
+                "Added Forwarded Proto header with name {xForwardedProtoHeader} and value {xForwardedProtoValue}",
+                xForwardedProtoHeader,
+                xForwardedProtoValue);
+
+            httpContext.Request.Headers.TryGetValue(xOriginalHostHeader, out var xOriginalHostValue);
+
+            if (string.IsNullOrWhiteSpace(xOriginalHostValue))
+            {
+                xOriginalHostValue = httpContext.Request.Host.Value;
+            }
+
+            request.Headers.Add(xOriginalHostHeader, xOriginalHostValue.ToString());
+            logger.LogInformation(
+                "Added Original Host header with name {xOriginalHostHeader} and value {xOriginalHostValue}",
+                xOriginalHostHeader,
+                xOriginalHostValue);
 
             return base.SendAsync(request, cancellationToken);
         }

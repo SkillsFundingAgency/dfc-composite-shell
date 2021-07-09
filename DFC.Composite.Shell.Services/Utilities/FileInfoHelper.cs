@@ -17,9 +17,9 @@ namespace DFC.Composite.Shell.Services.Utilities
             return new FileStream(fileName, FileMode.Open, FileAccess.Read);
         }
 
-        public async Task<string> ReadAllTextAsync(string file)
+        public Task<string> ReadAllTextAsync(string file)
         {
-            return await File.ReadAllTextAsync(file).ConfigureAwait(false);
+            return File.ReadAllTextAsync(file);
         }
     }
 }

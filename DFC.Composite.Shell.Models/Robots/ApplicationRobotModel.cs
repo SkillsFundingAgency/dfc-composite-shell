@@ -10,6 +10,6 @@ namespace DFC.Composite.Shell.Models.Robots
 
         public string RobotsURL { get; set; }
 
-        public Task<string> RetrievalTask { get; set; }
+        public string Data { get; set; }
     }
 }

@@ -22,7 +22,10 @@ namespace DFC.Composite.Shell.ClientHandlers
         private readonly IPathLocator pathLocator;
         private readonly ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider;
 
-        public CookieDelegatingHandler(IHttpContextAccessor httpContextAccessor, IPathLocator pathLocator, ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider)
+        public CookieDelegatingHandler(
+            IHttpContextAccessor httpContextAccessor,
+            IPathLocator pathLocator,
+            ICompositeDataProtectionDataProvider compositeDataProtectionDataProvider)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.pathLocator = pathLocator;
@@ -48,9 +51,10 @@ namespace DFC.Composite.Shell.ClientHandlers
         private static string GetCookieKey(string prefix, string value)
         {
             var result = value.Split('=').First();
+
             if (result.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
-                result = result.Substring(prefix.Length);
+                result = result[prefix.Length..];
             }
 
             return result;
@@ -71,6 +75,7 @@ namespace DFC.Composite.Shell.ClientHandlers
             var segments = value.Split('=');
             var segment = segments.FirstOrDefault();
             var result = segment.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || segment == Constants.DfcSession;
+
             return result;
         }
 
@@ -78,9 +83,10 @@ namespace DFC.Composite.Shell.ClientHandlers
         {
             var result = string.Empty;
             var startPosition = value.IndexOf("=", StringComparison.OrdinalIgnoreCase);
+
             if (startPosition != -1)
             {
-                result = value.Substring(startPosition + 1);
+                result = value[(startPosition + 1) ..];
                 result = Uri.UnescapeDataString(result);
             }
 
@@ -96,27 +102,33 @@ namespace DFC.Composite.Shell.ClientHandlers
         {
             foreach (var sourceHeader in sourceHeaders)
             {
-                if (ShouldAddHeader(sourceHeader.Key) && !destinationHeaders.Contains(sourceHeader.Key))
+                if (!ShouldAddHeader(sourceHeader.Key) || destinationHeaders.Contains(sourceHeader.Key))
                 {
-                    var sourceHeaderValues = sourceHeader.Value.First().Split(';');
-                    var cookieValues = new List<string>();
-                    foreach (var sourceHeaderValue in sourceHeaderValues)
-                    {
-                        var sourceHeaderValueTrimmed = sourceHeaderValue.Trim();
-                        if (ShouldAddCookie(prefix, sourceHeaderValueTrimmed))
-                        {
-                            var cookieKey = GetCookieKey(prefix, sourceHeaderValueTrimmed);
-                            var cookieValue = GetCookieValue(cookieKey, sourceHeaderValueTrimmed);
+                    continue;
+                }
 
-                            cookieValue = $"{cookieKey}={cookieValue}";
-                            cookieValues.Add(cookieValue);
-                        }
+                var sourceHeaderValues = sourceHeader.Value.First().Split(';');
+                var cookieValues = new List<string>();
+
+                foreach (var sourceHeaderValue in sourceHeaderValues)
+                {
+                    var sourceHeaderValueTrimmed = sourceHeaderValue.Trim();
+
+                    if (!ShouldAddCookie(prefix, sourceHeaderValueTrimmed))
+                    {
+                        continue;
                     }
 
-                    if (cookieValues.Any())
-                    {
-                        destinationHeaders.Add(HeaderNames.Cookie, cookieValues);
-                    }
+                    var cookieKey = GetCookieKey(prefix, sourceHeaderValueTrimmed);
+                    var cookieValue = GetCookieValue(cookieKey, sourceHeaderValueTrimmed);
+
+                    cookieValue = $"{cookieKey}={cookieValue}";
+                    cookieValues.Add(cookieValue);
+                }
+
+                if (cookieValues.Any())
+                {
+                    destinationHeaders.Add(HeaderNames.Cookie, cookieValues);
                 }
             }
         }
@@ -129,12 +141,15 @@ namespace DFC.Composite.Shell.ClientHandlers
             {
                 var key = sourceHeader.Key.ToString();
                 var value = sourceHeader.Value.ToString();
-                if (ShouldAddHeader(prefix, key) && !destinationHeaders.Contains(key))
+
+                if (!ShouldAddHeader(prefix, key) || destinationHeaders.Contains(key))
                 {
-                    var cookieKey = key.Replace(prefix, string.Empty, StringComparison.OrdinalIgnoreCase);
-                    var cookieValue = $"{cookieKey}={value}";
-                    cookieValues.Add(cookieValue);
+                    continue;
                 }
+
+                var cookieKey = key.Replace(prefix, string.Empty, StringComparison.OrdinalIgnoreCase);
+                var cookieValue = $"{cookieKey}={value}";
+                cookieValues.Add(cookieValue);
             }
 
             if (cookieValues.Any())
@@ -145,12 +160,14 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         private void AddTokenHeaderFromCookie(HttpContext context, HttpRequestMessage message)
         {
-            if (!context.User.Identity.IsAuthenticated)
+            if (context?.User?.Identity?.IsAuthenticated != true)
             {
                 return;
             }
 
-            var token = context.User.Claims.FirstOrDefault(claim => claim.Type == "bearer")?.Value;
+            var token = context.User.Claims
+                .FirstOrDefault(claim => "bearer".Equals(claim.Type, StringComparison.OrdinalIgnoreCase))?.Value;
+
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }

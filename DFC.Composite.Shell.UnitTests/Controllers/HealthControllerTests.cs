@@ -1,7 +1,8 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
-using DFC.Composite.Shell.Models.HealthModels;
+using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Enums;
+using DFC.Composite.Shell.Models.Health;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.TokenRetriever;
@@ -24,14 +25,14 @@ namespace DFC.Composite.Shell.Test.Controllers
     {
         private readonly HealthController healthController;
 
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryService appRegistryDataService;
         private readonly ILogger<HealthController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IApplicationHealthService applicationHealthService;
 
         public HealthControllerTests()
         {
-            appRegistryDataService = A.Fake<IAppRegistryDataService>();
+            appRegistryDataService = A.Fake<IAppRegistryService>();
             logger = A.Fake<ILogger<HealthController>>();
             bearerTokenRetriever = A.Fake<IBearerTokenRetriever>();
             applicationHealthService = A.Fake<IApplicationHealthService>();
@@ -58,7 +59,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             healthController.ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext() { User = user },
+                HttpContext = new DefaultHttpContext { User = user },
             };
             healthController.ControllerContext.HttpContext.Request.Headers.Add(HeaderNames.Accept, mediaTypeName);
 
@@ -70,9 +71,9 @@ namespace DFC.Composite.Shell.Test.Controllers
                 {
                     Path = path1,
                     IsOnline = true,
-                    Regions = new List<RegionModel>()
+                    Regions = new List<RegionModel>
                     {
-                        new RegionModel()
+                        new RegionModel
                         {
                             RegionEndpoint = $"http://localhost/{path1}/region1",
                             PageRegion = PageRegion.Body,
@@ -83,9 +84,9 @@ namespace DFC.Composite.Shell.Test.Controllers
                 {
                     Path = path2,
                     IsOnline = false,
-                    Regions = new List<RegionModel>()
+                    Regions = new List<RegionModel>
                     {
-                        new RegionModel()
+                        new RegionModel
                         {
                             RegionEndpoint = $"http://localhost/{path2}/region2",
                             PageRegion = PageRegion.Body,
@@ -94,40 +95,41 @@ namespace DFC.Composite.Shell.Test.Controllers
                 },
             };
 
-            var path1HealthItemModels = new List<HealthItemModel>
+            var healthModel = new ApplicationHealthModel
             {
-                new HealthItemModel() { Message = "Message1", Service = "Service1" },
-                new HealthItemModel() { Message = "Message2", Service = "Service2" },
+                Data = new List<HealthItemModel>
+                {
+                    new HealthItemModel { Message = "Message1", Service = "Service1" },
+                    new HealthItemModel { Message = "Message2", Service = "Service2" },
+                },
             };
 
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModel(A<string>.Ignored)).Returns(appRegistrationModels.FirstOrDefault(f => f.IsOnline));
-            A.CallTo(() => applicationHealthService.GetAsync(A<ApplicationHealthModel>.Ignored)).Returns(path1HealthItemModels);
+            A.CallTo(() => applicationHealthService.EnrichAsync(A<ApplicationHealthModel>.Ignored)).Returns(healthModel);
 
             //Act
-            var result = await healthController.Health().ConfigureAwait(false);
+            var result = await healthController.Health();
             var model = GetModel<HealthViewModel>(result);
 
             //Assert
             Assert.Equal(4, model.HealthItems.Count);
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Composite Shell is available", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Message1", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Message2", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Skipped health check for: path2, because it is offline", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(model.HealthItems, healthItem => healthItem.Message.Contains("Composite Shell is available", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(model.HealthItems, healthItem => healthItem.Message.Contains("Message1", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(model.HealthItems, healthItem => healthItem.Message.Contains("Message2", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(model.HealthItems, healthItem => healthItem.Message.Contains("Skipped health check for: path2, because it is offline", StringComparison.OrdinalIgnoreCase));
         }
 
         private T GetModel<T>(IActionResult actionResult)
         {
             T result = default;
-            var okObjectResult = actionResult as OkObjectResult;
-            if (okObjectResult != null)
+            if (actionResult is OkObjectResult okObjectResult)
             {
                 result = (T)okObjectResult.Value;
             }
             else
             {
-                var viewResult = actionResult as ViewResult;
-                if (viewResult != null)
+                if (actionResult is ViewResult viewResult)
                 {
                     result = (T)viewResult.Model;
                 }

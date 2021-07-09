@@ -1,6 +1,6 @@
-﻿using DFC.Composite.Shell.Services.HttpClientService;
-using DFC.Composite.Shell.Services.Neo4J;
+﻿using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Test.ClientHandlers;
+using DFC.Composite.Shell.UnitTests.HttpClientService;
 using DFC.Composite.Shell.UnitTests.LogHandler;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -48,7 +48,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         public async Task WhenRequestNullThenDoNotCallVisitService()
         {
             var service = new Neo4JService(settings, client, logger);
-            await service.InsertNewRequest(null).ConfigureAwait(false);
+            await service.InsertNewRequest(null);
             A.CallTo(() => logger.Log(LogLevel.Warning, A<Exception>.Ignored, A<string>.Ignored))
                 .MustHaveHappened(1, Times.Exactly);
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustNotHaveHappened();
@@ -60,7 +60,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Throws(new Exception());
 
             var service = new Neo4JService(settings, client, logger);
-            await service.InsertNewRequest(A.Fake<HttpRequest>()).ConfigureAwait(false);
+            await service.InsertNewRequest(A.Fake<HttpRequest>());
             A.CallTo(() => logger.Log(LogLevel.Warning, A<Exception>.Ignored, A<string>.Ignored))
                 .MustHaveHappened(1, Times.Exactly);
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustHaveHappened();
@@ -70,7 +70,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         public async Task WhenInsertNewRequestThenPostToVisitApi()
         {
             var service = new Neo4JService(settings, client, logger);
-            await service.InsertNewRequest(A.Fake<HttpRequest>()).ConfigureAwait(false);
+            await service.InsertNewRequest(A.Fake<HttpRequest>());
 
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustHaveHappened();
         }
@@ -85,7 +85,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var service = new Neo4JService(options, client, logger);
 
-            await service.InsertNewRequest(A.Fake<HttpRequest>()).ConfigureAwait(false);
+            await service.InsertNewRequest(A.Fake<HttpRequest>());
 
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).MustNotHaveHappened();
         }

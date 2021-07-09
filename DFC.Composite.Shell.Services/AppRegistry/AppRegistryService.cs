@@ -1,83 +1,65 @@
-﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Polly.CircuitBreaker;
+﻿using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Enums;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.AppRegistry
 {
     public class AppRegistryService : IAppRegistryService
     {
-        private readonly ILogger<AppRegistryService> logger;
-        private readonly HttpClient httpClient;
+        private readonly IAppRegistryRequestService appRegistryService;
+        private IEnumerable<AppRegistrationModel> appRegistrationModels;
 
-        public AppRegistryService(ILogger<AppRegistryService> logger, HttpClient httpClient)
+        public AppRegistryService(IAppRegistryRequestService appRegistryService)
         {
-            this.logger = logger;
-            this.httpClient = httpClient;
+            this.appRegistryService = appRegistryService;
         }
 
-        public async Task<IEnumerable<AppRegistrationModel>> GetPaths()
+        public async Task<IEnumerable<AppRegistrationModel>> GetAppRegistrationModels()
         {
-            using (var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress))
-            {
-                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsAsync<List<AppRegistrationModel>>().ConfigureAwait(false);
-            }
+            return appRegistrationModels ??= await appRegistryService.GetPaths();
         }
 
-        public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
+        public async Task<AppRegistrationModel> GetShellAppRegistrationModel()
         {
-            var patchUrl = new Uri($"{httpClient.BaseAddress}{path}/regions/{(int)pageRegion}", UriKind.Absolute);
-            var regionPatchModel = new JsonPatchDocument<RegionModel>().Add(x => x.IsHealthy, isHealthy);
-            var jsonRequest = JsonConvert.SerializeObject(regionPatchModel);
-            using var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
-
-            try
-            {
-                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
-
-                response.EnsureSuccessStatusCode();
-
-                return response.IsSuccessStatusCode;
-            }
-            catch (BrokenCircuitException ex)
-            {
-                logger.LogError(ex, $"{nameof(SetRegionHealthState)}: BrokenCircuit: {patchUrl} - {ex.Message}, marking AppRegistration: {path}.{pageRegion} IsHealthy = {isHealthy}");
-
-                return false;
-            }
+            return await GetAppRegistrationModel("shell");
         }
 
-        public async Task<bool> SetAjaxRequestHealthState(string path, string name, bool isHealthy)
+        public async Task<AppRegistrationModel> GetAppRegistrationModel(string path)
         {
-            var patchUrl = new Uri($"{httpClient.BaseAddress}{path}/ajaxrequests/{name}", UriKind.Absolute);
-            var ajaxRequestPatchModel = new JsonPatchDocument<AjaxRequestModel>().Add(x => x.IsHealthy, isHealthy);
-            var jsonRequest = JsonConvert.SerializeObject(ajaxRequestPatchModel);
-            using var content = new StringContent(jsonRequest, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var models = await GetAppRegistrationModels();
+            return models?.FirstOrDefault(model => model.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase));
+        }
 
-            try
+        public async Task SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
+        {
+            var appRegistrationModel = await GetAppRegistrationModel(path);
+            var regionModel = appRegistrationModel?.Regions?.FirstOrDefault(region => region.PageRegion == pageRegion);
+
+            if (regionModel == null)
             {
-                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
-
-                response.EnsureSuccessStatusCode();
-
-                return response.IsSuccessStatusCode;
+                return;
             }
-            catch (BrokenCircuitException ex)
+
+            regionModel.IsHealthy = isHealthy;
+            await appRegistryService.SetRegionHealthState(path, pageRegion, isHealthy);
+        }
+
+        public async Task SetAjaxRequestHealthState(string path, string name, bool isHealthy)
+        {
+            var appRegistrationModel = await GetAppRegistrationModel(path);
+            var ajaxRequestModel = appRegistrationModel?.AjaxRequests?
+                .FirstOrDefault(ajaxRequest => ajaxRequest?.Name?.Equals(name, StringComparison.OrdinalIgnoreCase) == true);
+
+            if (ajaxRequestModel == null)
             {
-                logger.LogError(ex, $"{nameof(SetAjaxRequestHealthState)}: BrokenCircuit: {patchUrl} - {ex.Message}, marking AppRegistration: {path}.{name} IsHealthy = {isHealthy}");
-
-                return false;
+                return;
             }
+
+            ajaxRequestModel.IsHealthy = isHealthy;
+            await appRegistryService.SetAjaxRequestHealthState(path, name, isHealthy);
         }
     }
 }

@@ -5,11 +5,6 @@ namespace DFC.Composite.Shell.Models
 {
     public class PageViewModel
     {
-        public PageViewModel()
-        {
-            PageRegionContentModels = new List<PageRegionContentModel>();
-        }
-
         public IList<string> VersionedPathForCssScripts { get; set; }
 
         public IList<string> VersionedPathForJavaScripts { get; set; }
@@ -28,7 +23,7 @@ namespace DFC.Composite.Shell.Models
 
         public HtmlString PhaseBannerHtml { get; set; }
 
-        public List<PageRegionContentModel> PageRegionContentModels { get; set; }
+        public List<PageRegionContentModel> PageRegionContentModels { get; set; } = new List<PageRegionContentModel>();
 
         public GoogleScripts ScriptIds { get; set; }
     }

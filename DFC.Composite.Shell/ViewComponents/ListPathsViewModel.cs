@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AppRegistration;
 using System.Collections.Generic;
 
 namespace DFC.Composite.Shell.ViewComponents

@@ -51,7 +51,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         {
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
-            var url = await client.GetSignInUrl().ConfigureAwait(false);
+            var url = await client.GetSignInUrl();
 
             Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
             Assert.Contains(AzureB2CAuthClient.SignInRequestType, url, StringComparison.InvariantCultureIgnoreCase);
@@ -62,7 +62,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         {
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
-            var url = await client.GetResetPasswordUrl().ConfigureAwait(false);
+            var url = await client.GetResetPasswordUrl();
 
             Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
             Assert.Contains(AzureB2CAuthClient.PasswordResetRequestType, url, StringComparison.InvariantCultureIgnoreCase);
@@ -74,7 +74,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var redirect = "RedirectFromChild";
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
-            var url = await client.GetSignOutUrl(redirect).ConfigureAwait(false);
+            var url = await client.GetSignOutUrl(redirect);
 
             Assert.Contains(redirect, url, StringComparison.InvariantCultureIgnoreCase);
         }
@@ -84,7 +84,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         {
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
-            var url = await client.GetSignOutUrl(string.Empty).ConfigureAwait(false);
+            var url = await client.GetSignOutUrl(string.Empty);
 
             Assert.Contains(DefaultSignOutRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
         }
@@ -94,7 +94,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         {
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
 
-            var url = await client.GetRegisterUrl().ConfigureAwait(false);
+            var url = await client.GetRegisterUrl();
 
             Assert.Contains(DefaultSignInRedirectUrl, url, StringComparison.InvariantCultureIgnoreCase);
         }
@@ -104,8 +104,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         {
             var client = new AzureB2CAuthClient(defaultSettings, tokenHandler, configurationManager);
             SecurityToken secToken;
-            var token = await client.ValidateToken("token").ConfigureAwait(true);
-            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored, A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == defaultSettings.Value.Issuer), out secToken)).MustHaveHappened();
+            var token = await client.ValidateToken("token");
+            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored, A<TokenValidationParameters>.That.Matches(tvp => tvp.ValidIssuer == defaultSettings.Value.Issuer), out secToken)).MustHaveHappened();
         }
 
         [Fact]
@@ -130,8 +130,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
             SecurityToken secToken;
-            var token = await client.ValidateToken("token").ConfigureAwait(true);
-            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored, A<TokenValidationParameters>.That.Matches(x => x.ValidIssuer == "issuer"), out secToken))
+            var token = await client.ValidateToken("token");
+            A.CallTo(() => tokenHandler.ValidateToken(A<string>.Ignored, A<TokenValidationParameters>.That.Matches(tvp => tvp.ValidIssuer == "issuer"), out secToken))
                 .MustHaveHappened();
         }
 
@@ -154,7 +154,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
-            var token = await client.GetSignOutUrl("test").ConfigureAwait(true);
+            var token = await client.GetSignOutUrl("test");
             A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).MustHaveHappened();
         }
 
@@ -177,7 +177,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
-            var token = await client.GetSignInUrl().ConfigureAwait(true);
+            var token = await client.GetSignInUrl();
             A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).MustHaveHappened();
         }
 
@@ -200,7 +200,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             var client = new AzureB2CAuthClient(settings, tokenHandler, configurationManager);
 
-            var token = await client.GetRegisterUrl().ConfigureAwait(true);
+            var token = await client.GetRegisterUrl();
             A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).MustHaveHappened();
         }
     }

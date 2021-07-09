@@ -7,9 +7,9 @@ namespace DFC.Composite.Shell.Services.TokenRetriever
 {
     public class BearerTokenRetriever : IBearerTokenRetriever
     {
-        public async Task<string> GetToken(HttpContext httpContext)
+        public Task<string> GetToken(HttpContext httpContext)
         {
-            return await httpContext.GetTokenAsync(Constants.BearerTokenName).ConfigureAwait(false);
+            return httpContext.GetTokenAsync(Constants.BearerTokenName);
         }
     }
 }

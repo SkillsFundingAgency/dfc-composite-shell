@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Models.HealthModels;
+﻿using DFC.Composite.Shell.Models.Health;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -21,21 +21,27 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
             this.logger = logger;
         }
 
-        public async Task<IEnumerable<HealthItemModel>> GetAsync(ApplicationHealthModel model)
+        public async Task<ApplicationHealthModel> EnrichAsync(ApplicationHealthModel model)
         {
             if (model == null)
             {
                 return null;
             }
 
-            var responseTask = await CallHttpClientJsonAsync(model).ConfigureAwait(false);
-
-            return responseTask;
+            model.Data = await CallHttpClientJsonAsync(model);
+            return model;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Design",
+            "CA1031:Do not catch general exception types",
+            Justification = "Continuing to use existing swallow pattern")]
         private async Task<IEnumerable<HealthItemModel>> CallHttpClientJsonAsync(ApplicationHealthModel model)
         {
-            logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loading health data from {model.HealthUrl}");
+            logger.LogInformation(
+                "{name}: Loading health data from {healthUrl}",
+                nameof(CallHttpClientJsonAsync),
+                model.HealthUrl);
 
             var request = new HttpRequestMessage(HttpMethod.Get, model.HealthUrl);
 
@@ -45,48 +51,58 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
             }
 
             request.Headers.Accept.Clear();
-            request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
 
             try
             {
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(request);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     try
                     {
-                        var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        var responseString = await response.Content.ReadAsStringAsync();
                         var options = new JsonSerializerOptions
                         {
                             PropertyNameCaseInsensitive = true,
                         };
+
                         var result = JsonSerializer.Deserialize<List<HealthItemModel>>(responseString, options);
 
-                        logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
+                        logger.LogInformation(
+                            "{name}: Loaded health data from {healthUrl}",
+                            nameof(CallHttpClientJsonAsync),
+                            model.HealthUrl);
 
                         return result;
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {ex.Message}");
+                        logger.LogError(
+                            "{name}: Error loading health data from {healthUrl}: {message}",
+                            nameof(CallHttpClientJsonAsync),
+                            model.HealthUrl,
+                            ex.Message);
 
-                        var result = new List<HealthItemModel>
-                    {
-                        new HealthItemModel
+                        return new List<HealthItemModel>
                         {
-                            Service = model.Path,
-                            Message = $"Bad health response from {model.HealthUrl} app",
-                        },
-                    };
-
-                        return result;
+                            new HealthItemModel
+                            {
+                                Service = model.Path,
+                                Message = $"Bad health response from {model.HealthUrl} app",
+                            },
+                        };
                     }
                 }
                 else
                 {
-                    logger.LogError($"{nameof(CallHttpClientJsonAsync)}: Error loading health data from {model.HealthUrl}: {response.StatusCode}");
+                    logger.LogError(
+                        "{name}: Error loading health data from {url}: {statusCode}",
+                        nameof(CallHttpClientJsonAsync),
+                        model.HealthUrl,
+                        response.StatusCode);
 
-                    var result = new List<HealthItemModel>
+                    return new List<HealthItemModel>
                     {
                         new HealthItemModel
                         {
@@ -94,22 +110,18 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                             Message = $"No health response from {model.HealthUrl} app",
                         },
                     };
-
-                    return result;
                 }
             }
             catch (Exception ex)
             {
-                var result = new List<HealthItemModel>
+                return new List<HealthItemModel>
+                {
+                    new HealthItemModel
                     {
-                        new HealthItemModel
-                        {
-                            Service = model.Path,
-                            Message = $"Exception response from {model.HealthUrl} app: {ex.Message}",
-                        },
-                    };
-
-                return result;
+                        Service = model.Path,
+                        Message = $"Exception response from {model.HealthUrl} app: {ex.Message}",
+                    },
+                };
             }
         }
     }

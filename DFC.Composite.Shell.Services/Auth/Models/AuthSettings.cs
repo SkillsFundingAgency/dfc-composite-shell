@@ -1,4 +1,6 @@
-﻿namespace DFC.Composite.Shell.Services.Auth.Models
+﻿using System;
+
+namespace DFC.Composite.Shell.Services.Auth.Models
 {
     public class AuthSettings
     {
@@ -8,7 +10,7 @@
 
         public string ClientSecret { get; set; }
 
-        public string DefaultRedirectUrl { get; set; }
+        public Uri DefaultRedirectUrl { get; set; }
 
         public string AuthDssEndpoint { get; set; }
     }

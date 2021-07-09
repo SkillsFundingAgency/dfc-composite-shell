@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace DFC.Composite.Shell.Services.BaseUrl
 {
     public interface IBaseUrlService
     {
-        string GetBaseUrl(HttpRequest request, IUrlHelper urlHelper);
+        Uri GetBaseUrl(HttpRequest request, IUrlHelper urlHelper);
     }
 }

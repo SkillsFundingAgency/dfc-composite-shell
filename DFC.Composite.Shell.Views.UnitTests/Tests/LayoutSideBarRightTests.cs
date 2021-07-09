@@ -18,6 +18,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
                 LayoutName = _layout,
                 ContentSidebarLeft = new HtmlString("ContentSideBarLeft")
             };
+
             var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 
@@ -39,6 +40,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
                 ContentBodyFooter = new HtmlString("ContentBodyFooter"),
                 ContentSidebarRight = new HtmlString("ContentSideBarRight")
             };
+
             var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 

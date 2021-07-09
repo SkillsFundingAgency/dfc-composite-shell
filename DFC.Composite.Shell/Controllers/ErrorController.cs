@@ -1,8 +1,5 @@
-﻿using DFC.Composite.Shell.Extensions;
-using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.Common;
+﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Exceptions;
-using DFC.Composite.Shell.Utilities;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -26,17 +23,19 @@ namespace DFC.Composite.Shell.Controllers
         public IActionResult Error()
         {
             var exceptionPathDetails = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            var enhancedHttpException = exceptionPathDetails?.Error as EnhancedHttpException;
+            var enhancedHttpException = exceptionPathDetails?.Error as HttpException;
             var statusCode = enhancedHttpException?.StatusCode ?? HttpStatusCode.InternalServerError;
             var path = exceptionPathDetails?.Path ?? "unknown";
 
-            var errorString = $"{nameof(Error)}: HttpStatusCode: {(int)statusCode} Unhandled error for path:{path}: {enhancedHttpException?.Message}";
+            logger.LogError(
+                exceptionPathDetails?.Error,
+                "{error}: HttpStatusCode: {statusCode} Unhandled error for path:{path}: {message}",
+                nameof(Error),
+                (int)statusCode,
+                path,
+                enhancedHttpException?.Message);
 
-            logger.LogError(exceptionPathDetails?.Error, errorString);
-
-            Response.StatusCode = (int)statusCode;
-
-            var viewModel = new PageViewModelResponse()
+            var viewModel = new PageViewModelResponse
             {
                 LayoutName = null,
                 PageTitle = "Error | National Careers Service",
@@ -46,6 +45,7 @@ namespace DFC.Composite.Shell.Controllers
 
             configuration?.GetSection(nameof(GoogleScripts)).Bind(viewModel.ScriptIds);
 
+            Response.StatusCode = (int)statusCode;
             return View(viewModel);
         }
     }

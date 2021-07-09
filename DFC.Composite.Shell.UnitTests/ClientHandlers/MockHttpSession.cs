@@ -45,7 +45,7 @@ namespace DFC.Composite.Shell.UnitTests.ClientHandlers
 
         bool ISession.TryGetValue(string key, out byte[] value)
         {
-            if (sessionStorage.Any(x => x.Key == key))
+            if (sessionStorage.Any(storageItem => storageItem.Key == key))
             {
                 value = Encoding.ASCII.GetBytes(sessionStorage[key].ToString());
                 return true;

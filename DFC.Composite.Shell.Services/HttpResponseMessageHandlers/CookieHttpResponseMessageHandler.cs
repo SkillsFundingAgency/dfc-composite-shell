@@ -44,17 +44,19 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
         public void Process(HttpResponseMessage httpResponseMessage)
         {
             var headers = new Dictionary<string, int>();
-            foreach (var header in httpResponseMessage?.Headers.Where(x => x.Key == HeaderNames.SetCookie))
+
+            foreach (var cookieHeaders in httpResponseMessage?.Headers.Where(header => header.Key == HeaderNames.SetCookie))
             {
-                foreach (var headerValue in header.Value)
+                foreach (var cookieHeader in cookieHeaders.Value)
                 {
-                    var cookieSettings = setCookieParser.Parse(headerValue);
+                    var cookieSettings = setCookieParser.Parse(cookieHeader);
                     var cookieKey = cookieSettings.Key;
                     var prefix = headerRenamerService.Rename(cookieKey) ? pathLocator.GetPath() : string.Empty;
                     var cookieKeyWithPrefix = string.Concat(prefix, cookieKey);
                     var allowedHeaderCount = headerCountService.Count(cookieKey);
                     var currentHeaderCount = GetHeaderCount(headers, cookieKey);
                     var cookieValue = cookieSettings.Value;
+
                     if (cookieSettings.Key == Constants.DfcSession)
                     {
                         cookieValue = compositeDataProtectionDataProvider.Protect(cookieValue);
@@ -64,6 +66,7 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
                     {
                         RegisterHeader(headers, cookieKey);
                         httpContextAccessor.HttpContext.Response.Cookies.Append(cookieKeyWithPrefix, cookieValue, cookieSettings.CookieOptions);
+
                         AddToHttpContext(cookieKeyWithPrefix, cookieValue);
                     }
                 }
@@ -93,6 +96,7 @@ namespace DFC.Composite.Shell.HttpResponseMessageHandlers
         private int GetHeaderCount(Dictionary<string, int> headers, string headerName)
         {
             var headerCount = 0;
+
             if (headers.ContainsKey(headerName))
             {
                 headerCount = headers[headerName];

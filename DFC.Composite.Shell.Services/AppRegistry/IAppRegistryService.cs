@@ -1,5 +1,5 @@
-﻿using DFC.Composite.Shell.Models;
-using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models.AppRegistration;
+using DFC.Composite.Shell.Models.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,10 +7,14 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 {
     public interface IAppRegistryService
     {
-        Task<IEnumerable<AppRegistrationModel>> GetPaths();
+        Task<AppRegistrationModel> GetAppRegistrationModel(string path);
 
-        Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy);
+        Task<IEnumerable<AppRegistrationModel>> GetAppRegistrationModels();
 
-        Task<bool> SetAjaxRequestHealthState(string path, string name, bool isHealthy);
+        Task<AppRegistrationModel> GetShellAppRegistrationModel();
+
+        Task SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy);
+
+        Task SetAjaxRequestHealthState(string path, string name, bool isHealthy);
     }
 }
