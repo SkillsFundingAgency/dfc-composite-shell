@@ -109,6 +109,9 @@
         },
         "VisitsUrl": {
             "value": "__VisitsUrl__"
+        },
+        "BannerAppBaseUrl":{
+            "value": "__BannersAppUrl__"
         }
     }
 }
