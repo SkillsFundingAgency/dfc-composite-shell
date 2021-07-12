@@ -1,7 +1,9 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.AppRegistry;
+
 using Microsoft.AspNetCore.Html;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +31,7 @@ namespace DFC.Composite.Shell.Services.Mapping
             destination.PageTitle = source?.AppRegistrationModel.TopNavigationText;
             destination.PhaseBannerHtml = new HtmlString(source?.AppRegistrationModel.PhaseBannerHtml);
 
-            var pageRegionContentModels = source?.AppRegistrationModel?.Regions
+            var pageRegionContentModels = source?.AppRegistrationModel?.Regions?
                 .Select(region => new PageRegionContentModel { PageRegionType = region.PageRegion }).ToList();
 
             destination.PageRegionContentModels = pageRegionContentModels;

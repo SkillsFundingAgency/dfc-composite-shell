@@ -26,6 +26,7 @@
             <partial name="_ErrorSummary" />
         </div>
     </section>
+
     <main class="govuk-!-padding-top-0 govuk-!-padding-bottom-0" id="main-content" role="main">
         @if (IsSectionDefined("BodyTop"))
         {
@@ -38,36 +39,23 @@
             @RenderSection("HeroBanner", required: false)
         }
         <div class="govuk-main-wrapper">
-            <div class="govuk-width-container">
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-one-third">
-                        @if (IsSectionDefined("SideBarLeft"))
-                        {
-                            <div>
-                                @RenderSection("SideBarLeft", required: false)
-                            </div>
-                        }
-                    </div>
+            @if (IsSectionDefined("Body"))
+            {
+                @RenderSection("Body", required: false)
+            }
 
-                    <div class="govuk-grid-column-two-thirds">
-                        @if (IsSectionDefined("Body"))
-                        {
-                            <div>
-                                @RenderSection("Body", required: false)
-                            </div>
-                        }
-                    </div>
-                </div>
+            @RenderBody()
 
-                @RenderBody()
-
-                @{
-                    if (IsSectionDefined("SideBarRight"))
-                    {
-                        IgnoreSection("SideBarRight");
-                    }
+            @{
+                if (IsSectionDefined("SideBarLeft"))
+                {
+                    IgnoreSection("SideBarLeft");
                 }
-            </div>
+                if (IsSectionDefined("SideBarRight"))
+                {
+                    IgnoreSection("SideBarRight");
+                }
+            }
         </div>
     </main>
 

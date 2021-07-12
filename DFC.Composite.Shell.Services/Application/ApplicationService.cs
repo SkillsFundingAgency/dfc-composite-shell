@@ -1,10 +1,13 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Services.AppRegistry;
+using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Utilities;
+
 using Microsoft.AspNetCore.Html;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -19,6 +22,7 @@ namespace DFC.Composite.Shell.Services.Application
         private readonly IContentRetriever contentRetriever;
         private readonly IContentProcessorService contentProcessorService;
         private readonly ITaskHelper taskHelper;
+        private readonly IBannerService bannerService;
         private readonly MarkupMessages markupMessages;
 
         public ApplicationService(
@@ -26,12 +30,14 @@ namespace DFC.Composite.Shell.Services.Application
             IContentRetriever contentRetriever,
             IContentProcessorService contentProcessorService,
             ITaskHelper taskHelper,
+            IBannerService bannerService,
             MarkupMessages markupMessages)
         {
             this.appRegistryDataService = appRegistryDataService;
             this.contentRetriever = contentRetriever;
             this.contentProcessorService = contentProcessorService;
             this.taskHelper = taskHelper;
+            this.bannerService = bannerService;
             this.markupMessages = markupMessages;
         }
 
@@ -39,15 +45,8 @@ namespace DFC.Composite.Shell.Services.Application
 
         public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string queryString)
         {
-            if (application == null)
-            {
-                throw new ArgumentNullException(nameof(application));
-            }
-
-            if (pageModel == null)
-            {
-                throw new ArgumentNullException(nameof(pageModel));
-            }
+            _ = application ?? throw new ArgumentNullException(nameof(application));
+            _ = pageModel ?? throw new ArgumentNullException(nameof(pageModel));
 
             if (application.AppRegistrationModel.IsOnline)
             {
@@ -64,6 +63,9 @@ namespace DFC.Composite.Shell.Services.Application
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
+
+                // Get banners from the banner app.
+                pageModel.PhaseBannerHtml = await GetPageBannersAsync(application);
             }
             else
             {
@@ -91,6 +93,9 @@ namespace DFC.Composite.Shell.Services.Application
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
+
+                // Get banners from the banner app.
+                pageModel.PhaseBannerHtml = await GetPageBannersAsync(application);
             }
             else
             {
@@ -105,6 +110,8 @@ namespace DFC.Composite.Shell.Services.Application
 
         public async Task<ApplicationModel> GetApplicationAsync(ActionGetRequestModel data)
         {
+            _ = data ?? throw new ArgumentNullException(nameof(data));
+
             var applicationModel = await DetermineArticleLocation(data).ConfigureAwait(false);
 
             if (applicationModel.AppRegistrationModel == null)
@@ -114,7 +121,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             var bodyRegion = applicationModel.AppRegistrationModel.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
-            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            if (!string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
             {
                 var uri = new Uri(bodyRegion.RegionEndpoint);
                 var url = $"{uri.Scheme}://{uri.Authority}";
@@ -124,6 +131,9 @@ namespace DFC.Composite.Shell.Services.Application
 
             return applicationModel;
         }
+
+        private Task<HtmlString> GetPageBannersAsync(ApplicationModel application) =>
+            bannerService.GetPageBannersAsync(application.Article ?? application?.AppRegistrationModel?.Path ?? string.Empty);
 
         private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
         {
