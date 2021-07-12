@@ -1,23 +1,23 @@
-﻿    <!DOCTYPE html>
-    <html lang="en-gb" class="govuk-template ">
+﻿<!DOCTYPE html>
+<html lang="en-gb" class="govuk-template ">
 
-    <head>
-        <partial name="_Head"/>
+<head>
+    <partial name="_Head" />
 
-        @if (IsSectionDefined("Head"))
-        {
-            @RenderSection("Head", required: false)
-        }
+    @if (IsSectionDefined("Head"))
+    {
+        @RenderSection("Head", required: false)
+    }
 
-        @await Component.InvokeAsync("AppInsights", null)
-    </head>
+    @await Component.InvokeAsync("AppInsights", null)
+</head>
 
-    <body class="govuk-template__body ">
-    <partial name="_GovUkHeader"/>
-    
+<body class="govuk-template__body ">
+    <partial name="_GovUkHeader" />
+
     <section aria-label="PhaseBanner">
+        <partial name="_PhaseBanner" />
         <div class="govuk-width-container">
-            <partial name="_PhaseBanner" />
             <partial name="~/Views/Shared/Components/_AuthPartial.cshtml" />
             @if (IsSectionDefined("Breadcrumb"))
             {
@@ -75,11 +75,11 @@
     {
         @RenderSection("BodyFooter", required: false)
     }
-    
-    <partial name="_GovUkFooter"/>
 
-    <partial name="_JQueryInitialise"/>
+    <partial name="_GovUkFooter" />
+
+    <partial name="_JQueryInitialise" />
 
     @RenderSection("Scripts", required: false)
-    </body>
-    </html>
+</body>
+</html>

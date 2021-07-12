@@ -14,6 +14,7 @@ using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
+using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
@@ -31,6 +32,7 @@ using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
 using DFC.Compui.Telemetry.ApplicationBuilderExtensions;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,10 +44,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
-using AppBuilderExtensions = Joonasw.AspNetCore.SecurityHeaders.AppBuilderExtensions;
 
 namespace DFC.Composite.Shell
 {
@@ -82,7 +84,7 @@ namespace DFC.Composite.Shell
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
             var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
-            var OidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
+            var oidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
 
             //Configure security headers
             app.UseCsp(options => options
@@ -108,7 +110,7 @@ namespace DFC.Composite.Shell
                         "https://fonts.googleapis.com",
                         "https://www.googleoptimize.com"))
                 .FormActions(s => s
-                    .Self().CustomSources($"{OidcPath.Scheme}://{OidcPath.Host}"))
+                    .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
@@ -144,12 +146,12 @@ namespace DFC.Composite.Shell
             app.UseXfo(options => options.SameOrigin());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
 
-            app.Use(async (context, next) =>
+            app.Use((context, next) =>
             {
                 context.Response.Headers["Feature-Policy"] = "sync-xhr 'self'";
                 context.Response.Headers["Expect-CT"] = "max-age=86400, enforce";
                 context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
-                await next().ConfigureAwait(false);
+                return next();
             });
 
             app.UseSession();
@@ -260,6 +262,10 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
                 .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(BannerClientOptions), policyOptions)
+                .AddHttpClient<IBannerService, BannerService, BannerClientOptions>(Configuration, nameof(BannerClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services.AddSession();
 

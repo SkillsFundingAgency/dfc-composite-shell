@@ -7,6 +7,7 @@
     <ApplicationInsightsResourceId>/subscriptions/962cae10-2950-412a-93e3-d8ae92b17896/resourcegroups/dfc-dev-compui-shell-rg/providers/microsoft.insights/components/dfc-dev-compui-shell-ai</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/962cae10-2950-412a-93e3-d8ae92b17896/resourcegroups/dfc-dev-compui-shell-rg/providers/microsoft.insights/components/dfc-dev-compui-shell-ai</ApplicationInsightsAnnotationResourceId>
     <CodeAnalysisRuleSet>../DFC.Digital.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <UserSecretsId>941e1a97-b9c9-4c09-a33f-14e3f10730b3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
