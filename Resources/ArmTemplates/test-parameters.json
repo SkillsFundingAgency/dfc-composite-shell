@@ -94,6 +94,9 @@
         },
         "VisitsUrl": {
             "value": "https://foo"
+        },
+        "BannerAppBaseUrl":{
+            "value": "https://sample.com"
         }
     }
 }
