@@ -115,6 +115,9 @@
         },
         "VisitsUrl": {
             "type": "string"
+        },
+        "BannerAppBaseUrl":{
+            "type": "string"
         }
     },
     "variables": {
@@ -412,6 +415,14 @@
                             {
                                 "name": "VisitClientOptions__BaseAddress",
                                 "value": "[parameters('VisitsUrl')]"
+                            },
+                            {
+                                "name": "BannerClientOptions__Timeout",
+                                "value": "00:00:30"
+                            },
+                            {
+                                "name": "BannerClientOptions__BaseAddress",
+                                "value": "[parameters('BannerAppBaseUrl')]"
                             },
                             {
                                 "name": "AppRegistryClientOptions__BaseAddress",
