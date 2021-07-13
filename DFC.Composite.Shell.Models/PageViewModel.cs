@@ -29,5 +29,7 @@ namespace DFC.Composite.Shell.Models
         public HtmlString PhaseBannerHtml { get; set; }
 
         public List<PageRegionContentModel> PageRegionContentModels { get; set; }
+
+        public GoogleScripts ScriptIds { get; set; }
     }
 }

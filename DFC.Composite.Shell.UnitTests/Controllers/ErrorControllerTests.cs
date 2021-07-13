@@ -13,13 +13,11 @@ namespace DFC.Composite.Shell.Test.Controllers
     public class ErrorControllerTests
     {
         private readonly ILogger<ApplicationController> fakeLogger;
-        private readonly IVersionedFiles fakeVersionedFiles;
         private readonly IConfiguration fakeConfiguration;
 
         public ErrorControllerTests()
         {
             fakeLogger = A.Fake<ILogger<ApplicationController>>();
-            fakeVersionedFiles = A.Fake<IVersionedFiles>();
             fakeConfiguration = A.Fake<IConfiguration>();
         }
 
@@ -27,7 +25,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         public void ErrorControllerErrorActionReturnsSuccess()
         {
             // Arrange
-            using var errorController = new ErrorController(fakeLogger, fakeVersionedFiles, fakeConfiguration)
+            using var errorController = new ErrorController(fakeLogger, fakeConfiguration)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -40,7 +38,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<PageViewModel>(viewResult.ViewData.Model);
+            var model = Assert.IsAssignableFrom<PageViewModelResponse>(viewResult.ViewData.Model);
             Assert.Contains("Error", model.PageTitle, System.StringComparison.OrdinalIgnoreCase);
         }
     }

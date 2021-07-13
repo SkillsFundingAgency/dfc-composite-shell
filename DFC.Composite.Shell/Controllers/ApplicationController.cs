@@ -251,6 +251,7 @@ namespace DFC.Composite.Shell.Controllers
             var result = new PageViewModelResponse
             {
                 BrandingAssetsCdn = source.BrandingAssetsCdn,
+                ScriptIds = source.ScriptIds,
                 LayoutName = source.LayoutName,
                 PageTitle = source.PageTitle,
                 Path = source.Path,
