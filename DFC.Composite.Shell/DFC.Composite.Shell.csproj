@@ -9,6 +9,11 @@
     <CodeAnalysisRuleSet>../DFC.Digital.CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <UserSecretsId>941e1a97-b9c9-4c09-a33f-14e3f10730b3</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\js\dfc-app-triagetool.min.js" />
+    <Content Remove="wwwroot\js\testapp.js" />
+  </ItemGroup>
  
   <ItemGroup>
     <PackageReference Include="DFC.Common.Standard" Version="0.1.0" />
@@ -55,5 +60,8 @@
     <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.w1.resourceKey">
       <Value>**/_Layout*.cshtml</Value>
     </SonarQubeSetting>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 </Project>

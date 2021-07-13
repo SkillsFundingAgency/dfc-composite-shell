@@ -48,6 +48,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
+using AppBuilderExtensions = Joonasw.AspNetCore.SecurityHeaders.AppBuilderExtensions;
 
 namespace DFC.Composite.Shell
 {
@@ -86,7 +87,7 @@ namespace DFC.Composite.Shell
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
             var oidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
 
-            // Configure security headers
+            //Configure security headers
             app.UseCsp(options => options
                 .DefaultSources(s => s.Self())
                 .ScriptSources(s => s
@@ -101,14 +102,14 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
-                        "https://optimize.google.com"))
-                .StyleSources(s => s
-                    .Self()
-                    .CustomSources(
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com"))
+                .StyleSources(s => s.UnsafeInline().CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
-                        "https://fonts.googleapis.com"))
+                        "https://fonts.googleapis.com",
+                        "https://www.googleoptimize.com"))
                 .FormActions(s => s
                     .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
@@ -125,7 +126,9 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com",
+                        "https://www.googletagmanager.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
@@ -209,6 +212,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
+            services.Configure<GoogleScripts>(Configuration.GetSection(nameof(GoogleScripts)));
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
