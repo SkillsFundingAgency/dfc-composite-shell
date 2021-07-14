@@ -1,18 +1,18 @@
-﻿<!DOCTYPE html>
-<html lang="en-gb" class="govuk-template ">
+﻿    <!DOCTYPE html>
+    <html lang="en-gb" class="govuk-template ">
 
-<head>
+    <head>
     <partial name="_Head" />
 
-    @if (IsSectionDefined("Head"))
-    {
-        @RenderSection("Head", required: false)
-    }
+        @if (IsSectionDefined("Head"))
+        {
+            @RenderSection("Head", required: false)
+        }
 
-    @await Component.InvokeAsync("AppInsights", null)
-</head>
+        @await Component.InvokeAsync("AppInsights", null)
+    </head>
 
-<body class="govuk-template__body ">
+    <body class="govuk-template__body ">
     <partial name="_GovUkHeader" />
 
     <section aria-label="PhaseBanner">
@@ -69,5 +69,5 @@
     <partial name="_JQueryInitialise" />
 
     @RenderSection("Scripts", required: false)
-</body>
+    </body>
 </html>
