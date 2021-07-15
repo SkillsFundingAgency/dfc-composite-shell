@@ -72,7 +72,7 @@ namespace DFC.Composite.Shell.Models.SitemapModels
             using (FileStream fs = new FileStream(path, FileMode.Create))
             {
                 var ns = new XmlSerializerNamespaces();
-                ns.Add("image", "http://www.google.com/schemas/sitemap-image/1.1");
+                ns.Add("xhtml", "http://www.w3.org/1999/xhtml");
 
                 var xs = new XmlSerializer(typeof(Sitemap));
                 xs.Serialize(fs, this, ns);
@@ -84,7 +84,7 @@ namespace DFC.Composite.Shell.Models.SitemapModels
             using (StringWriter sw = new StringWriter())
             {
                 XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-                ns.Add("image", "http://www.google.com/schemas/sitemap-image/1.1");
+                ns.Add("xhtml", "http://www.w3.org/1999/xhtml");
 
                 XmlSerializer xs = new XmlSerializer(typeof(Sitemap));
                 xs.Serialize(sw, this, ns);
