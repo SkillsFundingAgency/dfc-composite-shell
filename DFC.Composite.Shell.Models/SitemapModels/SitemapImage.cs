@@ -2,7 +2,7 @@
 
 namespace DFC.Composite.Shell.Models.SitemapModels
 {
-    [XmlType(Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
+    [XmlType(Namespace = "http://www.w3.org/1999/xhtml")]
     public class SitemapImage
     {
         [XmlElement("loc")]
