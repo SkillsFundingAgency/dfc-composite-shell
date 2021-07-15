@@ -18,7 +18,7 @@ namespace DFC.Composite.Shell.Models.SitemapModels
         [XmlElement("priority")]
         public double? Priority { get; set; } = 0.5;
 
-        [XmlElement("image", Namespace = "http://www.google.com/schemas/sitemap-image/1.1")]
+        [XmlElement("xhtml", Namespace = "http://www.w3.org/1999/xhtml")]
         public List<SitemapImage> Images { get; set; }
 
         public bool ShouldSerializeChangeFrequency()
