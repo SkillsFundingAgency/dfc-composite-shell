@@ -42,7 +42,5 @@ namespace DFC.Composite.Shell.Models
         public HtmlString ContentSidebarLeft { get; set; }
 
         public HtmlString ContentBodyFooter { get; set; }
-
-        public GoogleScripts ScriptIds { get; set; }
     }
 }
