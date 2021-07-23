@@ -1,5 +1,4 @@
-﻿using DFC.Composite.Shell.Models.Exceptions;
-using DFC.Composite.Shell.Services.Banner;
+﻿using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 
@@ -70,7 +69,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         }
 
         [Fact]
-        public async Task GetPageBannersAsyncWhenErrorCallingBannerAppThenThrowException()
+        public async Task GetPageBannersAsyncWhenErrorCallingBannerAppThenEmptyContentStringReturned()
         {
             // Arrange
             var expectedError = "some reason";
@@ -78,12 +77,29 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             httpResponse = new HttpResponseMessage { StatusCode = expectedStatusCode, ReasonPhrase = expectedError };
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
-            // Act + Assert
-            var ex = await Assert.ThrowsAsync<EnhancedHttpException>(() => bannerService.GetPageBannersAsync(string.Empty));
+            // Act
+            var result = await bannerService.GetPageBannersAsync(string.Empty);
 
-            ex.Should().NotBeNull();
-            ex.StatusCode.Should().Be(expectedStatusCode);
-            ex.Message.Should().Be(expectedError);
+            // Assert
+            result.Should().NotBeNull();
+            result.Value.Should().BeEquivalentTo(string.Empty);
+        }
+
+        [Fact]
+        public async Task GetPageBannersAsyncWhenHttpClientThrowsThenEmptyContentStringReturned()
+        {
+            // Arrange
+            var expectedError = "some reason";
+            var expectedStatusCode = HttpStatusCode.BadRequest;
+            httpResponse = new HttpResponseMessage { StatusCode = expectedStatusCode, ReasonPhrase = expectedError };
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Throws(() => new TaskCanceledException());
+
+            // Act
+            var result = await bannerService.GetPageBannersAsync(string.Empty);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Value.Should().BeEquivalentTo(string.Empty);
         }
     }
 }
