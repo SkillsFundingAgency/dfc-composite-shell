@@ -1,7 +1,7 @@
-﻿using DFC.Composite.Shell.Models.Exceptions;
-
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
+
+using Polly.CircuitBreaker;
 
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -22,19 +22,31 @@ namespace DFC.Composite.Shell.Services.Banner
         public async Task<HtmlString> GetPageBannersAsync(string path)
         {
             logger.LogInformation($"Retrieving banners for path: {path}");
-
+            try
+            {
 #pragma warning disable CA2234 // Pass system uri objects instead of strings
-            var response = await httpClient.GetAsync(path);
+                var response = await httpClient.GetAsync(path);
 #pragma warning restore CA2234 // Pass system uri objects instead of strings
 
-            if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
+                {
+                    logger.LogError($"Call to Banner app failed. Status: {response.StatusCode}. Message: {response.ReasonPhrase}");
+                }
+
+                logger.LogInformation($"Banners for path: {path} retrieved successfully.");
+
+                return new HtmlString(await response.Content.ReadAsStringAsync());
+            }
+            catch (TaskCanceledException e)
             {
-                throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, path);
+                logger.LogError(e, "Call to Banner app failed.");
+            }
+            catch (BrokenCircuitException e)
+            {
+                logger.LogError(e, "Call to Banner app failed.");
             }
 
-            logger.LogInformation($"Banners for path: {path} retrieved successfully.");
-
-            return new HtmlString(await response.Content.ReadAsStringAsync());
+            return new HtmlString(string.Empty);
         }
     }
 }
