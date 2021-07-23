@@ -28,14 +28,14 @@ namespace DFC.Composite.Shell.Services.Banner
                 var response = await httpClient.GetAsync(path);
 #pragma warning restore CA2234 // Pass system uri objects instead of strings
 
-                if (!response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
-                    logger.LogError($"Call to Banner app failed. Status: {response.StatusCode}. Message: {response.ReasonPhrase}");
+                    logger.LogInformation($"Banners for path: {path} retrieved successfully.");
+
+                    return new HtmlString(await response.Content.ReadAsStringAsync());
                 }
 
-                logger.LogInformation($"Banners for path: {path} retrieved successfully.");
-
-                return new HtmlString(await response.Content.ReadAsStringAsync());
+                logger.LogError($"Call to Banner app failed. Status: {response.StatusCode}. Message: {response.ReasonPhrase}");
             }
             catch (TaskCanceledException e)
             {
