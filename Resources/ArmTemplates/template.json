@@ -118,6 +118,12 @@
         },
         "BannerAppBaseUrl":{
             "type": "string"
+        },
+        "ApplicationClientOptionsTimeout": {
+            "type": "string",
+            "metadata": {
+                "description": "ApplicationClientOptions Timeout"
+            }
         }
     },
     "variables": {
@@ -278,7 +284,7 @@
                             },
                             {
                                 "name": "ApplicationClientOptions__Timeout",
-                                "value": "00:00:10"
+                                "value": "[parameters('ApplicationClientOptionsTimeout')]"
                             },
                             {
                                 "name": "BrandingAssetsCdn",
