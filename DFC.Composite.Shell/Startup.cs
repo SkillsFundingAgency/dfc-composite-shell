@@ -86,7 +86,7 @@ namespace DFC.Composite.Shell
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
             var oidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
 
-            // Configure security headers
+            //Configure security headers
             app.UseCsp(options => options
                 .DefaultSources(s => s.Self())
                 .ScriptSources(s => s
@@ -101,14 +101,15 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com"))
                 .StyleSources(s => s
-                    .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
-                        "https://fonts.googleapis.com"))
+                        "https://fonts.googleapis.com",
+                        "https://www.googleoptimize.com"))
                 .FormActions(s => s
                     .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
@@ -125,7 +126,9 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com",
+                        "https://www.googletagmanager.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
@@ -175,7 +178,6 @@ namespace DFC.Composite.Shell
             services.AddHttpContextAccessor();
             services.AddApplicationInsightsTelemetry();
 
-            services.AddMemoryCache();
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
             services.AddTransient<IContentProcessorService, ContentProcessorService>();
@@ -210,6 +212,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
+            services.Configure<GoogleScripts>(Configuration.GetSection(nameof(GoogleScripts)));
 
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
@@ -226,8 +229,44 @@ namespace DFC.Composite.Shell
                 options.LoginPath = "/auth/signin";
             });
 
-            services.ConfigureHttpClients(Configuration);
-            services.AddTransient<IContentRetriever, ContentRetriever>();
+            var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
+            var policyRegistry = services.AddPolicyRegistry();
+
+            services.AddPolicies(policyRegistry, nameof(VisitClientOptions), policyOptions)
+                .AddHttpClient<INeo4JService, Neo4JService, VisitClientOptions>(Configuration, nameof(VisitClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(AppRegistryClientOptions), policyOptions)
+                .AddHttpClient<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(Configuration, nameof(AppRegistryClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
+                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
+                .AddHttpMessageHandler<CookieDelegatingHandler>();
+
+            services
+                .AddPolicies(policyRegistry, nameof(AjaxRequestClientOptions), policyOptions)
+                .AddHttpClient<IAjaxRequestService, AjaxRequestService, AjaxRequestClientOptions>(Configuration, nameof(AjaxRequestClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions);
+
+            services
+                .AddPolicies(policyRegistry, nameof(HealthClientOptions), policyOptions)
+                .AddHttpClient<IApplicationHealthService, ApplicationHealthService, HealthClientOptions>(Configuration, nameof(HealthClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(SitemapClientOptions), policyOptions)
+                .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
+                .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
+
+            services
+                .AddPolicies(policyRegistry, nameof(BannerClientOptions), policyOptions)
+                .AddHttpClient<IBannerService, BannerService, BannerClientOptions>(Configuration, nameof(BannerClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
 
             services.AddSession();
 
