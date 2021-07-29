@@ -177,6 +177,7 @@ namespace DFC.Composite.Shell
             services.AddHttpContextAccessor();
             services.AddApplicationInsightsTelemetry();
 
+            services.AddMemoryCache();
             services.AddTransient<IApplicationService, ApplicationService>();
             services.AddTransient<IAsyncHelper, AsyncHelper>();
             services.AddTransient<IContentProcessorService, ContentProcessorService>();

@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -22,17 +23,32 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IHttpResponseMessageHandler responseHandler;
         private readonly MarkupMessages markupMessages;
+        private readonly IMemoryCache memoryCache;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, MemoryCache memoryCache)
         {
             this.httpClient = httpClient;
             this.logger = logger;
             this.appRegistryDataService = appRegistryDataService;
             this.responseHandler = responseHandler;
             this.markupMessages = markupMessages;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
+        {
+            var cacheKey = $"{url}_{followRedirects}_{requestBaseUrl}";
+
+            if (!memoryCache.TryGetValue(cacheKey, out string content))
+            {
+                content = await GetContent_WithoutCaching(url, path, regionModel, followRedirects, requestBaseUrl);
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(30));
+            }
+
+            return content;
+        }
+
+        private async Task<string> GetContent_WithoutCaching(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
             const int MaxRedirections = 10;
 
