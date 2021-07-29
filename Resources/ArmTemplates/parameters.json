@@ -112,6 +112,9 @@
         },
         "BannerAppBaseUrl":{
             "value": "__BannersAppUrl__"
+        },
+        "ApplicationClientOptionsTimeout":{
+            "value": "__ApplicationClientOptionsTimeout__"
         }
     }
 }
