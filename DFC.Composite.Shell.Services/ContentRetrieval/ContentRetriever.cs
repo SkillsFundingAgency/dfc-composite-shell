@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
@@ -37,15 +38,34 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
-            var cacheKey = $"{url}_{followRedirects}_{requestBaseUrl}";
+            var cacheKey = BuildCacheKey(url, followRedirects, requestBaseUrl);
 
             if (!memoryCache.TryGetValue(cacheKey, out string content))
             {
                 content = await GetContent_WithoutCaching(url, path, regionModel, followRedirects, requestBaseUrl);
+
+                if (IsInteractiveContent(url) || string.IsNullOrWhiteSpace(content))
+                {
+                    return content;
+                }
+
                 memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(30));
             }
 
             return content;
+        }
+
+        private bool IsInteractiveContent(string url)
+        {
+            return !(
+                url?.Contains("app-pages-as", StringComparison.OrdinalIgnoreCase) == true
+                || url?.Contains("app-jobprof-as", StringComparison.OrdinalIgnoreCase) == true
+                || url?.Contains("app-contactus-as", StringComparison.OrdinalIgnoreCase) == true);
+        }
+
+        private string BuildCacheKey(string url, bool followRedirects, string requestBaseUrl)
+        {
+            return $"Url:{url}_FollowRedirects:{followRedirects}_RequestBaseUrl:{requestBaseUrl}";
         }
 
         private async Task<string> GetContent_WithoutCaching(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
