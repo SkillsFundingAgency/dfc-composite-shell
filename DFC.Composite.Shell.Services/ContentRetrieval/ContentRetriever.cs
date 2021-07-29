@@ -25,7 +25,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly MarkupMessages markupMessages;
         private readonly IMemoryCache memoryCache;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, MemoryCache memoryCache)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache)
         {
             this.httpClient = httpClient;
             this.logger = logger;
