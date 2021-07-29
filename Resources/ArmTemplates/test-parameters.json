@@ -97,6 +97,9 @@
         },
         "BannerAppBaseUrl":{
             "value": "https://sample.com"
+        },
+        "ApplicationClientOptionsTimeout":{
+            "value": "00:00:10"
         }
     }
 }
