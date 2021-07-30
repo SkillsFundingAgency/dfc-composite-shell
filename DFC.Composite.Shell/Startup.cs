@@ -103,7 +103,8 @@ namespace DFC.Composite.Shell
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com"))
-                .StyleSources(s => s.UnsafeInline().CustomSources(
+                .StyleSources(s => s
+                    .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
