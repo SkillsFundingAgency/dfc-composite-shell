@@ -5,9 +5,9 @@ using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
 
 using FluentAssertions;
-
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Options;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -25,6 +25,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         private readonly IFakeHttpRequestSender fakeHttpRequestSender;
         private readonly FakeHttpMessageHandler fakeHttpMessageHandler;
         private HttpResponseMessage httpResponse;
+        private IMemoryCache memoryCache;
 
         public BannerServiceTests()
         {
@@ -44,7 +45,8 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 BaseAddress = new Uri("http://bannerappurl"),
             };
 
-            bannerService = new BannerService(httpClient, logger);
+            memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            bannerService = new BannerService(httpClient, logger, memoryCache);
         }
 
         ~BannerServiceTests()
@@ -52,6 +54,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             fakeHttpMessageHandler.Dispose();
             httpResponse.Dispose();
             httpClient.Dispose();
+            memoryCache.Dispose();
         }
 
         [Fact]

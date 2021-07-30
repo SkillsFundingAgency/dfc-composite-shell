@@ -1,6 +1,7 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly.CircuitBreaker;
@@ -17,21 +18,27 @@ namespace DFC.Composite.Shell.Services.AppRegistry
     {
         private readonly ILogger<AppRegistryService> logger;
         private readonly HttpClient httpClient;
+        private readonly IMemoryCache memoryCache;
 
-        public AppRegistryService(ILogger<AppRegistryService> logger, HttpClient httpClient)
+        public AppRegistryService(ILogger<AppRegistryService> logger, HttpClient httpClient, IMemoryCache memoryCache)
         {
             this.logger = logger;
             this.httpClient = httpClient;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<IEnumerable<AppRegistrationModel>> GetPaths()
         {
-            using (var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress))
+            const int CacheDurationInSeconds = 10;
+            var cacheKey = BuildCacheKey();
+
+            if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<AppRegistrationModel> content))
             {
-                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsAsync<List<AppRegistrationModel>>().ConfigureAwait(false);
+                content = await GetPaths_WithoutCaching();
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
             }
+
+            return content;
         }
 
         public async Task<bool> SetRegionHealthState(string path, PageRegion pageRegion, bool isHealthy)
@@ -77,6 +84,21 @@ namespace DFC.Composite.Shell.Services.AppRegistry
                 logger.LogError(ex, $"{nameof(SetAjaxRequestHealthState)}: BrokenCircuit: {patchUrl} - {ex.Message}, marking AppRegistration: {path}.{name} IsHealthy = {isHealthy}");
 
                 return false;
+            }
+        }
+
+        private string BuildCacheKey()
+        {
+            return nameof(AppRegistryService);
+        }
+
+        private async Task<IEnumerable<AppRegistrationModel>> GetPaths_WithoutCaching()
+        {
+            using (var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress))
+            {
+                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsAsync<List<AppRegistrationModel>>().ConfigureAwait(false);
             }
         }
     }

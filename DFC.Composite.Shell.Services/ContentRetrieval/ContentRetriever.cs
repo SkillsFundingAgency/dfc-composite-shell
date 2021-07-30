@@ -38,6 +38,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
+            const int CacheDurationInSeconds = 30;
             var cacheKey = BuildCacheKey(url, followRedirects, requestBaseUrl);
 
             if (!memoryCache.TryGetValue(cacheKey, out string content))
@@ -49,7 +50,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     return content;
                 }
 
-                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(30));
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
             }
 
             return content;
@@ -65,7 +66,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
         private string BuildCacheKey(string url, bool followRedirects, string requestBaseUrl)
         {
-            return $"Url:{url}_FollowRedirects:{followRedirects}_RequestBaseUrl:{requestBaseUrl}";
+            return $"{nameof(ContentRetriever)}_Url:{url}_FollowRedirects:{followRedirects}_RequestBaseUrl:{requestBaseUrl}";
         }
 
         private async Task<string> GetContent_WithoutCaching(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
