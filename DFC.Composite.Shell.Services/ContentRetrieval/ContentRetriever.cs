@@ -4,6 +4,8 @@ using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using System;
@@ -22,17 +24,52 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IHttpResponseMessageHandler responseHandler;
         private readonly MarkupMessages markupMessages;
+        private readonly IMemoryCache memoryCache;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages)
+        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache)
         {
             this.httpClient = httpClient;
             this.logger = logger;
             this.appRegistryDataService = appRegistryDataService;
             this.responseHandler = responseHandler;
             this.markupMessages = markupMessages;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
+        {
+            const int CacheDurationInSeconds = 30;
+            var cacheKey = BuildCacheKey(url, followRedirects, requestBaseUrl);
+
+            if (!memoryCache.TryGetValue(cacheKey, out string content))
+            {
+                content = await GetContent_WithoutCaching(url, path, regionModel, followRedirects, requestBaseUrl);
+
+                if (IsInteractiveContent(url) || string.IsNullOrWhiteSpace(content))
+                {
+                    return content;
+                }
+
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
+            }
+
+            return content;
+        }
+
+        private bool IsInteractiveContent(string url)
+        {
+            return !(
+                url?.Contains("app-pages-as", StringComparison.OrdinalIgnoreCase) == true
+                || url?.Contains("app-jobprof-as", StringComparison.OrdinalIgnoreCase) == true
+                || url?.Contains("app-contactus-as", StringComparison.OrdinalIgnoreCase) == true);
+        }
+
+        private string BuildCacheKey(string url, bool followRedirects, string requestBaseUrl)
+        {
+            return $"{nameof(ContentRetriever)}_Url:{url}_FollowRedirects:{followRedirects}_RequestBaseUrl:{requestBaseUrl}";
+        }
+
+        private async Task<string> GetContent_WithoutCaching(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
         {
             const int MaxRedirections = 10;
 
