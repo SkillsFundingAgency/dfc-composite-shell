@@ -7,7 +7,9 @@ using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Polly.CircuitBreaker;
 using RichardSzalay.MockHttp;
 using System;
@@ -31,6 +33,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly IHttpResponseMessageHandler httpResponseMessageHandler;
         private readonly MarkupMessages markupMessages;
         private readonly List<KeyValuePair<string, string>> defaultFormPostParams;
+        private readonly IMemoryCache memoryCache;
 
         public ContentRetrieverTests()
         {
@@ -87,7 +90,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 },
             };
 
-            defaultService = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            defaultService = new ContentRetriever(httpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
         }
 
         ~ContentRetrieverTests()
@@ -95,6 +99,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             fakeHttpMessageHandler.Dispose();
             httpResponse.Dispose();
             httpClient.Dispose();
+            memoryCache.Dispose();
         }
 
         [Fact]
@@ -166,7 +171,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 IsHealthy = true,
             };
 
-            var service = new ContentRetriever(redirectHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(redirectHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
@@ -207,7 +213,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 IsHealthy = true,
             };
 
-            var service = new ContentRetriever(redirectHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(redirectHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", "path", model, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
 
@@ -231,7 +238,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
-            var service = new ContentRetriever(httpClient, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(httpClient, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages, memoryCache);
 
             await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
@@ -255,7 +263,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
-            var service = new ContentRetriever(httpClient, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(httpClient, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages, memoryCache);
 
             var result = await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
 
@@ -297,7 +306,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 BaseAddress = new Uri("http://SomeRegionBaseAddress"),
             };
 
-            var service = new ContentRetriever(postHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(postHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
 
@@ -332,7 +342,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 BaseAddress = new Uri("http://SomeRegionBaseAddress"),
             };
 
-            var service = new ContentRetriever(postHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(postHttpClient, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
@@ -389,7 +400,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
-            var service = new ContentRetriever(httpClient, fakeLogger, fakeRegionService, httpResponseMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(httpClient, fakeLogger, fakeRegionService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
@@ -414,7 +426,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var fakeRegionService = A.Fake<IAppRegistryDataService>();
 
-            var service = new ContentRetriever(httpClient, fakeLogger, fakeRegionService, httpResponseMessageHandler, markupMessages);
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var service = new ContentRetriever(httpClient, fakeLogger, fakeRegionService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
 
@@ -442,7 +455,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
             var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
-            var contentRetriever = new ContentRetriever(httpHandler.ToHttpClient(), logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var contentRetriever = new ContentRetriever(httpHandler.ToHttpClient(), logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
 
@@ -470,7 +485,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
             var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
-            var contentRetriever = new ContentRetriever(httpHandler.ToHttpClient(), logger, appRegistryDataService, httpResponseMessageHandler, markupMessages);
+
+            using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
+            var contentRetriever = new ContentRetriever(httpHandler.ToHttpClient(), logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
             var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
             Assert.Equal("https://base/baseurl/redirecturl", ex.Location.AbsoluteUri);
