@@ -50,7 +50,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 
             try
             {
-                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
+                using var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
 
@@ -73,7 +73,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 
             try
             {
-                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
+                using var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
 

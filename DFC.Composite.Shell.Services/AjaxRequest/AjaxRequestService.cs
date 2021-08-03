@@ -48,8 +48,7 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
                 {
                     httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Application.Json);
 
-                    var response = await httpClient.GetAsync(new Uri(url, UriKind.Absolute)).ConfigureAwait(false);
-
+                    using var response = await httpClient.GetAsync(new Uri(url, UriKind.Absolute)).ConfigureAwait(false);
                     responseModel.Status = response.StatusCode;
                     responseModel.StatusMessage = response.ReasonPhrase;
 
