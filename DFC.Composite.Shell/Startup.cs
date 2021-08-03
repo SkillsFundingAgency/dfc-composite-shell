@@ -189,7 +189,6 @@ namespace DFC.Composite.Shell
             services.AddTransient<ISetCookieParser, SetCookieParser>();
             services.AddTransient<IUrlRewriterService, UrlRewriterService>();
             services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
-            services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
 
             services.AddTransient<CompositeSessionIdDelegatingHandler>();
             services.AddTransient<CookieDelegatingHandler>();
