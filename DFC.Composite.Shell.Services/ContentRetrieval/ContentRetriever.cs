@@ -4,6 +4,7 @@ using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -19,16 +20,16 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
     public class ContentRetriever : IContentRetriever
     {
-        private readonly HttpClient httpClient;
+        private readonly IUriSpecifcHttpClientFactory httpClientFactory;
         private readonly ILogger<ContentRetriever> logger;
         private readonly IAppRegistryDataService appRegistryDataService;
         private readonly IHttpResponseMessageHandler responseHandler;
         private readonly MarkupMessages markupMessages;
         private readonly IMemoryCache memoryCache;
 
-        public ContentRetriever(HttpClient httpClient, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache)
+        public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache)
         {
-            this.httpClient = httpClient;
+            this.httpClientFactory = httpClientFactory;
             this.logger = logger;
             this.appRegistryDataService = appRegistryDataService;
             this.responseHandler = responseHandler;
@@ -83,7 +84,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
-                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
+                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections, regionModel).ConfigureAwait(false);
 
                     if (response != null && !response.IsSuccessStatusCode)
                     {
@@ -136,6 +137,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
                     };
 
+                    var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
                     var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
                     if (response.IsRedirectionStatus())
@@ -180,9 +182,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             return results;
         }
 
-        private async Task<HttpResponseMessage> GetContentIfRedirectedAsync(string requestBaseUrl, string url, bool followRedirects, int maxRedirections)
+        private async Task<HttpResponseMessage> GetContentIfRedirectedAsync(string requestBaseUrl, string url, bool followRedirects, int maxRedirections, RegionModel regionModel)
         {
             HttpResponseMessage response = null;
+            var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
 
             for (int i = 0; i < maxRedirections; i++)
             {

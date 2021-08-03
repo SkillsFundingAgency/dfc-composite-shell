@@ -26,21 +26,28 @@ namespace DFC.Composite.Shell.ClientHandlers
 
             if (request != null)
             {
-                httpContextAccessor.HttpContext.Request.Headers.TryGetValue(xForwardedProto, out var xForwardedProtoValue);
+                var httpContext = httpContextAccessor.HttpContext;
+
+                if (httpContext == null)
+                {
+                    return base.SendAsync(request, cancellationToken);
+                }
+
+                httpContext.Request?.Headers.TryGetValue(xForwardedProto, out var xForwardedProtoValue);
 
                 if (string.IsNullOrWhiteSpace(xForwardedProtoValue))
                 {
-                    xForwardedProtoValue = httpContextAccessor.HttpContext.Request.Scheme;
+                    xForwardedProtoValue = httpContext.Request?.Scheme;
                 }
 
                 request.Headers.Add(xForwardedProto, xForwardedProtoValue.ToString());
                 logger.Log(LogLevel.Information, $"Added Forwarded Proto header with name {xForwardedProto} and value {xForwardedProtoValue}");
 
-                httpContextAccessor.HttpContext.Request.Headers.TryGetValue(xOriginalHost, out var xOriginalHostValue);
+                httpContext.Request.Headers.TryGetValue(xOriginalHost, out var xOriginalHostValue);
 
                 if (string.IsNullOrWhiteSpace(xOriginalHostValue))
                 {
-                    xOriginalHostValue = httpContextAccessor.HttpContext.Request.Host.Value;
+                    xOriginalHostValue = httpContext.Request.Host.Value;
                 }
 
                 request.Headers.Add(xOriginalHost, xOriginalHostValue.ToString());

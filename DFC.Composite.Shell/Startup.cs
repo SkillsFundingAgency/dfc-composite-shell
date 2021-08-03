@@ -28,6 +28,7 @@ using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
@@ -198,6 +199,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
             services.AddTransient<INeo4JService, Neo4JService>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
+            services.AddTransient<IContentRetriever, ContentRetriever>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
             services.AddScoped<IAppRegistryDataService, AppRegistryDataService>();
@@ -213,6 +215,8 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
+
+            services.AddSingleton<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory>();
             services.Configure<GoogleScripts>(Configuration.GetSection(nameof(GoogleScripts)));
 
             var authSettings = new OpenIDConnectSettings();
@@ -230,45 +234,7 @@ namespace DFC.Composite.Shell
                 options.LoginPath = "/auth/signin";
             });
 
-            var policyOptions = Configuration.GetSection(Constants.Policies).Get<PolicyOptions>();
-            var policyRegistry = services.AddPolicyRegistry();
-
-            services.AddPolicies(policyRegistry, nameof(VisitClientOptions), policyOptions)
-                .AddHttpClient<INeo4JService, Neo4JService, VisitClientOptions>(Configuration, nameof(VisitClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(AppRegistryClientOptions), policyOptions)
-                .AddHttpClient<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(Configuration, nameof(AppRegistryClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
-                .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
-                .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
-                .AddHttpMessageHandler<CookieDelegatingHandler>();
-
-            services
-                .AddPolicies(policyRegistry, nameof(AjaxRequestClientOptions), policyOptions)
-                .AddHttpClient<IAjaxRequestService, AjaxRequestService, AjaxRequestClientOptions>(Configuration, nameof(AjaxRequestClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(AuthClientOptions), policyOptions);
-
-            services
-                .AddPolicies(policyRegistry, nameof(HealthClientOptions), policyOptions)
-                .AddHttpClient<IApplicationHealthService, ApplicationHealthService, HealthClientOptions>(Configuration, nameof(HealthClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(SitemapClientOptions), policyOptions)
-                .AddHttpClient<IApplicationSitemapService, ApplicationSitemapService, SitemapClientOptions>(Configuration, nameof(SitemapClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(RobotClientOptions), policyOptions)
-                .AddHttpClient<IApplicationRobotService, ApplicationRobotService, RobotClientOptions>(Configuration, nameof(RobotClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
-            services
-                .AddPolicies(policyRegistry, nameof(BannerClientOptions), policyOptions)
-                .AddHttpClient<IBannerService, BannerService, BannerClientOptions>(Configuration, nameof(BannerClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker));
-
+            services.ConfigureHttpClients(Configuration);
             services.AddSession();
 
             services.Configure<ForwardedHeadersOptions>(options =>
