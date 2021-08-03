@@ -68,7 +68,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
 
             // Assert
             result.Should().NotBeNull();
-            result.Value.Should().Be("some response.");
+            result.Value.Should().Be(string.Empty);
         }
 
         [Fact]
