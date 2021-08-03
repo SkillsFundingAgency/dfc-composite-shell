@@ -239,6 +239,7 @@ namespace DFC.Composite.Shell
             services
                 .AddPolicies(policyRegistry, nameof(ApplicationClientOptions), policyOptions)
                 .AddHttpClient<IContentRetriever, ContentRetriever, ApplicationClientOptions>(Configuration, nameof(ApplicationClientOptions), nameof(PolicyOptions.HttpRetry), nameof(PolicyOptions.HttpCircuitBreaker))
+                .SetHandlerLifetime(TimeSpan.FromSeconds(30))
                 .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
                 .AddHttpMessageHandler<CookieDelegatingHandler>();
 

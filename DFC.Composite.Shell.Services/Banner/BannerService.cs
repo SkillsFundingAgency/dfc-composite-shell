@@ -47,7 +47,7 @@ namespace DFC.Composite.Shell.Services.Banner
             try
             {
 #pragma warning disable CA2234 // Pass system uri objects instead of strings
-                var response = await httpClient.GetAsync(path);
+                using var response = await httpClient.GetAsync(path);
 #pragma warning restore CA2234 // Pass system uri objects instead of strings
 
                 if (response.IsSuccessStatusCode)

@@ -84,7 +84,7 @@ namespace DFC.Composite.Shell.Services.Neo4J
             };
             try
             {
-                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+                using var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)

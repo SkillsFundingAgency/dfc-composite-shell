@@ -39,7 +39,7 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 
                 request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
 
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                using var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
 

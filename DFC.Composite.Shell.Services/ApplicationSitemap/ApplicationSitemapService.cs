@@ -57,8 +57,7 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
                 request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
 
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-
+                using var response = await httpClient.SendAsync(request).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

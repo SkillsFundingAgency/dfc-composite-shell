@@ -69,6 +69,7 @@ namespace DFC.Composite.Shell.Extensions
                             options.BaseAddress = httpClientOptions.BaseAddress;
                             options.Timeout = httpClientOptions.Timeout;
                             options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
+                            options.DefaultRequestHeaders.Add(HeaderNames.Connection, "Close");
 
                             if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
                             {

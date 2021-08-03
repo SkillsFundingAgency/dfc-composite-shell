@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
         {
             logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loading health data from {model.HealthUrl}");
 
-            var request = new HttpRequestMessage(HttpMethod.Get, model.HealthUrl);
+            using var request = new HttpRequestMessage(HttpMethod.Get, model.HealthUrl);
 
             if (!string.IsNullOrWhiteSpace(model.BearerToken))
             {
@@ -49,7 +49,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
             try
             {
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                using var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {

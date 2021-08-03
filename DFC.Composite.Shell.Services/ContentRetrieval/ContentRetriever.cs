@@ -83,7 +83,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
-                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
+                    using var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections).ConfigureAwait(false);
 
                     if (response != null && !response.IsSuccessStatusCode)
                     {
@@ -131,12 +131,12 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     logger.LogInformation($"{nameof(PostContent)}: Posting child response from: {url}");
 
-                    var request = new HttpRequestMessage(HttpMethod.Post, url)
+                    using var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
                         Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
                     };
 
-                    var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                    using var response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
                     if (response.IsRedirectionStatus())
                     {
@@ -186,8 +186,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
             for (int i = 0; i < maxRedirections; i++)
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 response = await httpClient.SendAsync(request).ConfigureAwait(false);
 
                 if (!response.IsRedirectionStatus())

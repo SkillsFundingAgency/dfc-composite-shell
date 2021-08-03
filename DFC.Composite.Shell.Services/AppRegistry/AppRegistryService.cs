@@ -96,8 +96,9 @@ namespace DFC.Composite.Shell.Services.AppRegistry
         {
             using (var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress))
             {
-                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+                using var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
+
                 return await response.Content.ReadAsAsync<List<AppRegistrationModel>>().ConfigureAwait(false);
             }
         }
