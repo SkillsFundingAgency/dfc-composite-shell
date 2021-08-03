@@ -61,13 +61,13 @@ namespace DFC.Composite.Shell.Extensions
             return services;
         }
 
-        public static IHttpClientBuilder AddHttpClient<TClient, TImplementation, TClientOptions>(
+        public static IHttpClientBuilder AddNamedHttpClient<TClient, TImplementation, TClientOptions>(
             this IServiceCollection services,
-            string policyName,
             IConfiguration configuration,
             string configurationSectionName,
             string retryPolicyKey,
-            string circuitBreakerPolicyKey)
+            string circuitBreakerPolicyKey,
+            string policyName)
                 where TClient : class
                 where TImplementation : class, TClient
                 where TClientOptions : HttpClientOptions, new() =>
@@ -76,7 +76,7 @@ namespace DFC.Composite.Shell.Extensions
                 .AddHttpClient<TClient, TImplementation>(policyName)
                 .AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
 
-        public static IHttpClientBuilder AddHttpClient<TClient, TImplementation, TClientOptions>(
+        public static IHttpClientBuilder AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
             this IServiceCollection services,
             IConfiguration configuration,
             string configurationSectionName,
@@ -104,6 +104,7 @@ namespace DFC.Composite.Shell.Extensions
                     options.BaseAddress = httpClientOptions.BaseAddress;
                     options.Timeout = httpClientOptions.Timeout;
                     options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
+                    options.DefaultRequestHeaders.Add("WhoCares", retryPolicyKey);
 
                     if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
                     {
@@ -230,17 +231,17 @@ namespace DFC.Composite.Shell.Extensions
 
             foreach (var registeredUrl in registeredUrls.GetAll())
             {
-                var client =
-                    AddHttpClientWithPolicies<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory, ApplicationClientOptions>(
-                        services,
-                        policyRegistry,
-                        $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                        $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
-                        nameof(ApplicationClientOptions),
-                        policyOptions,
-                        configuration)
-                    .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
-                    .AddHttpMessageHandler<CookieDelegatingHandler>();
+                AddHttpClientWithPolicies<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory, ApplicationClientOptions>(
+                    services,
+                    policyRegistry,
+                    $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
+                    $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
+                    nameof(ApplicationClientOptions),
+                    policyOptions,
+                    configuration,
+                    $"{registeredUrl}_{nameof(UriSpecifcHttpClientFactory)}")
+                .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
+                .AddHttpMessageHandler<CookieDelegatingHandler>();
             }
         }
 
@@ -269,22 +270,34 @@ namespace DFC.Composite.Shell.Extensions
             string circuitBreakerKey,
             string configurationSectionName,
             PolicyOptions policyOptions,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            string policyName = null)
                 where TClient : class
                 where TImplementation : class, TClient
                 where TClientOptions : HttpClientOptions, new()
         {
-            return services
+            var policies = services
                 .AddPolicies(
                     policyRegistry,
                     retryPolicyKey,
                     circuitBreakerKey,
-                    policyOptions)
-                .AddHttpClient<TClient, TImplementation, TClientOptions>(
+                    policyOptions);
+
+            if (!string.IsNullOrEmpty(policyName))
+            {
+                return policies.AddNamedHttpClient<TClient, TImplementation, TClientOptions>(
                     configuration,
                     configurationSectionName,
                     retryPolicyKey,
-                    circuitBreakerKey);
+                    circuitBreakerKey,
+                    policyName);
+            }
+
+            return policies.AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
+                configuration,
+                configurationSectionName,
+                retryPolicyKey,
+                circuitBreakerKey);
         }
     }
 }

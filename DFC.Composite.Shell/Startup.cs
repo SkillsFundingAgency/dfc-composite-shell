@@ -189,6 +189,7 @@ namespace DFC.Composite.Shell
             services.AddTransient<ISetCookieParser, SetCookieParser>();
             services.AddTransient<IUrlRewriterService, UrlRewriterService>();
             services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
+            services.AddTransient<ICompositeDataProtectionDataProvider, CompositeDataProtectionDataProvider>();
 
             services.AddTransient<CompositeSessionIdDelegatingHandler>();
             services.AddTransient<CookieDelegatingHandler>();
@@ -216,7 +217,6 @@ namespace DFC.Composite.Shell
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
 
-            services.AddSingleton<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory>();
             services.Configure<GoogleScripts>(Configuration.GetSection(nameof(GoogleScripts)));
 
             var authSettings = new OpenIDConnectSettings();
@@ -235,6 +235,8 @@ namespace DFC.Composite.Shell
             });
 
             services.ConfigureHttpClients(Configuration);
+            services.AddSingleton<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory>();
+
             services.AddSession();
 
             services.Configure<ForwardedHeadersOptions>(options =>

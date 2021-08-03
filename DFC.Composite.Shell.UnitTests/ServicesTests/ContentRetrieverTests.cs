@@ -162,7 +162,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 StatusCode = HttpStatusCode.Redirect,
                 Content = new StringContent(DummyChildAppContent),
             };
-            redirectHttpResponse.Headers.Location = new Uri("http://SomeLocation");
+            redirectHttpResponse.Headers.Location = new Uri("http://someUrl");
 
             var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(redirectHttpResponse);

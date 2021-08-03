@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 
 namespace DFC.Composite.Shell.Services.UriSpecifcHttpClient
@@ -6,23 +7,21 @@ namespace DFC.Composite.Shell.Services.UriSpecifcHttpClient
     public class UriSpecifcHttpClientFactory : IUriSpecifcHttpClientFactory
     {
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly ConcurrentDictionary<string, bool> registedUrls = new ConcurrentDictionary<string, bool>();
+        private readonly List<string> registeredUrls;
 
-        public UriSpecifcHttpClientFactory(IHttpClientFactory httpClientFactory)
+        public UriSpecifcHttpClientFactory(IHttpClientFactory httpClientFactory, IRegisteredUrls registeredUrls)
         {
             this.httpClientFactory = httpClientFactory;
+            this.registeredUrls = registeredUrls?.GetAll().Select(url => $"{url}_{nameof(UriSpecifcHttpClientFactory)}").ToList();
         }
 
         public HttpClient GetClientForRegionEndpoint(string url)
         {
-            return string.IsNullOrEmpty(url) || !registedUrls.ContainsKey(url)
-                ? httpClientFactory.CreateClient(RegisteredUrlConstants.DefaultKey)
-                : httpClientFactory.CreateClient(url);
-        }
+            var key = $"{url}_{nameof(UriSpecifcHttpClientFactory)}";
 
-        public void RegisterUrl(string url)
-        {
-            registedUrls.TryAdd(url, true);
+            return string.IsNullOrEmpty(url) || !registeredUrls.Contains(key)
+                ? httpClientFactory.CreateClient(RegisteredUrlConstants.DefaultKey)
+                : httpClientFactory.CreateClient(key);
         }
     }
 }
