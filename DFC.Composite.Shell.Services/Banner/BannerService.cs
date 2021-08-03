@@ -22,8 +22,12 @@ namespace DFC.Composite.Shell.Services.Banner
             this.memoryCache = memoryCache;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<HtmlString> GetPageBannersAsync(string path)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+            return new HtmlString(string.Empty);
+            /*
             const int CacheDurationInSeconds = 10;
             var cacheKey = BuildCacheKey(path);
 
@@ -33,7 +37,7 @@ namespace DFC.Composite.Shell.Services.Banner
                 memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
             }
 
-            return content;
+            return content;*/
         }
 
         private string BuildCacheKey(string path)
