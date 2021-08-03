@@ -54,9 +54,8 @@ namespace DFC.Composite.Shell.Extensions
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .CircuitBreakerAsync(
-                        handledEventsAllowedBeforeBreaking: policyOptions.HttpCircuitBreaker
-                            .ExceptionsAllowedBeforeBreaking,
-                        durationOfBreak: policyOptions.HttpCircuitBreaker.DurationOfBreak));
+                        policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                        policyOptions.HttpCircuitBreaker.DurationOfBreak));
 
             return services;
         }
@@ -104,7 +103,6 @@ namespace DFC.Composite.Shell.Extensions
                     options.BaseAddress = httpClientOptions.BaseAddress;
                     options.Timeout = httpClientOptions.Timeout;
                     options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
-                    options.DefaultRequestHeaders.Add("WhoCares", retryPolicyKey);
 
                     if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
                     {
