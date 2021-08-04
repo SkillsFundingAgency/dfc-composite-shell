@@ -7,8 +7,8 @@ using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Banner;
+using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Neo4J;
-using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -17,10 +17,10 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Registry;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Extensions
 {
@@ -66,13 +66,13 @@ namespace DFC.Composite.Shell.Extensions
             string configurationSectionName,
             string retryPolicyKey,
             string circuitBreakerPolicyKey,
-            string policyName)
+            string httpClientName)
                 where TClient : class
                 where TImplementation : class, TClient
                 where TClientOptions : HttpClientOptions, new() =>
             services
                 .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
-                .AddHttpClient<TClient, TImplementation>(policyName)
+                .AddHttpClient<TClient, TImplementation>(httpClientName)
                 .AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
 
         public static IHttpClientBuilder AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
@@ -218,18 +218,11 @@ namespace DFC.Composite.Shell.Extensions
             PolicyOptions policyOptions,
             IPolicyRegistry<string> policyRegistry)
         {
-            var registeredUrls = GetRegisteredUrls(services);
+            var registeredUrls = GetRegisteredUrls(services) ?? default;
 
-            if (registeredUrls == null)
+            foreach (var registeredUrl in registeredUrls)
             {
-                registeredUrls = new RegisteredUrls(default);
-            }
-
-            services.AddSingleton<IRegisteredUrls>(registeredUrls);
-
-            foreach (var registeredUrl in registeredUrls.GetAll())
-            {
-                AddHttpClientWithPolicies<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory, ApplicationClientOptions>(
+                AddHttpClientWithPolicies<IContentRetriever, ContentRetriever, ApplicationClientOptions>(
                     services,
                     policyRegistry,
                     $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
@@ -237,28 +230,25 @@ namespace DFC.Composite.Shell.Extensions
                     nameof(ApplicationClientOptions),
                     policyOptions,
                     configuration,
-                    $"{registeredUrl}_{nameof(UriSpecifcHttpClientFactory)}")
+                    $"{registeredUrl}_{nameof(ContentRetriever)}")
                 .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
                 .AddHttpMessageHandler<CookieDelegatingHandler>();
             }
         }
 
-        private static RegisteredUrls GetRegisteredUrls(IServiceCollection services)
+        private static List<string> GetRegisteredUrls(IServiceCollection services)
         {
-            var urls = Task.Run(() =>
-            {
-                var serviceProvider = services.BuildServiceProvider();
-                return serviceProvider.GetService<IAppRegistryDataService>().GetAppRegistrationModels();
-            })
-                .Result
+            return services
+                .BuildServiceProvider()
+                .GetService<IAppRegistryDataService>()
+                .GetAppRegistrationModels()
+                .GetAwaiter()
+                .GetResult()
                 .Where(model => model.Regions != null)
                 .SelectMany(model => model.Regions)
                 .Select(region => region.RegionEndpoint)
                 .Distinct()
                 .ToList();
-
-            urls.Add(RegisteredUrlConstants.DefaultKey);
-            return new RegisteredUrls(urls);
         }
 
         private static IHttpClientBuilder AddHttpClientWithPolicies<TClient, TImplementation, TClientOptions>(
@@ -269,7 +259,7 @@ namespace DFC.Composite.Shell.Extensions
             string configurationSectionName,
             PolicyOptions policyOptions,
             IConfiguration configuration,
-            string policyName = null)
+            string httpClientName = null)
                 where TClient : class
                 where TImplementation : class, TClient
                 where TClientOptions : HttpClientOptions, new()
@@ -281,14 +271,14 @@ namespace DFC.Composite.Shell.Extensions
                     circuitBreakerKey,
                     policyOptions);
 
-            if (!string.IsNullOrEmpty(policyName))
+            if (!string.IsNullOrEmpty(httpClientName))
             {
                 return policies.AddNamedHttpClient<TClient, TImplementation, TClientOptions>(
                     configuration,
                     configurationSectionName,
                     retryPolicyKey,
                     circuitBreakerKey,
-                    policyName);
+                    httpClientName);
             }
 
             return policies.AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
