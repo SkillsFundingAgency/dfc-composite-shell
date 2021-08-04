@@ -218,7 +218,7 @@ namespace DFC.Composite.Shell.Extensions
             PolicyOptions policyOptions,
             IPolicyRegistry<string> policyRegistry)
         {
-            var registeredUrls = GetRegisteredUrls(services) ?? default;
+            var registeredUrls = GetRegisteredUrls(services) ?? new List<string>();
 
             foreach (var registeredUrl in registeredUrls)
             {
