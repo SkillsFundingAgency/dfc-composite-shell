@@ -1,10 +1,7 @@
 ﻿using DFC.Composite.Shell.ClientHandlers;
-using DFC.Composite.Shell.Services.DataProtectionProviders;
-using DFC.Composite.Shell.Services.PathLocator;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
