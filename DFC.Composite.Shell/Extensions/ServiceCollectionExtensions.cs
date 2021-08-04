@@ -142,17 +142,14 @@ namespace DFC.Composite.Shell.Extensions
                 policyOptions,
                 configuration);
 
-            if (!services.AppRegistryRequestRegistered())
-            {
-                AddHttpClientWithPolicies<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(
-                    services,
-                    policyRegistry,
-                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
-                    nameof(AppRegistryClientOptions),
-                    policyOptions,
-                    configuration);
-            }
+            AddHttpClientWithPolicies<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(
+                services,
+                policyRegistry,
+                $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
+                $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
+                nameof(AppRegistryClientOptions),
+                policyOptions,
+                configuration);
 
             services.AddApplicationClientHttp(configuration, policyOptions, policyRegistry);
 
@@ -207,11 +204,6 @@ namespace DFC.Composite.Shell.Extensions
                nameof(BannerClientOptions),
                policyOptions,
                configuration);
-        }
-
-        private static bool AppRegistryRequestRegistered(this IServiceCollection services)
-        {
-            return services.Any(service => service.ServiceType == typeof(IAppRegistryService));
         }
 
         private static void AddApplicationClientHttp(
