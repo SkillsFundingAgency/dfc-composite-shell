@@ -18,12 +18,14 @@ using Polly.Extensions.Http;
 using Polly.Registry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
 
 namespace DFC.Composite.Shell.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddPolicies(
@@ -128,7 +130,7 @@ namespace DFC.Composite.Shell.Extensions
 
             if (policyOptions == null)
             {
-                throw new Exception("Policy options could not be found");
+                throw new ArgumentNullException(nameof(configuration), "Policy options could not be found");
             }
 
             AddHttpClientWithPolicies<INeo4JService, Neo4JService, VisitClientOptions>(
