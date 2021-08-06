@@ -19,7 +19,7 @@ namespace DFC.Composite.Shell.Services.Utilities
 
         public async Task<string> ReadAllTextAsync(string file)
         {
-            return await File.ReadAllTextAsync(file).ConfigureAwait(false);
+            return await File.ReadAllTextAsync(file);
         }
     }
 }

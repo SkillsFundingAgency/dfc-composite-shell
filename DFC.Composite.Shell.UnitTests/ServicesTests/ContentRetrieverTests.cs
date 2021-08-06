@@ -6,17 +6,23 @@ using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Polly.CircuitBreaker;
+
 using RichardSzalay.MockHttp;
+
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -118,7 +124,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 PageRegion = PageRegion.Body,
             };
 
-            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl");
 
             Assert.Equal(DummyChildAppContent, result);
         }
@@ -133,7 +139,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 OfflineHtml = OfflineHtml,
             };
 
-            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl");
 
             Assert.Equal(OfflineHtml, result);
         }
@@ -148,7 +154,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 OfflineHtml = null,
             };
 
-            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl");
 
             Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result);
         }
@@ -193,7 +199,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl"));
         }
 
         [Fact]
@@ -229,7 +235,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", "path", model, false, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", "path", model, false, "http://baseUrl"));
 
             fakeRedirectHttpMessageHandler.Dispose();
             redirectHttpResponse.Dispose();
@@ -254,7 +260,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages, memoryCache);
 
-            await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
+            await service.GetContent("someUrl", "path", model, true, "baseUrl");
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustHaveHappenedOnceExactly();
@@ -279,7 +285,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages, memoryCache);
 
-            var result = await service.GetContent("someUrl", "path", model, true, "baseUrl").ConfigureAwait(false);
+            var result = await service.GetContent("someUrl", "path", model, true, "baseUrl");
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
@@ -290,7 +296,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task PostContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, null, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, null, defaultFormPostParams, "http://baseUrl"));
         }
 
         [Fact]
@@ -328,7 +334,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl"));
 
             httpResponseMessage.Dispose();
             fakeRedirectHttpMessageHandler.Dispose();
@@ -364,7 +370,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
             Assert.Equal(DummyChildAppContent, result);
 
@@ -383,7 +389,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 OfflineHtml = OfflineHtml,
             };
 
-            var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
             Assert.Equal(OfflineHtml, result);
         }
@@ -398,7 +404,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 OfflineHtml = null,
             };
 
-            var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
             Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result);
         }
@@ -422,7 +428,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, fakeLogger, fakeRegionService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustHaveHappenedOnceExactly();
@@ -448,7 +454,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, fakeLogger, fakeRegionService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl").ConfigureAwait(false);
+            var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
@@ -481,7 +487,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var contentRetriever = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl));
 
             A.CallTo(() => httpResponseMessageHandler.Process(A<HttpResponseMessage>.That.Matches(x => x.StatusCode == HttpStatusCode.Redirect))).MustHaveHappenedOnceExactly();
 
@@ -514,7 +520,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var contentRetriever = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl).ConfigureAwait(false)).ConfigureAwait(false);
+            var ex = await Assert.ThrowsAsync<RedirectException>(async () => await contentRetriever.PostContent(postUrl, "path", model, defaultFormPostParams, baseUrl));
             Assert.Equal("https://base/baseurl/redirecturl", ex.Location.AbsoluteUri);
             Assert.Equal(postUrl, ex.OldLocation.AbsoluteUri);
 

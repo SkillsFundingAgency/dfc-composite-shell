@@ -1,7 +1,9 @@
 ﻿using DFC.Composite.Shell.Models.AjaxApiModels;
 using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.AppRegistry;
+
 using Microsoft.AspNetCore.Mvc;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +33,7 @@ namespace DFC.Composite.Shell.Controllers
                 return BadRequest();
             }
 
-            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(requestModel.Path).ConfigureAwait(false);
+            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(requestModel.Path);
             var ajaxRequest = appRegistrationModel?.AjaxRequests.FirstOrDefault(f => string.Compare(f.Name, requestModel.Method, StringComparison.OrdinalIgnoreCase) == 0);
 
             if (string.IsNullOrWhiteSpace(ajaxRequest?.AjaxEndpoint))
@@ -39,7 +41,7 @@ namespace DFC.Composite.Shell.Controllers
                 return NotFound();
             }
 
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             return new ObjectResult(result) { StatusCode = (int)result.Status };
         }

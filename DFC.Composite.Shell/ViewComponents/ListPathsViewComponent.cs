@@ -1,5 +1,7 @@
 ﻿using DFC.Composite.Shell.Services.AppRegistry;
+
 using Microsoft.AspNetCore.Mvc;
+
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,7 +20,7 @@ namespace DFC.Composite.Shell.ViewComponents
         {
             var vm = new ListPathsViewModel();
 
-            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
 
             vm.AppRegistrationModels = appRegistrationModels.Where(w => !string.IsNullOrWhiteSpace(w.TopNavigationText));
 

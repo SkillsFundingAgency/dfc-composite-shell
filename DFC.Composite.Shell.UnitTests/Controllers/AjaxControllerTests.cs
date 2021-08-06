@@ -3,12 +3,16 @@ using DFC.Composite.Shell.Models.AjaxApiModels;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.AppRegistry;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Mvc;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -38,7 +42,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as ObjectResult;
@@ -62,7 +66,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as BadRequestResult;
@@ -86,7 +90,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as BadRequestResult;
@@ -110,7 +114,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             var ajaxController = new AjaxController(fakeAjaxRequestService, fakeAppRegistryDataService);
 
             // Act
-            var result = await ajaxController.Action(requestModel).ConfigureAwait(false);
+            var result = await ajaxController.Action(requestModel);
 
             // Assert
             var objectResult = result as NotFoundResult;

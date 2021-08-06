@@ -1,10 +1,14 @@
 ﻿using DFC.Composite.Shell.ClientHandlers;
 using DFC.Composite.Shell.Test.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
+
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.ClientHandlers
@@ -30,7 +34,7 @@ namespace DFC.Composite.Shell.UnitTests.ClientHandlers
 
                 //Act
                 var invoker = new HttpMessageInvoker(handler);
-                await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+                await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
                 //Assert
                 Assert.Single(httpRequestChildMessage.Headers);

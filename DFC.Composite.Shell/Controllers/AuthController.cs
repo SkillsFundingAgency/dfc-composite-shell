@@ -2,6 +2,7 @@
 using DFC.Composite.Shell.Services.Auth.Models;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Utilities;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -51,21 +53,21 @@ namespace DFC.Composite.Shell.Controllers
         public async Task<IActionResult> SignIn(string redirectUrl)
         {
             SetRedirectUrl(GetRedirectURl(redirectUrl));
-            var signInUrl = await authClient.GetSignInUrl().ConfigureAwait(false);
+            var signInUrl = await authClient.GetSignInUrl();
             return Redirect(signInUrl);
         }
 
         public async Task<IActionResult> ResetPassword()
         {
-            var signInUrl = await authClient.GetResetPasswordUrl().ConfigureAwait(false);
+            var signInUrl = await authClient.GetResetPasswordUrl();
             return Redirect(signInUrl);
         }
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
             var Url = GenerateSignOutUrl(redirectUrl);
-            var signInUrl = await authClient.GetSignOutUrl(Url).ConfigureAwait(false);
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
+            var signInUrl = await authClient.GetSignOutUrl(Url);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect(signInUrl);
         }
 
@@ -74,7 +76,7 @@ namespace DFC.Composite.Shell.Controllers
             JwtSecurityToken validatedToken;
             try
             {
-                validatedToken = await authClient.ValidateToken(id_token).ConfigureAwait(false);
+                validatedToken = await authClient.ValidateToken(id_token);
             }
             catch (System.Exception ex)
             {
@@ -108,7 +110,7 @@ namespace DFC.Composite.Shell.Controllers
                         new Claim("bearer", CreateChildAppToken(claims, expiryTime)),
                         new Claim(ClaimTypes.Name, $"{validatedToken.Claims.FirstOrDefault(claim => claim.Type == "given_name")?.Value} {validatedToken.Claims.FirstOrDefault(claim => claim.Type == "family_name")?.Value}"),
                     },
-                    CookieAuthenticationDefaults.AuthenticationScheme)), authProperties).ConfigureAwait(false);
+                    CookieAuthenticationDefaults.AuthenticationScheme)), authProperties);
 
             return Redirect(GetAndResetRedirectUrl());
         }
