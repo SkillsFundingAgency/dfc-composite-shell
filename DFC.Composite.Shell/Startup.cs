@@ -213,9 +213,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
-
-            services.Configure<GoogleScripts>(Configuration.GetSection(nameof(GoogleScripts)));
-
+            
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 

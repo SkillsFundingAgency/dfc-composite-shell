@@ -41,10 +41,7 @@ namespace DFC.Composite.Shell.Controllers
                 LayoutName = null,
                 PageTitle = "Error | National Careers Service",
                 BrandingAssetsCdn = configuration.GetValue<string>(nameof(PageViewModelResponse.BrandingAssetsCdn)),
-                ScriptIds = new GoogleScripts(),
             };
-
-            configuration?.GetSection(nameof(GoogleScripts)).Bind(viewModel.ScriptIds);
 
             return View(viewModel);
         }
