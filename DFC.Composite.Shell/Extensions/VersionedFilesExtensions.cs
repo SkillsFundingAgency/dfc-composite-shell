@@ -11,10 +11,7 @@ namespace DFC.Composite.Shell.Extensions
         public static PageViewModel BuildDefaultPageViewModel(this IVersionedFiles versionedFiles, IConfiguration configuration)
         {
             _ = versionedFiles ?? throw new ArgumentNullException(nameof(versionedFiles));
-
-            var scripts = new GoogleScripts();
-            configuration?.GetSection(nameof(GoogleScripts)).Bind(scripts);
-
+            
             return new PageViewModel
             {
                 BrandingAssetsCdn = configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn)),
@@ -22,7 +19,6 @@ namespace DFC.Composite.Shell.Extensions
                 VersionedPathForJavaScripts = versionedFiles.VersionedPathForJavaScripts.ToList(),
                 VersionedPathForWebChatJs = versionedFiles.VersionedPathForWebChatJs,
                 WebchatEnabled = versionedFiles.WebchatEnabled,
-                ScriptIds = scripts,
             };
         }
     }
