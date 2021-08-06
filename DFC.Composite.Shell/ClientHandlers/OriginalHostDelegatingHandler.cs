@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,21 +27,30 @@ namespace DFC.Composite.Shell.ClientHandlers
 
             if (request != null)
             {
-                httpContextAccessor.HttpContext.Request.Headers.TryGetValue(xForwardedProto, out var xForwardedProtoValue);
+                var httpContext = httpContextAccessor.HttpContext;
+
+                if (httpContext?.Request == null)
+                {
+                    return base.SendAsync(request, cancellationToken);
+                }
+
+                var contextRequest = httpContext.Request;
+
+                contextRequest.Headers.TryGetValue(xForwardedProto, out var xForwardedProtoValue);
 
                 if (string.IsNullOrWhiteSpace(xForwardedProtoValue))
                 {
-                    xForwardedProtoValue = httpContextAccessor.HttpContext.Request.Scheme;
+                    xForwardedProtoValue = contextRequest.Scheme ?? Uri.UriSchemeHttp;
                 }
 
                 request.Headers.Add(xForwardedProto, xForwardedProtoValue.ToString());
                 logger.Log(LogLevel.Information, $"Added Forwarded Proto header with name {xForwardedProto} and value {xForwardedProtoValue}");
 
-                httpContextAccessor.HttpContext.Request.Headers.TryGetValue(xOriginalHost, out var xOriginalHostValue);
+                contextRequest.Headers.TryGetValue(xOriginalHost, out var xOriginalHostValue);
 
                 if (string.IsNullOrWhiteSpace(xOriginalHostValue))
                 {
-                    xOriginalHostValue = httpContextAccessor.HttpContext.Request.Host.Value;
+                    xOriginalHostValue = contextRequest.Host.Value;
                 }
 
                 request.Headers.Add(xOriginalHost, xOriginalHostValue.ToString());
