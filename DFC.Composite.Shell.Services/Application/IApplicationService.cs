@@ -15,17 +15,11 @@ namespace DFC.Composite.Shell.Services.Application
         /// <summary>
         /// Gets the markup at the specified url and loads other related regions for the specified path.
         /// </summary>
-        /// <param name="application">The application model.</param>
-        /// <param name="pageModel">A page model object, that has its path set.</param>
         Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString);
 
         /// <summary>
         /// Posts a request to the specified url with the specified form data and loads other related regions for the specified path.
         /// </summary>
-        /// <param name="application">The application model.</param>
-        /// <param name="formParameters">Params.</param>
-        /// <param name="pageModel">PageModel.</param>
-        /// <returns>Task.</returns>
         Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel, string requestPath);
 
         /// <summary>
