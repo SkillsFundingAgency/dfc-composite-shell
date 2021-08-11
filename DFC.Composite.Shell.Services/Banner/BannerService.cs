@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using Polly.CircuitBreaker;
+
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace DFC.Composite.Shell.Services.Banner
 
         public async Task<HtmlString> GetPageBannersAsync(string path)
         {
+            _ = path ?? throw new ArgumentNullException(nameof(path));
             const int CacheDurationInSeconds = 10;
             var cacheKey = BuildCacheKey(path);
 
@@ -47,7 +49,7 @@ namespace DFC.Composite.Shell.Services.Banner
             try
             {
 #pragma warning disable CA2234 // Pass system uri objects instead of strings
-                var response = await httpClient.GetAsync(path);
+                var response = await httpClient.GetAsync(path.TrimStart('/'));
 #pragma warning restore CA2234 // Pass system uri objects instead of strings
 
                 if (response.IsSuccessStatusCode)

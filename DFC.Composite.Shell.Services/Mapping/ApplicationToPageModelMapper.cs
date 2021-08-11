@@ -36,7 +36,7 @@ namespace DFC.Composite.Shell.Services.Mapping
 
             destination.PageRegionContentModels = pageRegionContentModels;
 
-            var shellAppRegistrationModel = await appRegistryDataService.GetShellAppRegistrationModel().ConfigureAwait(false);
+            var shellAppRegistrationModel = await appRegistryDataService.GetShellAppRegistrationModel();
 
             if (shellAppRegistrationModel != null)
             {

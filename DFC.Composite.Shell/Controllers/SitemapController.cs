@@ -4,8 +4,10 @@ using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.TokenRetriever;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +46,7 @@ namespace DFC.Composite.Shell.Controllers
             var sitemap = new Sitemap();
 
             // get all the registered application site maps
-            var applicationSitemapModels = await GetApplicationSitemapsAsync().ConfigureAwait(false);
+            var applicationSitemapModels = await GetApplicationSitemapsAsync();
             AppendApplicationsSitemaps(sitemap, applicationSitemapModels);
 
             var xmlString = sitemap.WriteSitemapToString();
@@ -57,22 +59,22 @@ namespace DFC.Composite.Shell.Controllers
         private async Task<IEnumerable<ApplicationSitemapModel>> GetApplicationSitemapsAsync()
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
-            var appRegistrationModels = await aappRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var appRegistrationModels = await aappRegistryDataService.GetAppRegistrationModels();
             var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.SitemapURL != null).ToList();
 
-            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels).ConfigureAwait(false);
+            var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels);
 
             // await all application sitemap service tasks to complete
             var allTasks = (from a in applicationSitemapModels select a.RetrievalTask).ToArray();
 
-            await Task.WhenAll(allTasks).ConfigureAwait(false);
+            await Task.WhenAll(allTasks);
 
             return applicationSitemapModels;
         }
 
         private async Task<List<ApplicationSitemapModel>> CreateApplicationSitemapModelTasksAsync(IList<AppRegistrationModel> appRegistrationModels)
         {
-            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
+            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext) : null;
 
             var applicationSitemapModels = new List<ApplicationSitemapModel>();
 

@@ -1,9 +1,11 @@
 ﻿using DFC.Composite.Shell.Services.Auth.Models;
+
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -34,7 +36,7 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public async Task<string> GetRegisterUrl()
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
             var queryParams = new Dictionary<string, string>();
             queryParams.Add("p", "B2C_1A_account_signup");
             queryParams.Add("client_id", settings.ClientId);
@@ -50,17 +52,17 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public async Task<string> GetSignInUrl()
         {
-            return await GetAuthEndpoint(SignInRequestType).ConfigureAwait(false);
+            return await GetAuthEndpoint(SignInRequestType);
         }
 
         public async Task<string> GetResetPasswordUrl()
         {
-            return await GetAuthEndpoint(PasswordResetRequestType).ConfigureAwait(false);
+            return await GetAuthEndpoint(PasswordResetRequestType);
         }
 
         public async Task<string> GetSignOutUrl(string redirectUrl)
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
             var queryParams = new Dictionary<string, string>();
             queryParams.Add("client_id", settings.ClientId);
             queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl);
@@ -71,7 +73,7 @@ namespace DFC.Composite.Shell.Services.Auth
 
         public async Task<JwtSecurityToken> ValidateToken(string token)
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
             return ValidateToken(token, configDoc);
         }
 
@@ -82,7 +84,7 @@ namespace DFC.Composite.Shell.Services.Auth
 
         private async Task<string> GetAuthEndpoint(string requestType)
         {
-            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None).ConfigureAwait(false);
+            var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
             var queryParams = new Dictionary<string, string>();
             queryParams.Add("p", requestType);
             queryParams.Add("client_id", settings.ClientId);

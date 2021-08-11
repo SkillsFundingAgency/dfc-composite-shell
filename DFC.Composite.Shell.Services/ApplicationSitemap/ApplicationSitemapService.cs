@@ -1,6 +1,8 @@
 ﻿using DFC.Composite.Shell.Models.SitemapModels;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,7 +37,7 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
             {
                 logger.LogInformation($"Getting Sitemap for: {model.Path}");
 
-                var responseTask = await CallHttpClientXmlAsync<Sitemap>(model).ConfigureAwait(false);
+                var responseTask = await CallHttpClientXmlAsync<Sitemap>(model);
                 return responseTask?.Locations;
             }
             catch (Exception ex)
@@ -57,11 +59,11 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
                 request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
 
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(request);
 
                 response.EnsureSuccessStatusCode();
 
-                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var responseString = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(responseString))
                 {

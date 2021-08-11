@@ -1,10 +1,14 @@
 ﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
+
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
+
 using Polly.CircuitBreaker;
+
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -50,7 +54,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 
             try
             {
-                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
+                var response = await httpClient.PatchAsync(patchUrl, content);
 
                 response.EnsureSuccessStatusCode();
 
@@ -73,7 +77,7 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 
             try
             {
-                var response = await httpClient.PatchAsync(patchUrl, content).ConfigureAwait(false);
+                var response = await httpClient.PatchAsync(patchUrl, content);
 
                 response.EnsureSuccessStatusCode();
 
@@ -96,9 +100,9 @@ namespace DFC.Composite.Shell.Services.AppRegistry
         {
             using (var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress))
             {
-                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(msg);
                 response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsAsync<List<AppRegistrationModel>>().ConfigureAwait(false);
+                return await response.Content.ReadAsAsync<List<AppRegistrationModel>>();
             }
         }
     }
