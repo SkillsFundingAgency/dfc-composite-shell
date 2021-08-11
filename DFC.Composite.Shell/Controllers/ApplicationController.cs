@@ -6,10 +6,12 @@ using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Utilities;
+
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -81,9 +83,9 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}/{requestItem.Data}");
 
-                        await neo4JService.InsertNewRequest(Request).ConfigureAwait(false);
+                        await neo4JService.InsertNewRequest(Request);
 
-                        var application = await applicationService.GetApplicationAsync(requestItem).ConfigureAwait(false);
+                        var application = await applicationService.GetApplicationAsync(requestItem);
 
                         if (application?.AppRegistrationModel == null)
                         {
@@ -101,11 +103,11 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else
                         {
-                            await mapper.Map(application, viewModel).ConfigureAwait(false);
+                            await mapper.Map(application, viewModel);
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
-                            await applicationService.GetMarkupAsync(application, viewModel, Request.QueryString.Value).ConfigureAwait(false);
+                            await applicationService.GetMarkupAsync(application, viewModel, Request.Path, Request.QueryString.Value);
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {application.AppRegistrationModel.Path}/{application.Article}");
 
@@ -174,7 +176,7 @@ namespace DFC.Composite.Shell.Controllers
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}/{requestItem.Data}");
 
-                        var application = await applicationService.GetApplicationAsync(requestItem).ConfigureAwait(false);
+                        var application = await applicationService.GetApplicationAsync(requestItem);
 
                         if (application?.AppRegistrationModel == null)
                         {
@@ -186,7 +188,7 @@ namespace DFC.Composite.Shell.Controllers
                         }
                         else
                         {
-                            await mapper.Map(application, viewModel).ConfigureAwait(false);
+                            await mapper.Map(application, viewModel);
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
@@ -201,11 +203,11 @@ namespace DFC.Composite.Shell.Controllers
                             if (postFirstRequest)
                             {
                                 postFirstRequest = false;
-                                await applicationService.PostMarkupAsync(application, formParameters, viewModel).ConfigureAwait(false);
+                                await applicationService.PostMarkupAsync(application, formParameters, viewModel, string.Empty);
                             }
                             else
                             {
-                                await applicationService.GetMarkupAsync(application, viewModel, string.Empty).ConfigureAwait(false);
+                                await applicationService.GetMarkupAsync(application, viewModel, string.Empty, string.Empty);
                             }
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {application.AppRegistrationModel.Path}/{application.Article}");

@@ -1,31 +1,33 @@
 ﻿using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
+using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.UnitTests.ClientHandlers;
 using DFC.Composite.Shell.Utilities;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
-using DFC.Composite.Shell.Services.BaseUrl;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.Controllers
@@ -107,7 +109,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 });
 
             _urlHelper = A.Fake<IUrlHelper>();
-            
+
         }
 
         [Fact]
@@ -128,7 +130,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 },
             };
 
-            var result = await controller.SignIn(string.Empty).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.SignIn(string.Empty) as RedirectResult;
 
             A.CallTo(() => authClient.GetSignInUrl()).MustHaveHappened();
             Assert.Null(session.GetString(AuthController.RedirectSessionKey));
@@ -152,7 +154,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 },
             };
 
-            var result = await controller.ResetPassword().ConfigureAwait(false) as RedirectResult;
+            var result = await controller.ResetPassword() as RedirectResult;
 
             A.CallTo(() => authClient.GetResetPasswordUrl()).MustHaveHappened();
             Assert.Null(session.GetString(AuthController.RedirectSessionKey));
@@ -177,7 +179,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     },
                 },
             };
-            var result = await controller.SignIn(string.Empty).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.SignIn(string.Empty) as RedirectResult;
 
             Assert.Equal(redirectUrl, session.GetString(AuthController.RedirectSessionKey));
         }
@@ -202,7 +204,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     },
                 },
             };
-            var result = await controller.SignIn(redirectUrl).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.SignIn(redirectUrl) as RedirectResult;
 
             Assert.Equal(redirectUrl, session.GetString(AuthController.RedirectSessionKey));
         }
@@ -221,9 +223,9 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 Url = defaultUrlHelper,
             };
             var redirecturl = "/redirect";
-            var result = await controller.SignOut(redirecturl).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.SignOut(redirecturl) as RedirectResult;
 
-            A.CallTo(() => authClient.GetSignOutUrl(baseAddress+redirecturl)).MustHaveHappened();
+            A.CallTo(() => authClient.GetSignOutUrl(baseAddress + redirecturl)).MustHaveHappened();
         }
 
         [Fact]
@@ -239,7 +241,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 },
                 Url = defaultUrlHelper,
             };
-            var result = await controller.SignOut(string.Empty).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.SignOut(string.Empty) as RedirectResult;
 
             A.CallTo(() => authClient.GetSignOutUrl(refererUrl)).MustHaveHappened();
         }
@@ -271,7 +273,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     new ActionDescriptor())
             );
 
-            await controller.Auth(token).ConfigureAwait(false);
+            await controller.Auth(token);
 
             A.CallTo(() => authClient.ValidateToken(token)).MustHaveHappened();
         }
@@ -290,7 +292,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 },
             };
 
-            await Assert.ThrowsAsync<Exception>(async () => await controller.Auth(token).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAsync<Exception>(async () => await controller.Auth(token));
         }
 
         [Fact]
@@ -320,7 +322,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     new ActionDescriptor())
             );
 
-            await controller.Auth(token).ConfigureAwait(false);
+            await controller.Auth(token);
 
             A.CallTo(() => defaultAuthService.SignInAsync(A<HttpContext>.Ignored, A<string>.Ignored, A<ClaimsPrincipal>.Ignored, A<AuthenticationProperties>.Ignored)).MustHaveHappened();
         }
@@ -338,7 +340,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 Url = defaultUrlHelper,
             };
 
-            await controller.SignOut(string.Empty).ConfigureAwait(false);
+            await controller.SignOut(string.Empty);
 
             A.CallTo(() => defaultAuthService.SignOutAsync(A<HttpContext>.Ignored, A<string>.Ignored, A<AuthenticationProperties>.Ignored)).MustHaveHappened();
         }
@@ -370,7 +372,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new ActionContext(defaultContext, new RouteData(),
                     new ActionDescriptor())
             );
-            var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.Auth(token) as RedirectResult;
 
             Assert.Equal(result.Url, defaultsettings.Value.AuthDssEndpoint.Replace(AuthController.RedirectAttribute, AuthController.RedirectSessionKey, StringComparison.InvariantCultureIgnoreCase));
             Assert.Null(session.GetString(AuthController.RedirectSessionKey));
@@ -402,7 +404,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new ActionDescriptor())
             );
 
-            var result = await controller.Auth(token).ConfigureAwait(false) as RedirectResult;
+            var result = await controller.Auth(token) as RedirectResult;
 
             Assert.Equal(result.Url, defaultsettings.Value.AuthDssEndpoint.Replace(AuthController.RedirectAttribute, defaultsettings.Value.DefaultRedirectUrl, StringComparison.InvariantCultureIgnoreCase));
         }

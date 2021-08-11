@@ -2,14 +2,19 @@
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
+
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -59,7 +64,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken" };
 
             // Act
-            var result = await healthService.GetAsync(model).ConfigureAwait(false);
+            var result = await healthService.GetAsync(model);
 
             // Assert
             string resultString = JsonConvert.SerializeObject(result);
@@ -77,7 +82,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var healthService = new ApplicationHealthService(defaultHttpClient, logger);
 
             // Act
-            var result = await healthService.GetAsync(null).ConfigureAwait(false);
+            var result = await healthService.GetAsync(null);
 
             // Assert
             Assert.Null(result);

@@ -1,11 +1,15 @@
 ﻿using DFC.Composite.Shell.Services.TokenRetriever;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -34,7 +38,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => serviceProvider.GetService(typeof(IAuthenticationService))).Returns(fakeAuthenticationService);
             context.RequestServices = serviceProvider;
 
-            var result = await service.GetToken(context).ConfigureAwait(false);
+            var result = await service.GetToken(context);
 
             Assert.Equal(TokenValue, result);
         }
