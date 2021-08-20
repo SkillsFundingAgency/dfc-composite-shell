@@ -1,11 +1,15 @@
 ﻿using DFC.Composite.Shell.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ClientHandlers
@@ -37,7 +41,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
 
             //Act
             using var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Equal(2, httpRequestChildMessage.Headers.Count());

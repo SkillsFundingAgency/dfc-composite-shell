@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Services.Utilities;
+
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Services.ShellRobotFile
@@ -20,7 +21,7 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
                 return string.Empty;
             }
 
-            var shellRobotsText = await fileInfoHelper.ReadAllTextAsync(shellRobotsFile).ConfigureAwait(false);
+            var shellRobotsText = await fileInfoHelper.ReadAllTextAsync(shellRobotsFile);
             return !string.IsNullOrWhiteSpace(shellRobotsText) ? shellRobotsText : string.Empty;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using System;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -84,7 +85,7 @@ namespace DFC.Composite.Shell.Services.Neo4J
             };
             try
             {
-                var response = await httpClient.SendAsync(msg).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(msg);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)

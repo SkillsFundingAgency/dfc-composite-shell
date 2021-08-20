@@ -1,7 +1,10 @@
 ﻿using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.Utilities;
+
 using FakeItEasy;
+
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -14,7 +17,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fileInfoHelper = A.Fake<IFileInfoHelper>();
             var service = new ShellRobotFileService(fileInfoHelper);
 
-            var result = await service.GetFileText("SomeRobotsPath").ConfigureAwait(false);
+            var result = await service.GetFileText("SomeRobotsPath");
             Assert.True(string.IsNullOrWhiteSpace(result));
         }
 
@@ -28,7 +31,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var service = new ShellRobotFileService(fileInfoHelper);
 
-            var result = await service.GetFileText("SomeRobotsPath").ConfigureAwait(false);
+            var result = await service.GetFileText("SomeRobotsPath");
             Assert.Equal(fakeRobotFileText, result);
         }
     }

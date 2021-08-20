@@ -3,15 +3,19 @@ using DFC.Composite.Shell.Models.Common;
 using DFC.Composite.Shell.Services.DataProtectionProviders;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.UnitTests.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ClientHandlers
@@ -57,7 +61,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -103,7 +107,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -149,7 +153,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the child app has the correct number of headers based on the incoming request
             Assert.Single(httpRequestChildMessage.Headers);
@@ -195,7 +199,7 @@ namespace DFC.Composite.Shell.Test.ClientHandlers
 
             //Act
             var invoker = new HttpMessageInvoker(handler);
-            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None).ConfigureAwait(false);
+            await invoker.SendAsync(httpRequestChildMessage, CancellationToken.None);
 
             //Check that the values that are sent back are correct
             var headerValue = httpRequestChildMessage.Headers.Authorization;

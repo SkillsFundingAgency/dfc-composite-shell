@@ -5,17 +5,20 @@ using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.TokenRetriever;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -93,7 +96,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task SitemapControllerReturnsSuccess()
         {
-            var result = await defaultController.Sitemap().ConfigureAwait(false);
+            var result = await defaultController.Sitemap();
 
             Assert.True(!string.IsNullOrWhiteSpace(result.Content) && result.ContentType == MediaTypeNames.Application.Xml);
         }
@@ -140,7 +143,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 Url = defaultUrlHelper,
             };
 
-            var result = await sitemapController.Sitemap().ConfigureAwait(false);
+            var result = await sitemapController.Sitemap();
             Assert.DoesNotContain(appBaseUrl, result.Content, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("http://SomeBaseUrl", result.Content, StringComparison.OrdinalIgnoreCase);
 

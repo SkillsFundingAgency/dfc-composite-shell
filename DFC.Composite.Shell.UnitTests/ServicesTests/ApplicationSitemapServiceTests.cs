@@ -2,13 +2,17 @@
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -45,7 +49,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var sitemapService = new ApplicationSitemapService(logger, httpClient);
             var model = new ApplicationSitemapModel { BearerToken = "SomeBearerToken" };
 
-            var result = await sitemapService.GetAsync(model).ConfigureAwait(false);
+            var result = await sitemapService.GetAsync(model);
             var resultLocations = result.Select(r => r.Url);
 
             Assert.Contains(DummySitemapLocation, resultLocations);
@@ -60,7 +64,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var sitemapService = new ApplicationSitemapService(defaultLogger, defaultHttpClient);
 
-            var result = await sitemapService.GetAsync(null).ConfigureAwait(false);
+            var result = await sitemapService.GetAsync(null);
 
             Assert.Null(result);
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+
 using System;
 using System.Threading.Tasks;
 
@@ -34,7 +35,7 @@ namespace DFC.Composite.Shell.Middleware
 
             httpContext?.Response.Cookies.Append(NcsSessionCookieName, sessionIdString, cookieOptions);
 
-            await next(httpContext).ConfigureAwait(false);
+            await next(httpContext);
         }
     }
 }

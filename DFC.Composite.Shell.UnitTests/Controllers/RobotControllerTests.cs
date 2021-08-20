@@ -6,12 +6,15 @@ using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +22,7 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -101,7 +105,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task RobotsControllerReturnsSuccess()
         {
-            var result = await defaultController.Robot().ConfigureAwait(false);
+            var result = await defaultController.Robot();
 
             Assert.True(!string.IsNullOrWhiteSpace(result.Content) && result.ContentType == MediaTypeNames.Text.Plain);
         }
@@ -113,7 +117,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             A.CallTo(() => defaultShellRobotFileService.GetFileText(A<string>.Ignored)).Returns(SomeShellFileText);
 
-            var result = await defaultController.Robot().ConfigureAwait(false);
+            var result = await defaultController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.Equal(resultLines[0], SomeShellFileText);
@@ -124,7 +128,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             var expectedResult = $"Sitemap: {DummyScheme}://{DummyHost}{DummySitemapUrl}";
 
-            var result = await defaultController.Robot().ConfigureAwait(false);
+            var result = await defaultController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.Equal(resultLines[1], expectedResult);
@@ -146,7 +150,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 Url = defaultUrlHelper,
             };
 
-            var result = await robotController.Robot().ConfigureAwait(false);
+            var result = await robotController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.DoesNotContain(segmentToSkip, resultLines.ToList());
@@ -183,7 +187,7 @@ namespace DFC.Composite.Shell.Test.Controllers
                 Url = defaultUrlHelper,
             };
 
-            var result = await robotController.Robot().ConfigureAwait(false);
+            var result = await robotController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.DoesNotContain("http://appBaseUrl", resultLines.ToList());

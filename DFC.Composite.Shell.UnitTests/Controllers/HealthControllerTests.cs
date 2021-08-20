@@ -5,17 +5,21 @@ using DFC.Composite.Shell.Models.HealthModels;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.TokenRetriever;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -105,7 +109,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => applicationHealthService.GetAsync(A<ApplicationHealthModel>.Ignored)).Returns(path1HealthItemModels);
 
             //Act
-            var result = await healthController.Health().ConfigureAwait(false);
+            var result = await healthController.Health();
             var model = GetModel<HealthViewModel>(result);
 
             //Assert

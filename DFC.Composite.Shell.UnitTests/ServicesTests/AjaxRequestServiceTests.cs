@@ -4,14 +4,19 @@ using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.Extensions.Logging;
+
 using Polly.CircuitBreaker;
+
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.ServicesTests
@@ -50,7 +55,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustNotHaveHappened();
@@ -85,7 +90,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustNotHaveHappened();
@@ -115,7 +120,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustHaveHappenedOnceExactly();
@@ -137,7 +142,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act
-            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false);
+            var result = await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest);
 
             // Assert
             A.CallTo(() => fakeAppRegistryDataService.SetAjaxRequestHealthState(A<string>.Ignored, A<string>.Ignored, A<bool>.Ignored)).MustNotHaveHappened();
@@ -158,7 +163,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest));
         }
 
         [Fact]
@@ -172,7 +177,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
             // Act & Assert
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest).ConfigureAwait(false)).ConfigureAwait(false);
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await ajaxRequestService.GetResponseAsync(requestModel, ajaxRequest));
         }
 
         private RequestModel ValidRequestModel()

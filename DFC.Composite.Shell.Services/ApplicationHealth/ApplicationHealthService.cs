@@ -1,5 +1,7 @@
 ﻿using DFC.Composite.Shell.Models.HealthModels;
+
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -28,7 +30,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                 return null;
             }
 
-            var responseTask = await CallHttpClientJsonAsync(model).ConfigureAwait(false);
+            var responseTask = await CallHttpClientJsonAsync(model);
 
             return responseTask;
         }
@@ -49,13 +51,13 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
             try
             {
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(request);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     try
                     {
-                        var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        var responseString = await response.Content.ReadAsStringAsync();
                         var options = new JsonSerializerOptions
                         {
                             PropertyNameCaseInsensitive = true,

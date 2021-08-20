@@ -1,9 +1,12 @@
 ﻿using DFC.Composite.Shell.Models.AjaxApiModels;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Services.AppRegistry;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+
 using Polly.CircuitBreaker;
+
 using System;
 using System.Net;
 using System.Net.Http;
@@ -48,7 +51,7 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
                 {
                     httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Application.Json);
 
-                    var response = await httpClient.GetAsync(new Uri(url, UriKind.Absolute)).ConfigureAwait(false);
+                    var response = await httpClient.GetAsync(new Uri(url, UriKind.Absolute));
 
                     responseModel.Status = response.StatusCode;
                     responseModel.StatusMessage = response.ReasonPhrase;
@@ -56,7 +59,7 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
                     if (response.IsSuccessStatusCode)
                     {
                         logger.LogInformation($"Ajax request successful: {url}");
-                        responseModel.Payload = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        responseModel.Payload = await response.Content.ReadAsStringAsync();
                         responseModel.OfflineHtml = null;
                     }
                     else
@@ -72,7 +75,7 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
 
                     if (ajaxRequest.HealthCheckRequired)
                     {
-                        await appRegistryDataService.SetAjaxRequestHealthState(requestModel.Path, ajaxRequest.Name, false).ConfigureAwait(false);
+                        await appRegistryDataService.SetAjaxRequestHealthState(requestModel.Path, ajaxRequest.Name, false);
                     }
                 }
             }

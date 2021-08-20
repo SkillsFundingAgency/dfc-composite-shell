@@ -2,12 +2,16 @@
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
+
 using FakeItEasy;
+
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -42,7 +46,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var robotService = new ApplicationRobotService(httpClient);
             var model = new ApplicationRobotModel { BearerToken = "SomeBearerToken" };
 
-            var result = await robotService.GetAsync(model).ConfigureAwait(false);
+            var result = await robotService.GetAsync(model);
             Assert.Equal(ExpectedResponseText, result);
 
             httpResponse.Dispose();
@@ -55,7 +59,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             var robotService = new ApplicationRobotService(defaultHttpClient);
 
-            var result = await robotService.GetAsync(null).ConfigureAwait(false);
+            var result = await robotService.GetAsync(null);
 
             Assert.Null(result);
         }
@@ -66,7 +70,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var robotService = new ApplicationRobotService(defaultHttpClient);
 
             var model = new ApplicationRobotModel { BearerToken = "SomeBearerToken" };
-            var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await robotService.GetAsync(model).ConfigureAwait(false)).ConfigureAwait(false);
+            var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await robotService.GetAsync(model));
 
             Assert.StartsWith("An invalid request URI was provided.", exceptionResult.Message, StringComparison.OrdinalIgnoreCase);
         }

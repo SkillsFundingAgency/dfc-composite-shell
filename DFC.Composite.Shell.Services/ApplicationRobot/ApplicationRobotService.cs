@@ -1,5 +1,7 @@
 ﻿using DFC.Composite.Shell.Models.Robots;
+
 using Microsoft.Net.Http.Headers;
+
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,7 +26,7 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
                 return null;
             }
 
-            var responseTask = await CallHttpClientTxtAsync(model).ConfigureAwait(false);
+            var responseTask = await CallHttpClientTxtAsync(model);
             return responseTask?.Data;
         }
 
@@ -39,11 +41,11 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 
                 request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
 
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                var response = await httpClient.SendAsync(request);
 
                 response.EnsureSuccessStatusCode();
 
-                var responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var responseString = await response.Content.ReadAsStringAsync();
                 var result = new Robot();
 
                 using (var reader = new StringReader(responseString))

@@ -43,7 +43,7 @@ namespace DFC.Composite.Shell.Services.Application
 
         public string RequestBaseUrl { get; set; }
 
-        public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string queryString)
+        public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString)
         {
             _ = application ?? throw new ArgumentNullException(nameof(application));
             _ = pageModel ?? throw new ArgumentNullException(nameof(pageModel));
@@ -54,18 +54,18 @@ namespace DFC.Composite.Shell.Services.Application
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString);
 
                 //Wait until everything is done
-                await Task.WhenAll(otherRegionsTask).ConfigureAwait(false);
+                await Task.WhenAll(otherRegionsTask);
 
                 //Get the markup at this url
                 var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, queryString);
 
-                await Task.WhenAll(applicationBodyRegionTask).ConfigureAwait(false);
+                await Task.WhenAll(applicationBodyRegionTask);
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
 
                 // Get banners from the banner app.
-                pageModel.PhaseBannerHtml = await GetPageBannersAsync(application);
+                pageModel.PhaseBannerHtml = await bannerService.GetPageBannersAsync(requestPath);
             }
             else
             {
@@ -78,7 +78,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel)
+        public async Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel, string requestPath)
         {
             if (application != null && application.AppRegistrationModel.IsOnline)
             {
@@ -89,13 +89,13 @@ namespace DFC.Composite.Shell.Services.Application
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
 
                 //Wait until everything is done
-                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask).ConfigureAwait(false);
+                await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
 
                 // Get banners from the banner app.
-                pageModel.PhaseBannerHtml = await GetPageBannersAsync(application);
+                pageModel.PhaseBannerHtml = await bannerService.GetPageBannersAsync(requestPath);
             }
             else
             {
@@ -112,7 +112,7 @@ namespace DFC.Composite.Shell.Services.Application
         {
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
-            var applicationModel = await DetermineArticleLocation(data).ConfigureAwait(false);
+            var applicationModel = await DetermineArticleLocation(data);
 
             if (applicationModel.AppRegistrationModel == null)
             {
@@ -132,9 +132,6 @@ namespace DFC.Composite.Shell.Services.Application
             return applicationModel;
         }
 
-        private Task<HtmlString> GetPageBannersAsync(ApplicationModel application) =>
-            bannerService.GetPageBannersAsync(application.Article ?? application?.AppRegistrationModel?.Path ?? string.Empty);
-
         private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
         {
             const string appRegistryPathNameForPagesApp = "pages";
@@ -142,7 +139,7 @@ namespace DFC.Composite.Shell.Services.Application
             var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
             var article = string.Join("/", pageLocations);
             var applicationModel = new ApplicationModel();
-            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp).ConfigureAwait(false);
+            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp);
 
             if (pagesAppRegistrationModel?.PageLocations != null && pagesAppRegistrationModel.PageLocations.Values.SelectMany(s => s.Locations).Contains("/" + article))
             {
@@ -152,8 +149,8 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (applicationModel.AppRegistrationModel == null)
             {
-                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article).ConfigureAwait(false) ??
-                                                        await appRegistryDataService.GetAppRegistrationModel(data.Path).ConfigureAwait(false);
+                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article) ??
+                                                        await appRegistryDataService.GetAppRegistrationModel(data.Path);
 
                 if (applicationModel.AppRegistrationModel != null)
                 {
@@ -208,7 +205,7 @@ namespace DFC.Composite.Shell.Services.Application
         {
             var url = FormatArticleUrl(regionModel.RegionEndpoint, article, queryString);
 
-            var result = await contentRetriever.GetContent(url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl).ConfigureAwait(false);
+            var result = await contentRetriever.GetContent(url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl);
 
             return contentProcessorService.Process(result, RequestBaseUrl, application.RootUrl);
         }
@@ -231,7 +228,7 @@ namespace DFC.Composite.Shell.Services.Application
         private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string queryString)
         {
             //Get the markup at the head url first. This will create the session if it doesn't already exist
-            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), application.Article, queryString).ConfigureAwait(false);
+            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), application.Article, queryString);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
             var tasks = new List<Task<string>>();
@@ -243,7 +240,7 @@ namespace DFC.Composite.Shell.Services.Application
             var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, application.Article, queryString);
             var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, application.Article, queryString);
 
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            await Task.WhenAll(tasks);
 
             PopulatePageRegionContent(application, pageModel, PageRegion.HeroBanner, heroBannerRegionTask);
             PopulatePageRegionContent(application, pageModel, PageRegion.Breadcrumb, breadcrumbRegionTask);

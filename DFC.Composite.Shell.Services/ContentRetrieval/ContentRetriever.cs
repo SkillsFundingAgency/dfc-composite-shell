@@ -4,9 +4,12 @@ using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
 using Polly.CircuitBreaker;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -82,7 +85,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
-                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections, regionModel).ConfigureAwait(false);
+                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections, regionModel);
 
                     if (response != null && !response.IsSuccessStatusCode)
                     {
@@ -93,7 +96,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                     if (response != null)
                     {
-                        results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        results = await response.Content.ReadAsStringAsync();
                     }
 
                     logger.LogInformation($"{nameof(GetContent)}: Received child response from: {url}");
@@ -109,7 +112,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (regionModel.HealthCheckRequired)
                 {
-                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
                 }
 
                 results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
@@ -136,7 +139,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     };
 
                     var httpClient = GetClientForRegionEndpoint(regionModel.RegionEndpoint);
-                    var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                    var response = await httpClient.SendAsync(request);
 
                     if (response.IsRedirectionStatus())
                     {
@@ -156,7 +159,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
                     }
 
-                    results = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    results = await response.Content.ReadAsStringAsync();
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
@@ -171,7 +174,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
 
                 if (regionModel.HealthCheckRequired)
                 {
-                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false).ConfigureAwait(false);
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
                 }
 
                 results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
@@ -189,7 +192,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-                response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                response = await httpClient.SendAsync(request);
 
                 if (!response.IsRedirectionStatus())
                 {

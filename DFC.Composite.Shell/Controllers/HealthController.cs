@@ -5,8 +5,10 @@ using DFC.Composite.Shell.Models.HealthModels;
 using DFC.Composite.Shell.Services.ApplicationHealth;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.TokenRetriever;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,13 +50,13 @@ namespace DFC.Composite.Shell.Controllers
             var viewModel = CreateHealthViewModel(resourceName, message);
 
             // loop through the registered applications and create some tasks - one per application for their health
-            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels().ConfigureAwait(false);
+            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
             var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
             var offlineAppRegistrationModels = appRegistrationModels.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
 
             if (onlineAppRegistrationModels != null && onlineAppRegistrationModels.Any())
             {
-                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlineAppRegistrationModels).ConfigureAwait(false);
+                var applicationOnlineHealthModels = await GetApplicationOnlineHealthAsync(onlineAppRegistrationModels);
 
                 AppendApplicationsHealths(viewModel.HealthItems, applicationOnlineHealthModels);
             }
@@ -95,19 +97,19 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task<IEnumerable<ApplicationHealthModel>> GetApplicationOnlineHealthAsync(IList<AppRegistrationModel> paths)
         {
-            var applicationHealthModels = await CreateApplicationHealthModelTasksAsync(paths).ConfigureAwait(false);
+            var applicationHealthModels = await CreateApplicationHealthModelTasksAsync(paths);
 
             // await all application sitemap service tasks to complete
             var allTasks = (from a in applicationHealthModels select a.RetrievalTask).ToArray();
 
-            await Task.WhenAll(allTasks).ConfigureAwait(false);
+            await Task.WhenAll(allTasks);
 
             return applicationHealthModels;
         }
 
         private async Task<List<ApplicationHealthModel>> CreateApplicationHealthModelTasksAsync(IList<AppRegistrationModel> paths)
         {
-            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext).ConfigureAwait(false) : null;
+            var bearerToken = User.Identity.IsAuthenticated ? await bearerTokenRetriever.GetToken(HttpContext) : null;
 
             var applicationHealthModels = new List<ApplicationHealthModel>();
 
@@ -115,7 +117,7 @@ namespace DFC.Composite.Shell.Controllers
             {
                 logger.LogInformation($"{nameof(Action)}: Getting child Health for: {path.Path}");
 
-                var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path).ConfigureAwait(false);
+                var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path);
 
                 var applicationHealthModel = new ApplicationHealthModel
                 {
@@ -134,7 +136,7 @@ namespace DFC.Composite.Shell.Controllers
 
         private async Task<string> GetPathBaseUrlFromBodyRegionAsync(string path)
         {
-            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path).ConfigureAwait(false);
+            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path);
 
             var bodyRegion = appRegistrationModel?.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
