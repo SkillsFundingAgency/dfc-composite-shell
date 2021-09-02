@@ -15,24 +15,22 @@ namespace DFC.Composite.Shell.Integration.Test
             factory = shellTestWebApplicationFactory;
         }
 
-        [Fact(Skip = "Needs revisiting as part of DFC-11808")]
+        [Fact]
         public async Task Should_ReturnValidContent()
         {
             // Arrange
             var client = factory.CreateClientWithWebHostBuilder();
-            var request = new HttpRequestMessage(HttpMethod.Get, "/health");
+            using var request = new HttpRequestMessage(HttpMethod.Get, "/health");
 
             request.Headers.Accept.Clear();
             request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
 
             // Act
-            var response = await client.SendAsync(request).ConfigureAwait(false);
-
+            var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
             // Assert
             Assert.Equal(MediaTypeNames.Application.Json, response.Content.Headers.ContentType.MediaType);
-            request.Dispose();
         }
     }
 }

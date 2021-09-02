@@ -19,22 +19,24 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task When_ShellSendsPostData_ItsSendItToRegisteredApplication()
         {
-            var path = "path1";
-            var shellUri = new Uri(string.Concat(path, "/edit?id=1"), UriKind.Relative);
+            // Arrange
+            var shellUri = new Uri("path1/edit?id=1", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
+            var expected = "POST, http://www.expected-domain.com/expected-path/edit/body, path1, Body, field1=value1, field2=value2";
 
-            var formContent = new FormUrlEncodedContent(new[]
+            using var formContent = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("field1", "value1"),
                 new KeyValuePair<string, string>("field2", "value2"),
             });
 
-            var response = await client.PostAsync(shellUri, formContent).ConfigureAwait(false);
-
+            // Act
+            var response = await client.PostAsync(shellUri, formContent);
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Assert.Contains("POST, http://www.path1.com/path1/edit, path1, Body, field1=value1, field2=value2", responseHtml, StringComparison.OrdinalIgnoreCase);
-            formContent.Dispose();
+            var actual = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Contains(expected, actual, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
