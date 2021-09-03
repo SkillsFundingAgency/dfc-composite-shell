@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DFC.Composite.Shell.Integration.Test.Services
+namespace DFC.Composite.Shell.IntegrationTests.Fakes
 {
-    public class FakeAppRegistryRequestService : IAppRegistryService
+    public class FakeAppRegistryService : IAppRegistryService
     {
         public async Task<IEnumerable<AppRegistrationModel>> GetPaths()
         {

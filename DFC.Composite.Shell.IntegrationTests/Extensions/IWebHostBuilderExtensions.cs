@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Integration.Test.Services;
+﻿using DFC.Composite.Shell.IntegrationTests.Fakes;
+using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -13,6 +14,7 @@ namespace DFC.Composite.Shell.Integration.Test.Extensions
             return webHostBuilder.ConfigureTestServices(services =>
             {
                 services.AddTransient<IContentRetriever, FakeContentRetriever>();
+                services.AddTransient<IBannerService, FakeBannerService>();
             });
         }
     }

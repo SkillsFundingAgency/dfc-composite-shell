@@ -1,5 +1,5 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Extensions;
-using DFC.Composite.Shell.Integration.Test.Services;
+using DFC.Composite.Shell.IntegrationTests.Fakes;
 using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -25,7 +25,7 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
 
             builder?.ConfigureServices(services =>
             {
-                services.AddTransient<IAppRegistryService, FakeAppRegistryRequestService>();
+                services.AddTransient<IAppRegistryService, FakeAppRegistryService>();
 
                 var serviceProvider = new ServiceCollection().BuildServiceProvider();
                 services.BuildServiceProvider();
