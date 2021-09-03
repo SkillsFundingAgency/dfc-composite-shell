@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DFC.Composite.Shell.Integration.Test.Services
+namespace DFC.Composite.Shell.IntegrationTests.Fakes
 {
     public class FakeContentRetriever : IContentRetriever
     {
