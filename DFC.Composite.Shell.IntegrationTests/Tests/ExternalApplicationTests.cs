@@ -22,7 +22,7 @@ namespace DFC.Composite.Shell.Integration.Test
             factory.ClientOptions.AllowAutoRedirect = false;
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("/externalpath1", UriKind.Relative)).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri("/externalpath1", UriKind.Relative));
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
             Assert.Equal("http://www.externalpath1.com/", response.Headers.Location.AbsoluteUri);
@@ -34,11 +34,11 @@ namespace DFC.Composite.Shell.Integration.Test
         public async Task CanRedirectToExternalUrlWithUserAgent(string userAgent)
         {
             factory.ClientOptions.AllowAutoRedirect = false;
+
             var client = factory.CreateClientWithWebHostBuilder();
+            client.DefaultRequestHeaders.TryAddWithoutValidation(HeaderNames.UserAgent, userAgent);
 
-            var validUserAgent = client.DefaultRequestHeaders.TryAddWithoutValidation(HeaderNames.UserAgent, userAgent);
-
-            var response = await client.GetAsync(new Uri("/externalpath1", UriKind.Relative)).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri("/externalpath1", UriKind.Relative));
 
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
             Assert.Equal("http://www.externalpath1.com/", response.Headers.Location.AbsoluteUri);
