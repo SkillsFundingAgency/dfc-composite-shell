@@ -203,7 +203,7 @@ namespace DFC.Composite.Shell.Services.Application
 
         private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article, string queryString)
         {
-            var url = FormatArticleUrl(regionModel.RegionEndpoint, article, queryString);
+            var url = FormatArticleUrl(regionModel?.RegionEndpoint, article, queryString);
 
             var result = await contentRetriever.GetContent(url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl);
 
@@ -228,7 +228,7 @@ namespace DFC.Composite.Shell.Services.Application
         private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string queryString)
         {
             //Get the markup at the head url first. This will create the session if it doesn't already exist
-            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel.Regions.First(x => x.PageRegion == PageRegion.Head), application.Article, queryString);
+            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel?.Regions?.SingleOrDefault(x => x.PageRegion == PageRegion.Head), application.Article, queryString);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
             var tasks = new List<Task<string>>();
