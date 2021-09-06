@@ -3,6 +3,7 @@ using DFC.Composite.Shell.IntegrationTests.Fakes;
 using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 
@@ -25,6 +26,12 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
 
             builder?.ConfigureServices(services =>
             {
+                var configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .Build();
+
+                services.AddSingleton<IConfiguration>(configuration);
+
                 services.AddTransient<IAppRegistryService, FakeAppRegistryService>();
 
                 var serviceProvider = new ServiceCollection().BuildServiceProvider();
