@@ -48,6 +48,8 @@ jobs:
   workspace:
     clean: all
 
+- job: BuildDotNetCore
+  displayName: Build-DotNetCore
   steps:
   - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
@@ -58,6 +60,9 @@ jobs:
       PublishWebApp: true
       TestSuffix: UnitTests
 
+- job: Buildintegrationtests
+  displayName: Build integration tests
+  steps:
   - template: AzureDevOpsTemplates\Build\StepTemplates\dfc-dotnetcore-build-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName).IntegrationTests
