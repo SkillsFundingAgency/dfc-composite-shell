@@ -41,6 +41,14 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
                     Layout = PageLayout.FullWidthNoMain,
                     TopNavigationOrder = 1,
                     TopNavigationText = "Path4",
+                    Regions = new List<RegionModel>
+                    {
+                        new RegionModel
+                        {
+                            PageRegion = PageRegion.Body,
+                            RegionEndpoint = "http://www.expected-domain.com/expected-path/{0}/body",
+                        },
+                    },
                 },
                 new AppRegistrationModel
                 {
@@ -49,6 +57,14 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
                     Layout = PageLayout.SidebarLeft,
                     TopNavigationOrder = 2,
                     TopNavigationText = "Path2",
+                    Regions = new List<RegionModel>
+                    {
+                        new RegionModel
+                        {
+                            PageRegion = PageRegion.Body,
+                            RegionEndpoint = "http://www.expected-domain.com/expected-path/{0}/body",
+                        },
+                    },
                 },
                 new AppRegistrationModel
                 {
@@ -74,12 +90,20 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
                     IsOnline = true,
                     Layout = PageLayout.None,
                     TopNavigationOrder = 3,
+                    Regions = new List<RegionModel>
+                    {
+                        new RegionModel
+                        {
+                            PageRegion = PageRegion.Body,
+                            RegionEndpoint = "http://www.expected-domain.com/expected-path/{0}/body",
+                        },
+                    },
                 },
                 new AppRegistrationModel
                 {
                     Path = "pages",
                     IsOnline = true,
-                    Layout = PageLayout.None,
+                    Layout = PageLayout.BrowserWidth,
                     TopNavigationOrder = 3,
                     PageLocations = new Dictionary<Guid, PageLocationModel>
                     {
@@ -96,6 +120,11 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
                     },
                     Regions = new List<RegionModel>
                     {
+                        new RegionModel
+                        {
+                            PageRegion = PageRegion.Head,
+                            RegionEndpoint = "http://www.expected-domain.com/expected-path/{0}/head",
+                        },
                         new RegionModel
                         {
                             PageRegion = PageRegion.Body,
