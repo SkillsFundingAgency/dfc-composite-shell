@@ -42,5 +42,11 @@
   <ItemGroup>
     <ProjectReference Include="..\DFC.Composite.Shell\DFC.Composite.Shell.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
