@@ -5,16 +5,10 @@ using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
-using DFC.Composite.Shell.Policies.Options;
-using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.Application;
-using DFC.Composite.Shell.Services.ApplicationHealth;
-using DFC.Composite.Shell.Services.ApplicationRobot;
-using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
-using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
@@ -115,7 +109,8 @@ namespace DFC.Composite.Shell
                     .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
                         "https://fonts.gstatic.com"))
                 .ImageSources(s => s
                     .Self()
@@ -214,7 +209,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
-            
+
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
