@@ -104,6 +104,7 @@ namespace DFC.Composite.Shell
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com"))
                 .StyleSources(s => s
+                    .UnsafeInline()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
@@ -114,7 +115,8 @@ namespace DFC.Composite.Shell
                     .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
                         "https://fonts.gstatic.com"))
                 .ImageSources(s => s
                     .Self()
@@ -213,7 +215,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
-            
+
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
