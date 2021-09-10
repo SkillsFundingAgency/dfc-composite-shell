@@ -146,13 +146,13 @@ namespace DFC.Composite.Shell.Extensions
             if (!services.AppRegistryRequestRegistered())
             {
                 AddHttpClientWithPolicies<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(
-                services,
-                policyRegistry,
-                $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
-                nameof(AppRegistryClientOptions),
-                policyOptions,
-                configuration);
+                    services,
+                    policyRegistry,
+                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
+                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
+                    nameof(AppRegistryClientOptions),
+                    policyOptions,
+                    configuration);
             }
 
             services.AddApplicationClientHttp(configuration, policyOptions, policyRegistry);
