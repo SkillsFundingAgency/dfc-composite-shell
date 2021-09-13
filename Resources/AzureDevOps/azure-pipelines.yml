@@ -19,6 +19,18 @@ pool:
   - msbuild
   - visualstudio
 
+trigger: 
+  branches:
+    include: 
+    - dev
+    - master
+
+pr:
+  branches:
+    include: 
+    - dev
+    - master
+
 jobs:
 
 #Build and test resources
@@ -49,7 +61,7 @@ jobs:
     clean: all
 
   steps:
-  - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-sonar.yml@dfc-devops
+  - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-dotnetcore-build-unit-integration-sonar.yml@dfc-devops
     parameters:
       SolutionBaseName: $(SolutionBaseName)
       BuildPlatform: $(BuildPlatform)
@@ -57,3 +69,4 @@ jobs:
       DotNetCoreVersion: 3.1.101
       PublishWebApp: true
       TestSuffix: UnitTests
+      IntegrationTestSuffix: IntegrationTests
