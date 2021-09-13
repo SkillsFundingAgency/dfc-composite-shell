@@ -5,24 +5,19 @@ using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.HttpClientService;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using DFC.Composite.Shell.Test.ClientHandlers;
-
 using FakeItEasy;
-
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using Polly.CircuitBreaker;
-
 using RichardSzalay.MockHttp;
-
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -32,7 +27,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private const string DummyChildAppContent = "<p>Some Content From Child App</p>";
         private readonly ContentRetriever defaultService;
         private readonly HttpResponseMessage httpResponse;
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly IUriSpecifcHttpClientFactory httpClientFactory;
         private readonly HttpClient httpClient;
         private readonly FakeHttpMessageHandler fakeHttpMessageHandler;
         private readonly ILogger<ContentRetriever> logger;
@@ -56,13 +51,13 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
 
-            httpClientFactory = A.Fake<IHttpClientFactory>();
+            httpClientFactory = A.Fake<IUriSpecifcHttpClientFactory>();
             httpClient = new HttpClient(fakeHttpMessageHandler)
             {
                 BaseAddress = new Uri("http://SomeRegionBaseAddress"),
             };
 
-            A.CallTo(() => httpClientFactory.CreateClient(A<string>.Ignored)).Returns(httpClient);
+            A.CallTo(() => httpClientFactory.GetClientForRegionEndpoint(A<string>.Ignored)).Returns(httpClient);
 
             defaultFormPostParams = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("formParam1", "test value") };
 
@@ -186,8 +181,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Get, "http://someUrl").Respond(_ => redirectHttpResponse);
 
-            var localHttpClientFactory = A.Fake<IHttpClientFactory>();
-            A.CallTo(() => localHttpClientFactory.CreateClient(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
+            var localHttpClientFactory = A.Fake<IUriSpecifcHttpClientFactory>();
+            A.CallTo(() => localHttpClientFactory.GetClientForRegionEndpoint(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
 
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
@@ -229,8 +224,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Get, "http://someUrl").Respond(_ => redirectHttpResponse);
 
-            var localHttpClientFactory = A.Fake<IHttpClientFactory>();
-            A.CallTo(() => localHttpClientFactory.CreateClient(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
+            var localHttpClientFactory = A.Fake<IUriSpecifcHttpClientFactory>();
+            A.CallTo(() => localHttpClientFactory.GetClientForRegionEndpoint(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
@@ -328,8 +323,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Post, "http://someUrl").Respond(_ => httpResponseMessage);
 
-            var localHttpClientFactory = A.Fake<IHttpClientFactory>();
-            A.CallTo(() => localHttpClientFactory.CreateClient(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
+            var localHttpClientFactory = A.Fake<IUriSpecifcHttpClientFactory>();
+            A.CallTo(() => localHttpClientFactory.GetClientForRegionEndpoint(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
@@ -481,8 +476,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
 
-            var localHttpClientFactory = A.Fake<IHttpClientFactory>();
-            A.CallTo(() => localHttpClientFactory.CreateClient(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
+            var localHttpClientFactory = A.Fake<IUriSpecifcHttpClientFactory>();
+            A.CallTo(() => localHttpClientFactory.GetClientForRegionEndpoint(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var contentRetriever = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
@@ -514,8 +509,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var httpHandler = new MockHttpMessageHandler();
             httpHandler.When(HttpMethod.Post, postUrl).Respond(x => httpResponseMessage);
 
-            var localHttpClientFactory = A.Fake<IHttpClientFactory>();
-            A.CallTo(() => localHttpClientFactory.CreateClient(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
+            var localHttpClientFactory = A.Fake<IUriSpecifcHttpClientFactory>();
+            A.CallTo(() => localHttpClientFactory.GetClientForRegionEndpoint(A<string>.Ignored)).Returns(httpHandler.ToHttpClient());
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var contentRetriever = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);

@@ -7,10 +7,11 @@ using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Banner;
-using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Neo4J;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Polly;
@@ -145,13 +146,13 @@ namespace DFC.Composite.Shell.Extensions
             if (!services.AppRegistryRequestRegistered())
             {
                 AddHttpClientWithPolicies<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(
-                services,
-                policyRegistry,
-                $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
-                nameof(AppRegistryClientOptions),
-                policyOptions,
-                configuration);
+                    services,
+                    policyRegistry,
+                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
+                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
+                    nameof(AppRegistryClientOptions),
+                    policyOptions,
+                    configuration);
             }
 
             services.AddApplicationClientHttp(configuration, policyOptions, policyRegistry);
@@ -215,11 +216,12 @@ namespace DFC.Composite.Shell.Extensions
             PolicyOptions policyOptions,
             IPolicyRegistry<string> policyRegistry)
         {
-            var registeredUrls = GetRegisteredUrls(services) ?? new List<string>();
+            var registeredUrls = GetRegisteredUrls(services);
+            services.AddSingleton<IRegisteredUrls>(registeredUrls);
 
-            foreach (var registeredUrl in registeredUrls)
+            foreach (var registeredUrl in registeredUrls.GetAll())
             {
-                AddHttpClientWithPolicies<IContentRetriever, ContentRetriever, ApplicationClientOptions>(
+                AddHttpClientWithPolicies<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory, ApplicationClientOptions>(
                     services,
                     policyRegistry,
                     $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
@@ -227,25 +229,54 @@ namespace DFC.Composite.Shell.Extensions
                     nameof(ApplicationClientOptions),
                     policyOptions,
                     configuration,
-                    $"{registeredUrl}_{nameof(ContentRetriever)}")
+                    $"{registeredUrl}_{nameof(UriSpecifcHttpClientFactory)}")
                 .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
                 .AddHttpMessageHandler<CookieDelegatingHandler>();
             }
         }
 
-        private static List<string> GetRegisteredUrls(IServiceCollection services)
+        private static RegisteredUrls GetRegisteredUrls(IServiceCollection services)
         {
-            return services
-                .BuildServiceProvider()
-                .GetService<IAppRegistryDataService>()
-                .GetAppRegistrationModels()
-                .GetAwaiter()
-                .GetResult()
-                .Where(model => model.Regions != null)
-                .SelectMany(model => model.Regions)
-                .Select(region => region.RegionEndpoint)
-                .Distinct()
-                .ToList();
+            var serviceProvider = services.BuildServiceProvider();
+            var registeredUrlList = new List<string>();
+
+            try
+            {
+                registeredUrlList = serviceProvider
+                    .GetService<IAppRegistryDataService>()
+                    .GetAppRegistrationModels()
+                    .GetAwaiter()
+                    .GetResult()
+                    .Where(model => model.Regions != null)
+                    .SelectMany(model => model.Regions)
+                    .Select(region => region.RegionEndpoint)
+                    .Distinct()
+                    .ToList();
+            }
+            #pragma warning disable CA1031
+            catch (Exception exception)
+            #pragma warning restore CA1031
+            {
+                AttemptToLog(serviceProvider, exception, "Failure getting paths from app registry");
+            }
+
+            registeredUrlList.Add(RegisteredUrlConstants.DefaultKey);
+            return new RegisteredUrls(registeredUrlList);
+        }
+
+        private static void AttemptToLog(ServiceProvider serviceProvider, Exception exception, string message)
+        {
+            try
+            {
+                var logger = serviceProvider.GetService<ILogger>();
+                logger.LogError(exception, message);
+            }
+            #pragma warning disable CA1031
+            catch
+            #pragma warning restore CA1031
+            {
+                // Swallow the exception - it will be lost unfortunately as we dont have a fallback logger
+            }
         }
 
         private static IHttpClientBuilder AddHttpClientWithPolicies<TClient, TImplementation, TClientOptions>(
