@@ -28,6 +28,7 @@ using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
@@ -104,6 +105,7 @@ namespace DFC.Composite.Shell
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com"))
                 .StyleSources(s => s
+                    .UnsafeInline()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
@@ -114,7 +116,8 @@ namespace DFC.Composite.Shell
                     .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
                         "https://fonts.gstatic.com"))
                 .ImageSources(s => s
                     .Self()
@@ -213,7 +216,7 @@ namespace DFC.Composite.Shell
             services.AddSingleton<ITaskHelper, TaskHelper>();
             services.AddSingleton(Configuration.GetSection(nameof(MarkupMessages)).Get<MarkupMessages>() ?? new MarkupMessages());
             services.AddSingleton(Configuration.GetSection(nameof(WebchatOptions)).Get<WebchatOptions>() ?? new WebchatOptions());
-            
+
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
@@ -230,7 +233,9 @@ namespace DFC.Composite.Shell
             });
 
             services.ConfigureHttpClients(Configuration);
+
             services.AddTransient<IContentRetriever, ContentRetriever>();
+            services.AddSingleton<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory>();
 
             services.AddSession();
 
