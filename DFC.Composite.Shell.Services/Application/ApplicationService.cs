@@ -183,7 +183,7 @@ namespace DFC.Composite.Shell.Services.Application
                 ? string.Format(CultureInfo.InvariantCulture, urlFormatString, article, queryString)
                 : urlFormatString
                     .Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase)
-                    .Replace(QueryStringPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase);
+                    .Replace(QueryStringPlaceholder, queryString, StringComparison.OrdinalIgnoreCase);
         }
 
         private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString)
