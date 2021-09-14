@@ -142,7 +142,9 @@ namespace DFC.Composite.Shell.Extensions
                 policyOptions,
                 configuration);
 
-            AddHttpClientWithPolicies<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(
+            if (!services.AppRegistryRequestRegistered())
+            {
+                AddHttpClientWithPolicies<IAppRegistryService, AppRegistryService, AppRegistryClientOptions>(
                 services,
                 policyRegistry,
                 $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
@@ -150,6 +152,7 @@ namespace DFC.Composite.Shell.Extensions
                 nameof(AppRegistryClientOptions),
                 policyOptions,
                 configuration);
+            }
 
             services.AddApplicationClientHttp(configuration, policyOptions, policyRegistry);
 
@@ -280,6 +283,11 @@ namespace DFC.Composite.Shell.Extensions
                 configurationSectionName,
                 retryPolicyKey,
                 circuitBreakerKey);
+        }
+
+        private static bool AppRegistryRequestRegistered(this IServiceCollection services)
+        {
+            return services.Any(service => service.ServiceType == typeof(IAppRegistryService));
         }
     }
 }

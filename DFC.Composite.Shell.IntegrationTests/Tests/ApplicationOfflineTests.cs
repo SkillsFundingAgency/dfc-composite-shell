@@ -17,30 +17,38 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task WhenAnApplicationIsOfflineItContainsTheApplicationsOfflineMessage()
         {
+            // Arrange
             var shellUri = new Uri("path3", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
+            // Act
+            var response = await client.GetAsync(shellUri);
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseHtml = await response.Content.ReadAsStringAsync();
+
+            // Assert
             Assert.Contains("Path3 is offline", responseHtml, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
         public async Task WhenAnApplicationIsOfflineItDoesntContainsContentFromAnyRegions()
         {
+            // Arrange
             var shellUri = new Uri("path3", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
+            // Act
+            var response = await client.GetAsync(shellUri);
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Assert.DoesNotContain("GET, http://www.path3.com/path3/head, path3, Head", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("GET, http://www.path3.com/path3/body, path3, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("GET, http://www.path3.com/path3/breadcrumb, path3, Breadcrumb", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("GET, http://www.path3.com/path3/bodyfooter, path3, Bodyfooter", responseHtml, StringComparison.OrdinalIgnoreCase);
+            var responseHtml = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.DoesNotContain("GET, http://www.expected-domain.com/path3/head, path3, Head", responseHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("GET, http://www.expected-domain.com/path3/body, path3, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("GET, http://www.expected-domain.com/path3/breadcrumb, path3, Breadcrumb", responseHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("GET, http://www.expected-domain.com/path3/bodyfooter, path3, Bodyfooter", responseHtml, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

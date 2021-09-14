@@ -7,7 +7,6 @@ namespace DFC.Composite.Shell.Integration.Test
 {
     public class ApplicationGetTests : IClassFixture<ShellTestWebApplicationFactory<Startup>>
     {
-        private const string Path = "path1";
         private readonly ShellTestWebApplicationFactory<Startup> factory;
 
         public ApplicationGetTests(ShellTestWebApplicationFactory<Startup> shellTestWebApplicationFactory)
@@ -18,43 +17,58 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task When_ShellUrlIsEntryPoint_ItContainsResponseFromRegisteredRegions()
         {
-            var shellUri = new Uri(Path, UriKind.Relative);
+            // Arrange
+            var shellUri = new Uri("path1", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
+            // Act
+            var response = await client.GetAsync(shellUri);
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseHtml = await response.Content.ReadAsStringAsync();
 
-            Assert.Contains("GET, http://www.path1.com/path1/body, path1, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
+            // Assert
+            Assert.Contains("GET, http://www.expected-domain.com/expected-path/path1/body, pages, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
         public async Task When_ShellUrlStartsWithPath_ItContainsResponseFromRegisteredRegions()
         {
-            var shellUri = new Uri(string.Concat(Path, "/edit"), UriKind.Relative);
+            // Arrange
+            var shellUri = new Uri("path1/edit", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
+            var expected1 = "GET, http://www.expected-domain.com/expected-path/edit/head, path1, Head";
+            var expected2 = "GET, http://www.expected-domain.com/expected-path/edit/body, path1, Body";
 
-            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
+            // Act
+            var response = await client.GetAsync(shellUri);
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Assert.Contains("GET, http://www.path1.com/path1/head/edit, path1, Head", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("GET, http://www.path1.com/path1/body/edit, path1, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
+            var responseHtml = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Contains(expected1, responseHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(expected2, responseHtml, StringComparison.OrdinalIgnoreCase);
         }
 
         [Fact]
         public async Task When_ShellUrlStartsWithPathAndContainsQueryString_ItContainsResponseFromRegisteredRegions()
         {
-            var shellUri = new Uri(string.Concat(Path, "/edit?id=1"), UriKind.Relative);
+            // Arrange
+            var shellUri = new Uri("path1/edit?id=1", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
+            var expected1 = "GET, http://www.expected-domain.com/expected-path/edit/head?id=1, path1, Head";
+            var expected2 = "GET, http://www.expected-domain.com/expected-path/edit/body?id=1, path1, Body";
 
-            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
+            // Act
+            var response = await client.GetAsync(shellUri);
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Assert.Contains("GET, http://www.path1.com/path1/head/edit?id=1, path1, Head", responseHtml, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("GET, http://www.path1.com/path1/body/edit?id=1, path1, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
+            var responseHtml = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Contains(expected1, responseHtml, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(expected2, responseHtml, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

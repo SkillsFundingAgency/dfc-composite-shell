@@ -17,14 +17,19 @@ namespace DFC.Composite.Shell.Integration.Test
         [Fact]
         public async Task WhenAnApplicationIsOnlineItContainsContentFromAllOnlineRegions()
         {
-            var shellUri = new Uri("path1", UriKind.Relative);
+            // Arrange
+            var shellUri = new Uri("pages", UriKind.Relative);
             var client = factory.CreateClientWithWebHostBuilder();
+            var expected = "GET, http://www.expected-domain.com/expected-path/body, pages, Body";
 
-            var response = await client.GetAsync(shellUri).ConfigureAwait(false);
-
+            // Act
+            var response = await client.GetAsync(shellUri);
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Assert.Contains("GET, http://www.path1.com/path1/body, path1, Body", responseHtml, StringComparison.OrdinalIgnoreCase);
+
+            var actual = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Contains(expected, actual, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
