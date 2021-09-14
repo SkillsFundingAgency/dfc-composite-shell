@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 
@@ -7,21 +8,35 @@ namespace DFC.Composite.Shell.Services.UriSpecifcHttpClient
     public class UriSpecifcHttpClientFactory : IUriSpecifcHttpClientFactory
     {
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly List<string> registeredUrls;
+        private readonly List<string> registeredUrlKeys;
+        private readonly ILogger<UriSpecifcHttpClientFactory> logger;
 
-        public UriSpecifcHttpClientFactory(IHttpClientFactory httpClientFactory, IRegisteredUrls registeredUrls)
+        public UriSpecifcHttpClientFactory(
+            IHttpClientFactory httpClientFactory,
+            IRegisteredUrls registeredUrls,
+            ILogger<UriSpecifcHttpClientFactory> logger)
         {
             this.httpClientFactory = httpClientFactory;
-            this.registeredUrls = registeredUrls?.GetAll().Select(url => $"{url}_{nameof(UriSpecifcHttpClientFactory)}").ToList();
+            this.logger = logger;
+
+            registeredUrlKeys = registeredUrls?.GetAll().Select(url => $"{url}_{nameof(UriSpecifcHttpClientFactory)}").ToList();
         }
 
         public HttpClient GetClientForRegionEndpoint(string url)
         {
             var key = $"{url}_{nameof(UriSpecifcHttpClientFactory)}";
 
-            return string.IsNullOrEmpty(url) || !registeredUrls.Contains(key)
-                ? httpClientFactory.CreateClient(RegisteredUrlConstants.DefaultKey)
-                : httpClientFactory.CreateClient(key);
+            if (string.IsNullOrEmpty(url) || !registeredUrlKeys.Contains(key))
+            {
+                logger.LogInformation(
+                    "Url key '{key}' was empty or not contained in registered url keys ({registeredUrlKeys}). Using default.",
+                    key,
+                    string.Join(',', registeredUrlKeys));
+
+                key = $"{RegisteredUrlConstants.DefaultKey}_{nameof(UriSpecifcHttpClientFactory)}";
+            }
+
+            return httpClientFactory.CreateClient(key);
         }
     }
 }
