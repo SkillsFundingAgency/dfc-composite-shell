@@ -242,34 +242,46 @@ namespace DFC.Composite.Shell.Extensions
 
             try
             {
-                registeredUrlList = serviceProvider
-                    .GetService<IAppRegistryDataService>()
-                    .GetAppRegistrationModels()
-                    .GetAwaiter()
-                    .GetResult()
-                    .Where(model => model.Regions != null)
-                    .SelectMany(model => model.Regions)
-                    .Select(region => region.RegionEndpoint)
-                    .Distinct()
-                    .ToList();
+                const int MaxRetries = 3;
+                const int BaseRetrySeconds = 5;
+
+                Policy
+                    .Handle<Exception>()
+                    .WaitAndRetry(MaxRetries, retryAttempt => TimeSpan.FromSeconds(retryAttempt * BaseRetrySeconds))
+                    .Execute(() =>
+                        registeredUrlList.AddRange(serviceProvider
+                            .GetService<IAppRegistryDataService>()
+                            .GetAppRegistrationModels()
+                            .GetAwaiter()
+                            .GetResult()
+                            .Where(model => model.Regions != null)
+                            .SelectMany(model => model.Regions)
+                            .Select(region => region.RegionEndpoint)
+                            .Distinct()
+                            .ToList()));
             }
             #pragma warning disable CA1031
             catch (Exception exception)
             #pragma warning restore CA1031
             {
-                AttemptToLog(serviceProvider, exception, "Failure getting paths from app registry");
+                AttemptToLog(exception, "Failure getting paths from app registry");
             }
 
             registeredUrlList.Add(RegisteredUrlConstants.DefaultKey);
             return new RegisteredUrls(registeredUrlList);
         }
 
-        private static void AttemptToLog(ServiceProvider serviceProvider, Exception exception, string message)
+        private static void AttemptToLog(Exception exception, string message)
         {
             try
             {
-                var logger = serviceProvider.GetService<ILogger>();
-                logger.LogError(exception, message);
+                using var loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder.AddApplicationInsights();
+                });
+
+                var logger = loggerFactory.CreateLogger<Startup>();
+                logger?.LogError(exception, message);
             }
             #pragma warning disable CA1031
             catch
