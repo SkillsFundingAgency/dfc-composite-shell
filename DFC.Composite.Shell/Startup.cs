@@ -5,16 +5,10 @@ using DFC.Composite.Shell.Extensions;
 using DFC.Composite.Shell.HttpResponseMessageHandlers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.Common;
-using DFC.Composite.Shell.Policies.Options;
-using DFC.Composite.Shell.Services.AjaxRequest;
 using DFC.Composite.Shell.Services.Application;
-using DFC.Composite.Shell.Services.ApplicationHealth;
-using DFC.Composite.Shell.Services.ApplicationRobot;
-using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Auth;
 using DFC.Composite.Shell.Services.Auth.Models;
-using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
@@ -86,7 +80,7 @@ namespace DFC.Composite.Shell
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
             var oidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
 
-            // Configure security headers
+            //Configure security headers
             app.UseCsp(options => options
                 .DefaultSources(s => s.Self())
                 .ScriptSources(s => s
@@ -101,19 +95,22 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com"))
                 .StyleSources(s => s
-                    .Self()
+                    .UnsafeInline()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
-                        "https://fonts.googleapis.com"))
+                        "https://fonts.googleapis.com",
+                        "https://www.googleoptimize.com"))
                 .FormActions(s => s
                     .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
                 .FontSources(s => s
                     .Self()
-                    .CustomSources($"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
+                    .CustomSources(
+                        $"{cdnLocation}/{Constants.NationalCareersToolkit}/fonts/",
                         "https://fonts.gstatic.com"))
                 .ImageSources(s => s
                     .Self()
@@ -125,7 +122,9 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
-                        "https://optimize.google.com"))
+                        "https://optimize.google.com",
+                        "https://www.googleoptimize.com",
+                        "https://www.googletagmanager.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()

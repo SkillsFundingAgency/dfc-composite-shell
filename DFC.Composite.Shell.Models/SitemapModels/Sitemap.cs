@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace DFC.Composite.Shell.Models.SitemapModels
@@ -30,66 +32,38 @@ namespace DFC.Composite.Shell.Models.SitemapModels
 
             set
             {
-                if (value == null)
+                if (value != null)
                 {
-                    return;
-                }
-
-                var items = value;
-                map.Clear();
-                foreach (var sitemapLocation in items)
-                {
-                    map.Add(sitemapLocation);
+                    map.Clear();
+                    AddRange(value);
                 }
             }
-        }
-
-        public static string GetSitemapXml()
-        {
-            return string.Empty;
-        }
-
-        public int Add(SitemapLocation item)
-        {
-            return map.Add(item);
         }
 
         public void AddRange(IEnumerable<SitemapLocation> locs)
         {
-            if (locs == null)
+            if (locs != null)
             {
-                return;
-            }
-
-            foreach (var i in locs)
-            {
-                map.Add(i);
-            }
-        }
-
-        public void WriteSitemapToFile(string path)
-        {
-            using (FileStream fs = new FileStream(path, FileMode.Create))
-            {
-                var ns = new XmlSerializerNamespaces();
-                ns.Add("image", "http://www.google.com/schemas/sitemap-image/1.1");
-
-                var xs = new XmlSerializer(typeof(Sitemap));
-                xs.Serialize(fs, this, ns);
+                foreach (var i in locs)
+                {
+                    var existingMap = map.ToArray().FirstOrDefault(f => (f as SitemapLocation).Url.Equals(i.Url, StringComparison.OrdinalIgnoreCase));
+                    if (existingMap == null)
+                    {
+                        _ = map.Add(i);
+                    }
+                }
             }
         }
 
         public string WriteSitemapToString()
         {
-            using (StringWriter sw = new StringWriter())
-            {
-                XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-                ns.Add("image", "http://www.google.com/schemas/sitemap-image/1.1");
+            using StringWriter sw = new StringWriter();
+            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            ns.Add("xhtml", "http://www.w3.org/1999/xhtml");
 
-                XmlSerializer xs = new XmlSerializer(typeof(Sitemap));
-                xs.Serialize(sw, this, ns);
-                return sw.GetStringBuilder().ToString();
-            }
+            XmlSerializer xs = new XmlSerializer(typeof(Sitemap));
+            xs.Serialize(sw, this, ns);
+            return sw.GetStringBuilder().ToString();
         }
     }
 }
