@@ -1,5 +1,6 @@
 ﻿using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using FakeItEasy;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Net.Http;
 using Xunit;
@@ -17,7 +18,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => registeredUrls.GetAll()).Returns(new List<string> { "http://example.org/should-exist" });
 
             clientFactory = A.Fake<IHttpClientFactory>();
-            factory = new UriSpecifcHttpClientFactory(clientFactory, registeredUrls);
+            factory = new UriSpecifcHttpClientFactory(clientFactory, registeredUrls, A.Fake<ILogger<UriSpecifcHttpClientFactory>>());
         }
 
         [Fact]
@@ -25,7 +26,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             factory.GetClientForRegionEndpoint("http://example.org/doesnt-exist");
 
-            A.CallTo(() => clientFactory.CreateClient("CATCH_ALL_REGISTERED_URL_KEY")).MustHaveHappenedOnceExactly();
+            A.CallTo(() => clientFactory.CreateClient("CATCH_ALL_REGISTERED_URL_KEY_UriSpecifcHttpClientFactory")).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
