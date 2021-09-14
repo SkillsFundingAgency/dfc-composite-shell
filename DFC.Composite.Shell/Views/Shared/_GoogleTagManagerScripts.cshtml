@@ -1,9 +1,5 @@
-﻿<!-- Page-hiding snippet (recommended)  -->
-<style nws-csp-add-nonce="true">
-    .async-hide {
-        opacity: 0 !important
-    }
-</style>
+﻿@model PageViewModelResponse;
+<!-- Page-hiding snippet (recommended)  -->
 <script nws-csp-add-nonce="true">
     (function (a, s, y, n, c, h, i, d, e) {
         s.className += ' ' + y; h.start = 1 * new Date;
@@ -11,7 +7,7 @@
         (a[n] = a[n] || []).hide = h; setTimeout(function () { i(); h.end = null }, c); h.timeout = c;
     })(window, document.documentElement, 'async-hide', 'dataLayer', 4000,
         { 'GTM-554PPX9': true });
-</script> 
+</script>
 <!-- Google Tag Manager -->
 <script nws-csp-add-nonce="true">
     (function (w, d, s, l, i) {
@@ -24,4 +20,5 @@
         n && j.setAttribute('nonce', n.nonce || n.getAttribute('nonce')); f.parentNode.insertBefore(j, f);
     })(window, document, 'script', 'dataLayer', 'GTM-554PPX9');
 </script>
+<script src="https://www.googleoptimize.com/optimize.js?id=OPT-@Model.ScriptIds.OptimizeId" nws-csp-add-nonce="true"></script>
 <!-- End Google Tag Manager -->
