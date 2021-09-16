@@ -22,6 +22,7 @@ using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
+using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
@@ -226,7 +227,9 @@ namespace DFC.Composite.Shell
             });
 
             services.ConfigureHttpClients(Configuration);
+
             services.AddTransient<IContentRetriever, ContentRetriever>();
+            services.AddSingleton<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory>();
 
             services.AddSession();
 
