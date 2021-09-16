@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Robots;
 using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.AppRegistry;
@@ -64,7 +65,9 @@ namespace DFC.Composite.Shell.Controllers
 
             if (sitemapRouteUrl != null)
             {
-                robot.Add($"Sitemap: {Request.Scheme}://{Request.Host}{sitemapRouteUrl}");
+                var baseUrl = $"{Request.GetBaseAddress()}".TrimEnd('/');
+
+                robot.Add($"Sitemap: {baseUrl}{sitemapRouteUrl}");
             }
 
             logger.LogInformation("Generated Robots.txt");
@@ -165,7 +168,7 @@ namespace DFC.Composite.Shell.Controllers
 
         private void AppendApplicationsRobots(Robot robot, IEnumerable<ApplicationRobotModel> applicationRobotModels)
         {
-            var baseUrl = baseUrlService.GetBaseUrl(Request, Url);
+            var baseUrl = $"{Request.GetBaseAddress()}".TrimEnd('/');
 
             // get the task results as individual robots and merge into one
             foreach (var applicationRobotModel in applicationRobotModels)
