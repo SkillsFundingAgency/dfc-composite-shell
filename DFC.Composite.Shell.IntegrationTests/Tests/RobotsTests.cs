@@ -20,12 +20,14 @@ namespace DFC.Composite.Shell.Integration.Test
         {
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("/robots.txt", UriKind.Relative)).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri("/robots.txt", UriKind.Relative));
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var responseHtml = await response.Content.ReadAsStringAsync();
+
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
-            Assert.True(responseHtml.Contains("User-agent:", StringComparison.OrdinalIgnoreCase) || responseHtml.Contains("Disallow:", StringComparison.OrdinalIgnoreCase));
+            Assert.True(responseHtml.Contains("User-agent:", StringComparison.OrdinalIgnoreCase)
+                || responseHtml.Contains("Disallow:", StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Extensions;
-
+using DFC.Composite.Shell.IntegrationTests.Fakes;
+using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using System.Net.Http;
 
 namespace DFC.Composite.Shell.Integration.Test.Framework
@@ -13,9 +14,9 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
     {
         public HttpClient CreateClientWithWebHostBuilder()
         {
-            return WithWebHostBuilder(x =>
+            return WithWebHostBuilder(builder =>
             {
-                x.RegisterServices();
+                builder.RegisterTestServices();
             }).CreateClient();
         }
 
@@ -25,7 +26,16 @@ namespace DFC.Composite.Shell.Integration.Test.Framework
 
             builder?.ConfigureServices(services =>
             {
-                var serviceProvider = services.BuildServiceProvider();
+                var configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .Build();
+
+                services.AddSingleton<IConfiguration>(configuration);
+
+                services.AddTransient<IAppRegistryService, FakeAppRegistryService>();
+
+                var serviceProvider = new ServiceCollection().BuildServiceProvider();
+                services.BuildServiceProvider();
             });
         }
     }

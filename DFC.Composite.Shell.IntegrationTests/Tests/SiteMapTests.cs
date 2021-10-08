@@ -20,10 +20,11 @@ namespace DFC.Composite.Shell.Integration.Test
         {
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("/sitemap.xml", UriKind.Relative)).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri("/sitemap.xml", UriKind.Relative));
 
             response.EnsureSuccessStatusCode();
-            var responseHtml = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            await response.Content.ReadAsStringAsync();
+
             Assert.Equal(MediaTypeNames.Application.Xml, response.Content.Headers.ContentType.MediaType);
         }
     }
