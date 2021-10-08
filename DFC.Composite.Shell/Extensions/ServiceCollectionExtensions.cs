@@ -49,7 +49,8 @@ namespace DFC.Composite.Shell.Extensions
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
                         retryAttempt =>
-                            TimeSpan.FromSeconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt))));
+                            TimeSpan.FromMilliseconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt)
+                                                 * policyOptions.HttpRetry.BackOffBaseMilliseconds)));
 
             policyRegistry.Add(
                 circuitBreakerKey,
