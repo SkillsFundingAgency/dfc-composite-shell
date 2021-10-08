@@ -126,12 +126,12 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task RobotsControllerWritesSitemapDataToLastLineOfRobotText()
         {
-            var expectedResult = $"Sitemap: {DummyScheme}://{DummyHost}{DummySitemapUrl}";
+            var expectedResult = "Sitemap: " + $"{DummyScheme}://{DummyHost}".ToLowerInvariant() + DummySitemapUrl;
 
             var result = await defaultController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            Assert.Equal(resultLines[1], expectedResult);
+            Assert.Equal(expectedResult, resultLines[1]);
         }
 
         [Theory]
