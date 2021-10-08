@@ -126,6 +126,8 @@ namespace DFC.Composite.Shell.Controllers
                         {
                             mapping.Url = mapping.Url.Replace(appBaseUrl, baseUrl, StringComparison.InvariantCultureIgnoreCase);
                         }
+
+                        mapping.Priority = 0.5;
                     }
 
                     sitemap.AddRange(sitemapLocations);
