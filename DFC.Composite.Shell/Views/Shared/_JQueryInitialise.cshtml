@@ -5,14 +5,6 @@
     {
         <script src="@script" type="text/javascript" nws-csp-add-nonce="true"></script>
     }
-
-    bool webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
-    var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"]?.ToString();
-
-    if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
-    {
-        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true"></script>
-    }
 }
 
 <script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
