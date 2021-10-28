@@ -16,6 +16,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
@@ -38,14 +39,14 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             this.memoryCache = memoryCache;
         }
 
-        public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
+        public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl, IHeaderDictionary headers)
         {
             const int CacheDurationInSeconds = 30;
             var cacheKey = BuildCacheKey(url, followRedirects, requestBaseUrl);
 
             if (!memoryCache.TryGetValue(cacheKey, out string content))
             {
-                content = await GetContent_WithoutCaching(url, path, regionModel, followRedirects, requestBaseUrl);
+                content = await GetContent_WithoutCaching(url, path, regionModel, followRedirects, requestBaseUrl, headers);
 
                 if (IsInteractiveContent(url) || string.IsNullOrWhiteSpace(content))
                 {
@@ -71,7 +72,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             return $"{nameof(ContentRetriever)}_Url:{url}_FollowRedirects:{followRedirects}_RequestBaseUrl:{requestBaseUrl}";
         }
 
-        private async Task<string> GetContent_WithoutCaching(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl)
+        private async Task<string> GetContent_WithoutCaching(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl, IHeaderDictionary headers)
         {
             const int MaxRedirections = 10;
 
@@ -85,7 +86,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     logger.LogInformation($"{nameof(GetContent)}: Getting child response from: {url}");
 
-                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections, regionModel);
+                    var response = await GetContentIfRedirectedAsync(requestBaseUrl, url, followRedirects, MaxRedirections, regionModel, headers);
 
                     if (response != null && !response.IsSuccessStatusCode)
                     {
@@ -183,7 +184,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             return results;
         }
 
-        private async Task<HttpResponseMessage> GetContentIfRedirectedAsync(string requestBaseUrl, string url, bool followRedirects, int maxRedirections, RegionModel regionModel)
+        private async Task<HttpResponseMessage> GetContentIfRedirectedAsync(string requestBaseUrl, string url, bool followRedirects, int maxRedirections, RegionModel regionModel, IHeaderDictionary headers)
         {
             HttpResponseMessage response = null;
             var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
@@ -191,6 +192,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             for (int i = 0; i < maxRedirections; i++)
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
+                foreach (var (key, value) in headers)
+                {
+                 request.Headers.Add(key, value.ToArray());
+                }
 
                 response = await httpClient.SendAsync(request);
 

@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Services.ContentRetrieval;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DFC.Composite.Shell.IntegrationTests.Fakes
 {
@@ -13,7 +14,8 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
             string path,
             RegionModel regionModel,
             bool followRedirects,
-            string requestBaseUrl)
+            string requestBaseUrl,
+            IHeaderDictionary headers)
         {
             return Task.FromResult(Concat(
                 "GET",
