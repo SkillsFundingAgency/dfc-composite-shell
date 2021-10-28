@@ -15,9 +15,13 @@ using Polly.CircuitBreaker;
 using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -37,6 +41,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly List<KeyValuePair<string, string>> defaultFormPostParams;
         private readonly IMemoryCache memoryCache;
         private readonly string baseUri = "http://baseUrl";
+        private readonly IFakeHttpRequestSender fakeHttpRequestSender;
 
         public ContentRetrieverTests()
         {
@@ -46,7 +51,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 Content = new StringContent(DummyChildAppContent),
             };
 
-            var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
+            fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
             fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
@@ -119,9 +124,30 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 PageRegion = PageRegion.Body,
             };
 
-            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl");
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary());
+
 
             Assert.Equal(DummyChildAppContent, result);
+        }
+
+        [Fact]
+        public async Task GetContentWhenContentRetrievedFromChildAppWithHeadersThenRequestMadeWithHeaders()
+        {
+            var model = new RegionModel
+            {
+                IsHealthy = true,
+                RegionEndpoint = "SomeRegionEndpoint",
+                PageRegion = PageRegion.Body,
+            };
+
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary
+            {
+                new KeyValuePair<string, StringValues>("Referer", new StringValues("job-profiles")),
+
+            });
+
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.That.Matches(x => 
+                x.Headers.Any(x => x.Key == "Referer" && x.Value.Contains("job-profiles")))));
         }
 
         [Fact]
@@ -134,7 +160,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 OfflineHtml = OfflineHtml,
             };
 
-            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl");
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary());
 
             Assert.Equal(OfflineHtml, result);
         }
@@ -149,7 +175,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 OfflineHtml = null,
             };
 
-            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl");
+            var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary());
 
             Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result);
         }
@@ -186,7 +212,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            await service.GetContent("http://someUrl", "path", model, true, baseUri);
+            await service.GetContent("http://someUrl", "path", model, true, baseUri, new HeaderDictionary());
 
             A.CallTo(() => httpResponseMessageHandler.Process(null)).MustHaveHappened();
         }
@@ -194,7 +220,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl"));
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl", new HeaderDictionary()));
         }
 
         [Fact]
@@ -230,7 +256,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(localHttpClientFactory, logger, appRegistryDataService, httpResponseMessageHandler, markupMessages, memoryCache);
 
-            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", "path", model, false, "http://baseUrl"));
+            await Assert.ThrowsAnyAsync<RedirectException>(async () => await service.GetContent("http://someUrl", "path", model, false, "http://baseUrl", new HeaderDictionary()));
 
             fakeRedirectHttpMessageHandler.Dispose();
             redirectHttpResponse.Dispose();
@@ -255,7 +281,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages, memoryCache);
 
-            await service.GetContent("someUrl", "path", model, true, "baseUrl");
+            await service.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary());
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustHaveHappenedOnceExactly();
@@ -280,7 +306,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
             var service = new ContentRetriever(httpClientFactory, logger, fakeRegionService, fakeRedirectHttpMessageHandler, markupMessages, memoryCache);
 
-            var result = await service.GetContent("someUrl", "path", model, true, "baseUrl");
+            var result = await service.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary());
 
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
