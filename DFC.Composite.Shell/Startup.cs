@@ -83,6 +83,7 @@ namespace DFC.Composite.Shell
             app.AddOperationIdToRequests();
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
+            var shcImageStorageURL = Configuration.GetValue<string>("SHCImageStorageURL");
             var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
             var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
             var oidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
@@ -124,6 +125,7 @@ namespace DFC.Composite.Shell
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/images/",
                         $"{cdnLocation}/{Constants.Media}/",
+                        $"{shcImageStorageURL}",
                         webchatCspDomain + "/images/",
                         webchatCspDomain + "/var/",
                         "www.google-analytics.com",

@@ -115,6 +115,9 @@
         },
         "ApplicationClientOptionsTimeout":{
             "value": "__ApplicationClientOptionsTimeout__"
+        },
+        "SHCImageStorageURL": {
+            "value": "__SHCImageStorageURL__"
         }
     }
 }
