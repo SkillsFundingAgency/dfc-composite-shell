@@ -1,5 +1,5 @@
 ﻿using DFC.Composite.Shell.Models;
-
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,12 +15,12 @@ namespace DFC.Composite.Shell.Services.Application
         /// <summary>
         /// Gets the markup at the specified url and loads other related regions for the specified path.
         /// </summary>
-        Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString);
+        Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString, IHeaderDictionary headers);
 
         /// <summary>
         /// Posts a request to the specified url with the specified form data and loads other related regions for the specified path.
         /// </summary>
-        Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel, string requestPath);
+        Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel, string requestPath, IHeaderDictionary headers);
 
         /// <summary>
         /// Gets details of an application that includes regions, given a path.
