@@ -223,6 +223,7 @@ namespace DFC.Composite.Shell
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
             services.Configure<Neo4JSettings>(Configuration.GetSection(nameof(Neo4JSettings)));
+            services.Configure<PassOnHeaderSettings>(Configuration.GetSection(nameof(PassOnHeaderSettings)));
 
             services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl, new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
 
