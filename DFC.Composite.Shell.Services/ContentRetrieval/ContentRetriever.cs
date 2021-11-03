@@ -13,10 +13,12 @@ using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
@@ -28,8 +30,9 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly IHttpResponseMessageHandler responseHandler;
         private readonly MarkupMessages markupMessages;
         private readonly IMemoryCache memoryCache;
+        private readonly PassOnHeaderSettings headerSettings;
 
-        public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache)
+        public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache, IOptions<PassOnHeaderSettings> headerSettings)
         {
             this.httpClientFactory = httpClientFactory;
             this.logger = logger;
@@ -37,6 +40,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             this.responseHandler = responseHandler;
             this.markupMessages = markupMessages;
             this.memoryCache = memoryCache;
+            this.headerSettings = headerSettings?.Value ?? new PassOnHeaderSettings();
         }
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl, IHeaderDictionary headers)
@@ -192,9 +196,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             for (int i = 0; i < maxRedirections; i++)
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
-                foreach (var (key, value) in headers)
+                foreach (var (key, value) in headers.Where(h => headerSettings.SupportedHeaders
+                    .Any(sh => string.Equals(sh, h.Key, StringComparison.CurrentCultureIgnoreCase))))
                 {
-                 request.Headers.Add(key, value.ToArray());
+                    request.Headers.Add(key, value.ToArray());
                 }
 
                 response = await httpClient.SendAsync(request);
