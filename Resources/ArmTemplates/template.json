@@ -129,7 +129,10 @@
             "type": "string"
         },
         "SupportedHeaders" :{
-            "type": "array"
+            "type": "array",
+            "defaultValue" : [
+                "Referer"
+            ]
         }
     },
     "variables": {
@@ -466,7 +469,7 @@
                             },
                             {
                                 "name": "PassOnHeaderSettings__SupportedHeaders",
-                                "value" : ["Referer"]
+                                "value" : "[parameters('SupportedHeaders')]"
                             }
                         ]
                     }
