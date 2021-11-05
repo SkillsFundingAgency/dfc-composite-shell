@@ -130,9 +130,7 @@
         },
         "SupportedHeaders" :{
             "type": "array",
-            "defaultValue" : [
-                "Referer"
-            ]
+            "defaultValue" : []
         }
     },
     "variables": {
