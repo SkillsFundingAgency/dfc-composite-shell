@@ -119,7 +119,7 @@
         "SHCImageStorageURL": {
             "value": "__SHCImageStorageURL__"
         },
-        "SupportedHeaders": {
+        "SupportedHeader0": {
             "value": __SupportedHeaders__
         }
     }

@@ -128,9 +128,8 @@
         "SHCImageStorageURL": {
             "type": "string"
         },
-        "SupportedHeaders" :{
-            "type": "array",
-            "defaultValue" : []
+        "SupportedHeader0" :{
+            "type": "string"
         }
     },
     "variables": {
@@ -466,8 +465,8 @@
                                 "value": "[parameters('SHCImageStorageURL')]"
                             },
                             {
-                                "name": "PassOnHeaderSettings__SupportedHeaders",
-                                "value" : "[parameters('SupportedHeaders')]"
+                                "name": "PassOnHeaderSettings__SupportedHeaders__0",
+                                "value" : "[parameters('SupportedHeader0')]"
                             }
                         ]
                     }
