@@ -31,6 +31,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly MarkupMessages markupMessages;
         private readonly IMemoryCache memoryCache;
         private readonly PassOnHeaderSettings headerSettings;
+        private readonly Dictionary<string, string> FileDownloadContentTypes = new Dictionary<string, string> { {"application/docx", "docx"}, {"application/pdf", "pdf"} };
+
 
         public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache, IOptions<PassOnHeaderSettings> headerSettings)
         {
@@ -126,11 +128,11 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             return results;
         }
 
-        public async Task<string> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
+        public async Task<PostResponseModel> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
         {
             _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
 
-            string results = null;
+            var results = new PostResponseModel();
 
             try
             {
@@ -156,7 +158,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                             ? response.Headers.Location.PathAndQuery.ToString(CultureInfo.InvariantCulture)
                             : response.Headers.Location.ToString();
 
-                        throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
+                        throw new RedirectException(new Uri(url), new Uri(redirectUrl),
+                            response.StatusCode == HttpStatusCode.PermanentRedirect);
                     }
 
                     if (!response.IsSuccessStatusCode)
@@ -164,13 +167,28 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                         throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
                     }
 
-                    results = await response.Content.ReadAsStringAsync();
+                    var mediaType = response.Content.Headers.ContentType.MediaType;
+                    if (FileDownloadContentTypes.TryGetValue(mediaType, out var fileExtension))
+                    {
+                        results.FileDownloadModel = new FileDownloadModel
+                        {
+                            FileBytes = await response.Content.ReadAsByteArrayAsync(),
+                            FileContentType = mediaType,
+                            FileName = !string.IsNullOrWhiteSpace(response.Content.Headers.ContentDisposition.FileNameStar) ? response.Content.Headers.ContentDisposition.FileNameStar : $"NCS file download.{fileExtension}",
+                        };
+                    }
+                    else
+                    {
+                        results.HTML = await response.Content.ReadAsStringAsync();
+                    }
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
                 else
                 {
-                    results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                    results.HTML = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                        ? regionModel.OfflineHtml
+                        : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
                 }
             }
             catch (BrokenCircuitException ex)
@@ -182,7 +200,14 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
                 }
 
-                results = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml) ? regionModel.OfflineHtml : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                results.HTML = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                    ? regionModel.OfflineHtml
+                    : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation($"{nameof(PostContent)}: Received error response from: {url}. {ex.Message}");
+                throw;
             }
 
             return results;

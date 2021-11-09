@@ -204,6 +204,11 @@ namespace DFC.Composite.Shell.Controllers
                             {
                                 postFirstRequest = false;
                                 await applicationService.PostMarkupAsync(application, formParameters, viewModel, string.Empty, Request.Headers);
+                                if (viewModel.IsFileDownload)
+                                {
+                                    var fileDetails = viewModel.FileDownloadModel;
+                                    return File(fileDetails.FileBytes, fileDetails.FileContentType, fileDetails.FileName);
+                                }
                             }
                             else
                             {

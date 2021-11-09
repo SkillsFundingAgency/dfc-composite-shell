@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Services.ContentRetrieval;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DFC.Composite.Shell.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace DFC.Composite.Shell.IntegrationTests.Fakes
@@ -24,19 +25,22 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
                 regionModel?.PageRegion.ToString()));
         }
 
-        public Task<string> PostContent(
+        public Task<PostResponseModel> PostContent(
             string url,
             string path,
             RegionModel regionModel,
             IEnumerable<KeyValuePair<string, string>> formParameters,
             string requestBaseUrl)
         {
-            return Task.FromResult(Concat(
-                "POST",
-                url,
-                path,
-                regionModel?.PageRegion.ToString(),
-                string.Join(", ", formParameters.Select(kvp => string.Concat(kvp.Key, "=", kvp.Value)))));
+            return Task.FromResult(new PostResponseModel
+            {
+                HTML = Concat(
+                    "POST",
+                    url,
+                    path,
+                    regionModel?.PageRegion.ToString(),
+                    string.Join(", ", formParameters.Select(kvp => string.Concat(kvp.Key, "=", kvp.Value)))),
+            });
         }
 
         private string Concat(params string[] values)

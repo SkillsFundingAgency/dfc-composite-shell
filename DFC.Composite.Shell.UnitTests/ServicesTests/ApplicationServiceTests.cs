@@ -256,8 +256,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var pageModel = new PageViewModel();
             await mapper.Map(fakeApplicationModel, pageModel);
+            var postResponse = new PostResponseModel
+            {
+                HTML = BodyRegionContent,
+            };
 
-            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).Returns(BodyFooterRegionContent);
 
             // Act
@@ -283,8 +287,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             fakeApplicationModel.AppRegistrationModel.Regions = fakeRegions;
             var pageModel = new PageViewModel();
             await mapper.Map(fakeApplicationModel, pageModel);
+            var postResponse = new PostResponseModel
+            {
+                HTML = BodyRegionContent,
+            };
 
-            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).Returns(BodyFooterRegionContent);
 
             // Act
