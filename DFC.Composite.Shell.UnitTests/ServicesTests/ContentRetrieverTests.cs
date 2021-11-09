@@ -421,7 +421,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
-            Assert.Equal(DummyChildAppContent, result.HTML);
+            Assert.Equal(DummyChildAppContent, result.Html);
 
             httpResponseMessage.Dispose();
             fakeRedirectHttpMessageHandler.Dispose();
@@ -440,7 +440,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
-            Assert.Equal(OfflineHtml, result.HTML);
+            Assert.Equal(OfflineHtml, result.Html);
         }
 
         [Fact]
@@ -455,7 +455,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
-            Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result.HTML);
+            Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result.Html);
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
@@ -508,7 +508,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
 
-            Assert.Equal(OfflineHtml, result.HTML);
+            Assert.Equal(OfflineHtml, result.Html);
         }
 
         [Fact]

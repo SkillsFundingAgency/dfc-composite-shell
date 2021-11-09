@@ -216,7 +216,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (bodyRegion == null || string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
-                return await Task.FromResult(new PostResponseModel());
+                return new PostResponseModel();
             }
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, application.Article, string.Empty);
@@ -298,7 +298,7 @@ namespace DFC.Composite.Shell.Services.Application
                 }
                 else
                 {
-                    outputHtmlMarkup = contentProcessorService.Process(taskResult.HTML, RequestBaseUrl, application.RootUrl);
+                    outputHtmlMarkup = contentProcessorService.Process(taskResult.Html, RequestBaseUrl, application.RootUrl);
                     pageRegionContentModel.Content = new HtmlString(outputHtmlMarkup);
                 }
             }

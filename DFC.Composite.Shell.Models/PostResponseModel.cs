@@ -2,7 +2,7 @@
 {
     public class PostResponseModel
     {
-        public string HTML { get; set; }
+        public string Html { get; set; }
         public bool IsFileDownload => FileDownloadModel != null;
         public FileDownloadModel FileDownloadModel { get; set; }
     }

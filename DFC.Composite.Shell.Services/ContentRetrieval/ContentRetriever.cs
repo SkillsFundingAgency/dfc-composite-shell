@@ -179,14 +179,14 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     }
                     else
                     {
-                        results.HTML = await response.Content.ReadAsStringAsync();
+                        results.Html = await response.Content.ReadAsStringAsync();
                     }
 
                     logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
                 }
                 else
                 {
-                    results.HTML = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                    results.Html = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
                         ? regionModel.OfflineHtml
                         : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
                 }
@@ -200,7 +200,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
                 }
 
-                results.HTML = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                results.Html = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
                     ? regionModel.OfflineHtml
                     : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
             }

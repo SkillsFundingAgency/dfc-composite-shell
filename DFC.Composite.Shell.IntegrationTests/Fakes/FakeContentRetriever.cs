@@ -34,7 +34,7 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
         {
             return Task.FromResult(new PostResponseModel
             {
-                HTML = Concat(
+                Html = Concat(
                     "POST",
                     url,
                     path,

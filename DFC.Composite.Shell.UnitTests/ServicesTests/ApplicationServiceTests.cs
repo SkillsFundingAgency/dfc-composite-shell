@@ -258,7 +258,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             await mapper.Map(fakeApplicationModel, pageModel);
             var postResponse = new PostResponseModel
             {
-                HTML = BodyRegionContent,
+                Html = BodyRegionContent,
             };
 
             A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
@@ -289,7 +289,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             await mapper.Map(fakeApplicationModel, pageModel);
             var postResponse = new PostResponseModel
             {
-                HTML = BodyRegionContent,
+                Html = BodyRegionContent,
             };
 
             A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
