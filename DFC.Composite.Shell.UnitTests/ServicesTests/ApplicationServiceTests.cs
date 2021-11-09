@@ -256,8 +256,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var pageModel = new PageViewModel();
             await mapper.Map(fakeApplicationModel, pageModel);
+            var postResponse = new PostResponseModel
+            {
+                Html = BodyRegionContent,
+            };
 
-            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).Returns(BodyFooterRegionContent);
 
             // Act
@@ -273,6 +277,45 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
+        public async Task PostMarkupAsyncForOnlineApplicationFileDownload()
+        {
+            // Arrange
+            var footerAndBodyRegions = new List<RegionModel> { defaultHeadRegion, defaultBodyRegion, defaultBodyFooterRegion };
+            var fakeApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel, Article = Article };
+            fakeApplicationModel.AppRegistrationModel.Regions = footerAndBodyRegions;
+            var contentType = "application/pdf";
+            var fileName = "FileName.pdf";
+            var pageModel = new PageViewModel();
+            await mapper.Map(fakeApplicationModel, pageModel);
+            var postResponse = new PostResponseModel
+            {
+                FileDownloadModel = new FileDownloadModel
+                {
+                    FileBytes = Array.Empty<byte>(),
+                    FileContentType = contentType,
+                    FileName = fileName,
+                },
+            };
+
+            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).Returns(BodyFooterRegionContent);
+
+            // Act
+            await applicationService.PostMarkupAsync(fakeApplicationModel, defaultFormPostParams, pageModel, string.Empty, new HeaderDictionary());
+
+            //Assert
+            Assert.True(pageModel.IsFileDownload);
+            Assert.Equal(contentType, pageModel.FileDownloadModel.FileContentType);
+            Assert.Equal(fileName, pageModel.FileDownloadModel.FileName);
+            Assert.Equal(footerAndBodyRegions.Count, pageModel.PageRegionContentModels.Count);
+            Assert.Equal(BodyFooterRegionContent, pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.BodyFooter).Content.Value);
+
+            A.CallTo(() => contentRetriever.PostContent($"{defaultBodyRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyRegion, defaultFormPostParams, RequestBaseUrl)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).MustHaveHappenedOnceExactly();
+        }
+
+
+        [Fact]
         public async Task PostMarkupAsyncForOnlineApplicationWhenBodyRegionEndpointIsEmptyThenContentNotPosted()
         {
             // Arrange
@@ -283,8 +326,12 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             fakeApplicationModel.AppRegistrationModel.Regions = fakeRegions;
             var pageModel = new PageViewModel();
             await mapper.Map(fakeApplicationModel, pageModel);
+            var postResponse = new PostResponseModel
+            {
+                Html = BodyRegionContent,
+            };
 
-            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(BodyRegionContent);
+            A.CallTo(() => contentRetriever.PostContent($"{RequestBaseUrl}/{fakeApplicationModel.AppRegistrationModel.Path}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, fakeBodyRegion, defaultFormPostParams, RequestBaseUrl)).Returns(postResponse);
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).Returns(BodyFooterRegionContent);
 
             // Act

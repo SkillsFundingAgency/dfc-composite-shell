@@ -29,5 +29,9 @@ namespace DFC.Composite.Shell.Models
         public HtmlString PhaseBannerHtml { get; set; }
 
         public List<PageRegionContentModel> PageRegionContentModels { get; set; }
+
+        public bool IsFileDownload => FileDownloadModel != null;
+
+        public FileDownloadModel FileDownloadModel { get; set; }
     }
 }
