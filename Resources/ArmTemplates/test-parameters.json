@@ -104,8 +104,8 @@
         "SHCImageStorageURL": {
             "value": "dummyUrl"
         },
-        "SupportedHeaders": {
-            "value": ["Referer"]
+        "SupportedHeader0": {
+            "value": "Referer"
         }
     }
 }
