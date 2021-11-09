@@ -45,7 +45,8 @@ namespace DFC.Composite.Shell.Extensions
                 retryPolicyKey,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
-                    .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    .OrResult(msg => 
+                        msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     .OrResult(msg => msg?.Headers?.RetryAfter != null)
                     .WaitAndRetryAsync(
                         policyOptions.HttpRetry.Count,
