@@ -1,11 +1,11 @@
-﻿using System;
+﻿using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Services.ContentRetrieval;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace DFC.Composite.Shell.IntegrationTests.Fakes
 {
@@ -13,6 +13,7 @@ namespace DFC.Composite.Shell.IntegrationTests.Fakes
     {
         public const string FileContentType = "application/pdf";
         public const string FileName = "FileName.pdf";
+
         public Task<string> GetContent(
             string url,
             string path,

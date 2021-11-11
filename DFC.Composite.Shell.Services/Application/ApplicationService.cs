@@ -131,6 +131,31 @@ namespace DFC.Composite.Shell.Services.Application
             return applicationModel;
         }
 
+        private static string FormatArticleUrl(string regionEndpoint, string article, string queryString)
+        {
+            const string ArticlePlaceholder = "{0}";
+            const string QueryStringPlaceholder = "{1}";
+            const string SlashedPlaceholder = "/" + ArticlePlaceholder;
+
+            var urlFormatString = regionEndpoint;
+
+            if (!urlFormatString.Contains(ArticlePlaceholder, StringComparison.OrdinalIgnoreCase))
+            {
+                urlFormatString += SlashedPlaceholder;
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryString) && queryString.TrimStart().StartsWith('?'))
+            {
+                urlFormatString += QueryStringPlaceholder;
+            }
+
+            return !string.IsNullOrWhiteSpace(article)
+                ? string.Format(CultureInfo.InvariantCulture, urlFormatString, article, queryString)
+                : urlFormatString
+                    .Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase)
+                    .Replace(QueryStringPlaceholder, queryString, StringComparison.OrdinalIgnoreCase);
+        }
+
         private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
         {
             const string appRegistryPathNameForPagesApp = "pages";
@@ -158,31 +183,6 @@ namespace DFC.Composite.Shell.Services.Application
             }
 
             return applicationModel;
-        }
-
-        private static string FormatArticleUrl(string regionEndpoint, string article, string queryString)
-        {
-            const string ArticlePlaceholder = "{0}";
-            const string QueryStringPlaceholder = "{1}";
-            const string SlashedPlaceholder = "/" + ArticlePlaceholder;
-
-            var urlFormatString = regionEndpoint;
-
-            if (!urlFormatString.Contains(ArticlePlaceholder, StringComparison.OrdinalIgnoreCase))
-            {
-                urlFormatString += SlashedPlaceholder;
-            }
-
-            if (!string.IsNullOrWhiteSpace(queryString) && queryString.TrimStart().StartsWith('?'))
-            {
-                urlFormatString += QueryStringPlaceholder;
-            }
-
-            return !string.IsNullOrWhiteSpace(article)
-                ? string.Format(CultureInfo.InvariantCulture, urlFormatString, article, queryString)
-                : urlFormatString
-                    .Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase)
-                    .Replace(QueryStringPlaceholder, queryString, StringComparison.OrdinalIgnoreCase);
         }
 
         private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString, IHeaderDictionary headers)

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class AjaxController : ControllerBase

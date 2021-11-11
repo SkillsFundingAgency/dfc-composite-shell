@@ -115,6 +115,12 @@ namespace DFC.Composite.Shell.Controllers
             return Redirect(GetAndResetRedirectUrl());
         }
 
+        private static bool IsAbsoluteUrl(string url)
+        {
+            Uri result;
+            return Uri.TryCreate(url, UriKind.Absolute, out result);
+        }
+
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)
         {
             var now = DateTime.UtcNow;
@@ -172,12 +178,6 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return baseUrlService.GetBaseUrl(Request, Url) + redirectUrl;
-        }
-
-        private bool IsAbsoluteUrl(string url)
-        {
-            Uri result;
-            return Uri.TryCreate(url, UriKind.Absolute, out result);
         }
     }
 }

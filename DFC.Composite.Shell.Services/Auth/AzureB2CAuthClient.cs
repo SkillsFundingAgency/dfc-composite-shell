@@ -50,14 +50,14 @@ namespace DFC.Composite.Shell.Services.Auth
             return registerUrl;
         }
 
-        public async Task<string> GetSignInUrl()
+        public Task<string> GetSignInUrl()
         {
-            return await GetAuthEndpoint(SignInRequestType);
+            return GetAuthEndpoint(SignInRequestType);
         }
 
-        public async Task<string> GetResetPasswordUrl()
+        public Task<string> GetResetPasswordUrl()
         {
-            return await GetAuthEndpoint(PasswordResetRequestType);
+            return GetAuthEndpoint(PasswordResetRequestType);
         }
 
         public async Task<string> GetSignOutUrl(string redirectUrl)
