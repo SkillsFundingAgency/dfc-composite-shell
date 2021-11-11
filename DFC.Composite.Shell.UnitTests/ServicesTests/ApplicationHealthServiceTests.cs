@@ -21,14 +21,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class ApplicationHealthServiceTests
     {
-        private readonly ILogger<ApplicationHealthService> logger;
-        private readonly HttpClient defaultHttpClient;
-
-        public ApplicationHealthServiceTests()
-        {
-            logger = A.Fake<ILogger<ApplicationHealthService>>();
-            defaultHttpClient = new HttpClient();
-        }
+        private readonly ILogger<ApplicationHealthService> defaultLogger = A.Fake<ILogger<ApplicationHealthService>>();
+        private readonly HttpClient defaultHttpClient = new HttpClient();
 
         [Fact]
         public async Task GetAsyncReturnsHealthTextWhenApiReturnsHealthText()
@@ -60,7 +54,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyUrl") };
 
-            var healthService = new ApplicationHealthService(httpClient, logger);
+            var healthService = new ApplicationHealthService(httpClient, defaultLogger);
             var model = new ApplicationHealthModel { BearerToken = "SomeBearerToken" };
 
             // Act
@@ -79,7 +73,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public async Task GetAsyncReturnsNullIfModelIsNull()
         {
             // Arrange
-            var healthService = new ApplicationHealthService(defaultHttpClient, logger);
+            var healthService = new ApplicationHealthService(defaultHttpClient, defaultLogger);
 
             // Act
             var result = await healthService.GetAsync(null);
