@@ -234,7 +234,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     var redirectUrl = response.Headers.Location.IsAbsoluteUri
                         ? response.Headers.Location.ToString()
-                        : $"{requestBaseUrl}{response.Headers.Location.ToString()}";
+                        : $"{requestBaseUrl}{response.Headers.Location}";
 
                     throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                 }

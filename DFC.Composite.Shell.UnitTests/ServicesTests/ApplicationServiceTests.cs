@@ -45,7 +45,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly RegionModel defaultBodyFooterRegion;
         private readonly List<RegionModel> defaultRegions;
         private readonly ApplicationModel defaultApplicationModel;
-        private readonly ApplicationModel pagesApplicationModel;
         private readonly ApplicationModel offlineApplicationModel;
         private readonly ApplicationModel offlineApplicationModelWithoutMarkup;
         private readonly PageViewModel defaultPageViewModel;
@@ -120,7 +119,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             defaultApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel, Article = "index" };
-            pagesApplicationModel = new ApplicationModel { AppRegistrationModel = pagesAppRegistrationModel };
             offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
             offlineApplicationModelWithoutMarkup = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = null } };
 

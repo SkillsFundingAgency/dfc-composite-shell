@@ -31,8 +31,6 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IOpenIdConnectClient authClient;
         private readonly ILogger<AuthController> logger;
         private readonly AuthSettings settings;
-        private readonly IVersionedFiles versionedFiles;
-        private readonly IConfiguration configuration;
         private readonly IBaseUrlService baseUrlService;
 
         public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings, IVersionedFiles versionedFiles, IConfiguration configuration, IBaseUrlService baseUrlService)
@@ -45,8 +43,6 @@ namespace DFC.Composite.Shell.Controllers
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;
-            this.versionedFiles = versionedFiles;
-            this.configuration = configuration;
             this.baseUrlService = baseUrlService;
         }
 
@@ -117,8 +113,7 @@ namespace DFC.Composite.Shell.Controllers
 
         private static bool IsAbsoluteUrl(string url)
         {
-            Uri result;
-            return Uri.TryCreate(url, UriKind.Absolute, out result);
+            return Uri.TryCreate(url, UriKind.Absolute, out Uri _);
         }
 
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)

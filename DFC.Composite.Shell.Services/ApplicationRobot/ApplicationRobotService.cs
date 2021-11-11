@@ -61,7 +61,7 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
             var result = new Robot();
 
             using var reader = new StringReader(responseString);
-            result.Append(reader.ReadToEnd());
+            result.Append(await reader.ReadToEndAsync());
             return result;
         }
     }

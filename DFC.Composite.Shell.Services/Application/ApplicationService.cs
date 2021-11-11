@@ -178,7 +178,7 @@ namespace DFC.Composite.Shell.Services.Application
 
                 if (applicationModel.AppRegistrationModel != null)
                 {
-                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length ? article.Substring(applicationModel.AppRegistrationModel.Path.Length + 1) : null;
+                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length ? article[(applicationModel.AppRegistrationModel.Path.Length + 1)..] : null;
                 }
             }
 

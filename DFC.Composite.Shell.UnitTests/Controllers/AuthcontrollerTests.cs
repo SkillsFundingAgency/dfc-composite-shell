@@ -44,12 +44,9 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         private readonly IAuthenticationService defaultAuthService;
         private readonly IVersionedFiles defaultVersionedFiles;
         private readonly IConfiguration defaultConfiguration;
-        private readonly IOptions<OpenIDConnectSettings> defaultSettings;
-        private readonly SecurityTokenHandler tokenHandler;
         private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
         private readonly MockHttpSession session;
         private readonly IBaseUrlService baseUrlService;
-        private readonly IUrlHelper urlHelper;
         private readonly IUrlHelper defaultUrlHelper;
 
         public AuthControllerTests()
@@ -86,20 +83,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 AuthDssEndpoint = "test/{url}",
             });
 
-            defaultSettings = Options.Create(new OpenIDConnectSettings
-            {
-                RedirectUrl = "test/",
-                SignOutRedirectUrl = "test/",
-                Issuer = "issuer",
-                AuthdUrl = "auth",
-                AuthorizeUrl = "AuthorizeUrl",
-                ClientId = "clientid",
-                EndSessionUrl = "Endsesison",
-                JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
-                Exponent = "AQAB",
-            });
-
-            tokenHandler = A.Fake<SecurityTokenHandler>();
             configurationManager = A.Fake<IConfigurationManager<OpenIdConnectConfiguration>>();
             A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).Returns(
                 new OpenIdConnectConfiguration
@@ -108,8 +91,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     EndSessionEndpoint = "end",
                     Issuer = "issuer",
                 });
-
-            urlHelper = A.Fake<IUrlHelper>();
         }
 
         [Fact]
