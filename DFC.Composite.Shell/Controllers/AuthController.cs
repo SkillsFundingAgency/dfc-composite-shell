@@ -65,8 +65,8 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
-            var Url = GenerateSignOutUrl(redirectUrl);
-            var signInUrl = await authClient.GetSignOutUrl(Url);
+            var url = GenerateSignOutUrl(redirectUrl);
+            var signInUrl = await authClient.GetSignOutUrl(url);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect(signInUrl);
         }
