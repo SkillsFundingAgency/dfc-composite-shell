@@ -1,9 +1,9 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Framework;
+using DFC.Composite.Shell.IntegrationTests.Fakes;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.IntegrationTests.Fakes;
 using Xunit;
 
 namespace DFC.Composite.Shell.Integration.Test
@@ -60,6 +60,5 @@ namespace DFC.Composite.Shell.Integration.Test
             Assert.Equal(FakeContentRetriever.FileContentType, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(FakeContentRetriever.FileName, response.Content.Headers.ContentDisposition.FileNameStar);
         }
-
     }
 }

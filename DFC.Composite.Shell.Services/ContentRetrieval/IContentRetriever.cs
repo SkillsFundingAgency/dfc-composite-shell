@@ -1,8 +1,8 @@
-﻿using DFC.Composite.Shell.Models.AppRegistrationModels;
+﻿using DFC.Composite.Shell.Models;
+using DFC.Composite.Shell.Models.AppRegistrationModels;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DFC.Composite.Shell.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieval
 {

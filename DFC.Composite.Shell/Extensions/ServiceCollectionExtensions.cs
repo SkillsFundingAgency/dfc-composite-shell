@@ -45,7 +45,7 @@ namespace DFC.Composite.Shell.Extensions
                 retryPolicyKey,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
-                    .OrResult(msg => 
+                    .OrResult(msg =>
                         msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     .OrResult(msg => msg?.Headers?.RetryAfter != null)
                     .WaitAndRetryAsync(
@@ -74,11 +74,13 @@ namespace DFC.Composite.Shell.Extensions
             string httpClientName)
                 where TClient : class
                 where TImplementation : class, TClient
-                where TClientOptions : HttpClientOptions, new() =>
-            services
-                .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
-                .AddHttpClient<TClient, TImplementation>(httpClientName)
-                .AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+                where TClientOptions : HttpClientOptions, new()
+        {
+            return services
+.Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
+.AddHttpClient<TClient, TImplementation>(httpClientName)
+.AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+        }
 
         public static IHttpClientBuilder AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
             this IServiceCollection services,
@@ -88,43 +90,47 @@ namespace DFC.Composite.Shell.Extensions
             string circuitBreakerPolicyKey)
                 where TClient : class
                 where TImplementation : class, TClient
-                where TClientOptions : HttpClientOptions, new() =>
-            services
-                .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
-                .AddHttpClient<TClient, TImplementation>()
-                .AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+                where TClientOptions : HttpClientOptions, new()
+        {
+            return services
+.Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
+.AddHttpClient<TClient, TImplementation>()
+.AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+        }
 
         public static IHttpClientBuilder AddClientBuilder<TClientOptions>(
             this IHttpClientBuilder clientBuilder,
             string retryPolicyKey,
             string circuitBreakerPolicyKey)
-                where TClientOptions : HttpClientOptions, new() =>
-            clientBuilder
-                .ConfigureHttpClient((sp, options) =>
-                {
-                    var httpClientOptions = sp
-                        .GetRequiredService<IOptions<TClientOptions>>()
-                        .Value;
-                    options.BaseAddress = httpClientOptions.BaseAddress;
-                    options.Timeout = httpClientOptions.Timeout;
-                    options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
+                where TClientOptions : HttpClientOptions, new()
+        {
+            return clientBuilder
+.ConfigureHttpClient((sp, options) =>
+{
+    var httpClientOptions = sp
+    .GetRequiredService<IOptions<TClientOptions>>()
+    .Value;
+    options.BaseAddress = httpClientOptions.BaseAddress;
+    options.Timeout = httpClientOptions.Timeout;
+    options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
 
-                    if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
-                    {
-                        options.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", httpClientOptions.ApiKey);
-                    }
-                })
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
-                {
-                    // This prevents asp.net core from adding its own cookie values to the outgoing request
-                    UseCookies = false,
-                    AllowAutoRedirect = false,
-                })
-                .AddPolicyHandlerFromRegistry(retryPolicyKey)
-                .AddPolicyHandlerFromRegistry(circuitBreakerPolicyKey)
-                .AddHttpMessageHandler<UserAgentDelegatingHandler>()
-                .AddHttpMessageHandler<OriginalHostDelegatingHandler>()
-                .AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
+    if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
+    {
+        options.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", httpClientOptions.ApiKey);
+    }
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+{
+    // This prevents asp.net core from adding its own cookie values to the outgoing request
+    UseCookies = false,
+    AllowAutoRedirect = false,
+})
+.AddPolicyHandlerFromRegistry(retryPolicyKey)
+.AddPolicyHandlerFromRegistry(circuitBreakerPolicyKey)
+.AddHttpMessageHandler<UserAgentDelegatingHandler>()
+.AddHttpMessageHandler<OriginalHostDelegatingHandler>()
+.AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
+        }
 
         public static void ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration)
         {
@@ -262,9 +268,9 @@ namespace DFC.Composite.Shell.Extensions
                             .Distinct()
                             .ToList()));
             }
-            #pragma warning disable CA1031
+#pragma warning disable CA1031
             catch (Exception exception)
-            #pragma warning restore CA1031
+#pragma warning restore CA1031
             {
                 AttemptToLog(exception, "Failure getting paths from app registry");
             }
@@ -285,9 +291,9 @@ namespace DFC.Composite.Shell.Extensions
                 var logger = loggerFactory.CreateLogger<Startup>();
                 logger?.LogError(exception, message);
             }
-            #pragma warning disable CA1031
+#pragma warning disable CA1031
             catch
-            #pragma warning restore CA1031
+#pragma warning restore CA1031
             {
                 // Swallow the exception - it will be lost unfortunately as we dont have a fallback logger
             }

@@ -51,6 +51,7 @@ namespace DFC.Composite.Shell.Services.Mapping
                         destination.VersionedPathForCssScripts.Add($"{fullPathname}?{value}");
                     }
                 }
+
                 if (source?.AppRegistrationModel?.JavaScriptNames != null && source.AppRegistrationModel.JavaScriptNames.Any())
                 {
                     foreach (var key in source.AppRegistrationModel.JavaScriptNames.Keys)
