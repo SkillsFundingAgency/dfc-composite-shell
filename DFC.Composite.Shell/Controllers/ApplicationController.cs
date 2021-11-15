@@ -107,7 +107,7 @@ namespace DFC.Composite.Shell.Controllers
 
                             applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
 
-                            await applicationService.GetMarkupAsync(application, viewModel, Request.Path, Request.QueryString.Value);
+                            await applicationService.GetMarkupAsync(application, viewModel, Request.Path, Request.QueryString.Value, Request.Headers);
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {application.AppRegistrationModel.Path}/{application.Article}");
 
@@ -203,11 +203,11 @@ namespace DFC.Composite.Shell.Controllers
                             if (postFirstRequest)
                             {
                                 postFirstRequest = false;
-                                await applicationService.PostMarkupAsync(application, formParameters, viewModel, string.Empty);
+                                await applicationService.PostMarkupAsync(application, formParameters, viewModel, string.Empty, Request.Headers);
                             }
                             else
                             {
-                                await applicationService.GetMarkupAsync(application, viewModel, string.Empty, string.Empty);
+                                await applicationService.GetMarkupAsync(application, viewModel, string.Empty, string.Empty, Request.Headers);
                             }
 
                             logger.LogInformation($"{nameof(Action)}: Received child response for: {application.AppRegistrationModel.Path}/{application.Article}");

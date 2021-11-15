@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DFC.Composite.Shell.Services.Application
 {
@@ -43,7 +44,7 @@ namespace DFC.Composite.Shell.Services.Application
 
         public string RequestBaseUrl { get; set; }
 
-        public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString)
+        public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString, IHeaderDictionary headers)
         {
             _ = application ?? throw new ArgumentNullException(nameof(application));
             _ = pageModel ?? throw new ArgumentNullException(nameof(pageModel));
@@ -51,13 +52,13 @@ namespace DFC.Composite.Shell.Services.Application
             if (application.AppRegistrationModel.IsOnline)
             {
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString, headers);
 
                 //Wait until everything is done
                 await Task.WhenAll(otherRegionsTask);
 
                 //Get the markup at this url
-                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, queryString);
+                var applicationBodyRegionTask = GetApplicationBodyRegionMarkUpAsync(application, queryString, headers);
 
                 await Task.WhenAll(applicationBodyRegionTask);
 
@@ -78,7 +79,7 @@ namespace DFC.Composite.Shell.Services.Application
             }
         }
 
-        public async Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel, string requestPath)
+        public async Task PostMarkupAsync(ApplicationModel application, IEnumerable<KeyValuePair<string, string>> formParameters, PageViewModel pageModel, string requestPath, IHeaderDictionary headers)
         {
             if (application != null && application.AppRegistrationModel.IsOnline)
             {
@@ -86,7 +87,7 @@ namespace DFC.Composite.Shell.Services.Application
                 var applicationBodyRegionTask = GetPostMarkUpAsync(application, formParameters);
 
                 //Load related regions
-                var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty);
+                var otherRegionsTask = LoadRelatedRegions(application, pageModel, string.Empty, headers);
 
                 //Wait until everything is done
                 await Task.WhenAll(applicationBodyRegionTask, otherRegionsTask);
@@ -186,7 +187,7 @@ namespace DFC.Composite.Shell.Services.Application
                     .Replace(QueryStringPlaceholder, queryString, StringComparison.OrdinalIgnoreCase);
         }
 
-        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString)
+        private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString, IHeaderDictionary headers)
         {
             //Get the body region
             var bodyRegion = application.AppRegistrationModel.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
@@ -198,14 +199,14 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(bodyRegion.RegionEndpoint, application.Article, queryString);
 
-            return contentRetriever.GetContent(url, application.AppRegistrationModel.Path, bodyRegion, false, RequestBaseUrl);
+            return contentRetriever.GetContent(url, application.AppRegistrationModel.Path, bodyRegion, false, RequestBaseUrl, headers);
         }
 
-        private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article, string queryString)
+        private async Task<string> GetApplicationHeadRegionMarkUpAsync(ApplicationModel application, RegionModel regionModel, string article, string queryString, IHeaderDictionary headers)
         {
             var url = FormatArticleUrl(regionModel?.RegionEndpoint, article, queryString);
 
-            var result = await contentRetriever.GetContent(url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl);
+            var result = await contentRetriever.GetContent(url, application.AppRegistrationModel.Path, regionModel, false, RequestBaseUrl, headers);
 
             return contentProcessorService.Process(result, RequestBaseUrl, application.RootUrl);
         }
@@ -225,20 +226,20 @@ namespace DFC.Composite.Shell.Services.Application
             return contentRetriever.PostContent(url, application.AppRegistrationModel.Path, bodyRegion, formParameters, RequestBaseUrl);
         }
 
-        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string queryString)
+        private async Task LoadRelatedRegions(ApplicationModel application, PageViewModel pageModel, string queryString, IHeaderDictionary headers)
         {
             //Get the markup at the head url first. This will create the session if it doesn't already exist
-            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel?.Regions?.SingleOrDefault(x => x.PageRegion == PageRegion.Head), application.Article, queryString);
+            var applicationHeadRegionOutput = await GetApplicationHeadRegionMarkUpAsync(application, application.AppRegistrationModel?.Regions?.SingleOrDefault(x => x.PageRegion == PageRegion.Head), application.Article, queryString, headers);
             pageModel.PageRegionContentModels.First(x => x.PageRegionType == PageRegion.Head).Content = new HtmlString(applicationHeadRegionOutput);
 
             var tasks = new List<Task<string>>();
 
-            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, application.Article, queryString);
-            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, application.Article, queryString);
+            var heroBannerRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.HeroBanner, application.AppRegistrationModel.Regions, application.Article, queryString, headers);
+            var breadcrumbRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.Breadcrumb, application.AppRegistrationModel.Regions, application.Article, queryString, headers);
+            var bodyTopRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyTop, application.AppRegistrationModel.Regions, application.Article, queryString, headers);
+            var sidebarLeftRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarLeft, application.AppRegistrationModel.Regions, application.Article, queryString, headers);
+            var sidebarRightRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.SidebarRight, application.AppRegistrationModel.Regions, application.Article, queryString, headers);
+            var bodyFooterRegionTask = GetMarkup(tasks, application.AppRegistrationModel.Path, PageRegion.BodyFooter, application.AppRegistrationModel.Regions, application.Article, queryString, headers);
 
             await Task.WhenAll(tasks);
 
@@ -250,7 +251,7 @@ namespace DFC.Composite.Shell.Services.Application
             PopulatePageRegionContent(application, pageModel, PageRegion.BodyFooter, bodyFooterRegionTask);
         }
 
-        private Task<string> GetMarkup(List<Task<string>> tasks, string path, PageRegion regionType, IEnumerable<RegionModel> regions, string article, string queryString)
+        private Task<string> GetMarkup(List<Task<string>> tasks, string path, PageRegion regionType, IEnumerable<RegionModel> regions, string article, string queryString, IHeaderDictionary headers)
         {
             var pageRegionModel = regions.FirstOrDefault(x => x.PageRegion == regionType);
 
@@ -266,7 +267,7 @@ namespace DFC.Composite.Shell.Services.Application
 
             var url = FormatArticleUrl(pageRegionModel.RegionEndpoint, article, queryString);
 
-            var task = contentRetriever.GetContent(url, path, pageRegionModel, true, RequestBaseUrl);
+            var task = contentRetriever.GetContent(url, path, pageRegionModel, true, RequestBaseUrl, headers);
 
             tasks.Add(task);
 

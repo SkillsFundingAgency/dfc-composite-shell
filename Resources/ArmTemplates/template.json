@@ -124,6 +124,12 @@
             "metadata": {
                 "description": "ApplicationClientOptions Timeout"
             }
+        },
+        "SHCImageStorageURL": {
+            "type": "string"
+        },
+        "SupportedHeader0" :{
+            "type": "string"
         }
     },
     "variables": {
@@ -453,6 +459,14 @@
                             {
                                 "name": "WebchatOptions__ScriptUrl",
                                 "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
+                            },
+                            {
+                                "name": "SHCImageStorageURL",
+                                "value": "[parameters('SHCImageStorageURL')]"
+                            },
+                            {
+                                "name": "PassOnHeaderSettings__SupportedHeaders__0",
+                                "value" : "[parameters('SupportedHeader0')]"
                             }
                         ]
                     }
