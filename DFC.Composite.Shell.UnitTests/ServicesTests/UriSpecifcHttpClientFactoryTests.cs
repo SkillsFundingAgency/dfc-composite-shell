@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
+﻿using DFC.Composite.Shell.Services.UriSpecificHttpClient;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         public UriSpecifcHttpClientFactoryTests()
         {
             var registeredUrls = A.Fake<IRegisteredUrls>();
-            A.CallTo(() => registeredUrls.GetAll()).Returns(new List<string> { "http://example.org/should-exist" });
+            A.CallTo(() => registeredUrls.GetAll()).Returns(new List<RegisteredUrlModel> { new RegisteredUrlModel{ Url = "http://example.org/should-exist" } });
 
             clientFactory = A.Fake<IHttpClientFactory>();
             factory = new UriSpecifcHttpClientFactory(clientFactory, registeredUrls, A.Fake<ILogger<UriSpecifcHttpClientFactory>>());

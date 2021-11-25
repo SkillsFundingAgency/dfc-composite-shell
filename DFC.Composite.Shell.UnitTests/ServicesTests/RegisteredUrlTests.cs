@@ -1,4 +1,4 @@
-﻿using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
+﻿using DFC.Composite.Shell.Services.UriSpecificHttpClient;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
@@ -10,10 +10,10 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public void WhenCallingGetAllThenAllSetupUrlsAreReturnedUnchanged()
         {
-            var setupUrls = new List<string>
+            var setupUrls = new List<RegisteredUrlModel>
             {
-                "expected-url-1",
-                "expected-url-2",
+                new RegisteredUrlModel { Url = "expected-url-1" },
+                new RegisteredUrlModel { Url = "expected-url-2" },
             };
 
             var registeredUrls = new RegisteredUrls(setupUrls);

@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 
-namespace DFC.Composite.Shell.Services.UriSpecifcHttpClient
+namespace DFC.Composite.Shell.Services.UriSpecificHttpClient
 {
     public class UriSpecifcHttpClientFactory : IUriSpecifcHttpClientFactory
     {
@@ -19,7 +20,7 @@ namespace DFC.Composite.Shell.Services.UriSpecifcHttpClient
             this.httpClientFactory = httpClientFactory;
             this.logger = logger;
 
-            registeredUrlKeys = registeredUrls?.GetAll().Select(url => $"{url}_{nameof(UriSpecifcHttpClientFactory)}").ToList();
+            registeredUrlKeys = registeredUrls?.GetAll().Select(url => $"{url.Url}_{nameof(UriSpecifcHttpClientFactory)}").ToList();
         }
 
         public HttpClient GetClientForRegionEndpoint(string url)

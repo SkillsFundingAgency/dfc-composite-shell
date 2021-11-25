@@ -40,5 +40,7 @@ namespace DFC.Composite.Shell.Models.AppRegistrationModels
         public Dictionary<string, string?>? CssScriptNames { get; set; }
 
         public Dictionary<string, string?>? JavaScriptNames { get; set; }
+
+        public bool IsInteractiveApp { get; set; }
     }
 }

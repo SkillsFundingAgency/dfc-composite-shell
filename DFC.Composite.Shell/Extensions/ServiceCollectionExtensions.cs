@@ -9,6 +9,7 @@ using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
+using DFC.Composite.Shell.Services.UriSpecificHttpClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -54,13 +55,16 @@ namespace DFC.Composite.Shell.Extensions
                             TimeSpan.FromMilliseconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt)
                                                  * policyOptions.HttpRetry.BackOffBaseMilliseconds)));
 
-            policyRegistry.Add(
-                circuitBreakerKey,
-                HttpPolicyExtensions
-                    .HandleTransientHttpError()
-                    .CircuitBreakerAsync(
-                        policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
-                        policyOptions.HttpCircuitBreaker.DurationOfBreak));
+            if (policyOptions.HttpCircuitBreaker != null)
+            {
+                policyRegistry.Add(
+                    circuitBreakerKey,
+                    HttpPolicyExtensions
+                        .HandleTransientHttpError()
+                        .CircuitBreakerAsync(
+                            policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
+                            policyOptions.HttpCircuitBreaker.DurationOfBreak));
+            }
 
             return services;
         }
@@ -77,9 +81,9 @@ namespace DFC.Composite.Shell.Extensions
                 where TClientOptions : HttpClientOptions, new()
         {
             return services
-.Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
-.AddHttpClient<TClient, TImplementation>(httpClientName)
-.AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+                    .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
+                    .AddHttpClient<TClient, TImplementation>(httpClientName)
+                    .AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
         }
 
         public static IHttpClientBuilder AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
@@ -101,35 +105,64 @@ namespace DFC.Composite.Shell.Extensions
         public static IHttpClientBuilder AddClientBuilder<TClientOptions>(
             this IHttpClientBuilder clientBuilder,
             string retryPolicyKey,
-            string circuitBreakerPolicyKey)
+            string circuitBreakerPolicyKey = null)
                 where TClientOptions : HttpClientOptions, new()
         {
-            return clientBuilder
-.ConfigureHttpClient((sp, options) =>
-{
-    var httpClientOptions = sp
-    .GetRequiredService<IOptions<TClientOptions>>()
-    .Value;
-    options.BaseAddress = httpClientOptions.BaseAddress;
-    options.Timeout = httpClientOptions.Timeout;
-    options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
+            if (circuitBreakerPolicyKey == null)
+            {
+                return clientBuilder
+                    .ConfigureHttpClient((sp, options) =>
+                    {
+                        var httpClientOptions = sp
+                            .GetRequiredService<IOptions<TClientOptions>>()
+                            .Value;
+                        options.BaseAddress = httpClientOptions.BaseAddress;
+                        options.Timeout = httpClientOptions.Timeout;
+                        options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
 
-    if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
-    {
-        options.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", httpClientOptions.ApiKey);
-    }
-})
-.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
-{
-    // This prevents asp.net core from adding its own cookie values to the outgoing request
-    UseCookies = false,
-    AllowAutoRedirect = false,
-})
-.AddPolicyHandlerFromRegistry(retryPolicyKey)
-.AddPolicyHandlerFromRegistry(circuitBreakerPolicyKey)
-.AddHttpMessageHandler<UserAgentDelegatingHandler>()
-.AddHttpMessageHandler<OriginalHostDelegatingHandler>()
-.AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
+                        if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
+                        {
+                            options.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", httpClientOptions.ApiKey);
+                        }
+                    })
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+                    {
+                        // This prevents asp.net core from adding its own cookie values to the outgoing request
+                        UseCookies = false,
+                        AllowAutoRedirect = false,
+                    })
+                    .AddPolicyHandlerFromRegistry(retryPolicyKey)
+                    .AddHttpMessageHandler<UserAgentDelegatingHandler>()
+                    .AddHttpMessageHandler<OriginalHostDelegatingHandler>()
+                    .AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
+            }
+
+            return clientBuilder
+                    .ConfigureHttpClient((sp, options) =>
+                    {
+                        var httpClientOptions = sp
+                        .GetRequiredService<IOptions<TClientOptions>>()
+                        .Value;
+                        options.BaseAddress = httpClientOptions.BaseAddress;
+                        options.Timeout = httpClientOptions.Timeout;
+                        options.DefaultRequestHeaders.Add(HeaderNames.Accept, MediaTypeNames.Text.Html);
+
+                        if (!string.IsNullOrWhiteSpace(httpClientOptions.ApiKey))
+                        {
+                            options.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", httpClientOptions.ApiKey);
+                        }
+                    })
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+                    {
+                        // This prevents asp.net core from adding its own cookie values to the outgoing request
+                        UseCookies = false,
+                        AllowAutoRedirect = false,
+                    })
+                    .AddPolicyHandlerFromRegistry(retryPolicyKey)
+                    .AddPolicyHandlerFromRegistry(circuitBreakerPolicyKey)
+                    .AddHttpMessageHandler<UserAgentDelegatingHandler>()
+                    .AddHttpMessageHandler<OriginalHostDelegatingHandler>()
+                    .AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
         }
 
         public static void ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration)
@@ -164,6 +197,11 @@ namespace DFC.Composite.Shell.Extensions
             }
 
             services.AddApplicationClientHttp(configuration, policyOptions, policyRegistry);
+
+            //Add non circuit breaker
+
+
+
 
             AddHttpClientWithPolicies<IAjaxRequestService, AjaxRequestService, AjaxRequestClientOptions>(
                 services,
@@ -224,29 +262,35 @@ namespace DFC.Composite.Shell.Extensions
             PolicyOptions policyOptions,
             IPolicyRegistry<string> policyRegistry)
         {
+            var interactivePolicyOptions = new PolicyOptions
+            {
+                HttpRetry = policyOptions.HttpRetry,
+            };
+
             var registeredUrls = GetRegisteredUrls(services);
             services.AddSingleton<IRegisteredUrls>(registeredUrls);
 
             foreach (var registeredUrl in registeredUrls.GetAll())
             {
-                AddHttpClientWithPolicies<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory, ApplicationClientOptions>(
-                    services,
-                    policyRegistry,
-                    $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                    $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
-                    nameof(ApplicationClientOptions),
-                    policyOptions,
-                    configuration,
-                    $"{registeredUrl}_{nameof(UriSpecifcHttpClientFactory)}")
-                .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
-                .AddHttpMessageHandler<CookieDelegatingHandler>();
+                AddHttpClientWithPolicies<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory,
+                        ApplicationClientOptions>(
+                        services,
+                        policyRegistry,
+                        $"{registeredUrl.Url}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
+                        registeredUrl.IsInteractiveApp ? null : $"{registeredUrl.Url}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
+                        nameof(ApplicationClientOptions),
+                        registeredUrl.IsInteractiveApp ? interactivePolicyOptions : policyOptions,
+                        configuration,
+                        $"{registeredUrl.Url}_{nameof(UriSpecifcHttpClientFactory)}")
+                    .AddHttpMessageHandler<CompositeSessionIdDelegatingHandler>()
+                    .AddHttpMessageHandler<CookieDelegatingHandler>();
             }
         }
 
         private static RegisteredUrls GetRegisteredUrls(IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider();
-            var registeredUrlList = new List<string>();
+            var registeredUrlList = new List<RegisteredUrlModel>();
 
             try
             {
@@ -257,16 +301,20 @@ namespace DFC.Composite.Shell.Extensions
                     .Handle<Exception>()
                     .WaitAndRetry(MaxRetries, retryAttempt => TimeSpan.FromSeconds(retryAttempt * BaseRetrySeconds))
                     .Execute(() =>
+                    {
                         registeredUrlList.AddRange(serviceProvider
                             .GetService<IAppRegistryDataService>()
                             .GetAppRegistrationModels()
                             .GetAwaiter()
                             .GetResult()
                             .Where(model => model.Regions != null)
-                            .SelectMany(model => model.Regions)
-                            .Select(region => region.RegionEndpoint)
-                            .Distinct()
-                            .ToList()));
+                            .SelectMany(model => model.Regions,
+                                (parent, child) => new {parent.IsInteractiveApp, child.RegionEndpoint})
+                            .Select(region => new RegisteredUrlModel
+                                {IsInteractiveApp = region.IsInteractiveApp, Url = region.RegionEndpoint})
+                            .Distinct(new RegisteredUrlEquals())
+                            .ToList());
+                    });
             }
 #pragma warning disable CA1031
             catch (Exception exception)
@@ -275,7 +323,7 @@ namespace DFC.Composite.Shell.Extensions
                 AttemptToLog(exception, "Failure getting paths from app registry");
             }
 
-            registeredUrlList.Add(RegisteredUrlConstants.DefaultKey);
+            registeredUrlList.Add(new RegisteredUrlModel { Url = RegisteredUrlConstants.DefaultKey, IsInteractiveApp = false });
             return new RegisteredUrls(registeredUrlList);
         }
 
