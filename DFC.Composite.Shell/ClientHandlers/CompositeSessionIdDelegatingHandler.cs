@@ -1,5 +1,7 @@
-﻿using DFC.Composite.Shell.Middleware;
+﻿using DFC.Composite.Shell.Extensions;
+using DFC.Composite.Shell.Middleware;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +21,8 @@ namespace DFC.Composite.Shell.ClientHandlers
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var compositeSessionId = httpContextAccessor?.HttpContext?.Request?.Cookies[CompositeSessionIdMiddleware.NcsSessionCookieName];
+            var compositeSessionId = httpContextAccessor?.HttpContext?.Request?.Cookies[CompositeSessionIdMiddleware.NcsSessionCookieName] ??
+                httpContextAccessor?.HttpContext?.Response?.RetrieveCookieValue(CompositeSessionIdMiddleware.NcsSessionCookieName);
 
             if (request != null && !request.Headers.Contains(HeaderName) && !string.IsNullOrWhiteSpace(compositeSessionId))
             {
