@@ -20,12 +20,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
     public class ApplicationSitemapServiceTests
     {
         private readonly ILogger<ApplicationSitemapService> defaultLogger = A.Fake<ILogger<ApplicationSitemapService>>();
-        private readonly HttpClient defaultHttpClient;
-
-        public ApplicationSitemapServiceTests()
-        {
-            defaultHttpClient = new HttpClient();
-        }
+        private readonly HttpClient defaultHttpClient = new HttpClient();
 
         [Fact]
         public async Task GetAsyncReturnsSitemapTextWhenApiReturnsSitemapText()
@@ -43,10 +38,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
-            var logger = A.Fake<ILogger<ApplicationSitemapService>>();
             var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyCDNUrl") };
 
-            var sitemapService = new ApplicationSitemapService(logger, httpClient);
+            var sitemapService = new ApplicationSitemapService(defaultLogger, httpClient);
             var model = new ApplicationSitemapModel { BearerToken = "SomeBearerToken" };
 
             var result = await sitemapService.GetAsync(model);

@@ -51,8 +51,9 @@ namespace DFC.Composite.Shell.Controllers
 
             // loop through the registered applications and create some tasks - one per application for their health
             var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
-            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
-            var offlineAppRegistrationModels = appRegistrationModels.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
+            var appRegistrationModelsWithBodyRegions = appRegistrationModels.Where(w => w.ExternalURL == null && w.Regions != null && w.Regions.Any(a => a.PageRegion == PageRegion.Body));
+            var onlineAppRegistrationModels = appRegistrationModelsWithBodyRegions.Where(w => w.IsOnline).ToList();
+            var offlineAppRegistrationModels = appRegistrationModelsWithBodyRegions.Where(w => !w.IsOnline).ToList();
 
             if (onlineAppRegistrationModels != null && onlineAppRegistrationModels.Any())
             {
@@ -138,9 +139,9 @@ namespace DFC.Composite.Shell.Controllers
         {
             var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path);
 
-            var bodyRegion = appRegistrationModel?.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = appRegistrationModel?.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
-            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
+            if (!string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
             {
                 var uri = new Uri(bodyRegion.RegionEndpoint);
                 var url = $"{uri.Scheme}://{uri.Authority}";

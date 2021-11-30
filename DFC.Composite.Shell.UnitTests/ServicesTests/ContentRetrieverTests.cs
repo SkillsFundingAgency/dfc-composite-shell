@@ -8,9 +8,11 @@ using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Polly.CircuitBreaker;
 using RichardSzalay.MockHttp;
 using System;
@@ -19,9 +21,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -126,7 +125,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary());
 
-
             Assert.Equal(DummyChildAppContent, result);
         }
 
@@ -152,10 +150,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var result = await service.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary
             {
                 new KeyValuePair<string, StringValues>("Referer", new StringValues("job-profiles")),
-
             });
 
-            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.That.Matches(x => 
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.That.Matches(x =>
                 x.Headers.Any(x => x.Key == "Referer" && x.Value.Contains("job-profiles"))))).MustHaveHappened();
         }
 
@@ -171,7 +168,6 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var result = await defaultService.GetContent("someUrl", "path", model, true, "baseUrl", new HeaderDictionary
             {
                 new KeyValuePair<string, StringValues>("testheader", new StringValues("job-profiles")),
-
             });
 
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.That.Matches(x =>
@@ -246,9 +242,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task GetContentWhenRegionIsNullCreateException()
+        public Task GetContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl", new HeaderDictionary()));
+            return Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.GetContent("http://someUrl", null, null, false, "http://baseUrl", new HeaderDictionary()));
         }
 
         [Fact]
@@ -343,9 +339,9 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public async Task PostContentWhenRegionIsNullCreateException()
+        public Task PostContentWhenRegionIsNullCreateException()
         {
-            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, null, defaultFormPostParams, "http://baseUrl"));
+            return Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await defaultService.PostContent("http://someUrl", null, null, defaultFormPostParams, "http://baseUrl"));
         }
 
         [Fact]
@@ -421,7 +417,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await service.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
-            Assert.Equal(DummyChildAppContent, result);
+            Assert.Equal(DummyChildAppContent, result.Html);
 
             httpResponseMessage.Dispose();
             fakeRedirectHttpMessageHandler.Dispose();
@@ -440,7 +436,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
-            Assert.Equal(OfflineHtml, result);
+            Assert.Equal(OfflineHtml, result.Html);
         }
 
         [Fact]
@@ -455,7 +451,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             var result = await defaultService.PostContent("http://someUrl", "path", model, defaultFormPostParams, "http://baseUrl");
 
-            Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result);
+            Assert.Equal(markupMessages.RegionOfflineHtml[model.PageRegion], result.Html);
         }
 
         [Fact(Skip = "Needs revisiting as part of DFC-11808")]
@@ -508,7 +504,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeRegionService.SetRegionHealthState(A<string>.Ignored, A<PageRegion>.Ignored, false))
                 .MustNotHaveHappened();
 
-            Assert.Equal(OfflineHtml, result);
+            Assert.Equal(OfflineHtml, result.Html);
         }
 
         [Fact]

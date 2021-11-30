@@ -1,4 +1,5 @@
 ﻿using DFC.Composite.Shell.Integration.Test.Framework;
+using DFC.Composite.Shell.IntegrationTests.Fakes;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -37,6 +38,27 @@ namespace DFC.Composite.Shell.Integration.Test
 
             // Assert
             Assert.Contains(expected, actual, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task When_ShellSendsPostData_ItsSendItToRegisteredApplicationAndReturnsFileDownload()
+        {
+            // Arrange
+            var shellUri = new Uri("path1/edit?id=1", UriKind.Relative);
+            var client = factory.CreateClientWithWebHostBuilder();
+
+            using var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("download", "true"),
+            });
+
+            // Act
+            var response = await client.PostAsync(shellUri, formContent);
+            response.EnsureSuccessStatusCode();
+
+            // Assert
+            Assert.Equal(FakeContentRetriever.FileContentType, response.Content.Headers.ContentType.MediaType);
+            Assert.Equal(FakeContentRetriever.FileName, response.Content.Headers.ContentDisposition.FileNameStar);
         }
     }
 }

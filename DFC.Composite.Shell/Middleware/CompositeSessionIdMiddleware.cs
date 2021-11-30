@@ -16,7 +16,7 @@ namespace DFC.Composite.Shell.Middleware
             this.next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext)
+        public Task Invoke(HttpContext httpContext)
         {
             var sessionIdString = httpContext?.Request.Cookies[NcsSessionCookieName];
 
@@ -35,7 +35,7 @@ namespace DFC.Composite.Shell.Middleware
 
             httpContext?.Response.Cookies.Append(NcsSessionCookieName, sessionIdString, cookieOptions);
 
-            await next(httpContext);
+            return next(httpContext);
         }
     }
 }
