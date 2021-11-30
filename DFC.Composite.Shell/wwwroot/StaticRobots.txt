@@ -1,3 +1,2 @@
 ﻿User-agent: *
-Disallow: /favicon.ico
-Disallow: /StaticRobots.txt
+Disallow: /
