@@ -13,8 +13,10 @@ using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DFC.Composite.Shell.Controllers
@@ -52,23 +54,25 @@ namespace DFC.Composite.Shell.Controllers
         {
             logger.LogInformation("Generating Robots.txt");
 
-            var robot = new Robot();
-
-            await AppendShellRobot(robot);
+            var staticText = await GetStaticContent();
 
             // get all the registered application robots.txt
             var applicationRobotModels = await GetApplicationRobotsAsync();
-            AppendApplicationsRobots(robot, applicationRobotModels);
+
+            var dynamicText = new StringBuilder();
+            AppendApplicationsRobots(dynamicText, applicationRobotModels);
 
             // add the Shell sitemap route to the bottom
-            var sitemapRouteUrl = Url.RouteUrl("Sitemap", null);
+            var sitemapRouteUrl = Url.RouteUrl("sitemap", null).ToLower(CultureInfo.CurrentCulture);
 
             if (sitemapRouteUrl != null)
             {
                 var baseUrl = $"{Request.GetBaseAddress()}".TrimEnd('/');
-
-                robot.Add($"Sitemap: {baseUrl}{sitemapRouteUrl}");
+                dynamicText.Append($"Sitemap: {baseUrl}/sitemap{sitemapRouteUrl}");
             }
+
+            var combinedText = staticText.Replace("{Insertion}", dynamicText.ToString());
+            var robot = new Robot(combinedText);
 
             logger.LogInformation("Generated Robots.txt");
 
@@ -104,7 +108,7 @@ namespace DFC.Composite.Shell.Controllers
             return robotsLines.Where(w => !string.IsNullOrWhiteSpace(w));
         }
 
-        private static void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, Robot robot)
+        private static void AppendApplicationRobotData(ApplicationRobotModel applicationRobotModel, string applicationRobotsText, string baseUrl, StringBuilder stringBuilder)
         {
             var robotsLines = applicationRobotsText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
@@ -112,19 +116,16 @@ namespace DFC.Composite.Shell.Controllers
 
             foreach (var robotResult in robotResults)
             {
-                if (!robot.Lines.Contains(robotResult))
+                if (!stringBuilder.ToString().Contains(robotResult))
                 {
-                    robot.Add(robotResult);
+                    stringBuilder.AppendLine(robotResult);
                 }
             }
         }
 
-        private async Task AppendShellRobot(Robot robot)
+        private Task<string> GetStaticContent()
         {
-            var shellRobotsText = await shellRobotFileService.GetFileText(webHostEnvironment.WebRootPath);
-            robot.Append(shellRobotsText);
-
-            // add any dynamic robots data from the Shell app
+            return shellRobotFileService.GetStaticFileText(webHostEnvironment.WebRootPath);
         }
 
         private async Task<IEnumerable<ApplicationRobotModel>> GetApplicationRobotsAsync()
@@ -166,7 +167,7 @@ namespace DFC.Composite.Shell.Controllers
             return applicationRobotModels;
         }
 
-        private void AppendApplicationsRobots(Robot robot, IEnumerable<ApplicationRobotModel> applicationRobotModels)
+        private void AppendApplicationsRobots(StringBuilder stringBuilder, IEnumerable<ApplicationRobotModel> applicationRobotModels)
         {
             var baseUrl = $"{Request.GetBaseAddress()}".TrimEnd('/');
 
@@ -181,7 +182,7 @@ namespace DFC.Composite.Shell.Controllers
 
                     if (!string.IsNullOrWhiteSpace(applicationRobotsText))
                     {
-                        AppendApplicationRobotData(applicationRobotModel, applicationRobotsText, baseUrl, robot);
+                        AppendApplicationRobotData(applicationRobotModel, applicationRobotsText, baseUrl, stringBuilder);
                     }
                 }
                 else
