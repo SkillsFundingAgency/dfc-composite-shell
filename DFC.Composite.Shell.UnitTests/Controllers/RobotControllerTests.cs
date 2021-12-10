@@ -31,7 +31,7 @@ namespace DFC.Composite.Shell.Test.Controllers
     {
         private const string DummyScheme = "dummyScheme";
         private const string DummyHost = "dummyHost";
-        private const string DummySitemapUrl = "/DummySitemap.xml";
+        private const string DummySitemapUrl = "/dummysitemap.xml";
 
         private readonly RobotController defaultController;
         private readonly IShellRobotFileService defaultShellRobotFileService;
@@ -85,6 +85,7 @@ namespace DFC.Composite.Shell.Test.Controllers
             A.CallTo(() => defaultApplicationRobotService.GetAsync(A<ApplicationRobotModel>.Ignored)).Returns("RetrievedValue: SomeValue");
 
             defaultShellRobotFileService = A.Fake<IShellRobotFileService>();
+            A.CallTo(() => defaultShellRobotFileService.GetStaticFileText(A<string>.Ignored)).Returns("{Insertion}");
 
             defaultController = new RobotController(defaultAppRegistryDataService, defaultLogger, defaultWebHostEnvironment, defaultTokenRetriever, defaultApplicationRobotService, defaultShellRobotFileService, defaultBaseUrlService)
             {
@@ -115,7 +116,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         {
             const string SomeShellFileText = "SomeFileText";
 
-            A.CallTo(() => defaultShellRobotFileService.GetFileText(A<string>.Ignored)).Returns(SomeShellFileText);
+            A.CallTo(() => defaultShellRobotFileService.GetStaticFileText(A<string>.Ignored)).Returns(SomeShellFileText);
 
             var result = await defaultController.Robot();
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
@@ -126,9 +127,11 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task RobotsControllerWritesSitemapDataToLastLineOfRobotText()
         {
-            var expectedResult = "Sitemap: " + $"{DummyScheme}://{DummyHost}".ToLowerInvariant() + DummySitemapUrl;
+            var expectedResult = $"Sitemap: " + $"{DummyScheme}://{DummyHost}".ToLowerInvariant() + "/sitemap/dummysitemap.xml";
 
             var result = await defaultController.Robot();
+
+            Assert.NotEmpty(result.Content);
             var resultLines = result.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.Equal(expectedResult, resultLines[1]);

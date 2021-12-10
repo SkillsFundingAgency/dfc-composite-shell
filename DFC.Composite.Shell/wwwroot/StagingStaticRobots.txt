@@ -1,0 +1,8 @@
+﻿User-agent: SemrushBot-SA
+Disallow: /alerts/
+Disallow: /ab/
+Disallow: /webchat/
+{Insertion}
+
+User-agent: *
+Disallow: /
