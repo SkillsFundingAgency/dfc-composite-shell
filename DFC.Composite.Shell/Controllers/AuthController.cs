@@ -78,10 +78,10 @@ namespace DFC.Composite.Shell.Controllers
             {
                 validatedToken = await authClient.ValidateToken(id_token);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to validate auth token.");
-                throw;
+                return Redirect($"{settings.DefaultRedirectUrl}/error");
             }
 
             var claims = new List<Claim>
