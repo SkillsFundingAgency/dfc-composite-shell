@@ -28,7 +28,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-
+using FluentAssertions;
 using Xunit;
 
 namespace DFC.Composite.Shell.UnitTests.Controllers
@@ -270,7 +270,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 },
             };
 
-            await Assert.ThrowsAsync<Exception>(async () => await controller.Auth(token));
+            var result = await controller.Auth(token);
+
+            var redirect = result.As<RedirectResult>();
+            Assert.NotNull(redirect.Url);
         }
 
         [Fact]
