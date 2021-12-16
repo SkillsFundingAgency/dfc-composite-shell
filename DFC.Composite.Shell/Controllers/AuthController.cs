@@ -113,7 +113,8 @@ namespace DFC.Composite.Shell.Controllers
 
         private static bool IsAbsoluteUrl(string url)
         {
-            return Uri.TryCreate(url, UriKind.Absolute, out Uri _);
+            return Uri.TryCreate(url, UriKind.Absolute, out Uri uri) 
+                   && !uri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase);
         }
 
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)

@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Services.Utilities;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 using Xunit;
@@ -41,7 +42,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             const string fakeRobotFileText = "StaticRobotsFileText";
             var fileInfoHelper = A.Fake<IFileInfoHelper>();
             A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
-            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StaticRobots.txt")).Returns(fakeRobotFileText);
+            A.CallTo(() => fileInfoHelper.ReadAllTextAsync($"SomeRobotsPath{Path.DirectorySeparatorChar}StaticRobots.txt")).Returns(fakeRobotFileText);
 
             var service = new ShellRobotFileService(fileInfoHelper, null);
 
@@ -55,7 +56,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             const string fakeRobotFileText = "StaticRobotsFileText";
             var fileInfoHelper = A.Fake<IFileInfoHelper>();
             A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
-            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StaticRobots.txt")).Returns(fakeRobotFileText);
+            A.CallTo(() => fileInfoHelper.ReadAllTextAsync($"SomeRobotsPath{Path.DirectorySeparatorChar}StaticRobots.txt")).Returns(fakeRobotFileText);
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
             A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dev-beta.nationalcareersservice.org.uk"));
@@ -72,7 +73,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             const string fakeRobotFileText = "StaticRobotsFileText";
             var fileInfoHelper = A.Fake<IFileInfoHelper>();
             A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
-            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StagingStaticRobots.txt")).Returns(fakeRobotFileText);
+            A.CallTo(() => fileInfoHelper.ReadAllTextAsync($"SomeRobotsPath{Path.DirectorySeparatorChar}StagingStaticRobots.txt")).Returns(fakeRobotFileText);
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
             A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("staging.nationalcareers.service.gov.uk"));
@@ -89,7 +90,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             const string fakeRobotFileText = "StaticRobotsFileText";
             var fileInfoHelper = A.Fake<IFileInfoHelper>();
             A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
-            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\ProductionStaticRobots.txt")).Returns(fakeRobotFileText);
+            A.CallTo(() => fileInfoHelper.ReadAllTextAsync($"SomeRobotsPath{Path.DirectorySeparatorChar}ProductionStaticRobots.txt")).Returns(fakeRobotFileText);
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
             A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("nationalcareers.service.gov.uk"));
@@ -150,6 +151,12 @@ Disallow: /";
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /skills-assessment/skills-health-check/your-assessments
+Disallow: /skills-assessment/skills-health-check/save-my-progress
+Disallow: /skills-assessment/skills-health-check/question
+Disallow: /skills-health-check/your-assessments
+Disallow: /skills-health-check/save-my-progress
+Disallow: /skills-health-check/question
 {Insertion}";
 
             var fileInfoHelper = new FileInfoHelper();
