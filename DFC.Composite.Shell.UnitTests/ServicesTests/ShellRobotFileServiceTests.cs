@@ -127,6 +127,13 @@ Disallow: /";
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /pages/
+Disallow: /skills-assessment/skills-health-check/your-assessments
+Disallow: /skills-assessment/skills-health-check/save-my-progress
+Disallow: /skills-assessment/skills-health-check/question
+Disallow: /skills-health-check/your-assessments
+Disallow: /skills-health-check/save-my-progress
+Disallow: /skills-health-check/question
 {Insertion}
 
 User-agent: *
@@ -151,6 +158,7 @@ Disallow: /";
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /pages/
 Disallow: /skills-assessment/skills-health-check/your-assessments
 Disallow: /skills-assessment/skills-health-check/save-my-progress
 Disallow: /skills-assessment/skills-health-check/question

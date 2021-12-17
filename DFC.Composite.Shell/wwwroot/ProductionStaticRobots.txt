@@ -2,6 +2,7 @@
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /pages/
 Disallow: /skills-assessment/skills-health-check/your-assessments
 Disallow: /skills-assessment/skills-health-check/save-my-progress
 Disallow: /skills-assessment/skills-health-check/question

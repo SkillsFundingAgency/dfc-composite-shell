@@ -47,6 +47,13 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /pages/
+Disallow: /skills-assessment/skills-health-check/your-assessments
+Disallow: /skills-assessment/skills-health-check/save-my-progress
+Disallow: /skills-assessment/skills-health-check/question
+Disallow: /skills-health-check/your-assessments
+Disallow: /skills-health-check/save-my-progress
+Disallow: /skills-health-check/question
 Sitemap: https://staging.nationalcareers.service.gov.uk/sitemap/sitemap.xml
 
 User-agent: *
@@ -69,6 +76,7 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /pages/
 Disallow: /skills-assessment/skills-health-check/your-assessments
 Disallow: /skills-assessment/skills-health-check/save-my-progress
 Disallow: /skills-assessment/skills-health-check/question
