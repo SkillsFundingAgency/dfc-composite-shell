@@ -5,7 +5,7 @@ using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
-using Polly.CircuitBreaker;
+using Polly.Retry;
 
 using System;
 using System.Net;
@@ -67,9 +67,9 @@ namespace DFC.Composite.Shell.Services.AjaxRequest
                         logger.LogError($"Ajax request error: {responseModel.Status}: {responseModel.StatusMessage}, using: {url}");
                     }
                 }
-                catch (BrokenCircuitException ex)
+                catch (TaskCanceledException ex)
                 {
-                    logger.LogError(ex, $"BrokenCircuit: {url} - {ex.Message}");
+                    logger.LogError(ex, $"TaskCancelled: {url} - {ex.Message}");
 
                     responseModel.IsHealthy = false;
 
