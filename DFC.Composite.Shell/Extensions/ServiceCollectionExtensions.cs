@@ -33,7 +33,6 @@ namespace DFC.Composite.Shell.Extensions
             this IServiceCollection services,
             IPolicyRegistry<string> policyRegistry,
             string retryPolicyKey,
-            string circuitBreakerKey,
             PolicyOptions policyOptions)
         {
             if (policyRegistry == null || policyOptions == null)
@@ -53,15 +52,6 @@ namespace DFC.Composite.Shell.Extensions
                         retryAttempt =>
                             TimeSpan.FromMilliseconds(Math.Pow(policyOptions.HttpRetry.BackoffPower, retryAttempt)
                                                  * policyOptions.HttpRetry.BackOffBaseMilliseconds)));
-
-            policyRegistry.Add(
-                circuitBreakerKey,
-                HttpPolicyExtensions
-                    .HandleTransientHttpError()
-                    .CircuitBreakerAsync(
-                        policyOptions.HttpCircuitBreaker.ExceptionsAllowedBeforeBreaking,
-                        policyOptions.HttpCircuitBreaker.DurationOfBreak));
-
             return services;
         }
 
@@ -70,7 +60,6 @@ namespace DFC.Composite.Shell.Extensions
             IConfiguration configuration,
             string configurationSectionName,
             string retryPolicyKey,
-            string circuitBreakerPolicyKey,
             string httpClientName)
                 where TClient : class
                 where TImplementation : class, TClient
@@ -79,15 +68,14 @@ namespace DFC.Composite.Shell.Extensions
             return services
 .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
 .AddHttpClient<TClient, TImplementation>(httpClientName)
-.AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+.AddClientBuilder<TClientOptions>(retryPolicyKey);
         }
 
         public static IHttpClientBuilder AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
             this IServiceCollection services,
             IConfiguration configuration,
             string configurationSectionName,
-            string retryPolicyKey,
-            string circuitBreakerPolicyKey)
+            string retryPolicyKey)
                 where TClient : class
                 where TImplementation : class, TClient
                 where TClientOptions : HttpClientOptions, new()
@@ -95,13 +83,12 @@ namespace DFC.Composite.Shell.Extensions
             return services
 .Configure<TClientOptions>(configuration?.GetSection(configurationSectionName))
 .AddHttpClient<TClient, TImplementation>()
-.AddClientBuilder<TClientOptions>(retryPolicyKey, circuitBreakerPolicyKey);
+.AddClientBuilder<TClientOptions>(retryPolicyKey);
         }
 
         public static IHttpClientBuilder AddClientBuilder<TClientOptions>(
             this IHttpClientBuilder clientBuilder,
-            string retryPolicyKey,
-            string circuitBreakerPolicyKey)
+            string retryPolicyKey)
                 where TClientOptions : HttpClientOptions, new()
         {
             return clientBuilder
@@ -126,7 +113,6 @@ namespace DFC.Composite.Shell.Extensions
     AllowAutoRedirect = false,
 })
 .AddPolicyHandlerFromRegistry(retryPolicyKey)
-.AddPolicyHandlerFromRegistry(circuitBreakerPolicyKey)
 .AddHttpMessageHandler<UserAgentDelegatingHandler>()
 .AddHttpMessageHandler<OriginalHostDelegatingHandler>()
 .AddHttpMessageHandler<CompositeRequestDelegatingHandler>();
@@ -146,7 +132,6 @@ namespace DFC.Composite.Shell.Extensions
                 services,
                 policyRegistry,
                 $"{nameof(VisitClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(VisitClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 nameof(VisitClientOptions),
                 policyOptions,
                 configuration);
@@ -157,7 +142,6 @@ namespace DFC.Composite.Shell.Extensions
                     services,
                     policyRegistry,
                     $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                    $"{nameof(AppRegistryClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                     nameof(AppRegistryClientOptions),
                     policyOptions,
                     configuration);
@@ -169,23 +153,14 @@ namespace DFC.Composite.Shell.Extensions
                 services,
                 policyRegistry,
                 $"{nameof(AjaxRequestClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(AjaxRequestClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 nameof(AjaxRequestClientOptions),
                 policyOptions,
                 configuration);
-
-            services
-                .AddPolicies(
-                    policyRegistry,
-                    $"{nameof(AuthClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                    $"{nameof(AuthClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
-                    policyOptions);
-
+            
             AddHttpClientWithPolicies<IApplicationHealthService, ApplicationHealthService, HealthClientOptions>(
                 services,
                 policyRegistry,
                 $"{nameof(HealthClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(HealthClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 nameof(HealthClientOptions),
                 policyOptions,
                 configuration);
@@ -194,7 +169,6 @@ namespace DFC.Composite.Shell.Extensions
                 services,
                 policyRegistry,
                 $"{nameof(SitemapClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(SitemapClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 nameof(SitemapClientOptions),
                 policyOptions,
                 configuration);
@@ -203,7 +177,6 @@ namespace DFC.Composite.Shell.Extensions
                 services,
                 policyRegistry,
                 $"{nameof(RobotClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                $"{nameof(RobotClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                 nameof(RobotClientOptions),
                 policyOptions,
                 configuration);
@@ -212,7 +185,6 @@ namespace DFC.Composite.Shell.Extensions
                services,
                policyRegistry,
                $"{nameof(BannerClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-               $"{nameof(BannerClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                nameof(BannerClientOptions),
                policyOptions,
                configuration);
@@ -233,7 +205,6 @@ namespace DFC.Composite.Shell.Extensions
                     services,
                     policyRegistry,
                     $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                    $"{registeredUrl}_{nameof(ApplicationClientOptions)}_{nameof(PolicyOptions.HttpCircuitBreaker)}",
                     nameof(ApplicationClientOptions),
                     policyOptions,
                     configuration,
@@ -303,20 +274,18 @@ namespace DFC.Composite.Shell.Extensions
             IServiceCollection services,
             IPolicyRegistry<string> policyRegistry,
             string retryPolicyKey,
-            string circuitBreakerKey,
             string configurationSectionName,
             PolicyOptions policyOptions,
             IConfiguration configuration,
             string httpClientName = null)
-                where TClient : class
-                where TImplementation : class, TClient
-                where TClientOptions : HttpClientOptions, new()
+            where TClient : class
+            where TImplementation : class, TClient
+            where TClientOptions : HttpClientOptions, new()
         {
             var policies = services
                 .AddPolicies(
                     policyRegistry,
                     retryPolicyKey,
-                    circuitBreakerKey,
                     policyOptions);
 
             if (!string.IsNullOrEmpty(httpClientName))
@@ -325,15 +294,13 @@ namespace DFC.Composite.Shell.Extensions
                     configuration,
                     configurationSectionName,
                     retryPolicyKey,
-                    circuitBreakerKey,
                     httpClientName);
             }
 
             return policies.AddUnnamedHttpClient<TClient, TImplementation, TClientOptions>(
                 configuration,
                 configurationSectionName,
-                retryPolicyKey,
-                circuitBreakerKey);
+                retryPolicyKey);
         }
 
         private static bool AppRegistryRequestRegistered(this IServiceCollection services)
