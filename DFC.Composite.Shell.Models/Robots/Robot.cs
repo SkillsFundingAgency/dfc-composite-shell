@@ -10,14 +10,17 @@ namespace DFC.Composite.Shell.Models.Robots
             Lines = new List<string>();
         }
 
+        public Robot(string text)
+        {
+            Lines = new List<string>
+            {
+                text
+            };
+        }
+
         public string Data => string.Join(Environment.NewLine, Lines);
 
         public List<string> Lines { get; }
-
-        public void Add(string text)
-        {
-            Lines.Add(text);
-        }
 
         public void Append(string text)
         {
