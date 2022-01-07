@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Services.Utilities;
+﻿using System;
+using DFC.Composite.Shell.Services.Utilities;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
@@ -30,19 +31,22 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
         private static bool IsDraft(string hostname)
         {
             const string draft = "draft";
-            return hostname.Contains(draft, System.StringComparison.InvariantCultureIgnoreCase);
+            return hostname.Contains(draft, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private static bool IsPreProduction(string hostname)
         {
             const string stagingHostname = "staging.nationalcareers.service.gov.uk";
-            return hostname.Equals(stagingHostname, System.StringComparison.InvariantCultureIgnoreCase);
+            const string internalStagingHostnamePart = "preprodazure";
+
+            return hostname.Equals(stagingHostname, StringComparison.InvariantCultureIgnoreCase)
+                || hostname.Contains(internalStagingHostnamePart, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private static bool IsProduction(string hostname)
         {
             const string productionHostname = "nationalcareers.service.gov.uk";
-            return hostname.Equals(productionHostname, System.StringComparison.InvariantCultureIgnoreCase);
+            return hostname.Equals(productionHostname, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private string StaticRobotsFilename()
