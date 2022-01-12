@@ -100,7 +100,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         }
 
         [Fact]
-        public async Task AjaxRequestServiceGetResponseCatchesCircuitBreakerException()
+        public async Task AjaxRequestServiceGetResponseCatchesTaskCanceledException()
         {
             // Arrange
             const HttpStatusCode expectedStatusCode = HttpStatusCode.OK;
@@ -115,7 +115,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
                 BaseAddress = new Uri("http://SomePathBaseAddress"),
             };
 
-            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Throws<BrokenCircuitException>();
+            A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Throws<TaskCanceledException>();
 
             var ajaxRequestService = new AjaxRequestService(fakeLogger, fakeAppRegistryDataService, httpClient);
 
