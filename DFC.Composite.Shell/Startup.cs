@@ -91,6 +91,7 @@ namespace DFC.Composite.Shell
                         "https://az416426.vo.msecnd.net/scripts/",
                         "www.google-analytics.com",
                         "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=",
+                        "sha256-Or+jpwwVP8VrpGNW8ejezlOtgXTZmQ1jeteEwhvrS8I=",
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
