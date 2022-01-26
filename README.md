@@ -1,5 +1,10 @@
 # dfc-composite-shell
 
+The Composite Shell uses a list of app registrations stored in the [App Registration API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/2075001237/CUI+appRegistry+API) micro-service. The data is used by the shell to determine which applications are available (menu options etc) and for each application, which page regions are to be populated from the apps.
+
+# Configuring to run locally
+
+The project contains *appsettings-template.json* files which contains Shell appsettings for the app. To use these files, copy them to *appsettings.json* within each project and edit and replace the configuration item values with values suitable for your environment.
 
 # Page registration examples
 
@@ -7,10 +12,11 @@ The file `PageRegistration\registration,json` contains a list of composite paths
 
 The full models for each are available in confluence:
 
-* [Composite Path API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/1349779557/Composite+UI+Registration+Paths+API)
-* [Composite Region API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/1353252872/Composite+UI+Registration+Regions+API)
+* [Composite App Registration API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/2075001237/CUI+appRegistry+API)
 
-The following are examples of how to register common items
+The following are examples of how to register common items.
+
+See the Composite App Registration API guide in confluence for full details.
 
 ## Registering a page with regions
 
@@ -53,3 +59,16 @@ To register an external path,  you can use the following example:
     "ExternalUrl":  "external path url"
 }
 ```
+
+## Assets
+
+CSS, JS, images and fonts used in this site can found in the following repository [https://github.com/SkillsFundingAgency/dfc-digital-assets](https://github.com/SkillsFundingAgency/dfc-digital-assets)
+
+## Built with
+
+* Microsoft Visual Studio 2019
+* .Net Core 3.1
+
+## References
+
+Please refer to [https://github.com/SkillsFundingAgency/dfc-digital](https://github.com/SkillsFundingAgency/dfc-digital) for additional instructions on configuring individual components like Cosmos.
