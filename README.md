@@ -1,5 +1,10 @@
 # dfc-composite-shell
 
+The Composite Shell uses a list of app registrations stored in the [App Registration API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/2075001237/CUI+appRegistry+API) micro-service. The data is used by the shell to determine which applications are available (menu options etc) and for each application, which page regions are to be populated from the apps.
+
+# Configuring to run locally
+
+The project contains *appsettings-template.json* files which contains Shell appsettings for the app. To use these files, copy them to *appsettings.json* within each project and edit and replace the configuration item values with values suitable for your environment.
 
 # Page registration examples
 
@@ -54,3 +59,16 @@ To register an external path,  you can use the following example:
     "ExternalUrl":  "external path url"
 }
 ```
+
+## Assets
+
+CSS, JS, images and fonts used in this site can found in the following repository [https://github.com/SkillsFundingAgency/dfc-digital-assets](https://github.com/SkillsFundingAgency/dfc-digital-assets)
+
+## Built with
+
+* Microsoft Visual Studio 2019
+* .Net Core 3.1
+
+## References
+
+Please refer to [https://github.com/SkillsFundingAgency/dfc-digital](https://github.com/SkillsFundingAgency/dfc-digital) for additional instructions on configuring individual components like Cosmos.
