@@ -1,0 +1,38 @@
+﻿@{
+    var hostsAndCaptureEvents = new Dictionary<string, bool>
+    {
+        { "localhost", true },
+        { "dev-beta.nationalcareersservice.org.uk", false },
+        { "sit-beta.nationalcareersservice.org.uk", true },
+        { "staging.nationalcareers.service.gov.uk", false },
+        { "nationalcareers.service.gov.uk", true },
+    };
+    var key = Context.Request.Host.Host.ToLowerInvariant();
+    hostsAndCaptureEvents.TryGetValue(key, out var captureEvents);
+
+    if (captureEvents)
+    {
+        <script nws-csp-add-nonce="true">
+            $('a[href^="/explore-your-education-and-training-choices/"]').click(function (e) {
+                //fbq('track', 'ButtonClick');
+                console.log(e);
+            });
+            $('a[href^="https://www.apprenticeships.gov.uk/apprentices"]').click(function (e) {
+                //fbq('track', 'ButtonClick');
+                console.log(e);
+            });
+            $('a[href^="https://www.tlevels.gov.uk/students/find"]').click(function (e) {
+                //fbq('track', 'ButtonClick');
+                console.log(e);
+            });
+            $('a[href^="https://www.findapprenticeship.service.gov.uk/traineeshipsearch"]').click(function (e) {
+                //fbq('track', 'ButtonClick');
+                console.log(e);
+            });
+            $('a[href^="https://www.ucas.com/"]').click(function (e) {
+                //fbq('track', 'ButtonClick');
+                console.log(e);
+            });
+        </script>
+    }
+}

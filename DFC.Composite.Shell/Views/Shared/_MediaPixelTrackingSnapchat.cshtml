@@ -1,0 +1,35 @@
+﻿@{
+    var hostsAndTheirSnapchatIds = new Dictionary<string, string>
+    {
+        { "localhost", "2212b8fa-78bd-427e-b355-9ac03d62c19f" },
+        { "dev-beta.nationalcareersservice.org.uk", null },
+        { "sit-beta.nationalcareersservice.org.uk", null },
+        { "staging.nationalcareers.service.gov.uk", null },
+        { "nationalcareers.service.gov.uk", null },
+    };
+    var key = Context.Request.Host.Host.ToLowerInvariant();
+    hostsAndTheirSnapchatIds.TryGetValue(key, out var snapchatId);
+
+    if (!string.IsNullOrWhiteSpace(snapchatId))
+    {
+        <!-- Snap Pixel Code -->
+        <script type='text/javascript' nws-csp-add-nonce="true">
+            (function (e, t, n) {
+                if (e.snaptr) return; var a = e.snaptr = function () { a.handleRequest ? a.handleRequest.apply(a, arguments) : a.queue.push(arguments) };
+                a.queue = []; var s = 'script'; r = t.createElement(s); r.async = !0;
+                r.src = n; var u = t.getElementsByTagName(s)[0];
+                u.parentNode.insertBefore(r, u);
+            })(window, document,
+                'https://sc-static.net/scevent.min.js');
+
+            snaptr('init');
+
+            //snaptr('init', 'snapchatId', {
+            //    'user_email': 'user.email'
+            //});
+
+            snaptr('track', 'PAGE_VIEW');
+
+        </script>
+        <!-- End Snap Pixel Code --> }
+}

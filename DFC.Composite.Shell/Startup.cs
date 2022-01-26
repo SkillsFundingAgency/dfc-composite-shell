@@ -99,7 +99,9 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://connect.facebook.net",
+                        "https://sc-static.net"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
@@ -109,7 +111,10 @@ namespace DFC.Composite.Shell
                         "https://fonts.googleapis.com",
                         "https://www.googleoptimize.com"))
                 .FormActions(s => s
-                    .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
+                    .Self()
+                    .CustomSources(
+                        $"{oidcPath.Scheme}://{oidcPath.Host}",
+                        "https://tr.snapchat.com"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources(
@@ -128,11 +133,16 @@ namespace DFC.Composite.Shell
                         "https://i.ytimg.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
-                        "https://www.googletagmanager.com"))
+                        "https://www.googletagmanager.com",
+                        "https://www.facebook.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com"))
+                    .CustomSources(
+                        webchatCspDomain,
+                        "https://www.youtube-nocookie.com",
+                        "https://optimize.google.com",
+                        "https://tr.snapchat.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
@@ -140,7 +150,8 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
-                        "https://www.googletagmanager.com")));
+                        "https://www.googletagmanager.com",
+                        "https://tr.snapchat.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
