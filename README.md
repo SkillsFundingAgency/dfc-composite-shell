@@ -7,10 +7,11 @@ The file `PageRegistration\registration,json` contains a list of composite paths
 
 The full models for each are available in confluence:
 
-* [Composite Path API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/1349779557/Composite+UI+Registration+Paths+API)
-* [Composite Region API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/1353252872/Composite+UI+Registration+Regions+API)
+* [Composite App Registration API](https://skillsfundingagency.atlassian.net/wiki/spaces/DFC/pages/2075001237/CUI+appRegistry+API)
 
-The following are examples of how to register common items
+The following are examples of how to register common items.
+
+See the Composite App Registration API guide in confluence for full details.
 
 ## Registering a page with regions
 
