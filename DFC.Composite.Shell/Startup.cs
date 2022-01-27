@@ -99,7 +99,8 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://js.monitor.azure.com"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
