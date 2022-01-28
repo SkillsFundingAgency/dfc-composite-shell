@@ -1,11 +1,11 @@
 ﻿@{
     var hostsAndCaptureEvents = new Dictionary<string, bool>
     {
-        { "localhost", true },
+        { "localhost", false },
         { "dev-beta.nationalcareersservice.org.uk", false },
-        { "sit-beta.nationalcareersservice.org.uk", true },
+        { "sit-beta.nationalcareersservice.org.uk", false },
         { "staging.nationalcareers.service.gov.uk", false },
-        { "nationalcareers.service.gov.uk", true },
+        { "nationalcareers.service.gov.uk", false },
     };
     var key = Context.Request.Host.Host.ToLowerInvariant();
     hostsAndCaptureEvents.TryGetValue(key, out var captureEvents);
