@@ -23,14 +23,6 @@
     }
   },
   {
-    "Path": "explore-careers",
-    "TopNavigationText": null,
-    "TopNavigationOrder": 400,
-    "Layout": 0,
-    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
-    "ExternalUrl": "__ExternalLiveSite__/explore-careers"
-  },
-  {
     "Path": "skills-assessment",
     "TopNavigationText": "Skills assessment",
     "TopNavigationOrder": 500,
