@@ -150,6 +150,24 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         };
 
         [Fact]
+        public async Task GetAjaxModelAsyncShouldReturnBodyContent()
+        {
+            // Act
+            var result = await applicationService.GetAjaxModelAsync(defaultApplicationModel, string.Empty, new HeaderDictionary());
+
+            // Assert
+            Assert.Equal(BodyRegionContent, result);
+
+            A.CallTo(() => contentRetriever.GetContent(
+                $"{defaultBodyRegion.RegionEndpoint}/index",
+                defaultApplicationModel.AppRegistrationModel.Path,
+                defaultBodyRegion,
+                A<bool>.Ignored,
+                RequestBaseUrl,
+                A<IHeaderDictionary>.Ignored)).MustHaveHappenedOnceExactly();
+        }
+
+        [Fact]
         public async Task GetMarkupAsyncForOnlineApplication()
         {
             // Arrange
