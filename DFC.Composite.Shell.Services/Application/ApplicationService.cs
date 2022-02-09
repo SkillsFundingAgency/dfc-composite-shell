@@ -44,6 +44,11 @@ namespace DFC.Composite.Shell.Services.Application
 
         public Task<string> GetAjaxModelAsync(ApplicationModel application, string queryString, IHeaderDictionary headers)
         {
+            if (application is null)
+            {
+                return Task.FromResult(string.Empty);
+            }
+
             return GetApplicationBodyRegionMarkUpAsync(application, queryString, headers);
         }
 
