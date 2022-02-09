@@ -42,6 +42,11 @@ namespace DFC.Composite.Shell.Services.Application
 
         public string RequestBaseUrl { get; set; }
 
+        public Task<string> GetAjaxModelAsync(ApplicationModel application, string queryString, IHeaderDictionary headers)
+        {
+            return GetApplicationBodyRegionMarkUpAsync(application, queryString, headers);
+        }
+
         public async Task GetMarkupAsync(ApplicationModel application, PageViewModel pageModel, string requestPath, string queryString, IHeaderDictionary headers)
         {
             _ = application ?? throw new ArgumentNullException(nameof(application));
