@@ -150,6 +150,16 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         };
 
         [Fact]
+        public async Task GetAjaxModelAsyncNullApplicationModelReturnsEmtpyString()
+        {
+            // Act
+            var result = await applicationService.GetAjaxModelAsync(null, string.Empty, new HeaderDictionary());
+
+            // Assert
+            Assert.Equal(string.Empty, result);
+        }
+
+        [Fact]
         public async Task GetAjaxModelAsyncShouldReturnBodyContent()
         {
             // Act
