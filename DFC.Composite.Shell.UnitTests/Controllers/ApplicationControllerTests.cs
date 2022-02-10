@@ -131,6 +131,31 @@ namespace DFC.Composite.Shell.Test.Controllers
         }
 
         [Fact]
+        public async Task ApplicationControllerGetActionAjaxRequestReturnsSuccess()
+        {
+            // Arrange
+            var fakeApplicationService = A.Fake<IApplicationService>();
+            string expectedContent = "test";
+            A.CallTo(() => fakeApplicationService.GetAjaxModelAsync(A<ApplicationModel>.Ignored, A<string>.Ignored, A<IHeaderDictionary>.Ignored))
+                .Returns(expectedContent);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            using var controller = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            {
+                ControllerContext = new ControllerContext() { HttpContext = httpContext },
+            };
+
+            // Act
+            var response = await controller.Action(childAppActionGetRequestModel);
+
+            // Assert
+            var result = Assert.IsAssignableFrom<OkObjectResult>(response);
+            var content = Assert.IsAssignableFrom<string>(result.Value);
+            Assert.Equal(expectedContent, content);
+        }
+
+        [Fact]
         public async Task ApplicationControllerGetActionReturnsRedirectWhenRedirectExceptionOccurs()
         {
             var requestModel = new ActionGetRequestModel { Path = ChildAppPath, Data = ChildAppData };

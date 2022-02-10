@@ -49,6 +49,13 @@ namespace DFC.Composite.Shell.Controllers
         public async Task<IActionResult> Action(ActionGetRequestModel requestViewModel)
         {
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
+            if (Request.IsAjax())
+            {
+                var application = await applicationService.GetApplicationAsync(requestViewModel);
+                applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
+                var content = await applicationService.GetAjaxModelAsync(application, Request.QueryString.Value, Request.Headers);
+                return Ok(content);
+            }
 
             if (requestViewModel != null)
             {
