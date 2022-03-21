@@ -113,10 +113,8 @@ namespace DFC.Composite.Shell.Test.Controllers
             var model = GetModel<HealthViewModel>(result);
 
             //Assert
-            Assert.Equal(4, model.HealthItems.Count);
+            Assert.Equal(2, model.HealthItems.Count);
             Assert.Contains(model.HealthItems, x => x.Message.Contains("Composite Shell is available", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Message1", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Message2", StringComparison.OrdinalIgnoreCase));
             Assert.Contains(model.HealthItems, x => x.Message.Contains("Skipped health check for: path2, because it is offline", StringComparison.OrdinalIgnoreCase));
         }
 

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -51,9 +52,8 @@ namespace DFC.Composite.Shell.Controllers
 
             // loop through the registered applications and create some tasks - one per application for their health
             var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
-            var appRegistrationModelsWithBodyRegions = appRegistrationModels.Where(w => w.ExternalURL == null && w.Regions != null && w.Regions.Any(a => a.PageRegion == PageRegion.Body));
-            var onlineAppRegistrationModels = appRegistrationModelsWithBodyRegions.Where(w => w.IsOnline).ToList();
-            var offlineAppRegistrationModels = appRegistrationModelsWithBodyRegions.Where(w => !w.IsOnline).ToList();
+            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
+            var offlineAppRegistrationModels = appRegistrationModels.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
 
             if (onlineAppRegistrationModels != null && onlineAppRegistrationModels.Any())
             {
@@ -139,9 +139,9 @@ namespace DFC.Composite.Shell.Controllers
         {
             var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path);
 
-            var bodyRegion = appRegistrationModel?.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = appRegistrationModel?.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
-            if (!string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
+            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
                 var uri = new Uri(bodyRegion.RegionEndpoint);
                 var url = $"{uri.Scheme}://{uri.Authority}";
@@ -157,37 +157,25 @@ namespace DFC.Composite.Shell.Controllers
             // get the task results as individual health and merge into one
             foreach (var applicationHealthModel in applicationHealthModels)
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
                 {
-                    logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}");
-
-                    var healthItems = applicationHealthModel.RetrievalTask.Result;
-
-                    if (healthItems?.Count() > 0)
+                    stopwatch.Stop();
+                    if (stopwatch.ElapsedMilliseconds < 10000)
                     {
-                        var healthItemViewModels = (from a in healthItems
-                                                    select new HealthItemViewModel
-                                                    {
-                                                        Service = a.Service,
-                                                        Message = a.Message,
-                                                    }).ToList();
-
-                        healthItemModels.AddRange(healthItemViewModels);
+                        logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}: Healthy");
                     }
                     else
                     {
-                        var healthItemViewModel = new HealthItemViewModel
-                        {
-                            Service = applicationHealthModel.Path,
-                            Message = $"No health response from {applicationHealthModel.Path} app",
-                        };
-
-                        healthItemModels.Add(healthItemViewModel);
+                        logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}: Degraded");
                     }
                 }
                 else
                 {
-                    logger.LogError($"{nameof(Action)}: Error getting child Health for: {applicationHealthModel.Path}");
+                    stopwatch.Stop();
+                    logger.LogError($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}: Unhealthy");
                 }
             }
         }
