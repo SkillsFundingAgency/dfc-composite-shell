@@ -1,8 +1,12 @@
 ﻿@using DFC.Composite.Shell.Models.Common;
+@using System.Security.Claims
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @{
     string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
 
     string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
+    var parsed = bool.TryParse(Configuration["AddNoIndexMeta"], out var showMeta);
 }
 
 <meta charset="utf-8" />
@@ -18,12 +22,17 @@
 <link rel="apple-touch-icon" sizes="152x152" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon-152x152.png">
 <link rel="apple-touch-icon" href="@(BrandingAssetsFolder)/images/govuk-apple-touch-icon.png">
 
+@if (parsed && showMeta)
+{
+<meta name=“robots”content =“noindex”>
+}
+
 @{
     var versionedPathForCssScripts = ViewData["VersionedPathForCssScripts"] as List<string>;
 
     foreach (var script in versionedPathForCssScripts)
     {
-        <link href="@script" rel="stylesheet" type="text/css" />
+    <link href="@script" rel="stylesheet" type="text/css" />
     }
 
     var webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
@@ -31,6 +40,6 @@
 
     if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
     {
-        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true" async></script>
+    <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true" async></script>
     }
 }
