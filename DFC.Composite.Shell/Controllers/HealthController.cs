@@ -156,17 +156,27 @@ namespace DFC.Composite.Shell.Controllers
         private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
         {
             // get the task results as individual health and merge into one
+
+            //this exists only for testing purposes, remove before prod release
+            bool iterationcheck = true;
             foreach (var applicationHealthModel in applicationHealthModels)
             {
                 Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
 
+                //this if block exists only for testing purposes, remove before prod release
+                if (iterationcheck)
+                {
+                    System.Threading.Thread.Sleep(11000);
+                    iterationcheck = false;
+                }
+
+                stopwatch.Start();
                 if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
                 {
                     var healthItems = applicationHealthModel.RetrievalTask.Result;
 
                     string message;
-                    if (stopwatch.ElapsedMilliseconds < 1000)
+                    if (stopwatch.ElapsedMilliseconds < 10000)
                     {
                         message = "Healthy";
                     }
