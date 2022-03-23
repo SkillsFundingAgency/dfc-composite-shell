@@ -77,20 +77,8 @@
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "__OIDCOIDCConfigMetaDataUrl__"
         },
-        "Neo4jUrl": {
-            "value": "__Neo4jUrl__"
-        },
-        "Neo4jUsername": {
-            "value": "__Neo4jUser__"
-        },
-        "Neo4jPassword": {
-            "value": "__Neo4jPassword__"
-        },
         "ShowLoginBanner": {
             "value": __ShowLoginBanner__
-        },
-        "Neo4JSettingsSendData": {
-            "value": __Neo4JSettingsSendData__
         },
         "ExceptionCountThreshold": {
             "value": "__ExceptionCountThreshold__"

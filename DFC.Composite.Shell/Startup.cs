@@ -18,7 +18,6 @@ using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
-using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
@@ -27,7 +26,6 @@ using DFC.Composite.Shell.Services.UrlRewriter;
 using DFC.Composite.Shell.Services.Utilities;
 using DFC.Composite.Shell.Utilities;
 using DFC.Compui.Telemetry.ApplicationBuilderExtensions;
-
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -197,7 +195,6 @@ namespace DFC.Composite.Shell
             services.AddTransient<CompositeRequestDelegatingHandler>();
             services.AddTransient<IFakeHttpRequestSender, FakeHttpRequestSender>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
-            services.AddTransient<INeo4JService, Neo4JService>();
             services.AddTransient<SecurityTokenHandler, JwtSecurityTokenHandler>();
 
             services.AddScoped<IPathLocator, UrlPathLocator>();
@@ -218,7 +215,6 @@ namespace DFC.Composite.Shell
             var authSettings = new OpenIDConnectSettings();
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
-            services.Configure<Neo4JSettings>(Configuration.GetSection(nameof(Neo4JSettings)));
             services.Configure<PassOnHeaderSettings>(Configuration.GetSection(nameof(PassOnHeaderSettings)));
 
             services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl, new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
