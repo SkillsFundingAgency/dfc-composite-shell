@@ -163,20 +163,41 @@ namespace DFC.Composite.Shell.Controllers
 
                 if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
                 {
-                    stopwatch.Stop();
-                    if (stopwatch.ElapsedMilliseconds < 10000)
+                    var healthItems = applicationHealthModel.RetrievalTask.Result;
+
+                    string message;
+                    if (stopwatch.ElapsedMilliseconds < 1000)
                     {
-                        logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}: Healthy");
+                        message = "Healthy";
                     }
                     else
                     {
-                        logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}: Degraded");
+                        message = "Degraded";
                     }
-                }
-                else
-                {
+
+                    if (healthItems?.Count() > 0)
+                    {
+                        var healthItemViewModels = (from a in healthItems
+                                                    select new HealthItemViewModel
+                                                    {
+                                                        Service = a.Service,
+                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + message,
+                                                    }).ToList();
+
+                        healthItemModels.AddRange(healthItemViewModels);
+                    }
+                    else
+                    {
+                        var healthItemViewModel = new HealthItemViewModel
+                        {
+                            Service = applicationHealthModel.Path,
+                            Message = $"Received child health for: {applicationHealthModel.Path}: Unhealthy",
+                        };
+
+                        healthItemModels.Add(healthItemViewModel);
+                    }
+
                     stopwatch.Stop();
-                    logger.LogError($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}: Unhealthy");
                 }
             }
         }
