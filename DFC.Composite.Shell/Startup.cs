@@ -90,6 +90,8 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "sha256-OzxeCM8TJjksWkec74qsw2e3+vmC1ifof7TzRHngpoE=",
                         "sha256-lL/kILkNOhT9vW0QtSSgm0PwfBFV85BwRQotdY9dujk=",
+                        "sha256-sQraM3b+lwZqC1Krr12vIz4t3nESs+z7z4prOEzSlIE=",
+                        "sha256-AG33YdCnVr7TrW7POTo6HW6msAY2iZ6ddqP+CtEo8KQ=",
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
