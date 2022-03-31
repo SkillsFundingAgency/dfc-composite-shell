@@ -11,6 +11,8 @@ namespace DFC.Composite.Shell.Models.HealthModels
 
         public string HealthUrl { get; set; }
 
+        public long ResponseTime { get; set; }
+
         public Task<IEnumerable<HealthItemModel>> RetrievalTask { get; set; }
     }
 }
