@@ -153,48 +153,38 @@ namespace DFC.Composite.Shell.Controllers
             return null;
         }
 
+        private string GetHealthItemHealthMessage(long responseTime)
+        {
+            if (responseTime == 0)
+            {
+                return "Unhealthy";
+            }
+
+            if (responseTime < 10000)
+            {
+                return "Healthy";
+            }
+
+            return "Degraded";
+        }
+
         private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
         {
             // get the task results as individual health and merge into one
-
-            //this exists only for testing purposes, remove before prod release
-            bool iterationcheck = true;
             foreach (var applicationHealthModel in applicationHealthModels)
             {
-                Stopwatch stopwatch = new Stopwatch();
-
-                //this if block exists only for testing purposes, remove before prod release
-                if (iterationcheck)
-                {
-                    System.Threading.Thread.Sleep(11000);
-                    iterationcheck = false;
-                }
-
-                stopwatch.Start();
                 if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
                 {
                     var healthItems = applicationHealthModel.RetrievalTask.Result;
 
-                    string message;
-                    if (stopwatch.ElapsedMilliseconds < 10000)
-                    {
-                        message = "Healthy";
-                    }
-                    else
-                    {
-                        message = "Degraded";
-                    }
-
-                    if (healthItems?.Count() > 0)
-                    {
-                        var healthItemViewModels = (from a in healthItems
+                    var healthItemViewModels = (from a in healthItems
                                                     select new HealthItemViewModel
                                                     {
                                                         Service = a.Service,
-                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + message,
+                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + GetHealthItemHealthMessage(a.ResponseTime),
                                                     }).ToList();
 
-                        healthItemModels.AddRange(healthItemViewModels);
+                    healthItemModels.AddRange(healthItemViewModels);
                     }
                     else
                     {
@@ -206,9 +196,6 @@ namespace DFC.Composite.Shell.Controllers
 
                         healthItemModels.Add(healthItemViewModel);
                     }
-
-                    stopwatch.Stop();
-                }
             }
         }
 

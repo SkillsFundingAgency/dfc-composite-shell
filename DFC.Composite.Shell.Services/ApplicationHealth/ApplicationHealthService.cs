@@ -78,6 +78,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                             {
                                 Service = model.Path,
                                 Message = $"Bad health response from {model.Path} app",
+                                ResponseTime = 0,
                             },
                         };
 
@@ -94,6 +95,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         {
                             Service = model.Path,
                             Message = $"No health response from {model.Path} app",
+                            ResponseTime = 0,
                         },
                     };
 
@@ -108,6 +110,7 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         {
                             Service = model.Path,
                             Message = $"Exception response from {model.Path} app: {ex.Message}",
+                            ResponseTime = 0,
                         },
                     };
 
