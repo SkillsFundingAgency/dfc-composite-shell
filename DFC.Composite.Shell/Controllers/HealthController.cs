@@ -117,6 +117,9 @@ namespace DFC.Composite.Shell.Controllers
 
             foreach (var path in paths)
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 logger.LogInformation($"{nameof(Action)}: Getting child Health for: {path.Path}");
 
                 var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path);
@@ -129,6 +132,8 @@ namespace DFC.Composite.Shell.Controllers
                 };
 
                 applicationHealthModel.RetrievalTask = applicationHealthService.GetAsync(applicationHealthModel);
+
+                applicationHealthModel.ResponseTime = stopwatch.ElapsedMilliseconds;
 
                 applicationHealthModels.Add(applicationHealthModel);
             }
@@ -185,17 +190,17 @@ namespace DFC.Composite.Shell.Controllers
                                                     }).ToList();
 
                     healthItemModels.AddRange(healthItemViewModels);
-                    }
-                    else
+                }
+                else
+                {
+                    var healthItemViewModel = new HealthItemViewModel
                     {
-                        var healthItemViewModel = new HealthItemViewModel
-                        {
-                            Service = applicationHealthModel.Path,
-                            Message = $"Received child health for: {applicationHealthModel.Path}: Unhealthy",
-                        };
+                        Service = applicationHealthModel.Path,
+                        Message = $"Received child health for: {applicationHealthModel.Path}: Unhealthy",
+                    };
 
-                        healthItemModels.Add(healthItemViewModel);
-                    }
+                    healthItemModels.Add(healthItemViewModel);
+                }
             }
         }
 
