@@ -76,10 +76,13 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                     {
                         new HealthItemModel
                         {
-                            Service = model.Path,
-                            Message = $"Bad health response from {model.HealthUrl} app",
-                        },
-                    };
+                            new HealthItemModel
+                            {
+                                Service = model.Path,
+                                Message = $"Bad health response from {model.Path} app",
+                                ResponseTime = 0,
+                            },
+                        };
 
                         return result;
                     }
@@ -93,7 +96,8 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         new HealthItemModel
                         {
                             Service = model.Path,
-                            Message = $"No health response from {model.HealthUrl} app",
+                            Message = $"No health response from {model.Path} app",
+                            ResponseTime = 0,
                         },
                     };
 
@@ -107,7 +111,8 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         new HealthItemModel
                         {
                             Service = model.Path,
-                            Message = $"Exception response from {model.HealthUrl} app: {ex.Message}",
+                            Message = $"Exception response from {model.Path} app: {ex.Message}",
+                            ResponseTime = 0,
                         },
                     };
 
