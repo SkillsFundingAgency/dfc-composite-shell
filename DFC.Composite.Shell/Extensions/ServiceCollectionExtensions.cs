@@ -7,7 +7,6 @@ using DFC.Composite.Shell.Services.ApplicationRobot;
 using DFC.Composite.Shell.Services.ApplicationSitemap;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Banner;
-using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -127,14 +126,6 @@ namespace DFC.Composite.Shell.Extensions
             {
                 throw new ArgumentNullException(nameof(configuration), "Policy options could not be found");
             }
-
-            AddHttpClientWithPolicies<INeo4JService, Neo4JService, VisitClientOptions>(
-                services,
-                policyRegistry,
-                $"{nameof(VisitClientOptions)}_{nameof(PolicyOptions.HttpRetry)}",
-                nameof(VisitClientOptions),
-                policyOptions,
-                configuration);
 
             if (!services.AppRegistryRequestRegistered())
             {
