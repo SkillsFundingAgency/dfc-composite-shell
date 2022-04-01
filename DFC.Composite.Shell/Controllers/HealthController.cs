@@ -162,15 +162,15 @@ namespace DFC.Composite.Shell.Controllers
         {
             if (responseTime == 0)
             {
-                return "Unhealthy";
+                return "Unhealthy (" + responseTime + ")";
             }
 
             if (responseTime < 10000)
             {
-                return "Healthy";
+                return "Healthy (" + responseTime + ")"";
             }
 
-            return "Degraded";
+            return "Degraded (" + responseTime + ")"";
         }
 
         private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
