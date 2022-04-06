@@ -92,7 +92,6 @@
     "Neo4jPassword": {
       "type": "securestring"
     },
-
     "AddNoIndexMeta": {
       "type": "bool"
     },
