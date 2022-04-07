@@ -59,10 +59,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 
             // Act
             var result = await healthService.GetAsync(model);
+            foreach (var v in result)
+            {
+                v.ResponseTime = 0;
+            }
 
             // Assert
             string resultString = JsonConvert.SerializeObject(result);
-            //Assert.Equal(expectedResponseString, resultString);
+            Assert.Equal(expectedResponseString, resultString);
 
             httpResponse.Dispose();
             httpClient.Dispose();
