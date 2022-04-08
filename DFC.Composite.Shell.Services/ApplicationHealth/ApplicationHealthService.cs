@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
@@ -37,7 +38,10 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
         private async Task<IEnumerable<HealthItemModel>> CallHttpClientJsonAsync(ApplicationHealthModel model)
         {
-            logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loading health data from {model.HealthUrl}");
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loading health data for {model.Path} from {model.HealthUrl}");
 
             var request = new HttpRequestMessage(HttpMethod.Get, model.HealthUrl);
 
@@ -66,6 +70,11 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
 
                         logger.LogInformation($"{nameof(CallHttpClientJsonAsync)}: Loaded health data from {model.HealthUrl}");
 
+                        foreach (HealthItemModel h in result)
+                        {
+                            h.ResponseTime = stopwatch.ElapsedMilliseconds;
+                        }
+
                         return result;
                     }
                     catch (Exception ex)
@@ -76,10 +85,13 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                     {
                         new HealthItemModel
                         {
-                            Service = model.Path,
-                            Message = $"Bad health response from {model.HealthUrl} app",
-                        },
-                    };
+                            new HealthItemModel
+                            {
+                                Service = model.Path,
+                                Message = $"Bad health response from {model.Path} app",
+                                ResponseTime = stopwatch.ElapsedMilliseconds,
+                            },
+                        };
 
                         return result;
                     }
@@ -93,7 +105,8 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         new HealthItemModel
                         {
                             Service = model.Path,
-                            Message = $"No health response from {model.HealthUrl} app",
+                            Message = $"No health response from {model.Path} app",
+                            ResponseTime = stopwatch.ElapsedMilliseconds,
                         },
                     };
 
@@ -107,7 +120,8 @@ namespace DFC.Composite.Shell.Services.ApplicationHealth
                         new HealthItemModel
                         {
                             Service = model.Path,
-                            Message = $"Exception response from {model.HealthUrl} app: {ex.Message}",
+                            Message = $"Exception response from {model.Path} app: {ex.Message}",
+                            ResponseTime = stopwatch.ElapsedMilliseconds,
                         },
                     };
 

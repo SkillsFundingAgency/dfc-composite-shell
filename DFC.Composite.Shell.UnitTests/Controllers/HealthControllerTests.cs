@@ -101,7 +101,6 @@ namespace DFC.Composite.Shell.Test.Controllers
             var path1HealthItemModels = new List<HealthItemModel>
             {
                 new HealthItemModel() { Message = "Message1", Service = "Service1" },
-                new HealthItemModel() { Message = "Message2", Service = "Service2" },
             };
 
             A.CallTo(() => appRegistryDataService.GetAppRegistrationModels()).Returns(appRegistrationModels);
@@ -113,10 +112,9 @@ namespace DFC.Composite.Shell.Test.Controllers
             var model = GetModel<HealthViewModel>(result);
 
             //Assert
-            Assert.Equal(4, model.HealthItems.Count);
+            Assert.Equal(3, model.HealthItems.Count);
             Assert.Contains(model.HealthItems, x => x.Message.Contains("Composite Shell is available", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Message1", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(model.HealthItems, x => x.Message.Contains("Message2", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(model.HealthItems, x => x.Message.Contains("Received child health for: path1: Unhealthy", StringComparison.OrdinalIgnoreCase));
             Assert.Contains(model.HealthItems, x => x.Message.Contains("Skipped health check for: path2, because it is offline", StringComparison.OrdinalIgnoreCase));
         }
 
