@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -116,6 +117,9 @@ namespace DFC.Composite.Shell.Controllers
 
             foreach (var path in paths)
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 logger.LogInformation($"{nameof(Action)}: Getting child Health for: {path.Path}");
 
                 var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path);
@@ -128,6 +132,8 @@ namespace DFC.Composite.Shell.Controllers
                 };
 
                 applicationHealthModel.RetrievalTask = applicationHealthService.GetAsync(applicationHealthModel);
+
+                //applicationHealthModel.ResponseTime = stopwatch.ElapsedMilliseconds;
 
                 applicationHealthModels.Add(applicationHealthModel);
             }
@@ -152,6 +158,21 @@ namespace DFC.Composite.Shell.Controllers
             return null;
         }
 
+        private string GetHealthItemHealthMessage(long responseTime)
+        {
+            if (responseTime == 0)
+            {
+                return "Unhealthy (" + responseTime + ")";
+            }
+
+            if (responseTime < 10000)
+            {
+                return "Healthy (" + responseTime + ")";
+            }
+
+            return "Degraded (" + responseTime + ")";
+        }
+
         private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
         {
             // get the task results as individual health and merge into one
@@ -159,35 +180,26 @@ namespace DFC.Composite.Shell.Controllers
             {
                 if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
                 {
-                    logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}");
-
                     var healthItems = applicationHealthModel.RetrievalTask.Result;
 
-                    if (healthItems?.Count() > 0)
-                    {
-                        var healthItemViewModels = (from a in healthItems
+                    var healthItemViewModels = (from a in healthItems
                                                     select new HealthItemViewModel
                                                     {
                                                         Service = a.Service,
-                                                        Message = a.Message,
+                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + GetHealthItemHealthMessage(a.ResponseTime),
                                                     }).ToList();
 
-                        healthItemModels.AddRange(healthItemViewModels);
-                    }
-                    else
-                    {
-                        var healthItemViewModel = new HealthItemViewModel
-                        {
-                            Service = applicationHealthModel.Path,
-                            Message = $"No health response from {applicationHealthModel.Path} app",
-                        };
-
-                        healthItemModels.Add(healthItemViewModel);
-                    }
+                    healthItemModels.AddRange(healthItemViewModels);
                 }
                 else
                 {
-                    logger.LogError($"{nameof(Action)}: Error getting child Health for: {applicationHealthModel.Path}");
+                    var healthItemViewModel = new HealthItemViewModel
+                    {
+                        Service = applicationHealthModel.Path,
+                        Message = $"Received child health for: {applicationHealthModel.Path}: Unhealthy",
+                    };
+
+                    healthItemModels.Add(healthItemViewModel);
                 }
             }
         }
