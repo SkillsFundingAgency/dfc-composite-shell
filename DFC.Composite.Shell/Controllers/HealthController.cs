@@ -158,8 +158,18 @@ namespace DFC.Composite.Shell.Controllers
             return null;
         }
 
-        private string GetHealthItemHealthMessage(long responseTime)
+        private string GetHealthItemHealthMessage(long responseTime, int loop)
         {
+            if (loop == 0)
+            {
+                responseTime = 0;
+            }
+
+            if (loop == 1)
+            {
+                responseTime = 12000;
+            }
+
             if (responseTime == 0)
             {
                 return "Unhealthy (" + responseTime + ")";
@@ -175,6 +185,8 @@ namespace DFC.Composite.Shell.Controllers
 
         private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
         {
+            int loop = 0;
+
             // get the task results as individual health and merge into one
             foreach (var applicationHealthModel in applicationHealthModels)
             {
@@ -186,7 +198,7 @@ namespace DFC.Composite.Shell.Controllers
                                                     select new HealthItemViewModel
                                                     {
                                                         Service = a.Service,
-                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + GetHealthItemHealthMessage(a.ResponseTime),
+                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + GetHealthItemHealthMessage(a.ResponseTime, loop),
                                                     }).ToList();
 
                     healthItemModels.AddRange(healthItemViewModels);
@@ -201,6 +213,8 @@ namespace DFC.Composite.Shell.Controllers
 
                     healthItemModels.Add(healthItemViewModel);
                 }
+
+                loop++;
             }
         }
 
