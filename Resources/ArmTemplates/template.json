@@ -86,6 +86,9 @@
       "ShowLoginBanner": {
           "type": "bool"
       },
+      "AddNoIndexMeta": {
+        "type": "bool"
+      },
       "ExceptionCountThreshold": {
           "type": "string"
       },
@@ -419,6 +422,10 @@
                           {
                               "name": "ShowLoginBanner",
                               "value": "[parameters('ShowLoginBanner')]"
+                          },
+                          {
+                            "name": "AddNoIndexMeta",
+                            "value": "[parameters('AddNoIndexMeta')]"
                           },
                           {
                               "name": "WebchatOptions__Enabled",
