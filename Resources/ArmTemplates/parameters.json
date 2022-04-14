@@ -108,7 +108,7 @@
           "value": "__SHCImageStorageURL__"
       },
       "SupportedHeader0": {
-          "value": __SupportedHeaders__
+          "value": "__SupportedHeaders__"
       },
       "AddNoIndexMeta": {
         "value":  __AddNoIndexMeta__
