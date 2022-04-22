@@ -39,6 +39,7 @@ jobs:
   - template: AzureDevOpsTemplates/Build/StepTemplates/dfc-arm-build.yml@dfc-devops
     parameters:
       ArmTemplateRoot: $(ArmTemplateRoot)
+      SolutionBaseName: $(SolutionBaseName)
 
   - task: CopyFiles@2
     displayName: 'Copy Page Registration to Staging'
