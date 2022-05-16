@@ -97,6 +97,7 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/js/",
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
                         "https://www.youtube.com",
+                        "https://www.gstatic.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
@@ -127,6 +128,7 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
+                        "https://www.gstatic.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
                         "https://www.googletagmanager.com"))
