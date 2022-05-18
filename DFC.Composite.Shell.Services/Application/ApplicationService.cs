@@ -5,8 +5,10 @@ using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Utilities;
+
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -59,6 +61,9 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (application.AppRegistrationModel.IsOnline)
             {
+                // Get banners from the banner app.
+                pageModel.PhaseBannerHtml = await bannerService.GetPageBannersAsync(requestPath);
+
                 //Load related regions
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString, headers);
 
@@ -72,9 +77,6 @@ namespace DFC.Composite.Shell.Services.Application
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
-
-                // Get banners from the banner app.
-                pageModel.PhaseBannerHtml = await bannerService.GetPageBannersAsync(requestPath);
             }
             else
             {
