@@ -1,7 +1,15 @@
 ﻿@model PageViewModelResponse;
-
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 <!-- Google Optimize snippet (Hard coded container ID)-->
-<script nws-csp-add-nonce="true" async src="https://www.googleoptimize.com/optimize.js?id=OPT-PMJP8V3"></script>
+
+<script nws-csp-add-nonce="true" async >
+    var OptimizeId = @Json.Serialize(Configuration.GetSection("GoogleScripts").GetSection("OptimizeId").Value);
+document.addEventListener('DOMContentLoaded', () => {
+  document.head.appendChild(document.createElement('script'))
+  .src = `https://www.googleoptimize.com/optimize.js?id=${OptimizeId}`;
+});
+</script>
 <!-- Page-hiding snippet (recommended)  -->
 <script nws-csp-add-nonce="true">
     (function (a, s, y, n, c, h, i, d, e) {
