@@ -121,6 +121,9 @@
       },
       "SupportedHeader0" :{
           "type": "string"
+      },
+      "OptimizeId" :{
+        "type": "string"
       }
   },
   "variables": {
@@ -442,6 +445,10 @@
                           {
                               "name": "PassOnHeaderSettings__SupportedHeaders__0",
                               "value" : "[parameters('SupportedHeader0')]"
+                          },
+                          {
+                            "name": "OptimizeId",
+                            "value" : "[parameters('OptimizeId')]"
                           }
                       ]
                   }
