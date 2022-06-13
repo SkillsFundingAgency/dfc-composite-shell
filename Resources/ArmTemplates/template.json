@@ -124,7 +124,7 @@
       },
       "OptimizeId" :{
         "type": "string"
-    }
+      }
   },
   "variables": {
       "AppServiceAppInsightsName": "[concat(variables('ResourcePrefix'), '-ai')]",
@@ -449,7 +449,7 @@
                           {
                             "name": "OptimizeId",
                             "value" : "[parameters('OptimizeId')]"
-                        }
+                          }
                       ]
                   }
               }
