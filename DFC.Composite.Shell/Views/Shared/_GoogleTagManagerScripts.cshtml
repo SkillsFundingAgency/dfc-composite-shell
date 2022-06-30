@@ -1,11 +1,8 @@
 ﻿@model PageViewModelResponse;
 @using DFC.Composite.Shell.Services.Google;
 @inject Microsoft.Extensions.Options.IOptions<GoogleSettings> googleSettings
-<!-- Google Optimize snippet (Hard coded container ID)-->
-
-@{var OptimizeId = googleSettings.Value.OptimizeId;}
-<script nws-csp-add-nonce="true" async src="https://www.googleoptimize.com/optimize.js?id=@OptimizeId"></script>
 <!-- Page-hiding snippet (recommended)  -->
+
 <script nws-csp-add-nonce="true">
     (function (a, s, y, n, c, h, i, d, e) {
         s.className += ' ' + y; h.start = 1 * new Date;
@@ -14,6 +11,11 @@
     })(window, document.documentElement, 'async-hide', 'dataLayer', 4000,
         { 'GTM-554PPX9': true });
 </script>
+<!-- Google Optimize snippet -->
+
+@{var OptimizeId = googleSettings.Value.OptimizeId;}
+<script nws-csp-add-nonce="true" async src="https://www.googleoptimize.com/optimize.js?id=@OptimizeId"></script>
+
 <!-- Google Tag Manager -->
 <script nws-csp-add-nonce="true">
     (function (w, d, s, l, i) {
