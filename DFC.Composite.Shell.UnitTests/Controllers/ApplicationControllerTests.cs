@@ -1,4 +1,10 @@
-﻿using DFC.Composite.Shell.Controllers;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+using DFC.Composite.Shell.Controllers;
 using DFC.Composite.Shell.Models;
 using DFC.Composite.Shell.Models.AppRegistrationModels;
 using DFC.Composite.Shell.Models.Exceptions;
@@ -7,17 +13,15 @@ using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Utilities;
+
 using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Security.Claims;
-using System.Threading.Tasks;
+
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.Controllers
@@ -141,7 +145,7 @@ namespace DFC.Composite.Shell.Test.Controllers
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Headers.Add("X-Requested-With", "XMLHttpRequest");
-            using var controller = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService, neo4JService)
+            using var controller = new ApplicationController(defaultMapper, defaultLogger, fakeApplicationService, defaultVersionedFiles, defaultConfiguration, defaultBaseUrlService)
             {
                 ControllerContext = new ControllerContext() { HttpContext = httpContext },
             };
