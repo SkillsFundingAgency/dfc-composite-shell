@@ -53,13 +53,5 @@
     "Layout": 0,
     "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
     "ExternalUrl": "__ExternalLiveSite__/careers-advice"
-  },
-  {
-      "Path": "sitefinity",
-      "TopNavigationText": null,
-      "TopNavigationOrder": 999,
-      "Layout": 0,
-      "IsOnline": true,
-      "SitemapURL": "__InternalSitefinitySite__/sitemap/sitemap.xml"
   }
 ]
