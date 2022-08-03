@@ -28,5 +28,10 @@ namespace DFC.Composite.Shell.Services.Application
         /// <param name="data">The request data.</param>
         /// <returns>ApplicationModel.</returns>
         Task<ApplicationModel> GetApplicationAsync(ActionGetRequestModel data);
+
+        /// <summary>
+        /// Gets content for Body region.
+        /// </summary>
+        Task<string> GetAjaxModelAsync(ApplicationModel application, string queryString, IHeaderDictionary headers);
     }
 }

@@ -4,14 +4,11 @@ using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.Application;
 using DFC.Composite.Shell.Services.BaseUrl;
 using DFC.Composite.Shell.Services.Mapping;
-using DFC.Composite.Shell.Services.Neo4J;
 using DFC.Composite.Shell.Utilities;
-
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -31,7 +28,6 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IVersionedFiles versionedFiles;
         private readonly IConfiguration configuration;
         private readonly IBaseUrlService baseUrlService;
-        private readonly INeo4JService neo4JService;
 
         public ApplicationController(
             IMapper<ApplicationModel, PageViewModel> mapper,
@@ -39,8 +35,7 @@ namespace DFC.Composite.Shell.Controllers
             IApplicationService applicationService,
             IVersionedFiles versionedFiles,
             IConfiguration configuration,
-            IBaseUrlService baseUrlService,
-            INeo4JService neo4JService)
+            IBaseUrlService baseUrlService)
         {
             this.mapper = mapper;
             this.logger = logger;
@@ -48,13 +43,19 @@ namespace DFC.Composite.Shell.Controllers
             this.versionedFiles = versionedFiles;
             this.configuration = configuration;
             this.baseUrlService = baseUrlService;
-            this.neo4JService = neo4JService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Action(ActionGetRequestModel requestViewModel)
         {
             var viewModel = versionedFiles.BuildDefaultPageViewModel(configuration);
+            if (Request.IsAjax())
+            {
+                var application = await applicationService.GetApplicationAsync(requestViewModel);
+                applicationService.RequestBaseUrl = baseUrlService.GetBaseUrl(Request, Url);
+                var content = await applicationService.GetAjaxModelAsync(application, Request.QueryString.Value, Request.Headers);
+                return Ok(content);
+            }
 
             if (requestViewModel != null)
             {
@@ -82,8 +83,6 @@ namespace DFC.Composite.Shell.Controllers
                     try
                     {
                         logger.LogInformation($"{nameof(Action)}: Getting child response for: {requestItem.Path}/{requestItem.Data}");
-
-                        await neo4JService.InsertNewRequest(Request);
 
                         var application = await applicationService.GetApplicationAsync(requestItem);
 

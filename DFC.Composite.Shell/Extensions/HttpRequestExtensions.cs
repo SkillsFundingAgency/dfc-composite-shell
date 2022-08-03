@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -34,6 +33,12 @@ namespace DFC.Composite.Shell.Extensions
             }
 
             return default;
+        }
+
+        public static bool IsAjax(this HttpRequest request)
+        {
+            var headerValue = request?.Headers["X-Requested-With"];
+            return headerValue?.Equals("XMLHttpRequest") ?? false;
         }
     }
 }
