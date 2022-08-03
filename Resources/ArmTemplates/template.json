@@ -1,539 +1,546 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "ApimProxyAddress": {
-            "type": "string"
-        },
-        "ApimKey": {
-            "type": "string"
-        },
-        "AseHostingEnvironmentName": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "AseResourceGroup": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "AspSize": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "AspTier": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "clientAffinity": {
-            "type": "bool"
-        },
-        "CompositeUiCdnUrl": {
-            "type": "string"
-        },
-        "CompositeUiSharedResourceGroup": {
-            "type": "string"
-        },
-        "CompositeUiSharedStorageAccountName": {
-            "type": "string"
-        },
-        "Environment": {
-            "type": "string"
-        },
-        "SharedAppServicePlanName": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "SharedAppServicePlanResourceGroup": {
-            "type": "string",
-            "defaultValue": ""
-        },
-        "customHostName": {
-            "type": "string"
-        },
-        "keyVaultName": {
-            "type": "string"
-        },
-        "keyVaultResourceGroup": {
-            "type": "string"
-        },
-        "certificateName": {
-            "type": "string"
-        },
-        "EnvironmentName": {
-            "type": "string"
-        },
-        "enableAlerts": {
-            "type": "bool",
-            "metadata": {
-                "description": "Enable or disable alerting"
-            }
-        },
-        "AuthSettingsIssuer": {
-            "type": "string"
-        },
-        "AuthClientSecret": {
-            "type": "string"
-        },
-        "OIDCClientId": {
-            "type": "string"
-        },
-        "OIDCLogPersonalInfo": {
-            "type": "bool"
-        },
-        "OIDCOIDCConfigMetaDataUrl": {
-            "type": "string"
-        },
-        "ShowLoginBanner": {
-            "type": "bool"
-        },
-        "ExceptionCountThreshold": {
-            "type": "string"
-        },
-        "AppRegistryClientOptionsBaseAddress": {
-            "type": "string"
-        },
-        "enableWebChatOptions": {
-            "type": "bool"
-        },
-        "WebChatBaseUrl": {
-            "type": "string"
-        },
-        "WebChatPort": {
-            "type": "string"
-        },
-        "VisitsUrl": {
-            "type": "string"
-        },
-        "BannerAppBaseUrl":{
-            "type": "string"
-        },
-        "ApplicationClientOptionsTimeout": {
-            "type": "string",
-            "metadata": {
-                "description": "ApplicationClientOptions Timeout"
-            }
-        },
-        "SHCImageStorageURL": {
-            "type": "string"
-        },
-        "SupportedHeader0" :{
-            "type": "string"
-        },
-        "OptimizeId" :{
-            "type": "string"
-        }
-    },
-    "variables": {
-        "AppServiceAppInsightsName": "[concat(variables('ResourcePrefix'), '-ai')]",
-        "AppServicePlanName": "[if(greater(length(parameters('SharedAppServicePlanName')), 0), parameters('SharedAppServicePlanName'), concat(variables('ResourcePrefix'), '-asp'))]",
-        "AppServicePlanResourceGroup": "[if(greater(length(parameters('SharedAppServicePlanResourceGroup')), 0), parameters('SharedAppServicePlanResourceGroup'), resourceGroup().name)]",
-        "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
-        "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
-        "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]",
-        "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
-    },
-    "resources": [
-        {
-            "apiVersion": "2017-05-10",
-            "name": "[variables('AppServiceAppInsightsName')]",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'application-insights.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appInsightsName": {
-                        "value": "[variables('AppServiceAppInsightsName')]"
-                    },
-                    "attachedService": {
-                        "value": ""
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "[variables('AppServicePlanName')]",
-            "type": "Microsoft.Resources/deployments",
-            "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServicePlanName": {
-                        "value": "[variables('AppServicePlanName')]"
-                    },
-                    "aseHostingEnvironmentName": {
-                        "value": "[parameters('AseHostingEnvironmentName')]"
-                    },
-                    "aseResourceGroup": {
-                        "value": "[parameters('AseResourceGroup')]"
-                    },
-                    "aspSize": {
-                        "value": "[parameters('AspSize')]"
-                    },
-                    "aspInstances": {
-                        "value": 1
-                    },
-                    "nonASETier": {
-                        "value": "[parameters('AspTier')]"
-                    }
-                }
-            }
-        },
-        {
-            "name": "compositeshellCertificates",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
-            "condition": "[greater(length(parameters('customHostName')),0)]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
-                    },
-                    "keyVaultCertificateName": {
-                        "value": "[parameters('certificateName')]"
-                    },
-                    "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
-                    },
-                    "serverFarmId": {
-                        "value": "[resourceId(parameters('SharedAppServicePlanResourceGroup'),'Microsoft.Web/serverfarms', parameters('SharedAppServicePlanName'))]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "[variables('WebAppName')]",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-staging.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServiceName": {
-                        "value": "[variables('WebAppName')]"
-                    },
-                    "appServicePlanName": {
-                        "value": "[variables('AppServicePlanName')]"
-                    },
-                    "appServicePlanResourceGroup": {
-                        "value": "[variables('AppServicePlanResourceGroup')]"
-                    },
-                    "appServiceType": {
-                        "value": "app"
-                    },
-                    "clientAffinity": {
-                        "value": "[parameters('clientAffinity')]"
-                    },
-                    "customHostName": {
-                        "value": "[parameters('customHostName')]"
-                    },
-                    "certificateThumbprint": {
-                        "value": "[if(greater(length(parameters('customHostName')),0), reference('compositeshellCertificates').outputs.certificateThumbprint.value, '')]"
-                    },
-                    "appServiceAppSettings": {
-                        "value": [
-                            {
-                                "name": "MSDEPLOY_RENAME_LOCKED_FILES",
-                                "value": "1"
-                            },
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "EnvironmentSettings__EnvironmentName",
-                                "value": "[parameters('environmentName')]"
-                            },
-                            {
-                                "name": "ApplicationInsights__ScriptResourceAddress",
-                                "value": "https://az416426.vo.msecnd.net/scripts/"
-                            },
-                            {
-                                "name": "ApplicationInsights__ConnectSources",
-                                "value": "https://dc.services.visualstudio.com/"
-                            },
-                            {
-                                "name": "AzureWebJobsStorage",
-                                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
-                            },
-                            {
-                                "name": "ApimProxyAddress",
-                                "value": "[parameters('ApimProxyAddress')]"
-                            },
-                            {
-                                "name": "ApplicationClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "ApplicationClientOptions__Timeout",
-                                "value": "[parameters('ApplicationClientOptionsTimeout')]"
-                            },
-                            {
-                                "name": "BrandingAssetsCdn",
-                                "value": "[parameters('CompositeUiCdnUrl')]"
-                            },
-                            {
-                                "name": "Logging__LogLevel__Default",
-                                "value": "Error"
-                            },
-                            {
-                                "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
-                                "value": "00:01:00"
-                            },
-                            {
-                                "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
-                                "value": 3
-                            },
-                            {
-                                "name": "Policies__HttpRetry__BackoffPower",
-                                "value": 3
-                            },
-                            {
-                                "name": "Policies__HttpRetry__Count",
-                                "value": 3
-                            },
-                            {
-                                "name": "RobotClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "RobotClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "SitemapClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "SitemapClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "AuthSettings__ClientSecret",
-                                "value": "[parameters('AuthClientSecret')]"
-                            },
-                            {
-                                "name": "AuthSettings__Issuer",
-                                "value": "[parameters('AuthSettingsIssuer')]"
-                            },
-                            {
-                                "name": "AuthSettings__Audience",
-                                "value": "CompositeChild"
-                            },
-                            {
-                                "name": "AuthSettings__DefaultRedirectUrl",
-                                "value": "/your-account"
-                            },
-                            {
-                                "name": "AuthSettings__AuthDssEndpoint",
-                                "value": "/your-account/authsuccess?redirectUrl={Url}"
-                            },
-                            {
-                                "name": "OIDCSettings__OIDCConfigMetaDataUrl",
-                                "value": "[parameters('OIDCOIDCConfigMetaDataUrl')]"
-                            },
-                            {
-                                "name": "OIDCSettings__UseOIDCConfigDiscovery",
-                                "value": true
-                            },
-                            {
-                                "name": "OIDCSettings__AuthorizeUrl",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__JWKsUrl",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__JWK",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__Issuer",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__ClientId",
-                                "value": "[parameters('OIDCClientId')]"
-                            },
-                            {
-                                "name": "OIDCSettings__RedirectUrl",
-                                "value": "[concat(parameters('AuthSettingsIssuer'), '/auth/auth')]"
-                            },
-                            {
-                                "name": "OIDCSettings__SignOutRedirectUrl",
-                                "value": "[parameters('AuthSettingsIssuer')]"
-                            },
-                            {
-                                "name": "OIDCSettings__AuthdUrl",
-                                "value": "[concat(parameters('AuthSettingsIssuer'), '/your-account')]"
-                            },
-                            {
-                                "name": "OIDCSettings__LogPersonalInfo",
-                                "value": "[parameters('OIDCLogPersonalInfo')]"
-                            },
-                            {
-                                "name": "OIDCSettings__Exponent",
-                                "value": "AQAB"
-                            },
-                            {
-                                "name": "VisitClientOptions__Timeout",
-                                "value": "00:00:30"
-                            },
-                            {
-                                "name": "VisitClientOptions__BaseAddress",
-                                "value": "[parameters('VisitsUrl')]"
-                            },
-                            {
-                                "name": "BannerClientOptions__Timeout",
-                                "value": "00:00:30"
-                            },
-                            {
-                                "name": "BannerClientOptions__BaseAddress",
-                                "value": "[parameters('BannerAppBaseUrl')]"
-                            },
-                            {
-                                "name": "AppRegistryClientOptions__BaseAddress",
-                                "value": "[parameters('AppRegistryClientOptionsBaseAddress')]"
-                            },
-                            {
-                                "name": "AppRegistryClientOptions__ApiKey",
-                                "value": "[parameters('ApimKey')]"
-                            },
-                            {
-                                "name": "Configuration__ApplicationName",
-                                "value": "DFC-Composite-Shell"
-                            },
-                            {
-                                "name": "ShowLoginBanner",
-                                "value": "[parameters('ShowLoginBanner')]"
-                            },
-                            {
-                                "name": "WebchatOptions__Enabled",
-                                "value": "[parameters('enableWebChatOptions')]"
-                            },
-                            {
-                                "name": "WebchatOptions__ScriptUrl",
-                                "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
-                            },
-                            {
-                                "name": "SHCImageStorageURL",
-                                "value": "[parameters('SHCImageStorageURL')]"
-                            },
-                            {
-                                "name": "PassOnHeaderSettings__SupportedHeaders__0",
-                                "value" : "[parameters('SupportedHeader0')]"
-                            },
-                            {
-                                "name": "GoogleScripts__OptimizeId",
-                                "value" : "[parameters('OptimizeId')]"
-                            }
-                        ]
-                    }
-                }
-            },
-            "dependsOn": [
-                "[variables('AppServiceAppInsightsName')]"
-            ]
-        },
-        {
-            "apiVersion": "2019-05-01",
-            "name": "[concat(variables('AppServiceAppInsightsName'), '-metric-exceptions')]",
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[variables('AppServiceAppInsightsName')]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/metric-alerts.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "enabled": {
-                        "value": "[parameters('enableAlerts')]"
-                    },
-                    "alertName": {
-                        "value": "[concat(variables('AppServiceAppInsightsName'), '-metric-exceptions')]"
-                    },
-                    "alertSeverity": {
-                        "value": 3
-                    },
-                    "metricName": {
-                        "value": "exceptions/count"
-                    },
-                    "operator": {
-                        "value": "GreaterThan"
-                    },
-                    "threshold": {
-                        "value": "[parameters('ExceptionCountThreshold')]"
-                    },
-                    "aggregation": {
-                        "value": "Count"
-                    },
-                    "windowSize": {
-                        "value": "PT5M"
-                    },
-                    "evaluationFrequency": {
-                        "value": "PT1M"
-                    },
-                    "actionGroupName": {
-                        "value": "[variables('ActionGroupName')]"
-                    },
-                    "actionGroupResourceGroup": {
-                        "value": "[parameters('CompositeUiSharedResourceGroup')]"
-                    },
-                    "resourceId": {
-                        "value": "[resourceId('Microsoft.Insights/Components', variables('AppServiceAppInsightsName'))]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2019-05-01",
-            "name": "[concat(variables('AppServiceAppInsightsName'), '-failure-anomaly-v2')]",
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[variables('AppServiceAppInsightsName')]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/failure-anomaly-rule.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "alertName": {
-                        "value": "[concat(variables('AppServiceAppInsightsName'), '-failure-anomaly-v2')]"
-                    },
-                    "enabled": {
-                        "value": "[parameters('enableAlerts')]"
-                    },
-                    "resourceId": {
-                        "value": "[resourceId('Microsoft.Insights/Components', variables('AppServiceAppInsightsName'))]"
-                    },
-                    "actionGroupId": {
-                        "value": "[resourceId(parameters('CompositeUiSharedResourceGroup'), 'microsoft.insights/actionGroups', variables('ActionGroupName'))]"
-                    }
-                }
-            }
-        }
-    ],
-    "outputs": {
-    }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "ApimProxyAddress": {
+          "type": "string"
+      },
+      "ApimKey": {
+          "type": "string"
+      },
+      "AseHostingEnvironmentName": {
+          "type": "string",
+          "defaultValue": ""
+      },
+      "AseResourceGroup": {
+          "type": "string",
+          "defaultValue": ""
+      },
+      "AspSize": {
+          "type": "string",
+          "defaultValue": ""
+      },
+      "AspTier": {
+          "type": "string",
+          "defaultValue": ""
+      },
+      "clientAffinity": {
+          "type": "bool"
+      },
+      "CompositeUiCdnUrl": {
+          "type": "string"
+      },
+      "CompositeUiSharedResourceGroup": {
+          "type": "string"
+      },
+      "CompositeUiSharedStorageAccountName": {
+          "type": "string"
+      },
+      "Environment": {
+          "type": "string"
+      },
+      "SharedAppServicePlanName": {
+          "type": "string",
+          "defaultValue": ""
+      },
+      "SharedAppServicePlanResourceGroup": {
+          "type": "string",
+          "defaultValue": ""
+      },
+      "customHostName": {
+          "type": "string"
+      },
+      "keyVaultName": {
+          "type": "string"
+      },
+      "keyVaultResourceGroup": {
+          "type": "string"
+      },
+      "certificateName": {
+          "type": "string"
+      },
+      "EnvironmentName": {
+          "type": "string"
+      },
+      "enableAlerts": {
+          "type": "bool",
+          "metadata": {
+              "description": "Enable or disable alerting"
+          }
+      },
+      "AuthSettingsIssuer": {
+          "type": "string"
+      },
+      "AuthClientSecret": {
+          "type": "string"
+      },
+      "OIDCClientId": {
+          "type": "string"
+      },
+      "OIDCLogPersonalInfo": {
+          "type": "bool"
+      },
+      "OIDCOIDCConfigMetaDataUrl": {
+          "type": "string"
+      },
+      "ShowLoginBanner": {
+          "type": "bool"
+      },
+      "AddNoIndexMeta": {
+        "type": "bool"
+      },
+      "ExceptionCountThreshold": {
+          "type": "string"
+      },
+      "AppRegistryClientOptionsBaseAddress": {
+          "type": "string"
+      },
+      "enableWebChatOptions": {
+          "type": "bool"
+      },
+      "WebChatBaseUrl": {
+          "type": "string"
+      },
+      "WebChatPort": {
+          "type": "string"
+      },
+      "VisitsUrl": {
+          "type": "string"
+      },
+      "BannerAppBaseUrl":{
+          "type": "string"
+      },
+      "ApplicationClientOptionsTimeout": {
+          "type": "string",
+          "metadata": {
+              "description": "ApplicationClientOptions Timeout"
+          }
+      },
+      "SHCImageStorageURL": {
+          "type": "string"
+      },
+      "SupportedHeader0" :{
+          "type": "string"
+      },
+      "OptimizeId" :{
+        "type": "string"
+      }
+  },
+  "variables": {
+      "AppServiceAppInsightsName": "[concat(variables('ResourcePrefix'), '-ai')]",
+      "AppServicePlanName": "[if(greater(length(parameters('SharedAppServicePlanName')), 0), parameters('SharedAppServicePlanName'), concat(variables('ResourcePrefix'), '-asp'))]",
+      "AppServicePlanResourceGroup": "[if(greater(length(parameters('SharedAppServicePlanResourceGroup')), 0), parameters('SharedAppServicePlanResourceGroup'), resourceGroup().name)]",
+      "BuildingBlocksDfcBaseUrl": "https://raw.githubusercontent.com/SkillsFundingAgency/dfc-devops/master/ArmTemplates/",
+      "WebAppName": "[concat(variables('ResourcePrefix'), '-as')]",
+      "ResourcePrefix": "[tolower(concat('dfc-', parameters('Environment'), '-compui-shell'))]",
+      "ActionGroupName": "[concat('dfc-', replace(tolower(parameters('Environment')), '-draft', ''), '-compui-shared-actgrp')]"
+  },
+  "resources": [
+      {
+          "apiVersion": "2017-05-10",
+          "name": "[variables('AppServiceAppInsightsName')]",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'application-insights.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appInsightsName": {
+                      "value": "[variables('AppServiceAppInsightsName')]"
+                  },
+                  "attachedService": {
+                      "value": ""
+                  }
+              }
+          }
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "[variables('AppServicePlanName')]",
+          "type": "Microsoft.Resources/deployments",
+          "condition": "[not(equals(parameters('SharedAppServicePlanName'), variables('AppServicePlanName')))]",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-plan.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appServicePlanName": {
+                      "value": "[variables('AppServicePlanName')]"
+                  },
+                  "aseHostingEnvironmentName": {
+                      "value": "[parameters('AseHostingEnvironmentName')]"
+                  },
+                  "aseResourceGroup": {
+                      "value": "[parameters('AseResourceGroup')]"
+                  },
+                  "aspSize": {
+                      "value": "[parameters('AspSize')]"
+                  },
+                  "aspInstances": {
+                      "value": 1
+                  },
+                  "nonASETier": {
+                      "value": "[parameters('AspTier')]"
+                  }
+              }
+          }
+      },
+      {
+          "name": "compositeshellCertificates",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2017-05-10",
+          "condition": "[greater(length(parameters('customHostName')),0)]",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'),'certificate.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "keyVaultName": {
+                      "value": "[parameters('keyVaultName')]"
+                  },
+                  "keyVaultCertificateName": {
+                      "value": "[parameters('certificateName')]"
+                  },
+                  "keyVaultResourceGroup": {
+                      "value": "[parameters('keyVaultResourceGroup')]"
+                  },
+                  "serverFarmId": {
+                      "value": "[resourceId(parameters('SharedAppServicePlanResourceGroup'),'Microsoft.Web/serverfarms', parameters('SharedAppServicePlanName'))]"
+                  }
+              }
+          }
+      },
+      {
+          "apiVersion": "2017-05-10",
+          "name": "[variables('WebAppName')]",
+          "type": "Microsoft.Resources/deployments",
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'app-service-staging.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "appServiceName": {
+                      "value": "[variables('WebAppName')]"
+                  },
+                  "appServicePlanName": {
+                      "value": "[variables('AppServicePlanName')]"
+                  },
+                  "appServicePlanResourceGroup": {
+                      "value": "[variables('AppServicePlanResourceGroup')]"
+                  },
+                  "appServiceType": {
+                      "value": "app"
+                  },
+                  "clientAffinity": {
+                      "value": "[parameters('clientAffinity')]"
+                  },
+                  "customHostName": {
+                      "value": "[parameters('customHostName')]"
+                  },
+                  "certificateThumbprint": {
+                      "value": "[if(greater(length(parameters('customHostName')),0), reference('compositeshellCertificates').outputs.certificateThumbprint.value, '')]"
+                  },
+                  "appServiceAppSettings": {
+                      "value": [
+                          {
+                              "name": "MSDEPLOY_RENAME_LOCKED_FILES",
+                              "value": "1"
+                          },
+                          {
+                              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                              "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
+                          },
+                          {
+                              "name": "EnvironmentSettings__EnvironmentName",
+                              "value": "[parameters('environmentName')]"
+                          },
+                          {
+                              "name": "ApplicationInsights__ScriptResourceAddress",
+                              "value": "https://az416426.vo.msecnd.net/scripts/"
+                          },
+                          {
+                              "name": "ApplicationInsights__ConnectSources",
+                              "value": "https://dc.services.visualstudio.com/"
+                          },
+                          {
+                              "name": "AzureWebJobsStorage",
+                              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                          },
+                          {
+                              "name": "ApimProxyAddress",
+                              "value": "[parameters('ApimProxyAddress')]"
+                          },
+                          {
+                              "name": "ApplicationClientOptions__BaseAddress",
+                              "value": null
+                          },
+                          {
+                              "name": "ApplicationClientOptions__Timeout",
+                              "value": "[parameters('ApplicationClientOptionsTimeout')]"
+                          },
+                          {
+                              "name": "BrandingAssetsCdn",
+                              "value": "[parameters('CompositeUiCdnUrl')]"
+                          },
+                          {
+                              "name": "Logging__LogLevel__Default",
+                              "value": "Error"
+                          },
+                          {
+                              "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
+                              "value": "00:01:00"
+                          },
+                          {
+                              "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
+                              "value": 3
+                          },
+                          {
+                              "name": "Policies__HttpRetry__BackoffPower",
+                              "value": 3
+                          },
+                          {
+                              "name": "Policies__HttpRetry__Count",
+                              "value": 3
+                          },
+                          {
+                              "name": "RobotClientOptions__BaseAddress",
+                              "value": null
+                          },
+                          {
+                              "name": "RobotClientOptions__Timeout",
+                              "value": "00:00:10"
+                          },
+                          {
+                              "name": "SitemapClientOptions__BaseAddress",
+                              "value": null
+                          },
+                          {
+                              "name": "SitemapClientOptions__Timeout",
+                              "value": "00:00:10"
+                          },
+                          {
+                              "name": "AuthSettings__ClientSecret",
+                              "value": "[parameters('AuthClientSecret')]"
+                          },
+                          {
+                              "name": "AuthSettings__Issuer",
+                              "value": "[parameters('AuthSettingsIssuer')]"
+                          },
+                          {
+                              "name": "AuthSettings__Audience",
+                              "value": "CompositeChild"
+                          },
+                          {
+                              "name": "AuthSettings__DefaultRedirectUrl",
+                              "value": "/your-account"
+                          },
+                          {
+                              "name": "AuthSettings__AuthDssEndpoint",
+                              "value": "/your-account/authsuccess?redirectUrl={Url}"
+                          },
+                          {
+                              "name": "OIDCSettings__OIDCConfigMetaDataUrl",
+                              "value": "[parameters('OIDCOIDCConfigMetaDataUrl')]"
+                          },
+                          {
+                              "name": "OIDCSettings__UseOIDCConfigDiscovery",
+                              "value": true
+                          },
+                          {
+                              "name": "OIDCSettings__AuthorizeUrl",
+                              "value": "tbc"
+                          },
+                          {
+                              "name": "OIDCSettings__JWKsUrl",
+                              "value": "tbc"
+                          },
+                          {
+                              "name": "OIDCSettings__JWK",
+                              "value": "tbc"
+                          },
+                          {
+                              "name": "OIDCSettings__Issuer",
+                              "value": "tbc"
+                          },
+                          {
+                              "name": "OIDCSettings__ClientId",
+                              "value": "[parameters('OIDCClientId')]"
+                          },
+                          {
+                              "name": "OIDCSettings__RedirectUrl",
+                              "value": "[concat(parameters('AuthSettingsIssuer'), '/auth/auth')]"
+                          },
+                          {
+                              "name": "OIDCSettings__SignOutRedirectUrl",
+                              "value": "[parameters('AuthSettingsIssuer')]"
+                          },
+                          {
+                              "name": "OIDCSettings__AuthdUrl",
+                              "value": "[concat(parameters('AuthSettingsIssuer'), '/your-account')]"
+                          },
+                          {
+                              "name": "OIDCSettings__LogPersonalInfo",
+                              "value": "[parameters('OIDCLogPersonalInfo')]"
+                          },
+                          {
+                              "name": "OIDCSettings__Exponent",
+                              "value": "AQAB"
+                          },
+                          {
+                              "name": "VisitClientOptions__Timeout",
+                              "value": "00:00:30"
+                          },
+                          {
+                              "name": "VisitClientOptions__BaseAddress",
+                              "value": "[parameters('VisitsUrl')]"
+                          },
+                          {
+                              "name": "BannerClientOptions__Timeout",
+                              "value": "00:00:30"
+                          },
+                          {
+                              "name": "BannerClientOptions__BaseAddress",
+                              "value": "[parameters('BannerAppBaseUrl')]"
+                          },
+                          {
+                              "name": "AppRegistryClientOptions__BaseAddress",
+                              "value": "[parameters('AppRegistryClientOptionsBaseAddress')]"
+                          },
+                          {
+                              "name": "AppRegistryClientOptions__ApiKey",
+                              "value": "[parameters('ApimKey')]"
+                          },
+                          {
+                              "name": "Configuration__ApplicationName",
+                              "value": "DFC-Composite-Shell"
+                          },
+                          {
+                              "name": "ShowLoginBanner",
+                              "value": "[parameters('ShowLoginBanner')]"
+                          },
+                          {
+                            "name": "AddNoIndexMeta",
+                            "value": "[parameters('AddNoIndexMeta')]"
+                          },
+                          {
+                              "name": "WebchatOptions__Enabled",
+                              "value": "[parameters('enableWebChatOptions')]"
+                          },
+                          {
+                              "name": "WebchatOptions__ScriptUrl",
+                              "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
+                          },
+                          {
+                              "name": "SHCImageStorageURL",
+                              "value": "[parameters('SHCImageStorageURL')]"
+                          },
+                          {
+                              "name": "PassOnHeaderSettings__SupportedHeaders__0",
+                              "value" : "[parameters('SupportedHeader0')]"
+                          },
+                          {
+                            "name": "GoogleScripts__OptimizeId",
+                            "value" : "[parameters('OptimizeId')]"
+                          }
+                      ]
+                  }
+              }
+          },
+          "dependsOn": [
+              "[variables('AppServiceAppInsightsName')]"
+          ]
+      },
+      {
+          "apiVersion": "2019-05-01",
+          "name": "[concat(variables('AppServiceAppInsightsName'), '-metric-exceptions')]",
+          "type": "Microsoft.Resources/deployments",
+          "dependsOn": [
+              "[variables('AppServiceAppInsightsName')]"
+          ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/metric-alerts.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "enabled": {
+                      "value": "[parameters('enableAlerts')]"
+                  },
+                  "alertName": {
+                      "value": "[concat(variables('AppServiceAppInsightsName'), '-metric-exceptions')]"
+                  },
+                  "alertSeverity": {
+                      "value": 3
+                  },
+                  "metricName": {
+                      "value": "exceptions/count"
+                  },
+                  "operator": {
+                      "value": "GreaterThan"
+                  },
+                  "threshold": {
+                      "value": "[parameters('ExceptionCountThreshold')]"
+                  },
+                  "aggregation": {
+                      "value": "Count"
+                  },
+                  "windowSize": {
+                      "value": "PT5M"
+                  },
+                  "evaluationFrequency": {
+                      "value": "PT1M"
+                  },
+                  "actionGroupName": {
+                      "value": "[variables('ActionGroupName')]"
+                  },
+                  "actionGroupResourceGroup": {
+                      "value": "[parameters('CompositeUiSharedResourceGroup')]"
+                  },
+                  "resourceId": {
+                      "value": "[resourceId('Microsoft.Insights/Components', variables('AppServiceAppInsightsName'))]"
+                  }
+              }
+          }
+      },
+      {
+          "apiVersion": "2019-05-01",
+          "name": "[concat(variables('AppServiceAppInsightsName'), '-failure-anomaly-v2')]",
+          "type": "Microsoft.Resources/deployments",
+          "dependsOn": [
+              "[variables('AppServiceAppInsightsName')]"
+          ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(variables('BuildingBlocksDfcBaseUrl'), 'Application-Insights/failure-anomaly-rule.json')]",
+                  "contentVersion": "1.0.0.0"
+              },
+              "parameters": {
+                  "alertName": {
+                      "value": "[concat(variables('AppServiceAppInsightsName'), '-failure-anomaly-v2')]"
+                  },
+                  "enabled": {
+                      "value": "[parameters('enableAlerts')]"
+                  },
+                  "resourceId": {
+                      "value": "[resourceId('Microsoft.Insights/Components', variables('AppServiceAppInsightsName'))]"
+                  },
+                  "actionGroupId": {
+                      "value": "[resourceId(parameters('CompositeUiSharedResourceGroup'), 'microsoft.insights/actionGroups', variables('ActionGroupName'))]"
+                  }
+              }
+          }
+      }
+  ],
+  "outputs": {
+  }
 }
