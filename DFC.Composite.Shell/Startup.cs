@@ -113,7 +113,9 @@ namespace DFC.Composite.Shell
                         "https://fonts.googleapis.com",
                         "https://www.googleoptimize.com"))
                 .FormActions(s => s
-                    .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
+                    .Self().CustomSources(
+                    $"{oidcPath.Scheme}://{oidcPath.Host}",
+                    "tr.snapchat.com"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources(
@@ -132,7 +134,8 @@ namespace DFC.Composite.Shell
                         "https://i.ytimg.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
-                        "https://www.googletagmanager.com"))
+                        "https://www.googletagmanager.com",
+                        "www.facebook.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
@@ -144,7 +147,8 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
-                        "https://www.googletagmanager.com")));
+                        "https://www.googletagmanager.com",
+                        "tr.snapchat.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
