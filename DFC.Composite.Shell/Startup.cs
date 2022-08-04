@@ -139,7 +139,7 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com"))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
