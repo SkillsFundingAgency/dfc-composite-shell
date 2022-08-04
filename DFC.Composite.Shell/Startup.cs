@@ -92,10 +92,10 @@ namespace DFC.Composite.Shell
                         "sha256-lL/kILkNOhT9vW0QtSSgm0PwfBFV85BwRQotdY9dujk=",
                         "sha256-sQraM3b+lwZqC1Krr12vIz4t3nESs+z7z4prOEzSlIE=",
                         "sha256-AG33YdCnVr7TrW7POTo6HW6msAY2iZ6ddqP+CtEo8KQ=",
-                        "https://sc-static.net/",
-                         "https://sc-static.net/scevent.min.js",
-                         "https://tr.snapchat.com",
-                         "https://connect.facebook.net",
+                        "sc-static.net",
+                        "tr.snapchat.com",
+                        "connect.facebook.net",
+                        "www.facebook.com",
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
@@ -113,7 +113,9 @@ namespace DFC.Composite.Shell
                         "https://fonts.googleapis.com",
                         "https://www.googleoptimize.com"))
                 .FormActions(s => s
-                    .Self().CustomSources($"{oidcPath.Scheme}://{oidcPath.Host}"))
+                    .Self().CustomSources(
+                    $"{oidcPath.Scheme}://{oidcPath.Host}",
+                    "tr.snapchat.com"))
                 .FontSources(s => s
                     .Self()
                     .CustomSources(
@@ -132,11 +134,12 @@ namespace DFC.Composite.Shell
                         "https://i.ytimg.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
-                        "https://www.googletagmanager.com"))
+                        "https://www.googletagmanager.com",
+                        "www.facebook.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com"))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
@@ -144,7 +147,8 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
-                        "https://www.googletagmanager.com")));
+                        "https://www.googletagmanager.com",
+                        "tr.snapchat.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
