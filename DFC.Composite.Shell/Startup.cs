@@ -96,6 +96,7 @@ namespace DFC.Composite.Shell
                         "tr.snapchat.com",
                         "connect.facebook.net",
                         "www.facebook.com",
+                        "https://www.facebook.com/tr",
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
@@ -103,7 +104,9 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://connect.facebook.net/en_US/fbevents.js",
+                        "https://webchat.nationalcareersservice.org.uk:8080/no_js_chat/"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
