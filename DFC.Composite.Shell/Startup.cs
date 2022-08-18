@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using DFC.Composite.Shell.Services.Google;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -225,6 +226,7 @@ namespace DFC.Composite.Shell
             Configuration.GetSection("OIDCSettings").Bind(authSettings);
 
             services.Configure<PassOnHeaderSettings>(Configuration.GetSection(nameof(PassOnHeaderSettings)));
+            services.Configure<GoogleSettings>(Configuration.GetSection("GoogleScripts"));
 
             services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(provider => new ConfigurationManager<OpenIdConnectConfiguration>(authSettings.OIDCConfigMetaDataUrl, new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever()));
 
