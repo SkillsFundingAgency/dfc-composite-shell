@@ -94,6 +94,9 @@
         },
         "SupportedHeader0": {
             "value": "Referer"
+        },
+        "OptimizeId": {
+            "value": "OPT-ABCD"
         }
     }
 }

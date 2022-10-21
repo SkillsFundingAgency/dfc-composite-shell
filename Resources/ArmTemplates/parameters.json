@@ -109,6 +109,9 @@
         },
         "SupportedHeader0": {
             "value": __SupportedHeaders__
+        },
+        "OptimizeId": {
+            "value":  "__OptimizeId__"
         }
     }
 }
