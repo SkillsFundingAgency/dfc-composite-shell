@@ -47,7 +47,7 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-Sitemap: https://staging.nationalcareers.service.gov.uk/sitemap/sitemap.xml
+Sitemap: https://staging.nationalcareers.service.gov.uk/sitemap.xml
 
 User-agent: *
 Disallow: /", responseHtml);
@@ -69,7 +69,7 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-Sitemap: https://nationalcareers.service.gov.uk/sitemap/sitemap.xml", responseHtml);
+Sitemap: https://nationalcareers.service.gov.uk/sitemap.xml", responseHtml);
         }
     }
 }
