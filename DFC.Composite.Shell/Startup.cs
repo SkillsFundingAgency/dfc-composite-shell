@@ -14,6 +14,7 @@ using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.CookieParsers;
 using DFC.Composite.Shell.Services.DataProtectionProviders;
+using DFC.Composite.Shell.Services.Google;
 using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
@@ -230,6 +231,7 @@ namespace DFC.Composite.Shell
 
             services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));
+            services.Configure<GoogleSettings>(Configuration.GetSection("GoogleScripts"));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
