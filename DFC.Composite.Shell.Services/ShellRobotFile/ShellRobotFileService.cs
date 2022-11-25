@@ -35,8 +35,9 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
 
         private static bool IsPreProduction(string hostname)
         {
-            const string stagingHostname = "staging.nationalcareers.service.gov.uk";
-            return hostname.Equals(stagingHostname, System.StringComparison.InvariantCultureIgnoreCase);
+            const string stagingHostname = "staging.nationalcareers.service.gov.uk";            const string draft = "draft";
+            const string dev = "dev";
+            return hostname.Contains(dev, System.StringComparison.InvariantCultureIgnoreCase);
         }
 
         private static bool IsProduction(string hostname)
