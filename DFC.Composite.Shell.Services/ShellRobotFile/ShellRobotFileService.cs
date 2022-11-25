@@ -33,16 +33,9 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
             return hostname.Contains(draft, System.StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private static bool IsDev(string hostname)
-        {
-            const string dev = "dev";
-            return hostname.Contains(dev, System.StringComparison.InvariantCultureIgnoreCase);
-        }
-
         private static bool IsPreProduction(string hostname)
         {
             const string stagingHostname = "staging.nationalcareers.service.gov.uk";
-
             return hostname.Equals(stagingHostname, System.StringComparison.InvariantCultureIgnoreCase);
         }
 
@@ -60,12 +53,6 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
             if (IsDraft(hostname))
             {
                 return standardRobotsFilename;
-            }
-
-            if (IsDev(hostname))
-            {
-                const string stagingRobotsFilename = "StagingStaticRobots.txt";
-                return stagingRobotsFilename;
             }
 
             if (IsPreProduction(hostname))
