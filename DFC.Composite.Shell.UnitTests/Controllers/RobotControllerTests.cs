@@ -127,7 +127,7 @@ namespace DFC.Composite.Shell.Test.Controllers
         [Fact]
         public async Task RobotsControllerWritesSitemapDataToLastLineOfRobotText()
         {
-            var expectedResult = $"Sitemap: " + $"{DummyScheme}://{DummyHost}".ToLowerInvariant() + "/sitemap/dummysitemap.xml";
+            var expectedResult = $"Sitemap: " + $"{DummyScheme}://{DummyHost}".ToLowerInvariant() + "/dummysitemap.xml";
 
             var result = await defaultController.Robot();
 
