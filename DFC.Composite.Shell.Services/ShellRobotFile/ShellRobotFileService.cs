@@ -36,7 +36,7 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
 
         private static bool IsDev(string hostname)
         {
-            const string dev = "dev-beta.nationalcareersservice.org.uk";
+            const string dev = "dfc-dev-compui-shell-as.azurewebsites.net";
             return hostname.Equals(dev, System.StringComparison.InvariantCultureIgnoreCase);
         }
 
