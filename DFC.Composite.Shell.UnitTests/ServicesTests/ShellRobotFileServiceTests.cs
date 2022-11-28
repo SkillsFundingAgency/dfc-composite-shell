@@ -49,22 +49,22 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         //    Assert.Equal(fakeRobotFileText, result);
         //}
 
-        [Fact]
-        public async Task GetFileTextIdentifiesCorrectResponseForDraftDev()
-        {
-            const string fakeRobotFileText = "StaticRobotsFileText";
-            var fileInfoHelper = A.Fake<IFileInfoHelper>();
-            A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
-            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StaticRobots.txt")).Returns(fakeRobotFileText);
+        //[Fact]
+        //public async Task GetFileTextIdentifiesCorrectResponseForDraftDev()
+        //{
+        //    const string fakeRobotFileText = "StaticRobotsFileText";
+        //    var fileInfoHelper = A.Fake<IFileInfoHelper>();
+        //    A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
+        //    A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StaticRobots.txt")).Returns(fakeRobotFileText);
 
-            var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dev-beta.nationalcareersservice.org.uk"));
+        //    var httpContextAccessor = A.Fake<IHttpContextAccessor>();
+        //    A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dev-beta.nationalcareersservice.org.uk"));
 
-            var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
+        //    var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 
-            var result = await service.GetStaticFileText("SomeRobotsPath");
-            Assert.Equal(fakeRobotFileText, result);
-        }
+        //    var result = await service.GetStaticFileText("SomeRobotsPath");
+        //    Assert.Equal(fakeRobotFileText, result);
+        //}
 
         [Fact]
         public async Task GetFileTextIdentifiesCorrectResponseForPP()
