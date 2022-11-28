@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
         private static bool IsDev(string hostname)
         {
             const string dev = "dev-beta.nationalcareersservice.org.uk";
-            return hostname.Equals(dev, System.StringComparison.InvariantCultureIgnoreCase);
+            return hostname.Contains(dev, System.StringComparison.InvariantCultureIgnoreCase);
         }
 
         private static bool IsPreProduction(string hostname)
