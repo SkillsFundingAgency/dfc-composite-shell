@@ -37,7 +37,7 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
         private static bool IsDev(string hostname)
         {
             const string dev = "dev-beta.nationalcareersservice.org.uk";
-            return hostname.Contains(dev, System.StringComparison.InvariantCultureIgnoreCase);
+            return hostname.Equals(dev, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsPreProduction(string hostname)
@@ -56,7 +56,7 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
         private string StaticRobotsFilename()
         {
             const string standardRobotsFilename = "StaticRobots.txt";
-            var hostname = httpContextAccessor.HttpContext.Request.Host.ToString();
+            var hostname = httpContextAccessor.HttpContext.Request.Host.Host;
             if (IsDraft(hostname))
             {
                 return standardRobotsFilename;
