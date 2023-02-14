@@ -104,7 +104,8 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com/SIE/"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
