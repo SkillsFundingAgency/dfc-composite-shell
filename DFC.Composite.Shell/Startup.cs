@@ -105,7 +105,7 @@ namespace DFC.Composite.Shell
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
-                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com/SIE/"))
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
@@ -113,7 +113,8 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
                         "https://fonts.googleapis.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .FormActions(s => s
                     .Self().CustomSources(
                     $"{oidcPath.Scheme}://{oidcPath.Host}",
@@ -137,7 +138,8 @@ namespace DFC.Composite.Shell
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
                         "https://www.googletagmanager.com",
-                        "www.facebook.com"))
+                        "www.facebook.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
@@ -150,7 +152,8 @@ namespace DFC.Composite.Shell
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
                         "https://www.googletagmanager.com",
-                        "tr.snapchat.com")));
+                        "tr.snapchat.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
