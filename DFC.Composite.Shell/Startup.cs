@@ -104,7 +104,8 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://www.smartsurvey.co.uk"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
@@ -140,7 +141,7 @@ namespace DFC.Composite.Shell
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com"))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com", "https://www.smartsurvey.co.uk"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
