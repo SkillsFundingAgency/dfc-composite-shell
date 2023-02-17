@@ -105,6 +105,7 @@ namespace DFC.Composite.Shell
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
+                        "https://qualtrics.com",
                         "https://siteintercept.qualtrics.com",
                         "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com",
                         "https://az416426.vo.msecnd.net"))
@@ -116,6 +117,8 @@ namespace DFC.Composite.Shell
                         "https://optimize.google.com",
                         "https://fonts.googleapis.com",
                         "https://www.googleoptimize.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
                         "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .FormActions(s => s
                     .Self().CustomSources(
@@ -141,11 +144,21 @@ namespace DFC.Composite.Shell
                         "https://www.googleoptimize.com",
                         "https://www.googletagmanager.com",
                         "www.facebook.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
                         "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com"))
+                    .CustomSources(
+                        webchatCspDomain, 
+                        "https://www.youtube-nocookie.com", 
+                        "https://optimize.google.com", 
+                        "https://tr.snapchat.com", 
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com",
+                        "https://depedpilot.qualtrics.com/jfe/form/SV_dmtemq6E4cfnpgW"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
@@ -155,6 +168,8 @@ namespace DFC.Composite.Shell
                         "https://www.google-analytics.com",
                         "https://www.googletagmanager.com",
                         "tr.snapchat.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
                         "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com")));
 
             app.UseXContentTypeOptions();
