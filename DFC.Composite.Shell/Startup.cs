@@ -154,7 +154,7 @@ namespace DFC.Composite.Shell
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
             app.UseXfo(options => options.SameOrigin());
-            app.UseXXssProtection(options => options.EnabledWithBlockMode());
+            app.UseXXssProtection(options => options.Disabled());
 
             app.Use((context, next) =>
             {
