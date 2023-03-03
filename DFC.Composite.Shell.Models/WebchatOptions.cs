@@ -4,6 +4,6 @@
     {
         public bool Enabled { get; set; }
 
-        public string ScriptUrl { get; set; } = "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js";
+        public string ScriptUrl { get; set; } = "https://webchat.nationalcareersservice.org.uk/widget/js/loader.js";
     }
 }

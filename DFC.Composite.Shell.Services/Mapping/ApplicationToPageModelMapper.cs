@@ -5,6 +5,7 @@ using DFC.Composite.Shell.Services.AppRegistry;
 using Microsoft.AspNetCore.Html;
 
 using System;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -58,8 +59,10 @@ namespace DFC.Composite.Shell.Services.Mapping
                         var value = source.AppRegistrationModel.JavaScriptNames[key];
 
                         var fullPathname = key.StartsWith("/", StringComparison.Ordinal) ? shellAppRegistrationModel.CdnLocation + key : key;
-
-                        destination.VersionedPathForJavaScripts.Add($"{fullPathname}?{value}");
+                        if (fullPathname.Contains("?"))
+                            destination.VersionedPathForJavaScripts.Add($"{fullPathname}&{value}");
+                        else
+                            destination.VersionedPathForJavaScripts.Add($"{fullPathname}?{value}");
                     }
                 }
             }
