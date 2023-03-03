@@ -34,7 +34,14 @@ namespace DFC.Composite.Shell.Utilities
 
                     if (key.Equals(webchatOptions.ScriptUrl, StringComparison.OrdinalIgnoreCase))
                     {
-                        VersionedPathForWebChatJs = $"{key}?{value}";
+                        if (key.Contains("?"))
+                        {
+                            VersionedPathForWebChatJs = $"{key}&{value}";
+                        }
+                        else
+                        {
+                            VersionedPathForWebChatJs = $"{key}?{value}";
+                        }
                     }
                     else
                     {
