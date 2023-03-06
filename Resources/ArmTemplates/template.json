@@ -429,7 +429,7 @@
                             },
                             {
                                 "name": "WebchatOptions__ScriptUrl",
-                                "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
+                                "value": "[concat(parameters('WebChatBaseUrl'))]" 
                             },
                             {
                                 "name": "SHCImageStorageURL",
