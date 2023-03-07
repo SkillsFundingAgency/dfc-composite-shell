@@ -429,7 +429,7 @@
                             },
                             {
                                 "name": "WebchatOptions__ScriptUrl",
-                                "value": "[concat(parameters('WebChatBaseUrl'))]" 
+                                "value": "[parameters('WebChatBaseUrl')]" 
                             },
                             {
                                 "name": "SHCImageStorageURL",
