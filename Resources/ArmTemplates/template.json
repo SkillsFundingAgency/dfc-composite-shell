@@ -427,10 +427,7 @@
                                 "name": "WebchatOptions__Enabled",
                                 "value": "[parameters('enableWebChatOptions')]"
                             },
-                            {
-                                "name": "WebchatOptions__ScriptUrl",
-                                "value": "[parameters('WebChatBaseUrl')]" 
-                            },
+                            
                             {
                                 "name": "SHCImageStorageURL",
                                 "value": "[parameters('SHCImageStorageURL')]"
