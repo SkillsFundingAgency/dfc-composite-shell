@@ -1,12 +1,21 @@
 ﻿@using DFC.Composite.Shell.Models.Common;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @{
     string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
 
     string BrandingAssetsFolder = $"{BrandingAssetsCdn}/{Constants.NationalCareersToolkit}";
+    var parsed = bool.TryParse(Configuration["AddNoIndexMeta"], out var showMeta);
 }
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+@if (parsed && showMeta)
+{
+    <meta name="robots" content="noindex">
+}
+
 <partial name="_GoogleTagManagerScripts" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta property="og:image" content="@(BrandingAssetsFolder)/images/govuk-opengraph-image.png">
