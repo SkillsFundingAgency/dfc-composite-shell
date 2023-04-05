@@ -77,8 +77,8 @@ namespace DFC.Composite.Shell
 
             var cdnLocation = Configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn));
             var shcImageStorageURL = Configuration.GetValue<string>("SHCImageStorageURL");
-            var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk:8080/js/chatRed.js", UriKind.Absolute);
-            var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}:{webchatOptionsScriptUrl.Port}";
+            var webchatOptionsScriptUrl = new Uri(Configuration.GetValue<string>("WebchatOptions:ScriptUrl") ?? "https://webchat.nationalcareersservice.org.uk/widget/js/loader.js?bot=c76a0bc0-3b27-11ed-aee7-0242ac140009", UriKind.Absolute);
+            var webchatCspDomain = $"{webchatOptionsScriptUrl.Scheme}://{webchatOptionsScriptUrl.Host}";
             var oidcPath = Configuration.GetValue<Uri>("OIDCSettings:OIDCConfigMetaDataUrl");
 
             //Configure security headers
