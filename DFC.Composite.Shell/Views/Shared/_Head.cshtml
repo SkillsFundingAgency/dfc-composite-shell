@@ -8,13 +8,12 @@
     var parsed = bool.TryParse(Configuration["AddNoIndexMeta"], out var showMeta);
 }
 
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
 @if (parsed && showMeta)
 {
     <meta name="robots" content="noindex,nofollow">
 }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <partial name="_GoogleTagManagerScripts" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
