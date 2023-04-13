@@ -128,8 +128,7 @@ Disallow: /ab/
 Disallow: /webchat/
 {Insertion}
 
-User-agent: *
-Disallow: /";
+";
 
             var fileInfoHelper = new FileInfoHelper();
 
