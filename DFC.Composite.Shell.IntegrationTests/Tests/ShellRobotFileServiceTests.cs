@@ -15,7 +15,8 @@ namespace DFC.Composite.Shell.IntegrationTests.Tests
         public async Task GetFileTextIdentifiesCorrectResponseForDraftDev()
         {
             const string expectedFileText =
-@"";
+@"User-agent: *
+Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();
 
@@ -36,7 +37,10 @@ namespace DFC.Composite.Shell.IntegrationTests.Tests
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-{Insertion}";
+{Insertion}
+
+User-agent: *
+Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();
 

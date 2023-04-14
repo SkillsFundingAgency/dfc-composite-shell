@@ -1,7 +1,6 @@
 ﻿@using DFC.Composite.Shell.Models.Common;
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
-<meta name="msvalidate.01" content="42651B9EB27434B69C7BC366C168FC03" />
 @{
     string BrandingAssetsCdn = ViewData["BrandingAssetsCdn"].ToString();
 
@@ -11,6 +10,7 @@
 
 @if (parsed && showMeta)
 {
+    <meta name="msvalidate.01" content="42651B9EB27434B69C7BC366C168FC03" />
     <meta name="robots" content="noindex,nofollow,noarchive,nosnippe">
 }
 <meta charset="utf-8" />

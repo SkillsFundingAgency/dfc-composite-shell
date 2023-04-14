@@ -26,7 +26,9 @@ namespace DFC.Composite.Shell.Integration.Test
             var responseHtml = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
-            Assert.Equal(@"", responseHtml);
+            Assert.Equal(
+@"User-agent: *
+Disallow: /", responseHtml);
         }
 
         [Fact]
@@ -45,7 +47,10 @@ namespace DFC.Composite.Shell.Integration.Test
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-Sitemap: https://dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk/sitemap.xml", responseHtml);
+Sitemap: https://dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk/sitemap.xml
+
+User-agent: *
+Disallow: /", responseHtml);
         }
 
         [Fact]

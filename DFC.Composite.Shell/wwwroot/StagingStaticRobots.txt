@@ -3,3 +3,6 @@ Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
 {Insertion}
+
+User-agent: *
+Disallow: /
