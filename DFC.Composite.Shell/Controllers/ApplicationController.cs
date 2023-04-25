@@ -92,7 +92,7 @@ namespace DFC.Composite.Shell.Controllers
 
                             logger.LogWarning($"{nameof(Action)}: {errorString}");
 
-                            Response.StatusCode = (int)HttpStatusCode.NotFound;
+                            Response.StatusCode = (int)HttpStatusCode.NoContent;
                         }
                         else if (application.AppRegistrationModel.ExternalURL != null)
                         {
