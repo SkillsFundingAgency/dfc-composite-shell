@@ -110,6 +110,9 @@
         "SupportedHeader0": {
             "value": __SupportedHeaders__
         },
+        "AddNoIndexMeta": {
+        "value":  __AddNoIndexMeta__
+      },
         "OptimizeId": {
             "value":  "__OptimizeId__"
         }
