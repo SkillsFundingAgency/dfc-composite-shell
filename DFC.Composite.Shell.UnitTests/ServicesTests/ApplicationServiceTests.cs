@@ -7,12 +7,14 @@ using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Mapping;
 using DFC.Composite.Shell.Services.Utilities;
+
 using FakeItEasy;
-using Microsoft.AspNetCore.Http;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace DFC.Composite.Shell.Test.ServicesTests
@@ -38,13 +40,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         private readonly IContentProcessorService contentProcessor;
         private readonly MarkupMessages markupMessages;
         private readonly AppRegistrationModel defaultAppRegistrationModel;
-        private readonly AppRegistrationModel nullAppRegistrationModel = null;
+        private readonly AppRegistrationModel? nullAppRegistrationModel = null;
         private readonly AppRegistrationModel pagesAppRegistrationModel;
         private readonly RegionModel defaultHeadRegion;
         private readonly RegionModel defaultBodyRegion;
         private readonly RegionModel defaultBodyFooterRegion;
         private readonly List<RegionModel> defaultRegions;
         private readonly ApplicationModel defaultApplicationModel;
+        private readonly ApplicationModel pagesApplicationModel;
         private readonly ApplicationModel offlineApplicationModel;
         private readonly ApplicationModel offlineApplicationModelWithoutMarkup;
         private readonly PageViewModel defaultPageViewModel;
@@ -119,6 +122,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             defaultApplicationModel = new ApplicationModel { AppRegistrationModel = defaultAppRegistrationModel, Article = "index" };
+            pagesApplicationModel = new ApplicationModel { AppRegistrationModel = pagesAppRegistrationModel };
             offlineApplicationModel = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = OfflineHtml } };
             offlineApplicationModelWithoutMarkup = new ApplicationModel { AppRegistrationModel = new AppRegistrationModel { IsOnline = false, OfflineHtml = null } };
 
@@ -243,15 +247,15 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         }
 
         [Fact]
-        public Task GetMarkupAsyncWhenApplicationModelIsNullThenArgumentNullExceptionThrown()
+        public async Task GetMarkupAsyncWhenApplicationModelIsNullThenArgumentNullExceptionThrown()
         {
-            return Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(null, defaultPageViewModel, string.Empty, string.Empty, new HeaderDictionary()));
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(null, defaultPageViewModel, string.Empty, string.Empty, new HeaderDictionary()));
         }
 
         [Fact]
-        public Task GetMarkupAsyncWhenPageViewModelIsNullThenArgumentNullExceptionThrown()
+        public async Task GetMarkupAsyncWhenPageViewModelIsNullThenArgumentNullExceptionThrown()
         {
-            return Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(defaultApplicationModel, null, string.Empty, string.Empty, new HeaderDictionary()));
+            await Assert.ThrowsAnyAsync<ArgumentNullException>(async () => await applicationService.GetMarkupAsync(defaultApplicationModel, null, string.Empty, string.Empty, new HeaderDictionary()));
         }
 
         [Fact]
@@ -338,6 +342,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => contentRetriever.GetContent($"{defaultBodyFooterRegion.RegionEndpoint}/{Article}", fakeApplicationModel.AppRegistrationModel.Path, defaultBodyFooterRegion, A<bool>.Ignored, RequestBaseUrl, A<IHeaderDictionary>.Ignored)).MustHaveHappenedOnceExactly();
         }
 
+
         [Fact]
         public async Task PostMarkupAsyncForOnlineApplicationWhenBodyRegionEndpointIsEmptyThenContentNotPosted()
         {
@@ -395,7 +400,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyFooterRegion,
             };
             var thisChildAppActionGetRequestModel = new ActionGetRequestModel { Path = "help-me", Data = string.Empty };
-            var appRegistryModel = await appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp);
+            var appRegistryModel = appRegistryDataService.GetAppRegistrationModel(AppRegistryPathNameForPagesApp).Result;
             appRegistryModel.Regions = bodyAndFooterRegions;
             appRegistryModel.PageLocations = new Dictionary<Guid, PageLocationModel> { { Guid.NewGuid(), new PageLocationModel { Locations = new List<string> { "/help-me" } } } };
 
@@ -418,8 +423,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 defaultBodyRegion,
                 defaultBodyFooterRegion,
             };
-            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(ChildAppPath);
-            appRegistrationModel.Regions = bodyAndFooterRegions;
+            appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = bodyAndFooterRegions;
 
             // Act
             var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, bannerService, markupMessages);
@@ -436,8 +440,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             // Arrange
             var fakeRegionModels = new List<RegionModel> { defaultBodyFooterRegion };
-            var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(ChildAppPath);
-            appRegistrationModel.Regions = fakeRegionModels;
+            appRegistryDataService.GetAppRegistrationModel(ChildAppPath).Result.Regions = fakeRegionModels;
 
             // Act
             var service = new ApplicationService(appRegistryDataService, contentRetriever, contentProcessor, taskHelper, bannerService, markupMessages);

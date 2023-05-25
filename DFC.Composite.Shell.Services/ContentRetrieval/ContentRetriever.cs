@@ -5,11 +5,11 @@ using DFC.Composite.Shell.Models.Exceptions;
 using DFC.Composite.Shell.Services.AppRegistry;
 using DFC.Composite.Shell.Services.Extensions;
 using DFC.Composite.Shell.Services.UriSpecifcHttpClient;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+
 using Polly.CircuitBreaker;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,6 +17,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
@@ -29,7 +31,8 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly MarkupMessages markupMessages;
         private readonly IMemoryCache memoryCache;
         private readonly PassOnHeaderSettings headerSettings;
-        private readonly Dictionary<string, string> fileDownloadContentTypes = new Dictionary<string, string> { { "application/docx", "docx" }, { "application/pdf", "pdf" } };
+        private readonly Dictionary<string, string> FileDownloadContentTypes = new Dictionary<string, string> { {"application/docx", "docx"}, {"application/pdf", "pdf"} };
+
 
         public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache, IOptions<PassOnHeaderSettings> headerSettings)
         {
@@ -60,90 +63,6 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             }
 
             return content;
-        }
-
-        public async Task<PostResponseModel> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
-        {
-            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
-
-            var results = new PostResponseModel();
-
-            try
-            {
-                if (regionModel.IsHealthy)
-                {
-                    logger.LogInformation($"{nameof(PostContent)}: Posting child response from: {url}");
-
-                    var request = new HttpRequestMessage(HttpMethod.Post, url)
-                    {
-                        Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
-                    };
-
-                    var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
-                    var response = await httpClient.SendAsync(request);
-
-                    if (response.IsRedirectionStatus())
-                    {
-                        responseHandler.Process(response);
-
-                        var redirectUrl = requestBaseUrl;
-
-                        redirectUrl += response.Headers.Location.IsAbsoluteUri
-                            ? response.Headers.Location.PathAndQuery.ToString(CultureInfo.InvariantCulture)
-                            : response.Headers.Location.ToString();
-
-                        throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
-                    }
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
-                    }
-
-                    var mediaType = response.Content.Headers.ContentType.MediaType;
-                    if (fileDownloadContentTypes.TryGetValue(mediaType, out var fileExtension))
-                    {
-                        results.FileDownloadModel = new FileDownloadModel
-                        {
-                            FileBytes = await response.Content.ReadAsByteArrayAsync(),
-                            FileContentType = mediaType,
-                            FileName = !string.IsNullOrWhiteSpace(response.Content.Headers.ContentDisposition.FileNameStar) ? response.Content.Headers.ContentDisposition.FileNameStar : $"NCS file download.{fileExtension}",
-                        };
-                    }
-                    else
-                    {
-                        results.Html = await response.Content.ReadAsStringAsync();
-                    }
-
-                    logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
-                }
-                else
-                {
-                    results.Html = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
-                        ? regionModel.OfflineHtml
-                        : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
-                }
-            }
-            catch (BrokenCircuitException ex)
-            {
-                logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
-
-                if (regionModel.HealthCheckRequired)
-                {
-                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
-                }
-
-                results.Html = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
-                    ? regionModel.OfflineHtml
-                    : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
-            }
-            catch (Exception ex)
-            {
-                logger.LogInformation($"{nameof(PostContent)}: Received error response from: {url}. {ex.Message}");
-                throw;
-            }
-
-            return results;
         }
 
         private bool IsInteractiveContent(string url)
@@ -209,6 +128,91 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             return results;
         }
 
+        public async Task<PostResponseModel> PostContent(string url, string path, RegionModel regionModel, IEnumerable<KeyValuePair<string, string>> formParameters, string requestBaseUrl)
+        {
+            _ = regionModel ?? throw new ArgumentNullException(nameof(regionModel));
+
+            var results = new PostResponseModel();
+
+            try
+            {
+                if (regionModel.IsHealthy)
+                {
+                    logger.LogInformation($"{nameof(PostContent)}: Posting child response from: {url}");
+
+                    var request = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Content = formParameters != null ? new FormUrlEncodedContent(formParameters) : null,
+                    };
+
+                    var httpClient = httpClientFactory.GetClientForRegionEndpoint(regionModel.RegionEndpoint);
+                    var response = await httpClient.SendAsync(request);
+
+                    if (response.IsRedirectionStatus())
+                    {
+                        responseHandler.Process(response);
+
+                        var redirectUrl = requestBaseUrl;
+
+                        redirectUrl += response.Headers.Location.IsAbsoluteUri
+                            ? response.Headers.Location.PathAndQuery.ToString(CultureInfo.InvariantCulture)
+                            : response.Headers.Location.ToString();
+
+                        throw new RedirectException(new Uri(url), new Uri(redirectUrl),
+                            response.StatusCode == HttpStatusCode.PermanentRedirect);
+                    }
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new EnhancedHttpException(response.StatusCode, response.ReasonPhrase, url);
+                    }
+
+                    var mediaType = response.Content.Headers.ContentType.MediaType;
+                    if (FileDownloadContentTypes.TryGetValue(mediaType, out var fileExtension))
+                    {
+                        results.FileDownloadModel = new FileDownloadModel
+                        {
+                            FileBytes = await response.Content.ReadAsByteArrayAsync(),
+                            FileContentType = mediaType,
+                            FileName = !string.IsNullOrWhiteSpace(response.Content.Headers.ContentDisposition.FileNameStar) ? response.Content.Headers.ContentDisposition.FileNameStar : $"NCS file download.{fileExtension}",
+                        };
+                    }
+                    else
+                    {
+                        results.Html = await response.Content.ReadAsStringAsync();
+                    }
+
+                    logger.LogInformation($"{nameof(PostContent)}: Received child response from: {url}");
+                }
+                else
+                {
+                    results.Html = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                        ? regionModel.OfflineHtml
+                        : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+                }
+            }
+            catch (BrokenCircuitException ex)
+            {
+                logger.LogError(ex, $"{nameof(ContentRetriever)}: BrokenCircuit: {url} - {ex.Message}");
+
+                if (regionModel.HealthCheckRequired)
+                {
+                    await appRegistryDataService.SetRegionHealthState(path, regionModel.PageRegion, false);
+                }
+
+                results.Html = !string.IsNullOrWhiteSpace(regionModel.OfflineHtml)
+                    ? regionModel.OfflineHtml
+                    : markupMessages.GetRegionOfflineHtml(regionModel.PageRegion);
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation($"{nameof(PostContent)}: Received error response from: {url}. {ex.Message}");
+                throw;
+            }
+
+            return results;
+        }
+
         private async Task<HttpResponseMessage> GetContentIfRedirectedAsync(string requestBaseUrl, string url, bool followRedirects, int maxRedirections, RegionModel regionModel, IHeaderDictionary headers)
         {
             HttpResponseMessage response = null;
@@ -234,7 +238,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                 {
                     var redirectUrl = response.Headers.Location.IsAbsoluteUri
                         ? response.Headers.Location.ToString()
-                        : $"{requestBaseUrl}{response.Headers.Location}";
+                        : $"{requestBaseUrl}{response.Headers.Location.ToString()}";
 
                     throw new RedirectException(new Uri(url), new Uri(redirectUrl), response.StatusCode == HttpStatusCode.PermanentRedirect);
                 }

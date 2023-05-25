@@ -50,30 +50,36 @@ namespace DFC.Composite.Shell.Services.ApplicationSitemap
 
         private async Task<T> CallHttpClientXmlAsync<T>(ApplicationSitemapModel model)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl);
-            if (!string.IsNullOrWhiteSpace(model.BearerToken))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, model.SitemapUrl))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+                if (!string.IsNullOrWhiteSpace(model.BearerToken))
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+                }
+
+                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
+
+                var response = await httpClient.SendAsync(request);
+
+                response.EnsureSuccessStatusCode();
+
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (string.IsNullOrWhiteSpace(responseString))
+                {
+                    return default;
+                }
+
+                var serializer = new XmlSerializer(typeof(T));
+                using (var reader = new StringReader(responseString))
+                {
+                    using (var xmlReader = XmlReader.Create(reader))
+                    {
+                        xmlReader.Read();
+                        return (T)serializer.Deserialize(xmlReader);
+                    }
+                }
             }
-
-            request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Application.Xml);
-
-            var response = await httpClient.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            if (string.IsNullOrWhiteSpace(responseString))
-            {
-                return default;
-            }
-
-            var serializer = new XmlSerializer(typeof(T));
-            using var reader = new StringReader(responseString);
-            using var xmlReader = XmlReader.Create(reader);
-            xmlReader.Read();
-            return (T)serializer.Deserialize(xmlReader);
         }
     }
 }

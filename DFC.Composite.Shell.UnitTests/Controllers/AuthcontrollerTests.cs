@@ -23,7 +23,6 @@ using Microsoft.IdentityModel.Tokens;
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading;
@@ -35,8 +34,6 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
 {
     public class AuthControllerTests
     {
-        private const string RefererUrl = "https://www.TestRefere.com";
-        private const string BaseAddress = "www.test.com";
         private readonly IOpenIdConnectClient authClient;
         private readonly ILogger<AuthController> log;
         private readonly DefaultHttpContext defaultContext;
@@ -44,9 +41,14 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         private readonly IAuthenticationService defaultAuthService;
         private readonly IVersionedFiles defaultVersionedFiles;
         private readonly IConfiguration defaultConfiguration;
+        private readonly IOptions<OpenIDConnectSettings> defaultSettings;
+        private readonly SecurityTokenHandler tokenHandler;
         private readonly IConfigurationManager<OpenIdConnectConfiguration> configurationManager;
+        private const string refererUrl = "https://www.TestRefere.com";
+        private const string baseAddress = "www.test.com";
         private readonly MockHttpSession session;
         private readonly IBaseUrlService baseUrlService;
+        private readonly IUrlHelper _urlHelper;
         private readonly IUrlHelper defaultUrlHelper;
 
         public AuthControllerTests()
@@ -65,13 +67,13 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             A.CallTo(() => requestServices.GetService(typeof(IAuthenticationService))).Returns(defaultAuthService);
 
             A.CallTo(() => baseUrlService.GetBaseUrl(A<HttpRequest>.Ignored, A<IUrlHelper>.Ignored))
-                .Returns(BaseAddress);
+                .Returns(baseAddress);
 
             defaultContext = new DefaultHttpContext
             {
                 RequestServices = requestServices,
                 Session = session,
-                Request = { Headers = { new KeyValuePair<string, StringValues>("Referer", RefererUrl) } },
+                Request = { Headers = { new KeyValuePair<string, StringValues>("Referer", refererUrl) } },
             };
 
             defaultsettings = Options.Create(new AuthSettings
@@ -83,6 +85,20 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 AuthDssEndpoint = "test/{url}",
             });
 
+            defaultSettings = Options.Create(new OpenIDConnectSettings
+            {
+                RedirectUrl = "test/",
+                SignOutRedirectUrl = "test/",
+                Issuer = "issuer",
+                AuthdUrl = "auth",
+                AuthorizeUrl = "AuthorizeUrl",
+                ClientId = "clientid",
+                EndSessionUrl = "Endsesison",
+                JWK = "jjjjjjfhfjjfjfjfjfhfjkhdfkhdfkjhskfhsldkjhfskdljfhsdlkfhsdflksdhsdlkfh",
+                Exponent = "AQAB",
+            });
+
+            tokenHandler = A.Fake<SecurityTokenHandler>();
             configurationManager = A.Fake<IConfigurationManager<OpenIdConnectConfiguration>>();
             A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).Returns(
                 new OpenIdConnectConfiguration
@@ -91,6 +107,9 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     EndSessionEndpoint = "end",
                     Issuer = "issuer",
                 });
+
+            _urlHelper = A.Fake<IUrlHelper>();
+
         }
 
         [Fact]
@@ -170,6 +189,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
         {
             A.CallTo(() => authClient.GetSignInUrl()).Returns("test");
             var session = new MockHttpSession();
+            var referer = "test.com";
             var redirectUrl = "Redirect.com";
             var settings = Options.Create(new AuthSettings());
             using var controller = new AuthController(authClient, log, settings, defaultVersionedFiles, defaultConfiguration, baseUrlService)
@@ -205,7 +225,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             var redirecturl = "/redirect";
             var result = await controller.SignOut(redirecturl) as RedirectResult;
 
-            A.CallTo(() => authClient.GetSignOutUrl(BaseAddress + redirecturl)).MustHaveHappened();
+            A.CallTo(() => authClient.GetSignOutUrl(baseAddress + redirecturl)).MustHaveHappened();
         }
 
         [Fact]
@@ -223,7 +243,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             var result = await controller.SignOut(string.Empty) as RedirectResult;
 
-            A.CallTo(() => authClient.GetSignOutUrl(RefererUrl)).MustHaveHappened();
+            A.CallTo(() => authClient.GetSignOutUrl(refererUrl)).MustHaveHappened();
         }
 
         [Fact]
@@ -236,7 +256,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new Claim("email", "email"),
                 new Claim("given_name", "given_name"),
                 new Claim("family_name", "family_name"),
-                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)),
+                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
@@ -249,7 +269,9 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
 
             controller.Url = new UrlHelper(
-                new ActionContext(defaultContext, new RouteData(), new ActionDescriptor()));
+                new ActionContext(defaultContext, new RouteData(),
+                    new ActionDescriptor())
+            );
 
             await controller.Auth(token);
 
@@ -286,7 +308,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new Claim("email", "email"),
                 new Claim("given_name", "given_name"),
                 new Claim("family_name", "family_name"),
-                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)),
+                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
@@ -298,7 +320,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 },
             };
 
-            controller.Url = new UrlHelper(new ActionContext(defaultContext, new RouteData(), new ActionDescriptor()));
+            controller.Url = new UrlHelper(
+                new ActionContext(defaultContext, new RouteData(),
+                    new ActionDescriptor())
+            );
 
             await controller.Auth(token);
 
@@ -333,7 +358,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new Claim("email", "email"),
                 new Claim("given_name", "given_name"),
                 new Claim("family_name", "family_name"),
-                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)),
+                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
@@ -346,7 +371,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
             };
             defaultContext.HttpContext.Session.SetString(AuthController.RedirectSessionKey, AuthController.RedirectSessionKey);
 
-            controller.Url = new UrlHelper(new ActionContext(defaultContext, new RouteData(), new ActionDescriptor()));
+            controller.Url = new UrlHelper(
+                new ActionContext(defaultContext, new RouteData(),
+                    new ActionDescriptor())
+            );
             var result = await controller.Auth(token) as RedirectResult;
 
             Assert.Equal(result.Url, defaultsettings.Value.AuthDssEndpoint.Replace(AuthController.RedirectAttribute, AuthController.RedirectSessionKey, StringComparison.InvariantCultureIgnoreCase));
@@ -363,7 +391,7 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 new Claim("email", "email"),
                 new Claim("given_name", "given_name"),
                 new Claim("family_name", "family_name"),
-                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture)),
+                new Claim("exp", DateTimeOffset.Now.AddHours(2).ToUnixTimeSeconds().ToString()),
             };
             A.CallTo(() => authClient.ValidateToken(token)).Returns(new JwtSecurityToken("test", "test", claims));
 
@@ -374,7 +402,10 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                     HttpContext = defaultContext,
                 },
             };
-            controller.Url = new UrlHelper(new ActionContext(defaultContext, new RouteData(), new ActionDescriptor()));
+            controller.Url = new UrlHelper(
+                new ActionContext(defaultContext, new RouteData(),
+                new ActionDescriptor())
+            );
 
             var result = await controller.Auth(token) as RedirectResult;
 

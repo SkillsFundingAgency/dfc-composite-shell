@@ -31,6 +31,8 @@ namespace DFC.Composite.Shell.Controllers
         private readonly IOpenIdConnectClient authClient;
         private readonly ILogger<AuthController> logger;
         private readonly AuthSettings settings;
+        private readonly IVersionedFiles versionedFiles;
+        private readonly IConfiguration configuration;
         private readonly IBaseUrlService baseUrlService;
 
         public AuthController(IOpenIdConnectClient client, ILogger<AuthController> logger, IOptions<AuthSettings> settings, IVersionedFiles versionedFiles, IConfiguration configuration, IBaseUrlService baseUrlService)
@@ -43,6 +45,8 @@ namespace DFC.Composite.Shell.Controllers
             authClient = client;
             this.logger = logger;
             this.settings = settings.Value;
+            this.versionedFiles = versionedFiles;
+            this.configuration = configuration;
             this.baseUrlService = baseUrlService;
         }
 
@@ -61,8 +65,8 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
-            var url = GenerateSignOutUrl(redirectUrl);
-            var signInUrl = await authClient.GetSignOutUrl(url);
+            var Url = GenerateSignOutUrl(redirectUrl);
+            var signInUrl = await authClient.GetSignOutUrl(Url);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect(signInUrl);
         }
@@ -109,11 +113,6 @@ namespace DFC.Composite.Shell.Controllers
                     CookieAuthenticationDefaults.AuthenticationScheme)), authProperties);
 
             return Redirect(GetAndResetRedirectUrl());
-        }
-
-        private static bool IsAbsoluteUrl(string url)
-        {
-            return Uri.TryCreate(url, UriKind.Absolute, out Uri _);
         }
 
         private string CreateChildAppToken(List<Claim> claims, DateTime expiryTime)
@@ -173,6 +172,12 @@ namespace DFC.Composite.Shell.Controllers
             }
 
             return baseUrlService.GetBaseUrl(Request, Url) + redirectUrl;
+        }
+
+        private bool IsAbsoluteUrl(string url)
+        {
+            Uri result;
+            return Uri.TryCreate(url, UriKind.Absolute, out result);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace DFC.Composite.Shell.Extensions
         public static PageViewModel BuildDefaultPageViewModel(this IVersionedFiles versionedFiles, IConfiguration configuration)
         {
             _ = versionedFiles ?? throw new ArgumentNullException(nameof(versionedFiles));
-
+            
             return new PageViewModel
             {
                 BrandingAssetsCdn = configuration.GetValue<string>(nameof(PageViewModel.BrandingAssetsCdn)),
