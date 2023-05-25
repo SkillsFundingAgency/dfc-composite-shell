@@ -18,20 +18,20 @@ namespace DFC.Composite.Shell.Controllers
 {
     public class SitemapController : Controller
     {
-        private readonly IAppRegistryDataService appRegistryDataService;
+        private readonly IAppRegistryDataService aappRegistryDataService;
         private readonly ILogger<SitemapController> logger;
         private readonly IBearerTokenRetriever bearerTokenRetriever;
         private readonly IBaseUrlService baseUrlService;
         private readonly IApplicationSitemapService sitemapService;
 
         public SitemapController(
-            IAppRegistryDataService appRegistryDataService,
+            IAppRegistryDataService aappRegistryDataService,
             ILogger<SitemapController> logger,
             IBearerTokenRetriever bearerTokenRetriever,
             IBaseUrlService baseUrlService,
             IApplicationSitemapService sitemapService)
         {
-            this.appRegistryDataService = appRegistryDataService;
+            this.aappRegistryDataService = aappRegistryDataService;
             this.logger = logger;
             this.bearerTokenRetriever = bearerTokenRetriever;
             this.baseUrlService = baseUrlService;
@@ -59,7 +59,7 @@ namespace DFC.Composite.Shell.Controllers
         private async Task<IEnumerable<ApplicationSitemapModel>> GetApplicationSitemapsAsync()
         {
             // loop through the registered applications and create some tasks - one per application that has a sitemap url
-            var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
+            var appRegistrationModels = await aappRegistryDataService.GetAppRegistrationModels();
             var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.SitemapURL != null).ToList();
 
             var applicationSitemapModels = await CreateApplicationSitemapModelTasksAsync(onlineAppRegistrationModels);

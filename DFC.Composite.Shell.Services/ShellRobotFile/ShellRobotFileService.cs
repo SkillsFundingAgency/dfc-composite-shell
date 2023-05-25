@@ -35,13 +35,13 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
 
         private static bool IsPreProduction(string hostname)
         {
-            const string stagingHostname = "staging.nationalcareers.service.gov.uk";
+            const string stagingHostname = "dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk";
             return hostname.Equals(stagingHostname, System.StringComparison.InvariantCultureIgnoreCase);
         }
 
         private static bool IsProduction(string hostname)
         {
-            const string productionHostname = "nationalcareers.service.gov.uk";
+            const string productionHostname = "dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk";
             return hostname.Equals(productionHostname, System.StringComparison.InvariantCultureIgnoreCase);
         }
 

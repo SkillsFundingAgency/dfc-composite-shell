@@ -36,7 +36,7 @@ Disallow: /", responseHtml);
         {
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("https://staging.nationalcareers.service.gov.uk/robots.txt", UriKind.Absolute));
+            var response = await client.GetAsync(new Uri("https://dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk/robots.txt", UriKind.Absolute));
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync();
@@ -47,7 +47,7 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-Sitemap: https://staging.nationalcareers.service.gov.uk/sitemap/sitemap.xml
+Sitemap: https://dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk/sitemap.xml
 
 User-agent: *
 Disallow: /", responseHtml);
@@ -58,7 +58,7 @@ Disallow: /", responseHtml);
         {
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("https://nationalcareers.service.gov.uk/robots.txt", UriKind.Absolute));
+            var response = await client.GetAsync(new Uri("https://dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk/robots.txt", UriKind.Absolute));
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync();
@@ -69,7 +69,7 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-Sitemap: https://nationalcareers.service.gov.uk/sitemap/sitemap.xml", responseHtml);
+Sitemap: https://dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk/sitemap.xml", responseHtml);
         }
     }
 }

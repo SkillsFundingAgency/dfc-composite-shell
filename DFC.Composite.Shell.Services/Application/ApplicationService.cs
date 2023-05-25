@@ -5,10 +5,8 @@ using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.ContentProcessor;
 using DFC.Composite.Shell.Services.ContentRetrieval;
 using DFC.Composite.Shell.Services.Utilities;
-
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -61,9 +59,6 @@ namespace DFC.Composite.Shell.Services.Application
 
             if (application.AppRegistrationModel.IsOnline)
             {
-                // Get banners from the banner app.
-                pageModel.PhaseBannerHtml = await bannerService.GetPageBannersAsync(requestPath);
-
                 //Load related regions
                 var otherRegionsTask = LoadRelatedRegions(application, pageModel, queryString, headers);
 
@@ -77,6 +72,9 @@ namespace DFC.Composite.Shell.Services.Application
 
                 //Ensure that the application body markup is attached to the model
                 PopulatePageRegionContent(application, pageModel, PageRegion.Body, applicationBodyRegionTask);
+
+                // Get banners from the banner app.
+                pageModel.PhaseBannerHtml = await bannerService.GetPageBannersAsync(requestPath);
             }
             else
             {
@@ -143,6 +141,35 @@ namespace DFC.Composite.Shell.Services.Application
             return applicationModel;
         }
 
+        private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
+        {
+            const string appRegistryPathNameForPagesApp = "pages";
+            var pageLocation = string.Join("/", new[] { data.Path, data.Data });
+            var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
+            var article = string.Join("/", pageLocations);
+            var applicationModel = new ApplicationModel();
+            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp);
+
+            if (pagesAppRegistrationModel?.PageLocations != null && pagesAppRegistrationModel.PageLocations.Values.SelectMany(s => s.Locations).Contains("/" + article))
+            {
+                applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
+                applicationModel.Article = article;
+            }
+
+            if (applicationModel.AppRegistrationModel == null)
+            {
+                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article) ??
+                                                        await appRegistryDataService.GetAppRegistrationModel(data.Path);
+
+                if (applicationModel.AppRegistrationModel != null)
+                {
+                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length ? article.Substring(applicationModel.AppRegistrationModel.Path.Length + 1) : null;
+                }
+            }
+
+            return applicationModel;
+        }
+
         private static string FormatArticleUrl(string regionEndpoint, string article, string queryString)
         {
             const string ArticlePlaceholder = "{0}";
@@ -166,35 +193,6 @@ namespace DFC.Composite.Shell.Services.Application
                 : urlFormatString
                     .Replace(SlashedPlaceholder, string.Empty, StringComparison.OrdinalIgnoreCase)
                     .Replace(QueryStringPlaceholder, queryString, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private async Task<ApplicationModel> DetermineArticleLocation(ActionGetRequestModel data)
-        {
-            const string appRegistryPathNameForPagesApp = "pages";
-            var pageLocation = string.Join("/", new[] { data.Path, data.Data });
-            var pageLocations = pageLocation.Split("/", StringSplitOptions.RemoveEmptyEntries);
-            var article = string.Join("/", pageLocations);
-            var applicationModel = new ApplicationModel();
-            var pagesAppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(appRegistryPathNameForPagesApp);
-
-            if (pagesAppRegistrationModel?.PageLocations != null && pagesAppRegistrationModel.PageLocations.Values.SelectMany(s => s.Locations).Contains("/" + article))
-            {
-                applicationModel.AppRegistrationModel = pagesAppRegistrationModel;
-                applicationModel.Article = article;
-            }
-
-            if (applicationModel.AppRegistrationModel == null)
-            {
-                applicationModel.AppRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(article) ??
-                                                        await appRegistryDataService.GetAppRegistrationModel(data.Path);
-
-                if (applicationModel.AppRegistrationModel != null)
-                {
-                    applicationModel.Article = article.Length > applicationModel.AppRegistrationModel.Path.Length ? article[(applicationModel.AppRegistrationModel.Path.Length + 1)..] : null;
-                }
-            }
-
-            return applicationModel;
         }
 
         private Task<string> GetApplicationBodyRegionMarkUpAsync(ApplicationModel application, string queryString, IHeaderDictionary headers)

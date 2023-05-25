@@ -1,7 +1,7 @@
 ﻿using DFC.Composite.Shell.Models.Robots;
-using Microsoft.Extensions.Logging;
+
 using Microsoft.Net.Http.Headers;
-using System;
+
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,12 +12,10 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
 {
     public class ApplicationRobotService : IApplicationRobotService
     {
-        private readonly ILogger<ApplicationRobotService> logger;
         private readonly HttpClient httpClient;
 
-        public ApplicationRobotService(ILogger<ApplicationRobotService> logger, HttpClient httpClient)
+        public ApplicationRobotService(HttpClient httpClient)
         {
-            this.logger = logger;
             this.httpClient = httpClient;
         }
 
@@ -28,41 +26,34 @@ namespace DFC.Composite.Shell.Services.ApplicationRobot
                 return null;
             }
 
-            try
-            {
-                logger.LogInformation($"Getting Robots.txt for: {model.Path}");
-
-                var responseTask = await CallHttpClientTxtAsync(model);
-                return responseTask?.Data;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Exception getting Robots.txt for: {model.Path}");
-
-                return null;
-            }
+            var responseTask = await CallHttpClientTxtAsync(model);
+            return responseTask?.Data;
         }
 
         private async Task<Robot> CallHttpClientTxtAsync(ApplicationRobotModel model)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL);
-            if (!string.IsNullOrWhiteSpace(model.BearerToken))
+            using (var request = new HttpRequestMessage(HttpMethod.Get, model.RobotsURL))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+                if (!string.IsNullOrWhiteSpace(model.BearerToken))
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", model.BearerToken);
+                }
+
+                request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
+
+                var response = await httpClient.SendAsync(request);
+
+                response.EnsureSuccessStatusCode();
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                var result = new Robot();
+
+                using (var reader = new StringReader(responseString))
+                {
+                    result.Append(reader.ReadToEnd());
+                    return result;
+                }
             }
-
-            request.Headers.Add(HeaderNames.Accept, MediaTypeNames.Text.Plain);
-
-            var response = await httpClient.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync();
-            var result = new Robot();
-
-            using var reader = new StringReader(responseString);
-            result.Append(await reader.ReadToEndAsync());
-            return result;
         }
     }
 }

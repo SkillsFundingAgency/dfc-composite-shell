@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -52,9 +51,8 @@ namespace DFC.Composite.Shell.Controllers
 
             // loop through the registered applications and create some tasks - one per application for their health
             var appRegistrationModels = await appRegistryDataService.GetAppRegistrationModels();
-            var appRegistrationModelsWithBodyRegions = appRegistrationModels.Where(w => w.ExternalURL == null && w.Regions != null && w.Regions.Any(a => a.PageRegion == PageRegion.Body));
-            var onlineAppRegistrationModels = appRegistrationModelsWithBodyRegions.Where(w => w.IsOnline).ToList();
-            var offlineAppRegistrationModels = appRegistrationModelsWithBodyRegions.Where(w => !w.IsOnline).ToList();
+            var onlineAppRegistrationModels = appRegistrationModels.Where(w => w.IsOnline && w.ExternalURL == null).ToList();
+            var offlineAppRegistrationModels = appRegistrationModels.Where(w => !w.IsOnline && w.ExternalURL == null).ToList();
 
             if (onlineAppRegistrationModels != null && onlineAppRegistrationModels.Any())
             {
@@ -117,9 +115,6 @@ namespace DFC.Composite.Shell.Controllers
 
             foreach (var path in paths)
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-
                 logger.LogInformation($"{nameof(Action)}: Getting child Health for: {path.Path}");
 
                 var applicationBaseUrl = await GetPathBaseUrlFromBodyRegionAsync(path.Path);
@@ -133,8 +128,6 @@ namespace DFC.Composite.Shell.Controllers
 
                 applicationHealthModel.RetrievalTask = applicationHealthService.GetAsync(applicationHealthModel);
 
-                //applicationHealthModel.ResponseTime = stopwatch.ElapsedMilliseconds;
-
                 applicationHealthModels.Add(applicationHealthModel);
             }
 
@@ -145,9 +138,9 @@ namespace DFC.Composite.Shell.Controllers
         {
             var appRegistrationModel = await appRegistryDataService.GetAppRegistrationModel(path);
 
-            var bodyRegion = appRegistrationModel?.Regions?.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
+            var bodyRegion = appRegistrationModel?.Regions.FirstOrDefault(x => x.PageRegion == PageRegion.Body);
 
-            if (!string.IsNullOrWhiteSpace(bodyRegion?.RegionEndpoint))
+            if (bodyRegion != null && !string.IsNullOrWhiteSpace(bodyRegion.RegionEndpoint))
             {
                 var uri = new Uri(bodyRegion.RegionEndpoint);
                 var url = $"{uri.Scheme}://{uri.Authority}";
@@ -158,21 +151,6 @@ namespace DFC.Composite.Shell.Controllers
             return null;
         }
 
-        private string GetHealthItemHealthMessage(long responseTime)
-        {
-            if (responseTime == 0)
-            {
-                return "Unhealthy (" + responseTime + ")";
-            }
-
-            if (responseTime < 10000)
-            {
-                return "Healthy (" + responseTime + ")";
-            }
-
-            return "Degraded (" + responseTime + ")";
-        }
-
         private void AppendApplicationsHealths(List<HealthItemViewModel> healthItemModels, IEnumerable<ApplicationHealthModel> applicationHealthModels)
         {
             // get the task results as individual health and merge into one
@@ -180,26 +158,35 @@ namespace DFC.Composite.Shell.Controllers
             {
                 if (applicationHealthModel.RetrievalTask.IsCompletedSuccessfully)
                 {
+                    logger.LogInformation($"{nameof(Action)}: Received child Health for: {applicationHealthModel.Path}");
+
                     var healthItems = applicationHealthModel.RetrievalTask.Result;
 
-                    var healthItemViewModels = (from a in healthItems
+                    if (healthItems?.Count() > 0)
+                    {
+                        var healthItemViewModels = (from a in healthItems
                                                     select new HealthItemViewModel
                                                     {
                                                         Service = a.Service,
-                                                        Message = $"Received child health for: {applicationHealthModel.Path}: " + GetHealthItemHealthMessage(a.ResponseTime),
+                                                        Message = a.Message,
                                                     }).ToList();
 
-                    healthItemModels.AddRange(healthItemViewModels);
+                        healthItemModels.AddRange(healthItemViewModels);
+                    }
+                    else
+                    {
+                        var healthItemViewModel = new HealthItemViewModel
+                        {
+                            Service = applicationHealthModel.Path,
+                            Message = $"No health response from {applicationHealthModel.Path} app",
+                        };
+
+                        healthItemModels.Add(healthItemViewModel);
+                    }
                 }
                 else
                 {
-                    var healthItemViewModel = new HealthItemViewModel
-                    {
-                        Service = applicationHealthModel.Path,
-                        Message = $"Received child health for: {applicationHealthModel.Path}: Unhealthy",
-                    };
-
-                    healthItemModels.Add(healthItemViewModel);
+                    logger.LogError($"{nameof(Action)}: Error getting child Health for: {applicationHealthModel.Path}");
                 }
             }
         }

@@ -37,39 +37,35 @@ namespace DFC.Composite.Shell.Services.Auth
         public async Task<string> GetRegisterUrl()
         {
             var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
-            var queryParams = new Dictionary<string, string>
-            {
-                { "p", "B2C_1A_account_signup" },
-                { "client_id", settings.ClientId },
-                { "nonce", "defaultNonce" },
-                { "redirect_uri", settings.RedirectUrl },
-                { "scope", "openid" },
-                { "response_type", "id_token" },
-                { "prompt", "login" },
-            };
+            var queryParams = new Dictionary<string, string>();
+            queryParams.Add("p", "B2C_1A_account_signup");
+            queryParams.Add("client_id", settings.ClientId);
+            queryParams.Add("nonce", "defaultNonce");
+            queryParams.Add("redirect_uri", settings.RedirectUrl);
+            queryParams.Add("scope", "openid");
+            queryParams.Add("response_type", "id_token");
+            queryParams.Add("prompt", "login");
             string registerUrl = QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
 
             return registerUrl;
         }
 
-        public Task<string> GetSignInUrl()
+        public async Task<string> GetSignInUrl()
         {
-            return GetAuthEndpoint(SignInRequestType);
+            return await GetAuthEndpoint(SignInRequestType);
         }
 
-        public Task<string> GetResetPasswordUrl()
+        public async Task<string> GetResetPasswordUrl()
         {
-            return GetAuthEndpoint(PasswordResetRequestType);
+            return await GetAuthEndpoint(PasswordResetRequestType);
         }
 
         public async Task<string> GetSignOutUrl(string redirectUrl)
         {
             var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
-            var queryParams = new Dictionary<string, string>
-            {
-                { "client_id", settings.ClientId },
-                { "post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl },
-            };
+            var queryParams = new Dictionary<string, string>();
+            queryParams.Add("client_id", settings.ClientId);
+            queryParams.Add("post_logout_redirect_uri", string.IsNullOrEmpty(redirectUrl) ? settings.SignOutRedirectUrl : redirectUrl);
             string registerUrl = QueryHelpers.AddQueryString(configDoc.EndSessionEndpoint, queryParams);
 
             return registerUrl;
@@ -89,17 +85,15 @@ namespace DFC.Composite.Shell.Services.Auth
         private async Task<string> GetAuthEndpoint(string requestType)
         {
             var configDoc = await configurationManager.GetConfigurationAsync(CancellationToken.None);
-            var queryParams = new Dictionary<string, string>
-            {
-                { "p", requestType },
-                { "client_id", settings.ClientId },
-                { "nonce", "defaultNonce" },
-                { "redirect_uri", settings.RedirectUrl },
-                { "scope", "openid" },
-                { "response_type", "id_token" },
-                { "response_mode", "query" },
-                { "prompt", "login" },
-            };
+            var queryParams = new Dictionary<string, string>();
+            queryParams.Add("p", requestType);
+            queryParams.Add("client_id", settings.ClientId);
+            queryParams.Add("nonce", "defaultNonce");
+            queryParams.Add("redirect_uri", settings.RedirectUrl);
+            queryParams.Add("scope", "openid");
+            queryParams.Add("response_type", "id_token");
+            queryParams.Add("response_mode", "query");
+            queryParams.Add("prompt", "login");
             string registerUrl = QueryHelpers.AddQueryString(GetUrlWithoutParams(configDoc.AuthorizationEndpoint), queryParams);
 
             return registerUrl;
@@ -108,7 +102,7 @@ namespace DFC.Composite.Shell.Services.Auth
         private JwtSecurityToken ValidateToken(
             string token,
             OpenIdConnectConfiguration discoveryDocument,
-            CancellationToken ct = default)
+            CancellationToken ct = default(CancellationToken))
         {
             var signingKeys = discoveryDocument.SigningKeys;
 

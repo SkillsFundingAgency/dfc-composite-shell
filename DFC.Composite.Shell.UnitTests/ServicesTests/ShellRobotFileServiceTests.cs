@@ -75,7 +75,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StagingStaticRobots.txt")).Returns(fakeRobotFileText);
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("staging.nationalcareers.service.gov.uk"));
+            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk"));
 
             var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 
@@ -92,7 +92,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\ProductionStaticRobots.txt")).Returns(fakeRobotFileText);
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("nationalcareers.service.gov.uk"));
+            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk"));
 
             var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 
@@ -134,7 +134,7 @@ Disallow: /";
             var fileInfoHelper = new FileInfoHelper();
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("staging.nationalcareers.service.gov.uk"));
+            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk"));
 
             var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 
@@ -155,7 +155,7 @@ Disallow: /webchat/
             var fileInfoHelper = new FileInfoHelper();
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("nationalcareers.service.gov.uk"));
+            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk"));
 
             var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 

@@ -43,7 +43,7 @@ namespace DFC.Composite.Shell.Extensions
                 retryPolicyKey,
                 HttpPolicyExtensions
                     .HandleTransientHttpError()
-                    .OrResult(msg =>
+                    .OrResult(msg => 
                         msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     .OrResult(msg => msg?.Headers?.RetryAfter != null)
                     .WaitAndRetryAsync(
@@ -230,9 +230,9 @@ namespace DFC.Composite.Shell.Extensions
                             .Distinct()
                             .ToList()));
             }
-#pragma warning disable CA1031
+            #pragma warning disable CA1031
             catch (Exception exception)
-#pragma warning restore CA1031
+            #pragma warning restore CA1031
             {
                 AttemptToLog(exception, "Failure getting paths from app registry");
             }
@@ -253,9 +253,9 @@ namespace DFC.Composite.Shell.Extensions
                 var logger = loggerFactory.CreateLogger<Startup>();
                 logger?.LogError(exception, message);
             }
-#pragma warning disable CA1031
+            #pragma warning disable CA1031
             catch
-#pragma warning restore CA1031
+            #pragma warning restore CA1031
             {
                 // Swallow the exception - it will be lost unfortunately as we dont have a fallback logger
             }

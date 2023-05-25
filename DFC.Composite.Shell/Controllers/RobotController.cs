@@ -68,7 +68,7 @@ namespace DFC.Composite.Shell.Controllers
             if (sitemapRouteUrl != null)
             {
                 var baseUrl = $"{Request.GetBaseAddress()}".TrimEnd('/');
-                dynamicText.Append($"Sitemap: {baseUrl}/sitemap{sitemapRouteUrl}");
+                dynamicText.Append($"Sitemap: {baseUrl}{sitemapRouteUrl}");
             }
 
             var combinedText = staticText.Replace("{Insertion}", dynamicText.ToString());

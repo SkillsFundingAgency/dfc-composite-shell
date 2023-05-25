@@ -18,8 +18,14 @@ namespace DFC.Composite.Shell.Test.ServicesTests
 {
     public class ApplicationRobotServiceTests
     {
-        private readonly ILogger<ApplicationRobotService> defaultLogger = A.Fake<ILogger<ApplicationRobotService>>();
-        private readonly HttpClient defaultHttpClient = new HttpClient();
+        private readonly ILogger<ApplicationRobotService> logger;
+        private readonly HttpClient defaultHttpClient;
+
+        public ApplicationRobotServiceTests()
+        {
+            logger = A.Fake<ILogger<ApplicationRobotService>>();
+            defaultHttpClient = new HttpClient();
+        }
 
         [Fact]
         public async Task GetAsyncReturnsRobotTextWhenApiReturnsRobotText()
@@ -37,7 +43,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var httpClient = new HttpClient(fakeHttpMessageHandler) { BaseAddress = new Uri("http://SomeDummyCDNUrl") };
 
-            var robotService = new ApplicationRobotService(defaultLogger, httpClient);
+            var robotService = new ApplicationRobotService(httpClient);
             var model = new ApplicationRobotModel { BearerToken = "SomeBearerToken" };
 
             var result = await robotService.GetAsync(model);
@@ -51,11 +57,22 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         [Fact]
         public async Task GetAsyncReturnsNullIfModelIsNull()
         {
-            var robotService = new ApplicationRobotService(defaultLogger, defaultHttpClient);
+            var robotService = new ApplicationRobotService(defaultHttpClient);
 
             var result = await robotService.GetAsync(null);
 
             Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetAsyncReturnsExceptionIfNoRobotsTextFound()
+        {
+            var robotService = new ApplicationRobotService(defaultHttpClient);
+
+            var model = new ApplicationRobotModel { BearerToken = "SomeBearerToken" };
+            var exceptionResult = await Assert.ThrowsAsync<InvalidOperationException>(async () => await robotService.GetAsync(model));
+
+            Assert.StartsWith("An invalid request URI was provided.", exceptionResult.Message, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

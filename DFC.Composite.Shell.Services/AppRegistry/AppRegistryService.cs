@@ -98,10 +98,12 @@ namespace DFC.Composite.Shell.Services.AppRegistry
 
         private async Task<IEnumerable<AppRegistrationModel>> GetPaths_WithoutCaching()
         {
-            using var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress);
-            var response = await httpClient.SendAsync(msg);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsAsync<List<AppRegistrationModel>>();
+            using (var msg = new HttpRequestMessage(HttpMethod.Get, httpClient.BaseAddress))
+            {
+                var response = await httpClient.SendAsync(msg);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsAsync<List<AppRegistrationModel>>();
+            }
         }
     }
 }
