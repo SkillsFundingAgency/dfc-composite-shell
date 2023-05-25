@@ -86,6 +86,9 @@
         "ShowLoginBanner": {
             "type": "bool"
         },
+        "AddNoIndexMeta": {
+            "type": "bool"
+        },
         "ExceptionCountThreshold": {
             "type": "string"
         },
@@ -424,12 +427,16 @@
                                 "value": "[parameters('ShowLoginBanner')]"
                             },
                             {
+                            "name": "AddNoIndexMeta",
+                            "value": "[parameters('AddNoIndexMeta')]"
+                            },
+                            {
                                 "name": "WebchatOptions__Enabled",
                                 "value": "[parameters('enableWebChatOptions')]"
                             },
                             {
                                 "name": "WebchatOptions__ScriptUrl",
-                                "value": "[concat(parameters('WebChatBaseUrl'),':',parameters('WebChatPort'),'/js/chatRed.js')]" 
+                                "value": "[parameters('WebChatBaseUrl')]" 
                             },
                             {
                                 "name": "SHCImageStorageURL",

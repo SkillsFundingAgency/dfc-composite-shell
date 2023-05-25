@@ -16,7 +16,7 @@
     "JavaScriptNames": {
       "/js/jquerybundle.min.js": null,
       "/js/dfcdigital.min.js": null,
-      "__WebChatUrl__/js/chatRed.js": null
+      "__WebChatUrl__": null
     },
     "CssScriptNames": {
         "/css/all.min.css": null
