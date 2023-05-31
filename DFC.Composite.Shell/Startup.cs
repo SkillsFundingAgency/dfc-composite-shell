@@ -148,6 +148,7 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
+                        "https://region1.google-analytics.com", // /g/collect?
                         "https://www.googletagmanager.com",
                         "tr.snapchat.com")));
 
