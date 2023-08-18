@@ -32,7 +32,7 @@
 
     foreach (var script in versionedPathForCssScripts)
     {
-        <link href="@script" rel="stylesheet" type="text/css" />
+        <link href="@script" rel="preload" as="style" type="text/css" />
     }
 
     var webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
