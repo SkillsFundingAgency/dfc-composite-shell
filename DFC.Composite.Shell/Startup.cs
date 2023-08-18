@@ -180,7 +180,7 @@ namespace DFC.Composite.Shell
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => false;
+                options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -244,7 +244,11 @@ namespace DFC.Composite.Shell
             services.AddTransient<IContentRetriever, ContentRetriever>();
             services.AddSingleton<IUriSpecifcHttpClientFactory, UriSpecifcHttpClientFactory>();
 
-            services.AddSession();
+            services.AddSession(options =>
+            {
+                options.Cookie.IsEssential = true;
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+            });
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
