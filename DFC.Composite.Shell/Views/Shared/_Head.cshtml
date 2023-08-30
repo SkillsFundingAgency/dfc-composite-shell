@@ -35,11 +35,11 @@
         <link href="@script" rel="stylesheet" type="text/css" />
     }
 
-    //var webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
-    //var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"]?.ToString();
+    var webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
+    var versionedPathForWebChatJs = ViewData["VersionedPathForWebChatJs"]?.ToString();
 
-    //if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
-    //{
-    //    <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true" async></script>
-    //}
+    if (webchatEnabled && !string.IsNullOrWhiteSpace(versionedPathForWebChatJs))
+    {
+        <script src="@versionedPathForWebChatJs" nws-csp-add-nonce="true" async></script>
+    }
 }
