@@ -16,7 +16,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<partial name="_GoogleTagManagerScripts" />
+@*<partial name="_GoogleTagManagerScripts" />*@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta property="og:image" content="@(BrandingAssetsFolder)/images/govuk-opengraph-image.png">
 
@@ -32,7 +32,7 @@
 
     foreach (var script in versionedPathForCssScripts)
     {
-        <link href="@script" rel="preload" as="style" crossorigin="anonymous" />
+        <link href="@script" rel="stylesheet" type="text/css" />
     }
 
     var webchatEnabled = ViewData["WebchatEnabled"].ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
