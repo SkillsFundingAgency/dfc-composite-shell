@@ -2,8 +2,6 @@
 {
     public class GoogleSettings
     {
-        public string OptimizeId { get; set; }
-
         public string TagManagerId { get; set; }
     }
 }

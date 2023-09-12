@@ -102,17 +102,13 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/js/",
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsScriptResourceAddress)}",
                         "https://www.youtube.com",
-                        "https://www.google-analytics.com",
-                        "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.google-analytics.com"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
-                        "https://optimize.google.com",
-                        "https://fonts.googleapis.com",
-                        "https://www.googleoptimize.com"))
+                        "https://fonts.googleapis.com"))
                 .FormActions(s => s
                     .Self().CustomSources(
                     $"{oidcPath.Scheme}://{oidcPath.Host}",
@@ -133,14 +129,12 @@ namespace DFC.Composite.Shell
                         "www.google-analytics.com",
                         "*.doubleclick.net",
                         "https://i.ytimg.com",
-                        "https://optimize.google.com",
-                        "https://www.googleoptimize.com",
                         "https://www.googletagmanager.com",
                         "www.facebook.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com"))
+                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://tr.snapchat.com"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
