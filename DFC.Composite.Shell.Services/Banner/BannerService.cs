@@ -26,7 +26,7 @@ namespace DFC.Composite.Shell.Services.Banner
         public async Task<HtmlString> GetPageBannersAsync(string path)
         {
             _ = path ?? throw new ArgumentNullException(nameof(path));
-            const int CacheDurationInSeconds = 10;
+            const int CacheDurationInSeconds = 600;
             var cacheKey = BuildCacheKey(path);
 
             if (!memoryCache.TryGetValue(cacheKey, out HtmlString content))
