@@ -27,5 +27,20 @@ namespace DFC.Composite.Shell.Integration.Test
 
             Assert.Equal(MediaTypeNames.Application.Xml, response.Content.Headers.ContentType.MediaType);
         }
+
+        [Fact]
+        public async Task Should_BeUtf8()
+        {
+            var expected = "encoding=\"utf-8\"";
+
+            var client = factory.CreateClientWithWebHostBuilder();
+
+            var response = await client.GetAsync(new Uri("/sitemap.xml", UriKind.Relative));
+
+            response.EnsureSuccessStatusCode();
+            var responseHtml = await response.Content.ReadAsStringAsync();
+
+            Assert.Contains(expected, responseHtml, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

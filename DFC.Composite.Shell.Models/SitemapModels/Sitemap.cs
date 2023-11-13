@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace DFC.Composite.Shell.Models.SitemapModels
@@ -57,7 +58,7 @@ namespace DFC.Composite.Shell.Models.SitemapModels
 
         public string WriteSitemapToString()
         {
-            using StringWriter sw = new StringWriter();
+            using Utf8StringWriter sw = new Utf8StringWriter();
             XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
             ns.Add("xhtml", "http://www.w3.org/1999/xhtml");
 
@@ -66,4 +67,9 @@ namespace DFC.Composite.Shell.Models.SitemapModels
             return sw.GetStringBuilder().ToString();
         }
     }
+}
+
+public sealed class Utf8StringWriter : StringWriter
+{
+    public override Encoding Encoding => Encoding.UTF8;
 }
