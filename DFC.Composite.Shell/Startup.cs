@@ -105,6 +105,7 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
+                        "https://www.clarity.ms",
                         "https://www.googleoptimize.com"))
                 .StyleSources(s => s
                     .UnsafeInline()
