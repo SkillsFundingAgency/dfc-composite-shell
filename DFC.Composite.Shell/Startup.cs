@@ -19,6 +19,7 @@ using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Microsoft;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
@@ -233,6 +234,7 @@ namespace DFC.Composite.Shell
             services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));
             services.Configure<GoogleSettings>(Configuration.GetSection("GoogleScripts"));
+            services.Configure<MicrosoftSettings>(Configuration.GetSection("MicrosoftScripts"));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
