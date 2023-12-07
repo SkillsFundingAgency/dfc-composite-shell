@@ -104,7 +104,11 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com",
+                        "https://az416426.vo.msecnd.net"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
@@ -112,7 +116,10 @@ namespace DFC.Composite.Shell
                         webchatCspDomain + "/css/",
                         "https://optimize.google.com",
                         "https://fonts.googleapis.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .FormActions(s => s
                     .Self().CustomSources(
                     $"{oidcPath.Scheme}://{oidcPath.Host}",
@@ -136,11 +143,22 @@ namespace DFC.Composite.Shell
                         "https://optimize.google.com",
                         "https://www.googleoptimize.com",
                         "https://www.googletagmanager.com",
-                        "www.facebook.com"))
+                        "www.facebook.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com"))
                 .FrameAncestors(s => s.Self())
                 .FrameSources(s => s
                     .Self()
-                    .CustomSources(webchatCspDomain, "https://www.youtube-nocookie.com", "https://optimize.google.com", "https://tr.snapchat.com"))
+                    .CustomSources(
+                        webchatCspDomain, 
+                        "https://www.youtube-nocookie.com", 
+                        "https://optimize.google.com", 
+                        "https://tr.snapchat.com", 
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com",
+                        "https://depedpilot.qualtrics.com/jfe/form/SV_dmtemq6E4cfnpgW"))
                 .ConnectSources(s => s
                     .Self()
                     .CustomSources(
@@ -150,7 +168,10 @@ namespace DFC.Composite.Shell
                         "https://www.google-analytics.com",
                         "https://region1.google-analytics.com", // /g/collect?
                         "https://www.googletagmanager.com",
-                        "tr.snapchat.com")));
+                        "tr.snapchat.com",
+                        "https://qualtrics.com",
+                        "https://siteintercept.qualtrics.com",
+                        "https://znb2zxf796xcbihwq-depedpilot.siteintercept.qualtrics.com")));
 
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.StrictOriginWhenCrossOrigin());
