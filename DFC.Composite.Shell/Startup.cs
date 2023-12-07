@@ -97,6 +97,7 @@ namespace DFC.Composite.Shell
                         "tr.snapchat.com",
                         "connect.facebook.net",
                         "www.facebook.com",
+                        "https://www.facebook.com/tr",
                         "www.googletagmanager.com",
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/js/",
                         webchatCspDomain + "/js/",
@@ -104,7 +105,8 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
-                        "https://www.googleoptimize.com"))
+                        "https://www.googleoptimize.com",
+                        "https://connect.facebook.net/en_US/fbevents.js"))
                 .StyleSources(s => s
                     .UnsafeInline()
                     .CustomSources(
@@ -162,6 +164,7 @@ namespace DFC.Composite.Shell
                 context.Response.Headers["Feature-Policy"] = "sync-xhr 'self'";
                 context.Response.Headers["Expect-CT"] = "max-age=86400, enforce";
                 context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
+                context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
                 return next();
             });
 
