@@ -43,7 +43,7 @@ namespace DFC.Composite.Shell.Views.Test.Tests
             var viewBag = new Dictionary<string, object>();
             var viewRenderer = new RazorEngineRenderer(ViewRootPath);
 
-            var viewRenderResponse = viewRenderer.Render(@"RenderView", model, viewBag);
+            var viewRenderResponse = viewRenderer.Render("RenderView", model, viewBag);
 
             Assert.Contains(model.ContentHead.Value, viewRenderResponse);
             Assert.Contains(model.ContentBodyTop.Value, viewRenderResponse);
