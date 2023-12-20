@@ -83,10 +83,10 @@
         "VisitsUrl": {
             "value": "https://foo"
         },
-        "BannerAppBaseUrl":{
+        "BannerAppBaseUrl": {
             "value": "https://sample.com"
         },
-        "ApplicationClientOptionsTimeout":{
+        "ApplicationClientOptionsTimeout": {
             "value": "00:00:10"
         },
         "SHCImageStorageURL": {
@@ -98,8 +98,14 @@
         "OptimizeId": {
             "value": "OPT-ABCD"
         },
-      "AddNoIndexMeta": {
-        "value": false
-      }
+        "AddNoIndexMeta": {
+            "value": false
+        },
+        "workspaceName": {
+            "value": "aTestLogAnalyticsAccount"
+        },
+        "workspaceResourceGroup": {
+            "value": "aResourceGroup"
+        }
     }
 }
