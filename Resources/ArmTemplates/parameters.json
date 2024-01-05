@@ -111,10 +111,16 @@
             "value": __SupportedHeaders__
         },
         "AddNoIndexMeta": {
-        "value":  __AddNoIndexMeta__
-      },
+            "value":  __AddNoIndexMeta__
+        },
         "OptimizeId": {
             "value":  "__OptimizeId__"
+        },
+        "workspaceName": {
+            "value": "__sharedLogAnalyticsWorkspace__"
+        },
+        "workspaceResourceGroup": {
+            "value": "__sharedLogAnalyticsResourceGroup__"
         }
     }
 }
