@@ -47,6 +47,14 @@
     "ExternalUrl": "__ExternalLiveSite__/get-a-job"
   },
   {
+    "Path": "explore-your-education-and-training-choices",
+    "TopNavigationText": "Careers advice",
+    "TopNavigationOrder": 901,
+    "Layout": 0,
+    "OfflineHtml": "<div class=\"govuk-width-container\"><H2>External App is Unavailable</H2></div>",
+    "ExternalUrl": "__SkillsForLifeRedirect__"
+  },
+  {
     "Path": "careers-advice",
     "TopNavigationText": "Careers advice",
     "TopNavigationOrder": 900,
