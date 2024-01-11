@@ -114,6 +114,7 @@
             "type": "string",
             "metadata": {
                 "description": "ApplicationClientOptions Timeout"
+            }
         },
         "SHCImageStorageURL": {
             "type": "string"
