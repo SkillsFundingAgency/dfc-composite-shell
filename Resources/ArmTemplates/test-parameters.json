@@ -1,108 +1,114 @@
 {
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
-  "parameters": {
-    "ApimProxyAddress": {
-      "value": "https://foo.api.nationalcareersservice.org.uk"
-    },
-    "ApimKey": {
-      "value": "0123456789"
-    },
-    "CompositeUiCdnUrl": {
-      "value": "https://foo-compui-cdn.nationalcareersservice.org.uk"
-    },
-    "CompositeUiSharedResourceGroup": {
-      "value": "dfc-dev-compui-shared-rg"
-    },
-    "CompositeUiSharedStorageAccountName": {
-      "value": "dfcdevcompuisharedstr"
-    },
-    "Environment": {
-      "value": "FOO"
-    },
-    "SharedAppServicePlanName": {
-      "value": "dfc-dev-compui-shared-asp"
-    },
-    "SharedAppServicePlanResourceGroup": {
-      "value": "dfc-dev-compui-shared-rg"
-    },
-    "EnvironmentName": {
-      "value": "Development"
-    },
-    "customHostName": {
-      "value": "some.host.name"
-    },
-    "keyVaultName": {
-      "value": "a-keyvault"
-    },
-    "keyVaultResourceGroup": {
-      "value": "keyvault-rg"
-    },
-    "certificateName": {
-      "value": "certificate-name"
-    },
-    "enableAlerts": {
-      "value": false
-    },
-    "clientAffinity": {
-      "value": false
-    },
-    "AuthSettingsIssuer": {
-      "value": "IAmAnIssuer"
-    },
-    "AuthClientSecret": {
-      "value": "12345678"
-    },
-    "OIDCClientId": {
-      "value": "1244444"
-    },
-    "OIDCLogPersonalInfo": {
-      "value": false
-    },
-    "OIDCOIDCConfigMetaDataUrl": {
-      "value": "https://foo-compui-shell.azurewebsites.net"
-    },
-    "ShowLoginBanner": {
-      "value": false
-    },
-    "ExceptionCountThreshold": {
-      "value": "0"
-    },
-    "AppRegistryClientOptionsBaseAddress": {
-      "value": "dummyurl"
-    },
-    "enableWebChatOptions": {
-      "value": true
-    },
-    "WebChatBaseUrl": {
-      "value": "https://webcaht-endpoint"
-    },
-    "WebChatPort": {
-      "value": "8092"
-    },
-    "VisitsUrl": {
-      "value": "https://foo"
-    },
-    "BannerAppBaseUrl": {
-      "value": "https://sample.com"
-    },
-    "ApplicationClientOptionsTimeout": {
-      "value": "00:00:10"
-    },
-    "SHCImageStorageURL": {
-      "value": "dummyUrl"
-    },
-    "SupportedHeader0": {
-      "value": "Referer"
-    },
-    "OptimizeId": {
-      "value": "OPT-ABCD"
-    },
-    "ClarityId": {
-      "value": "Clarity-test"
-    },
-    "AddNoIndexMeta": {
-      "value": false
+    "parameters": {
+        "ApimProxyAddress": {
+            "value": "https://foo.api.nationalcareersservice.org.uk"
+        },
+        "ApimKey": {
+            "value": "0123456789"
+        },
+        "CompositeUiCdnUrl": {
+            "value": "https://foo-compui-cdn.nationalcareersservice.org.uk"
+        },
+        "CompositeUiSharedResourceGroup": {
+            "value": "dfc-dev-compui-shared-rg"
+        },
+        "CompositeUiSharedStorageAccountName": {
+            "value": "dfcdevcompuisharedstr"
+        },
+        "Environment": {
+            "value": "FOO"
+        },
+        "SharedAppServicePlanName": {
+            "value": "dfc-dev-compui-shared-asp"
+        },
+        "SharedAppServicePlanResourceGroup": {
+            "value": "dfc-dev-compui-shared-rg"
+        },
+        "EnvironmentName": {
+            "value": "Development"
+        },
+        "customHostName": {
+            "value": "some.host.name"
+        },
+        "keyVaultName": {
+            "value": "a-keyvault"
+        },
+        "keyVaultResourceGroup": {
+            "value": "keyvault-rg"
+        },
+        "certificateName": {
+            "value": "certificate-name"
+        },
+        "enableAlerts": {
+            "value": false
+        },
+        "clientAffinity": {
+            "value": false
+        },
+        "AuthSettingsIssuer": {
+            "value": "IAmAnIssuer"
+        },
+        "AuthClientSecret": {
+            "value": "12345678"
+        },
+        "OIDCClientId": {
+            "value": "1244444"
+        },
+        "OIDCLogPersonalInfo": {
+            "value": false
+        },
+        "OIDCOIDCConfigMetaDataUrl": {
+            "value": "https://foo-compui-shell.azurewebsites.net"
+        },
+        "ShowLoginBanner": {
+            "value": false
+        },
+        "ExceptionCountThreshold": {
+            "value": "0"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "value": "dummyurl"
+        },
+        "enableWebChatOptions": {
+            "value": true
+        },
+        "WebChatBaseUrl": {
+            "value": "https://webcaht-endpoint"
+        },
+        "WebChatPort": {
+            "value": "8092"
+        },
+        "VisitsUrl": {
+            "value": "https://foo"
+        },
+        "BannerAppBaseUrl": {
+            "value": "https://sample.com"
+        },
+        "ApplicationClientOptionsTimeout": {
+            "value": "00:00:10"
+        },
+        "SHCImageStorageURL": {
+            "value": "dummyUrl"
+        },
+        "SupportedHeader0": {
+            "value": "Referer"
+        },
+        "OptimizeId": {
+            "value": "OPT-ABCD"
+        },
+        "AddNoIndexMeta": {
+            "value": false
+        },
+        "ClarityId": {
+            "value": "Clarity-test"
+        },
+        "workspaceName": {
+            "value": "aTestLogAnalyticsAccount"
+        },
+        "workspaceResourceGroup": {
+            "value": "aResourceGroup"
+        }
     }
-  }
 }

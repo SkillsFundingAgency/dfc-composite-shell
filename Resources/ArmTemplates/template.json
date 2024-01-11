@@ -1,72 +1,136 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-  "parameters": {
-    "ApimProxyAddress": {
-      "type": "string"
-    },
-    "ApimKey": {
-      "type": "string"
-    },
-    "AseHostingEnvironmentName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "AseResourceGroup": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "AspSize": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "AspTier": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "clientAffinity": {
-      "type": "bool"
-    },
-    "CompositeUiCdnUrl": {
-      "type": "string"
-    },
-    "CompositeUiSharedResourceGroup": {
-      "type": "string"
-    },
-    "CompositeUiSharedStorageAccountName": {
-      "type": "string"
-    },
-    "Environment": {
-      "type": "string"
-    },
-    "SharedAppServicePlanName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "SharedAppServicePlanResourceGroup": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "customHostName": {
-      "type": "string"
-    },
-    "keyVaultName": {
-      "type": "string"
-    },
-    "keyVaultResourceGroup": {
-      "type": "string"
-    },
-    "certificateName": {
-      "type": "string"
-    },
-    "EnvironmentName": {
-      "type": "string"
-    },
-    "enableAlerts": {
-      "type": "bool",
-      "metadata": {
-        "description": "Enable or disable alerting"
-      }
+    "parameters": {
+        "ApimProxyAddress": {
+            "type": "string"
+        },
+        "ApimKey": {
+            "type": "string"
+        },
+        "AseHostingEnvironmentName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "AseResourceGroup": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "AspSize": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "AspTier": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "clientAffinity": {
+            "type": "bool"
+        },
+        "CompositeUiCdnUrl": {
+            "type": "string"
+        },
+        "CompositeUiSharedResourceGroup": {
+            "type": "string"
+        },
+        "CompositeUiSharedStorageAccountName": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string"
+        },
+        "SharedAppServicePlanName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "SharedAppServicePlanResourceGroup": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "customHostName": {
+            "type": "string"
+        },
+        "keyVaultName": {
+            "type": "string"
+        },
+        "keyVaultResourceGroup": {
+            "type": "string"
+        },
+        "certificateName": {
+            "type": "string"
+        },
+        "EnvironmentName": {
+            "type": "string"
+        },
+        "enableAlerts": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable or disable alerting"
+            }
+        },
+        "AuthSettingsIssuer": {
+            "type": "string"
+        },
+        "AuthClientSecret": {
+            "type": "string"
+        },
+        "OIDCClientId": {
+            "type": "string"
+        },
+        "OIDCLogPersonalInfo": {
+            "type": "bool"
+        },
+        "OIDCOIDCConfigMetaDataUrl": {
+            "type": "string"
+        },
+        "ShowLoginBanner": {
+            "type": "bool"
+        },
+        "AddNoIndexMeta": {
+            "type": "bool"
+        },
+        "ExceptionCountThreshold": {
+            "type": "string"
+        },
+        "AppRegistryClientOptionsBaseAddress": {
+            "type": "string"
+        },
+        "enableWebChatOptions": {
+            "type": "bool"
+        },
+        "WebChatBaseUrl": {
+            "type": "string"
+        },
+        "WebChatPort": {
+            "type": "string"
+        },
+        "VisitsUrl": {
+            "type": "string"
+        },
+        "BannerAppBaseUrl":{
+            "type": "string"
+        },
+        "ApplicationClientOptionsTimeout": {
+            "type": "string",
+            "metadata": {
+                "description": "ApplicationClientOptions Timeout"
+            }
+        },
+        "SHCImageStorageURL": {
+            "type": "string"
+        },
+        "SupportedHeader0" :{
+            "type": "string"
+        },
+        "OptimizeId" :{
+            "type": "string"
+        },
+        "workspaceName": {
+            "type": "string"
+        },
+        "workspaceResourceGroup": {
+            "type": "string"
+        }
     },
     "AuthSettingsIssuer": {
       "type": "string"
@@ -155,6 +219,12 @@
                     },
                     "attachedService": {
                         "value": ""
+                    },
+                    "workspaceName": {
+                        "value": "[parameters('workspaceName')]"
+                    },
+                    "workspaceResourceGroup": {
+                        "value": "[parameters('workspaceResourceGroup')]"
                     }
                 }
             }
