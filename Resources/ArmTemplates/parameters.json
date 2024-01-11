@@ -118,6 +118,7 @@
         },
         "ClarityId": {
             "value": "__ClarityId__"
+        },
         "workspaceName": {
             "value": "__sharedLogAnalyticsWorkspace__"
         },
