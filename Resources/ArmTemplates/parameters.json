@@ -116,6 +116,8 @@
         "OptimizeId": {
             "value":  "__OptimizeId__"
         },
+        "ClarityId": {
+            "value": "__ClarityId__"
         "workspaceName": {
             "value": "__sharedLogAnalyticsWorkspace__"
         },

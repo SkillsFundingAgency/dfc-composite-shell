@@ -132,6 +132,67 @@
             "type": "string"
         }
     },
+    "AuthSettingsIssuer": {
+      "type": "string"
+    },
+    "AuthClientSecret": {
+      "type": "string"
+    },
+    "OIDCClientId": {
+      "type": "string"
+    },
+    "OIDCLogPersonalInfo": {
+      "type": "bool"
+    },
+    "OIDCOIDCConfigMetaDataUrl": {
+      "type": "string"
+    },
+    "ShowLoginBanner": {
+      "type": "bool"
+    },
+    "AddNoIndexMeta": {
+      "type": "bool"
+    },
+    "ExceptionCountThreshold": {
+      "type": "string"
+    },
+    "AppRegistryClientOptionsBaseAddress": {
+      "type": "string"
+    },
+    "enableWebChatOptions": {
+      "type": "bool"
+    },
+    "WebChatBaseUrl": {
+      "type": "string"
+    },
+    "WebChatPort": {
+      "type": "string"
+    },
+    "VisitsUrl": {
+      "type": "string"
+    },
+    "BannerAppBaseUrl": {
+      "type": "string"
+    },
+    "ApplicationClientOptionsTimeout": {
+      "type": "string",
+      "metadata": {
+        "description": "ApplicationClientOptions Timeout"
+      }
+    },
+    "SHCImageStorageURL": {
+      "type": "string"
+    },
+    "SupportedHeader0": {
+      "type": "string"
+    },
+    "OptimizeId": {
+      "type": "string"
+    },
+    "ClarityId": {
+      "type": "string"
+    }
+  },
     "variables": {
         "AppServiceAppInsightsName": "[concat(variables('ResourcePrefix'), '-ai')]",
         "AppServicePlanName": "[if(greater(length(parameters('SharedAppServicePlanName')), 0), parameters('SharedAppServicePlanName'), concat(variables('ResourcePrefix'), '-asp'))]",
@@ -261,208 +322,212 @@
                         "value": "[if(greater(length(parameters('customHostName')),0), reference('compositeshellCertificates').outputs.certificateThumbprint.value, '')]"
                     },
                     "appServiceAppSettings": {
-                        "value": [
-                            {
-                                "name": "MSDEPLOY_RENAME_LOCKED_FILES",
-                                "value": "1"
-                            },
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "EnvironmentSettings__EnvironmentName",
-                                "value": "[parameters('environmentName')]"
-                            },
-                            {
-                                "name": "ApplicationInsights__ScriptResourceAddress",
-                                "value": "https://az416426.vo.msecnd.net/scripts/"
-                            },
-                            {
-                                "name": "ApplicationInsights__ConnectSources",
-                                "value": "https://dc.services.visualstudio.com/"
-                            },
-                            {
-                                "name": "AzureWebJobsStorage",
-                                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
-                            },
-                            {
-                                "name": "ApimProxyAddress",
-                                "value": "[parameters('ApimProxyAddress')]"
-                            },
-                            {
-                                "name": "ApplicationClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "ApplicationClientOptions__Timeout",
-                                "value": "[parameters('ApplicationClientOptionsTimeout')]"
-                            },
-                            {
-                                "name": "BrandingAssetsCdn",
-                                "value": "[parameters('CompositeUiCdnUrl')]"
-                            },
-                            {
-                                "name": "Logging__LogLevel__Default",
-                                "value": "Error"
-                            },
-                            {
-                                "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
-                                "value": "00:01:00"
-                            },
-                            {
-                                "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
-                                "value": 3
-                            },
-                            {
-                                "name": "Policies__HttpRetry__BackoffPower",
-                                "value": 3
-                            },
-                            {
-                                "name": "Policies__HttpRetry__Count",
-                                "value": 3
-                            },
-                            {
-                                "name": "RobotClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "RobotClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "SitemapClientOptions__BaseAddress",
-                                "value": null
-                            },
-                            {
-                                "name": "SitemapClientOptions__Timeout",
-                                "value": "00:00:10"
-                            },
-                            {
-                                "name": "AuthSettings__ClientSecret",
-                                "value": "[parameters('AuthClientSecret')]"
-                            },
-                            {
-                                "name": "AuthSettings__Issuer",
-                                "value": "[parameters('AuthSettingsIssuer')]"
-                            },
-                            {
-                                "name": "AuthSettings__Audience",
-                                "value": "CompositeChild"
-                            },
-                            {
-                                "name": "AuthSettings__DefaultRedirectUrl",
-                                "value": "/your-account"
-                            },
-                            {
-                                "name": "AuthSettings__AuthDssEndpoint",
-                                "value": "/your-account/authsuccess?redirectUrl={Url}"
-                            },
-                            {
-                                "name": "OIDCSettings__OIDCConfigMetaDataUrl",
-                                "value": "[parameters('OIDCOIDCConfigMetaDataUrl')]"
-                            },
-                            {
-                                "name": "OIDCSettings__UseOIDCConfigDiscovery",
-                                "value": true
-                            },
-                            {
-                                "name": "OIDCSettings__AuthorizeUrl",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__JWKsUrl",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__JWK",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__Issuer",
-                                "value": "tbc"
-                            },
-                            {
-                                "name": "OIDCSettings__ClientId",
-                                "value": "[parameters('OIDCClientId')]"
-                            },
-                            {
-                                "name": "OIDCSettings__RedirectUrl",
-                                "value": "[concat(parameters('AuthSettingsIssuer'), '/auth/auth')]"
-                            },
-                            {
-                                "name": "OIDCSettings__SignOutRedirectUrl",
-                                "value": "[parameters('AuthSettingsIssuer')]"
-                            },
-                            {
-                                "name": "OIDCSettings__AuthdUrl",
-                                "value": "[concat(parameters('AuthSettingsIssuer'), '/your-account')]"
-                            },
-                            {
-                                "name": "OIDCSettings__LogPersonalInfo",
-                                "value": "[parameters('OIDCLogPersonalInfo')]"
-                            },
-                            {
-                                "name": "OIDCSettings__Exponent",
-                                "value": "AQAB"
-                            },
-                            {
-                                "name": "VisitClientOptions__Timeout",
-                                "value": "00:00:30"
-                            },
-                            {
-                                "name": "VisitClientOptions__BaseAddress",
-                                "value": "[parameters('VisitsUrl')]"
-                            },
-                            {
-                                "name": "BannerClientOptions__Timeout",
-                                "value": "00:00:30"
-                            },
-                            {
-                                "name": "BannerClientOptions__BaseAddress",
-                                "value": "[parameters('BannerAppBaseUrl')]"
-                            },
-                            {
-                                "name": "AppRegistryClientOptions__BaseAddress",
-                                "value": "[parameters('AppRegistryClientOptionsBaseAddress')]"
-                            },
-                            {
-                                "name": "AppRegistryClientOptions__ApiKey",
-                                "value": "[parameters('ApimKey')]"
-                            },
-                            {
-                                "name": "Configuration__ApplicationName",
-                                "value": "DFC-Composite-Shell"
-                            },
-                            {
-                                "name": "ShowLoginBanner",
-                                "value": "[parameters('ShowLoginBanner')]"
-                            },
-                            {
-                            "name": "AddNoIndexMeta",
-                            "value": "[parameters('AddNoIndexMeta')]"
-                            },
-                            {
-                                "name": "WebchatOptions__Enabled",
-                                "value": "[parameters('enableWebChatOptions')]"
-                            },
-                            {
-                                "name": "WebchatOptions__ScriptUrl",
-                                "value": "[parameters('WebChatBaseUrl')]" 
-                            },
-                            {
-                                "name": "SHCImageStorageURL",
-                                "value": "[parameters('SHCImageStorageURL')]"
-                            },
-                            {
-                                "name": "PassOnHeaderSettings__SupportedHeaders__0",
-                                "value" : "[parameters('SupportedHeader0')]"
-                            },
-                            {
-                                "name": "GoogleScripts__OptimizeId",
-                                "value" : "[parameters('OptimizeId')]"
-                            }
-                        ]
+                      "value": [
+                        {
+                          "name": "MSDEPLOY_RENAME_LOCKED_FILES",
+                          "value": "1"
+                        },
+                        {
+                          "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                          "value": "[reference(variables('AppServiceAppInsightsName')).outputs.InstrumentationKey.value]"
+                        },
+                        {
+                          "name": "EnvironmentSettings__EnvironmentName",
+                          "value": "[parameters('environmentName')]"
+                        },
+                        {
+                          "name": "ApplicationInsights__ScriptResourceAddress",
+                          "value": "https://az416426.vo.msecnd.net/scripts/"
+                        },
+                        {
+                          "name": "ApplicationInsights__ConnectSources",
+                          "value": "https://dc.services.visualstudio.com/"
+                        },
+                        {
+                          "name": "AzureWebJobsStorage",
+                          "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('CompositeUiSharedStorageAccountName'),';AccountKey=',listKeys(resourceId(parameters('CompositeUiSharedResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('CompositeUiSharedStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+                        },
+                        {
+                          "name": "ApimProxyAddress",
+                          "value": "[parameters('ApimProxyAddress')]"
+                        },
+                        {
+                          "name": "ApplicationClientOptions__BaseAddress",
+                          "value": null
+                        },
+                        {
+                          "name": "ApplicationClientOptions__Timeout",
+                          "value": "[parameters('ApplicationClientOptionsTimeout')]"
+                        },
+                        {
+                          "name": "BrandingAssetsCdn",
+                          "value": "[parameters('CompositeUiCdnUrl')]"
+                        },
+                        {
+                          "name": "Logging__LogLevel__Default",
+                          "value": "Error"
+                        },
+                        {
+                          "name": "Policies__HttpCircuitBreaker__DurationOfBreak",
+                          "value": "00:01:00"
+                        },
+                        {
+                          "name": "Policies__HttpCircuitBreaker__ExceptionsAllowedBeforeBreaking",
+                          "value": 3
+                        },
+                        {
+                          "name": "Policies__HttpRetry__BackoffPower",
+                          "value": 3
+                        },
+                        {
+                          "name": "Policies__HttpRetry__Count",
+                          "value": 3
+                        },
+                        {
+                          "name": "RobotClientOptions__BaseAddress",
+                          "value": null
+                        },
+                        {
+                          "name": "RobotClientOptions__Timeout",
+                          "value": "00:00:10"
+                        },
+                        {
+                          "name": "SitemapClientOptions__BaseAddress",
+                          "value": null
+                        },
+                        {
+                          "name": "SitemapClientOptions__Timeout",
+                          "value": "00:00:10"
+                        },
+                        {
+                          "name": "AuthSettings__ClientSecret",
+                          "value": "[parameters('AuthClientSecret')]"
+                        },
+                        {
+                          "name": "AuthSettings__Issuer",
+                          "value": "[parameters('AuthSettingsIssuer')]"
+                        },
+                        {
+                          "name": "AuthSettings__Audience",
+                          "value": "CompositeChild"
+                        },
+                        {
+                          "name": "AuthSettings__DefaultRedirectUrl",
+                          "value": "/your-account"
+                        },
+                        {
+                          "name": "AuthSettings__AuthDssEndpoint",
+                          "value": "/your-account/authsuccess?redirectUrl={Url}"
+                        },
+                        {
+                          "name": "OIDCSettings__OIDCConfigMetaDataUrl",
+                          "value": "[parameters('OIDCOIDCConfigMetaDataUrl')]"
+                        },
+                        {
+                          "name": "OIDCSettings__UseOIDCConfigDiscovery",
+                          "value": true
+                        },
+                        {
+                          "name": "OIDCSettings__AuthorizeUrl",
+                          "value": "tbc"
+                        },
+                        {
+                          "name": "OIDCSettings__JWKsUrl",
+                          "value": "tbc"
+                        },
+                        {
+                          "name": "OIDCSettings__JWK",
+                          "value": "tbc"
+                        },
+                        {
+                          "name": "OIDCSettings__Issuer",
+                          "value": "tbc"
+                        },
+                        {
+                          "name": "OIDCSettings__ClientId",
+                          "value": "[parameters('OIDCClientId')]"
+                        },
+                        {
+                          "name": "OIDCSettings__RedirectUrl",
+                          "value": "[concat(parameters('AuthSettingsIssuer'), '/auth/auth')]"
+                        },
+                        {
+                          "name": "OIDCSettings__SignOutRedirectUrl",
+                          "value": "[parameters('AuthSettingsIssuer')]"
+                        },
+                        {
+                          "name": "OIDCSettings__AuthdUrl",
+                          "value": "[concat(parameters('AuthSettingsIssuer'), '/your-account')]"
+                        },
+                        {
+                          "name": "OIDCSettings__LogPersonalInfo",
+                          "value": "[parameters('OIDCLogPersonalInfo')]"
+                        },
+                        {
+                          "name": "OIDCSettings__Exponent",
+                          "value": "AQAB"
+                        },
+                        {
+                          "name": "VisitClientOptions__Timeout",
+                          "value": "00:00:30"
+                        },
+                        {
+                          "name": "VisitClientOptions__BaseAddress",
+                          "value": "[parameters('VisitsUrl')]"
+                        },
+                        {
+                          "name": "BannerClientOptions__Timeout",
+                          "value": "00:00:30"
+                        },
+                        {
+                          "name": "BannerClientOptions__BaseAddress",
+                          "value": "[parameters('BannerAppBaseUrl')]"
+                        },
+                        {
+                          "name": "AppRegistryClientOptions__BaseAddress",
+                          "value": "[parameters('AppRegistryClientOptionsBaseAddress')]"
+                        },
+                        {
+                          "name": "AppRegistryClientOptions__ApiKey",
+                          "value": "[parameters('ApimKey')]"
+                        },
+                        {
+                          "name": "Configuration__ApplicationName",
+                          "value": "DFC-Composite-Shell"
+                        },
+                        {
+                          "name": "ShowLoginBanner",
+                          "value": "[parameters('ShowLoginBanner')]"
+                        },
+                        {
+                          "name": "AddNoIndexMeta",
+                          "value": "[parameters('AddNoIndexMeta')]"
+                        },
+                        {
+                          "name": "WebchatOptions__Enabled",
+                          "value": "[parameters('enableWebChatOptions')]"
+                        },
+                        {
+                          "name": "WebchatOptions__ScriptUrl",
+                          "value": "[parameters('WebChatBaseUrl')]"
+                        },
+                        {
+                          "name": "SHCImageStorageURL",
+                          "value": "[parameters('SHCImageStorageURL')]"
+                        },
+                        {
+                          "name": "PassOnHeaderSettings__SupportedHeaders__0",
+                          "value": "[parameters('SupportedHeader0')]"
+                        },
+                        {
+                          "name": "GoogleScripts__OptimizeId",
+                          "value": "[parameters('OptimizeId')]"
+                        },
+                        {
+                          "name": "MicrosoftScripts__ClarityId",
+                          "value": "[parameters('ClarityId')]"
+                        }
+                      ]
                     }
                 }
             },
