@@ -114,7 +114,6 @@
             "type": "string",
             "metadata": {
                 "description": "ApplicationClientOptions Timeout"
-            }
         },
         "SHCImageStorageURL": {
             "type": "string"
@@ -130,7 +129,6 @@
         },
         "workspaceResourceGroup": {
             "type": "string"
-        }
     },
     "AuthSettingsIssuer": {
       "type": "string"
