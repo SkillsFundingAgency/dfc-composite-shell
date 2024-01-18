@@ -101,6 +101,9 @@
         "AddNoIndexMeta": {
             "value": false
         },
+        "ClarityId": {
+            "value": "Clarity-test"
+        },
         "workspaceName": {
             "value": "aTestLogAnalyticsAccount"
         },

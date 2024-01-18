@@ -19,6 +19,7 @@ using DFC.Composite.Shell.Services.HeaderCount;
 using DFC.Composite.Shell.Services.HeaderRenamer;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Services.Mapping;
+using DFC.Composite.Shell.Services.Microsoft;
 using DFC.Composite.Shell.Services.PathLocator;
 using DFC.Composite.Shell.Services.ShellRobotFile;
 using DFC.Composite.Shell.Services.TokenRetriever;
@@ -104,6 +105,8 @@ namespace DFC.Composite.Shell
                         "https://www.youtube.com",
                         "https://www.google-analytics.com",
                         "https://optimize.google.com",
+                        "https://*.clarity.ms",
+                        "https://c.bing.com",
                         "https://www.googleoptimize.com"))
                 .StyleSources(s => s
                     .UnsafeInline()
@@ -148,6 +151,8 @@ namespace DFC.Composite.Shell
                         $"{Configuration.GetValue<string>(Constants.ApplicationInsightsConnectSources)}",
                         "https://dc.services.visualstudio.com/",
                         "https://www.google-analytics.com",
+                        "https://*.clarity.ms",
+                        "https://c.bing.com",
                         "https://region1.google-analytics.com", // /g/collect?
                         "https://www.googletagmanager.com",
                         "tr.snapchat.com")));
@@ -233,6 +238,7 @@ namespace DFC.Composite.Shell
             services.Configure<OpenIDConnectSettings>(Configuration.GetSection("OIDCSettings"));
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));
             services.Configure<GoogleSettings>(Configuration.GetSection("GoogleScripts"));
+            services.Configure<MicrosoftSettings>(Configuration.GetSection("MicrosoftScripts"));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
