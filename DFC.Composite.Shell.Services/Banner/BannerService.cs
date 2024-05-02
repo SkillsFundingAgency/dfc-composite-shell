@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Polly.CircuitBreaker;
@@ -15,24 +16,27 @@ namespace DFC.Composite.Shell.Services.Banner
         private readonly HttpClient httpClient;
         private readonly ILogger<BannerService> logger;
         private readonly IMemoryCache memoryCache;
+        private readonly IConfiguration configuration;
 
-        public BannerService(HttpClient httpClient, ILogger<BannerService> logger, IMemoryCache memoryCache)
+        public BannerService(HttpClient httpClient, ILogger<BannerService> logger, IMemoryCache memoryCache, IConfiguration config)
         {
             this.httpClient = httpClient;
             this.logger = logger;
             this.memoryCache = memoryCache;
+            this.configuration = config;
         }
 
         public async Task<HtmlString> GetPageBannersAsync(string path)
         {
             _ = path ?? throw new ArgumentNullException(nameof(path));
-            const int CacheDurationInSeconds = 10;
+            int cacheDurationInSeconds;
+            _ = int.TryParse(configuration["InMemoryCacheTimeouts:BannerTimeout"], out cacheDurationInSeconds);
             var cacheKey = BuildCacheKey(path);
 
             if (!memoryCache.TryGetValue(cacheKey, out HtmlString content))
             {
                 content = await GetPageBanners_WithoutCachingAsync(path);
-                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(cacheDurationInSeconds));
             }
 
             return content;

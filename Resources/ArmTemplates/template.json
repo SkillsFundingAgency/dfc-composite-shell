@@ -124,6 +124,15 @@
         },
         "OptimizeId" :{
             "type": "string"
+        },
+        "AppRegistryInMemoryTimeout" :{
+            "type": "int"
+        },
+        "BannerInMemoryTimeout" :{
+            "type": "int"
+        },
+        "ContentRetrieverInMemoryTimeout" :{
+            "type": "int"
         }
     },
     "variables": {
@@ -449,6 +458,18 @@
                             {
                                 "name": "GoogleScripts__OptimizeId",
                                 "value" : "[parameters('OptimizeId')]"
+                            },
+                            {
+                                "name": "InMemoryCacheTimeouts__AppRegistryTimeout",
+                                "value" : "[parameters('AppRegistryInMemoryTimeout')]"
+                            },
+                            {
+                                "name": "InMemoryCacheTimeouts__BannerTimeout",
+                                "value" : "[parameters('BannerInMemoryTimeout')]"
+                            },
+                            {
+                                "name": "InMemoryCacheTimeouts__ContentRetrieverTimeout",
+                                "value" : "[parameters('ContentRetrieverInMemoryTimeout')]"
                             }
                         ]
                     }

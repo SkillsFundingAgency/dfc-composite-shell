@@ -115,6 +115,15 @@
       },
         "OptimizeId": {
             "value":  "__OptimizeId__"
+        },
+        "AppRegistryInMemoryTimeout": {
+            "value": __AppRegistryInMemoryTimeout__
+        },
+        "BannerInMemoryTimeout": {
+            "value": __BannerInMemoryTimeout__
+        },
+        "ContentRetrieverInMemoryTimeout": {
+            "value": __ContentRetrieverInMemoryTimeout__
         }
     }
 }

@@ -19,6 +19,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace DFC.Composite.Shell.Services.ContentRetrieval
 {
@@ -32,9 +33,10 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
         private readonly IMemoryCache memoryCache;
         private readonly PassOnHeaderSettings headerSettings;
         private readonly Dictionary<string, string> FileDownloadContentTypes = new Dictionary<string, string> { {"application/docx", "docx"}, {"application/pdf", "pdf"} };
+        private readonly IConfiguration configuration;
 
 
-        public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache, IOptions<PassOnHeaderSettings> headerSettings)
+        public ContentRetriever(IUriSpecifcHttpClientFactory httpClientFactory, ILogger<ContentRetriever> logger, IAppRegistryDataService appRegistryDataService, IHttpResponseMessageHandler responseHandler, MarkupMessages markupMessages, IMemoryCache memoryCache, IOptions<PassOnHeaderSettings> headerSettings, IConfiguration config)
         {
             this.httpClientFactory = httpClientFactory;
             this.logger = logger;
@@ -43,11 +45,13 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
             this.markupMessages = markupMessages;
             this.memoryCache = memoryCache;
             this.headerSettings = headerSettings?.Value ?? new PassOnHeaderSettings();
+            this.configuration = config;
         }
 
         public async Task<string> GetContent(string url, string path, RegionModel regionModel, bool followRedirects, string requestBaseUrl, IHeaderDictionary headers)
         {
-            const int CacheDurationInSeconds = 30;
+            int cacheDurationInSeconds;
+            _ = int.TryParse(configuration["InMemoryCacheTimeouts:ContentRetrieverTimeout"], out cacheDurationInSeconds);
             var cacheKey = BuildCacheKey(url, followRedirects, requestBaseUrl);
 
             if (!memoryCache.TryGetValue(cacheKey, out string content))
@@ -59,7 +63,7 @@ namespace DFC.Composite.Shell.Services.ContentRetrieval
                     return content;
                 }
 
-                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(cacheDurationInSeconds));
             }
 
             return content;

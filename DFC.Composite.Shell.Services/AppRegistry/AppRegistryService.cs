@@ -3,6 +3,7 @@ using DFC.Composite.Shell.Models.AppRegistrationModels;
 
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
@@ -23,23 +24,26 @@ namespace DFC.Composite.Shell.Services.AppRegistry
         private readonly ILogger<AppRegistryService> logger;
         private readonly HttpClient httpClient;
         private readonly IMemoryCache memoryCache;
+        private readonly IConfiguration configuration;
 
-        public AppRegistryService(ILogger<AppRegistryService> logger, HttpClient httpClient, IMemoryCache memoryCache)
+        public AppRegistryService(ILogger<AppRegistryService> logger, HttpClient httpClient, IMemoryCache memoryCache, IConfiguration config)
         {
             this.logger = logger;
             this.httpClient = httpClient;
             this.memoryCache = memoryCache;
+            this.configuration = config;
         }
 
         public async Task<IEnumerable<AppRegistrationModel>> GetPaths()
         {
-            const int CacheDurationInSeconds = 10;
+            int cacheDurationInSeconds;
+            _ = int.TryParse(configuration["InMemoryCacheTimeouts:AppRegistryTimeout"], out cacheDurationInSeconds);
             var cacheKey = BuildCacheKey();
 
             if (!memoryCache.TryGetValue(cacheKey, out IEnumerable<AppRegistrationModel> content))
             {
                 content = await GetPaths_WithoutCaching();
-                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(CacheDurationInSeconds));
+                memoryCache.Set(cacheKey, content, TimeSpan.FromSeconds(cacheDurationInSeconds));
             }
 
             return content;
