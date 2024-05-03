@@ -1,4 +1,5 @@
-﻿using DFC.Composite.Shell.Services.Banner;
+﻿using Castle.Core.Configuration;
+using DFC.Composite.Shell.Services.Banner;
 using DFC.Composite.Shell.Services.HttpClientService;
 using DFC.Composite.Shell.Test.ClientHandlers;
 
@@ -6,9 +7,11 @@ using FakeItEasy;
 
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -26,6 +29,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         private readonly FakeHttpMessageHandler fakeHttpMessageHandler;
         private HttpResponseMessage httpResponse;
         private IMemoryCache memoryCache;
+        private Microsoft.Extensions.Configuration.IConfiguration config;
 
         public BannerServiceTests()
         {
@@ -34,6 +38,9 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent("some response."),
+            };
+            var inMemorySettings = new Dictionary<string, string> {
+                {"InMemoryCacheTimeouts:BannerTimeout", "30"}
             };
 
             fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
@@ -46,7 +53,10 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
             };
 
             memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            bannerService = new BannerService(httpClient, logger, memoryCache);
+            config = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+            bannerService = new BannerService(httpClient, logger, memoryCache, config);
         }
 
         ~BannerServiceTests()
@@ -62,6 +72,7 @@ namespace DFC.Composite.Shell.UnitTests.ServicesTests
         {
             // Arrange
             var path = "somepath";
+
 
             // Act
             var result = await bannerService.GetPageBannersAsync(path);

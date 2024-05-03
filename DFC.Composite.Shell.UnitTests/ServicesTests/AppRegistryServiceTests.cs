@@ -7,6 +7,7 @@ using DFC.Composite.Shell.Test.ClientHandlers;
 using FakeItEasy;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -75,18 +76,26 @@ namespace DFC.Composite.Shell.Test.ServicesTests
                 Content = new ObjectContent(typeof(List<AppRegistrationModel>), appRegistrationModels, new JsonMediaTypeFormatter()),
             };
 
+            var inMemorySettings = new Dictionary<string, string> {
+                {"InMemoryCacheTimeouts:AppRegistryTimeout", "30"}
+            };
+
             var fakeHttpRequestSender = A.Fake<IFakeHttpRequestSender>();
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Returns(httpResponse);
 
             using var fakeHttpMessageHandler = new FakeHttpMessageHandler(fakeHttpRequestSender);
             var logger = A.Fake<ILogger<AppRegistryService>>();
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
             using var httpClient = new HttpClient(fakeHttpMessageHandler)
             {
                 BaseAddress = new Uri("http://SomePathBaseAddress"),
             };
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            config = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings)
+            .Build();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
             var result = await appRegistryService.GetPaths();
 
             Assert.Equal(appRegistrationModels, result);
@@ -113,7 +122,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
 
             // Act
             var result = await appRegistryService.SetRegionHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().Regions.First().PageRegion, expectedResult);
@@ -144,7 +154,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             A.CallTo(() => fakeHttpRequestSender.Send(A<HttpRequestMessage>.Ignored)).Throws<BrokenCircuitException>();
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
 
             // Act
             var result = await appRegistryService.SetRegionHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().Regions.First().PageRegion, expectedResult);
@@ -173,7 +184,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
 
             // Act & Assert
             await Assert.ThrowsAnyAsync<HttpRequestException>(async () => await appRegistryService.SetRegionHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().Regions.First().PageRegion, true));
@@ -200,7 +212,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
 
             // Act
             var result = await appRegistryService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().AjaxRequests.First().Name, expectedResult);
@@ -230,7 +243,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
 
             // Act
             var result = await appRegistryService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().AjaxRequests.First().Name, expectedResult);
@@ -259,7 +273,8 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             };
 
             using var memoryCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache);
+            var config = A.Fake<Microsoft.Extensions.Configuration.IConfiguration>();
+            var appRegistryService = new AppRegistryService(logger, httpClient, memoryCache, config);
 
             // Act & Assert
             await Assert.ThrowsAnyAsync<HttpRequestException>(async () => await appRegistryService.SetAjaxRequestHealthState(appRegistrationModels.First().Path, appRegistrationModels.First().AjaxRequests.First().Name, true));
