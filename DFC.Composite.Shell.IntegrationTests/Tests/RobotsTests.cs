@@ -28,7 +28,11 @@ namespace DFC.Composite.Shell.Integration.Test
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(
 @"User-agent: *
-Disallow: /", responseHtml);
+Disallow: /
+Disallow: /find-a-course/details*
+Disallow: /find-a-course/course-details*
+Disallow: /find-a-course/tdetails*
+Disallow: /find-a-course/tlevels*", responseHtml);
         }
 
         [Fact]

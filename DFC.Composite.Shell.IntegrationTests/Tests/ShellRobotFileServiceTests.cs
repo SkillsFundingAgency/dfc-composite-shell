@@ -16,7 +16,11 @@ namespace DFC.Composite.Shell.IntegrationTests.Tests
         {
             const string expectedFileText =
 @"User-agent: *
-Disallow: /";
+Disallow: /
+Disallow: /find-a-course/details*
+Disallow: /find-a-course/course-details*
+Disallow: /find-a-course/tdetails*
+Disallow: /find-a-course/tlevels*";
 
             var fileInfoHelper = new FileInfoHelper();
 
