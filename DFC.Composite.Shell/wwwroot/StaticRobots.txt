@@ -1,2 +1,6 @@
 ﻿User-agent: *
 Disallow: /
+Disallow: /find-a-course/details*
+Disallow: /find-a-course/course-details*
+Disallow: /find-a-course/tdetails*
+Disallow: /find-a-course/tlevels*
