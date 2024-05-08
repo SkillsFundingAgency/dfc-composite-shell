@@ -28,11 +28,7 @@ namespace DFC.Composite.Shell.Integration.Test
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(
 @"User-agent: *
-Disallow: /
-Disallow: /find-a-course/details*
-Disallow: /find-a-course/course-details*
-Disallow: /find-a-course/tdetails*
-Disallow: /find-a-course/tlevels*", responseHtml);
+Disallow: /", responseHtml);
         }
 
         [Fact]
@@ -73,6 +69,10 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
+Disallow: /find-a-course/details*
+Disallow: /find-a-course/course-details*
+Disallow: /find-a-course/tdetails*
+Disallow: /find-a-course/tlevels*
 Sitemap: https://dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk/sitemap.xml", responseHtml);
         }
     }
