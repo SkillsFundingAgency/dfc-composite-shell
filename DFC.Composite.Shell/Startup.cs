@@ -109,7 +109,7 @@ namespace DFC.Composite.Shell
                         "https://c.bing.com",
                         "https://www.googleoptimize.com"))
                 .StyleSources(s => s
-                    .UnsafeInline()
+                    .Self()
                     .CustomSources(
                         $"{cdnLocation}/{Constants.NationalCareersToolkit}/css/",
                         webchatCspDomain + "/css/",
