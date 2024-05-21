@@ -167,6 +167,10 @@ namespace DFC.Composite.Shell
                 context.Response.Headers["Feature-Policy"] = "sync-xhr 'self'";
                 context.Response.Headers["Expect-CT"] = "max-age=86400, enforce";
                 context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
+                context.Response.Headers["Cache-Control"] = "no-cache, no-store";
+                context.Response.Headers["Pragma"] = "no-cache";
+                context.Response.Headers["Expires"] = "-1";
+
                 return next();
             });
 
