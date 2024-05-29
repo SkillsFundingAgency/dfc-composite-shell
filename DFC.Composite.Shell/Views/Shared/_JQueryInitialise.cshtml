@@ -3,8 +3,10 @@
 
     foreach (var script in versionedPathForJavaScripts)
     {
-        <script src="@script" type="text/javascript" nws-csp-add-nonce="true"></script>
+        <script type="module" src="@script" type="text/javascript" nws-csp-add-nonce="true"></script>
+        <script type="module">
+            import { initAll } from '@script'
+            initAll()
+        </script>
     }
 }
-
-<script nws-csp-add-nonce="true">window.GOVUKFrontend.initAll()</script>
