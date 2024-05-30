@@ -3,16 +3,9 @@
 
     foreach (var script in versionedPathForJavaScripts)
     {
-        Uri uri;
-        var path = "";
-        if (Uri.TryCreate(script, UriKind.Absolute, out uri))
-        {
-            path = $"..{uri.PathAndQuery}";
-        }
-
-        <script type="module" src="@path" type="text/javascript" nws-csp-add-nonce="true"></script>
+        <script type="module" src="@script" type="text/javascript" nws-csp-add-nonce="true"></script>
         <script type="module" nws-csp-add-nonce="true">
-            import { initAll } from '@path'
+            import { initAll } from '@script'
             initAll()
         </script>
     }
