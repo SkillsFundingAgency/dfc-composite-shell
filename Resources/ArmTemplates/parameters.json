@@ -8,6 +8,9 @@
         "ApimKey": {
             "value": "__ApimCompositeKey__"
         },
+        "appServiceName": {
+            "value": "__AppServiceName__"
+        },
         "AseHostingEnvironmentName": {
             "value": "__AseHostingEnvironmentName__"
         },

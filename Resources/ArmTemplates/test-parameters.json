@@ -8,6 +8,9 @@
         "ApimKey": {
             "value": "0123456789"
         },
+        "appServiceName": {
+            "value": "dfc-foo-compui-shell-as-ver"
+        },
         "CompositeUiCdnUrl": {
             "value": "https://foo-compui-cdn.nationalcareersservice.org.uk"
         },
