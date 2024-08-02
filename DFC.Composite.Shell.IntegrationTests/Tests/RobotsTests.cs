@@ -36,7 +36,7 @@ Disallow: /", responseHtml);
         {
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("https://dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk/robots.txt", UriKind.Absolute));
+            var response = await client.GetAsync(new Uri("https://dfc-pp-compui-shell-as-ver2.azurewebsites.net/robots.txt", UriKind.Absolute));
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync();
@@ -47,7 +47,7 @@ Disallow: /", responseHtml);
 Disallow: /alerts/
 Disallow: /ab/
 Disallow: /webchat/
-Sitemap: https://dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk/sitemap.xml
+Sitemap: https://dfc-pp-compui-shell-as-ver2.azurewebsites.net/sitemap.xml
 
 User-agent: *
 Disallow: /", responseHtml);
@@ -58,7 +58,7 @@ Disallow: /", responseHtml);
         {
             var client = factory.CreateClientWithWebHostBuilder();
 
-            var response = await client.GetAsync(new Uri("https://dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk/robots.txt", UriKind.Absolute));
+            var response = await client.GetAsync(new Uri("https://dfc-prd-compui-shell-as-ver2.azurewebsites.net/robots.txt", UriKind.Absolute));
 
             response.EnsureSuccessStatusCode();
             var responseHtml = await response.Content.ReadAsStringAsync();
@@ -73,7 +73,7 @@ Disallow: /find-a-course/details*
 Disallow: /find-a-course/course-details*
 Disallow: /find-a-course/tdetails*
 Disallow: /find-a-course/tlevels*
-Sitemap: https://dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk/sitemap.xml", responseHtml);
+Sitemap: https://dfc-prd-compui-shell-as-ver2.azurewebsites.net/sitemap.xml", responseHtml);
         }
     }
 }

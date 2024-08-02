@@ -45,7 +45,7 @@ Disallow: /";
             var fileInfoHelper = new FileInfoHelper();
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-pp-compui-shell-as.ase-01.dfc.preprodazure.sfa.bis.gov.uk"));
+            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-pp-compui-shell-as-ver2.azurewebsites.net"));
 
             var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 
@@ -70,7 +70,7 @@ Disallow: /find-a-course/tlevels*
             var fileInfoHelper = new FileInfoHelper();
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
-            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-prd-compui-shell-as.ase-01.dfc.prodazure.sfa.bis.gov.uk"));
+            A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-prd-compui-shell-as-ver2.azurewebsites.net"));
 
             var service = new ShellRobotFileService(fileInfoHelper, httpContextAccessor);
 
