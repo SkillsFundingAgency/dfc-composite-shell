@@ -28,7 +28,6 @@ namespace DFC.Composite.Shell.Integration.Test
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(
 @"User-agent: *
-Disallow: /webchat/
 Disallow: /", responseHtml);
         }
 
@@ -45,7 +44,6 @@ Disallow: /", responseHtml);
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(
 @"User-agent: *
-Disallow: /webchat/
 Disallow: /", responseHtml);
         }
 
