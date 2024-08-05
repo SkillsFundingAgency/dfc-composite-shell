@@ -105,6 +105,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
         {
             const string expectedFileText =
 @"User-agent: *
+Disallow: /webchat/
 Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();
@@ -122,13 +123,8 @@ Disallow: /";
         public async Task GetFileTextIdentifiesCorrectResponseForPreProdIntegration()
         {
             const string expectedFileText =
-@"User-agent: SemrushBot-SA
-Disallow: /alerts/
-Disallow: /ab/
+@"User-agent: *
 Disallow: /webchat/
-{Insertion}
-
-User-agent: *
 Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();

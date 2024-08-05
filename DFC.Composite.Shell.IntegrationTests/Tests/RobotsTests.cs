@@ -28,6 +28,7 @@ namespace DFC.Composite.Shell.Integration.Test
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(
 @"User-agent: *
+Disallow: /webchat/
 Disallow: /", responseHtml);
         }
 
@@ -43,13 +44,8 @@ Disallow: /", responseHtml);
 
             Assert.Equal(MediaTypeNames.Text.Plain, response.Content.Headers.ContentType.MediaType);
             Assert.Equal(
-@"User-agent: SemrushBot-SA
-Disallow: /alerts/
-Disallow: /ab/
+@"User-agent: *
 Disallow: /webchat/
-Sitemap: https://dfc-pp-compui-shell-as-ver2.azurewebsites.net/sitemap.xml
-
-User-agent: *
 Disallow: /", responseHtml);
         }
 

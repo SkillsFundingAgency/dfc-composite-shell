@@ -16,6 +16,7 @@ namespace DFC.Composite.Shell.IntegrationTests.Tests
         {
             const string expectedFileText =
 @"User-agent: *
+Disallow: /webchat/
 Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();
@@ -34,6 +35,7 @@ Disallow: /";
         {
             const string expectedFileText =
 @"User-agent: *
+Disallow: /webchat/
 Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();
