@@ -72,7 +72,7 @@ namespace DFC.Composite.Shell.Test.ServicesTests
             const string fakeRobotFileText = "StaticRobotsFileText";
             var fileInfoHelper = A.Fake<IFileInfoHelper>();
             A.CallTo(() => fileInfoHelper.FileExists(A<string>.Ignored)).Returns(true);
-            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StagingStaticRobots.txt")).Returns(fakeRobotFileText);
+            A.CallTo(() => fileInfoHelper.ReadAllTextAsync("SomeRobotsPath\\StaticRobots.txt")).Returns(fakeRobotFileText);
 
             var httpContextAccessor = A.Fake<IHttpContextAccessor>();
             A.CallTo(() => httpContextAccessor.HttpContext.Request.Host).Returns(new HostString("dfc-pp-compui-shell-as-ver2.azurewebsites.net"));

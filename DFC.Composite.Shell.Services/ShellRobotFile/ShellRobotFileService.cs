@@ -6,6 +6,9 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
 {
     public class ShellRobotFileService : IShellRobotFileService
     {
+        private const string ProductionEnvHostname = "dfc-prd-compui-shell-as-ver2.azurewebsites.net";
+        private const string ProductionEnvRobotFilename = "ProductionStaticRobots.txt";
+        private const string NonProductionEnvRobotFilename = "StaticRobots.txt";
         private readonly IFileInfoHelper fileInfoHelper;
         private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -27,47 +30,17 @@ namespace DFC.Composite.Shell.Services.ShellRobotFile
             return !string.IsNullOrWhiteSpace(shellRobotsText) ? shellRobotsText : string.Empty;
         }
 
-        private static bool IsDraft(string hostname)
-        {
-            const string draft = "draft";
-            return hostname.Contains(draft, System.StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        private static bool IsPreProduction(string hostname)
-        {
-            const string stagingHostname = "dfc-pp-compui-shell-as-ver2.azurewebsites.net";
-            return hostname.Equals(stagingHostname, System.StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        private static bool IsProduction(string hostname)
-        {
-            const string productionHostname = "dfc-prd-compui-shell-as-ver2.azurewebsites.net";
-            return hostname.Equals(productionHostname, System.StringComparison.InvariantCultureIgnoreCase);
-        }
-
         private string StaticRobotsFilename()
         {
-            const string standardRobotsFilename = "StaticRobots.txt";
-            var hostname = httpContextAccessor?.HttpContext?.Request?.Host.Host ?? string.Empty;
+            string hostname = httpContextAccessor?.HttpContext?.Request?.Host.Host ?? string.Empty;
+            bool environmentIsProduction = hostname.Equals(ProductionEnvHostname, System.StringComparison.InvariantCultureIgnoreCase);
 
-            if (IsDraft(hostname))
+            if (environmentIsProduction)
             {
-                return standardRobotsFilename;
+                return ProductionEnvRobotFilename;
             }
 
-            if (IsPreProduction(hostname))
-            {
-                const string stagingRobotsFilename = "StagingStaticRobots.txt";
-                return stagingRobotsFilename;
-            }
-
-            if (IsProduction(hostname))
-            {
-                const string productionRobotsFilename = "ProductionStaticRobots.txt";
-                return productionRobotsFilename;
-            }
-
-            return standardRobotsFilename;
+            return NonProductionEnvRobotFilename;
         }
     }
 }

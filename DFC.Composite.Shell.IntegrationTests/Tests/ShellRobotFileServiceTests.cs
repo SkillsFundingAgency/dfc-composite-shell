@@ -33,13 +33,7 @@ Disallow: /";
         public async Task GetFileTextIdentifiesCorrectResponseForPreProd()
         {
             const string expectedFileText =
-@"User-agent: SemrushBot-SA
-Disallow: /alerts/
-Disallow: /ab/
-Disallow: /webchat/
-{Insertion}
-
-User-agent: *
+@"User-agent: *
 Disallow: /";
 
             var fileInfoHelper = new FileInfoHelper();
