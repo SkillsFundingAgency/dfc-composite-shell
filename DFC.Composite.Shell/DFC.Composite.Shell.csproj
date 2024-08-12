@@ -67,9 +67,6 @@
     <Content Update="wwwroot\ProductionStaticRobots.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\StagingStaticRobots.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\StaticRobots.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
