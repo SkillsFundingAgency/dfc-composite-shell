@@ -239,6 +239,7 @@ namespace DFC.Composite.Shell
             services.Configure<AuthSettings>(Configuration.GetSection(nameof(AuthSettings)));
             services.Configure<GoogleSettings>(Configuration.GetSection("GoogleScripts"));
             services.Configure<MicrosoftSettings>(Configuration.GetSection("MicrosoftScripts"));
+            services.Configure<ActionPlanRetirement>(Configuration.GetSection(nameof(ActionPlanRetirement)));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
