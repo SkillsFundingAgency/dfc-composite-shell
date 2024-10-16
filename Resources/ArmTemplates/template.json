@@ -53,15 +53,6 @@
         "customHostName": {
             "type": "string"
         },
-        "keyVaultName": {
-            "type": "string"
-        },
-        "keyVaultResourceGroup": {
-            "type": "string"
-        },
-        "certificateName": {
-            "type": "string"
-        },
         "EnvironmentName": {
             "type": "string"
         },
