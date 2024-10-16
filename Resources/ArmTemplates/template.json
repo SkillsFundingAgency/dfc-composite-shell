@@ -283,9 +283,6 @@
                     "customHostName": {
                         "value": "[parameters('customHostName')]"
                     },
-                    "certificateThumbprint": {
-                        "value": "[if(greater(length(parameters('customHostName')),0), reference('compositeshellCertificates').outputs.certificateThumbprint.value, '')]"
-                    },
                     "appServiceAppSettings": {
                       "value": [
                         {
