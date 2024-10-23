@@ -39,7 +39,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
@@ -262,7 +261,16 @@ namespace DFC.Composite.Shell
         }
 
         private static void ConfigureRouting(IApplicationBuilder app)
-        {
+        { 
+            app.Use(async (context, next) => {
+
+                if (context.Request.Path == "/skills-assessment") {
+                    context.Response.Redirect("/discover-your-skills-and-careers");
+                    return;
+                }
+
+                await next();
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
