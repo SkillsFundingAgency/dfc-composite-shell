@@ -35,15 +35,6 @@
         "customHostName": {
             "value": "some.host.name"
         },
-        "keyVaultName": {
-            "value": "a-keyvault"
-        },
-        "keyVaultResourceGroup": {
-            "value": "keyvault-rg"
-        },
-        "certificateName": {
-            "value": "certificate-name"
-        },
         "enableAlerts": {
             "value": false
         },
