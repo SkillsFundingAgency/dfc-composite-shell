@@ -50,15 +50,6 @@
         "customHostName": {
             "value": "__customHostName__"
         },
-        "keyVaultName": {
-            "value": "__SharedKeyVaultName__"
-        },
-        "keyVaultResourceGroup": {
-            "value": "__SharedResourceGroup__"
-        },
-        "certificateName": {
-            "value": "__certificateName__"
-        },
         "enableAlerts": {
             "value": __EnableAzureMonitorAlerting__
         },
