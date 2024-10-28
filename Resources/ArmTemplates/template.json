@@ -488,6 +488,10 @@
                         {
                           "name": "MicrosoftScripts__ClarityId",
                           "value": "[parameters('ClarityId')]"
+                        },
+						            {
+                          "name": "ActionPlanRetirement__AuthFunctionalityRetired",
+                          "value": false
                         }
                       ]
                     }
