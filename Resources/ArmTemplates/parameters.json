@@ -71,9 +71,6 @@
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "__OIDCOIDCConfigMetaDataUrl__"
         },
-        "ShowLoginBanner": {
-            "value": __ShowLoginBanner__
-        },
         "ExceptionCountThreshold": {
             "value": "__ExceptionCountThreshold__"
         },
