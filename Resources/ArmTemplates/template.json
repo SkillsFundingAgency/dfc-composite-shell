@@ -77,9 +77,6 @@
         "OIDCOIDCConfigMetaDataUrl": {
             "type": "string"
         },
-        "ShowLoginBanner": {
-            "type": "bool"
-        },
         "AddNoIndexMeta": {
             "type": "bool"
         },
@@ -139,9 +136,6 @@
     },
     "OIDCOIDCConfigMetaDataUrl": {
       "type": "string"
-    },
-    "ShowLoginBanner": {
-      "type": "bool"
     },
     "AddNoIndexMeta": {
       "type": "bool"
@@ -459,7 +453,7 @@
                         },
                         {
                           "name": "ShowLoginBanner",
-                          "value": "[parameters('ShowLoginBanner')]"
+                          "value": false
                         },
                         {
                           "name": "AddNoIndexMeta",
@@ -488,6 +482,10 @@
                         {
                           "name": "MicrosoftScripts__ClarityId",
                           "value": "[parameters('ClarityId')]"
+                        },
+						            {
+                          "name": "ActionPlanRetirement__AuthFunctionalityRetired",
+                          "value": true
                         }
                       ]
                     }

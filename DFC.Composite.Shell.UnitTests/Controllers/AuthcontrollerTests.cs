@@ -98,6 +98,8 @@ namespace DFC.Composite.Shell.UnitTests.Controllers
                 Exponent = "AQAB",
             });
 
+            this.defaultConfiguration["ActionPlanRetirement:AuthFunctionalityRetired"] = "false";
+
             tokenHandler = A.Fake<SecurityTokenHandler>();
             configurationManager = A.Fake<IConfigurationManager<OpenIdConnectConfiguration>>();
             A.CallTo(() => configurationManager.GetConfigurationAsync(CancellationToken.None)).Returns(

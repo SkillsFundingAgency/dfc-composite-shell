@@ -56,9 +56,6 @@
         "OIDCOIDCConfigMetaDataUrl": {
             "value": "https://foo-compui-shell.azurewebsites.net"
         },
-        "ShowLoginBanner": {
-            "value": false
-        },
         "ExceptionCountThreshold": {
             "value": "0"
         },

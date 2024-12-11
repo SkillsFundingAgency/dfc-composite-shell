@@ -52,6 +52,9 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> SignIn(string redirectUrl)
         {
+            if (IsAuthRetired())
+                return Redirect("~/");
+
             SetRedirectUrl(GetRedirectURl(redirectUrl));
             var signInUrl = await authClient.GetSignInUrl();
             return Redirect(signInUrl);
@@ -59,12 +62,18 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> ResetPassword()
         {
+            if (IsAuthRetired())
+                return Redirect("~/");
+
             var signInUrl = await authClient.GetResetPasswordUrl();
             return Redirect(signInUrl);
         }
 
         public async Task<IActionResult> SignOut(string redirectUrl)
         {
+            if (IsAuthRetired())
+                return Redirect("~/");
+
             var Url = GenerateSignOutUrl(redirectUrl);
             var signInUrl = await authClient.GetSignOutUrl(Url);
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -73,6 +82,9 @@ namespace DFC.Composite.Shell.Controllers
 
         public async Task<IActionResult> Auth(string id_token)
         {
+            if (IsAuthRetired())
+                return Redirect("~/");
+
             JwtSecurityToken validatedToken;
             try
             {
@@ -178,6 +190,11 @@ namespace DFC.Composite.Shell.Controllers
         {
             Uri result;
             return Uri.TryCreate(url, UriKind.Absolute, out result);
+        }
+
+        private bool IsAuthRetired()
+        {
+            return bool.Parse(configuration["ActionPlanRetirement:AuthFunctionalityRetired"]);
         }
     }
 }
